@@ -1867,28 +1867,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			vertexDataSphar[start + 2].normal.z = vertexDataSphar[start + 2].position.z;
 
 
-			////基準点c
-			//vertexDataSphar[start + 3].position.x = r * std::cos(lat) * std::cos(lon + kLonEvery);
-			//vertexDataSphar[start + 3].position.y = r * std::sin(lat);
-			//vertexDataSphar[start + 3].position.z = r * std::cos(lat) * std::sin(lon + kLonEvery);
-			//vertexDataSphar[start + 3].position.w = 1.0f;
-			//vertexDataSphar[start + 3].texcoord = { u + (1.0f / float(kSubdivision - 1)),v + (1.0f / float(kSubdivision - 1)) };
-			//vertexDataSphar[start + 3].normal.x = vertexDataSphar[start + 3].position.x;
-			//vertexDataSphar[start + 3].normal.y = vertexDataSphar[start + 3].position.y;
-			//vertexDataSphar[start + 3].normal.z = vertexDataSphar[start + 3].position.z;
-			//
-			//
-			////基準点b
-			//vertexDataSphar[start + 4].position.x = r * std::cos(lat + kLatEvery) * std::cos(lon);
-			//vertexDataSphar[start + 4].position.y = r * std::sin(lat + kLatEvery);
-			//vertexDataSphar[start + 4].position.z = r * std::cos(lat + kLatEvery) * std::sin(lon);
-			//vertexDataSphar[start + 4].position.w = 1.0f;
-			//vertexDataSphar[start + 4].texcoord = { u,v };
-			//vertexDataSphar[start + 4].normal.x = vertexDataSphar[start + 4].position.x;
-			//vertexDataSphar[start + 4].normal.y = vertexDataSphar[start + 4].position.y;
-			//vertexDataSphar[start + 4].normal.z = vertexDataSphar[start + 4].position.z;
-
-
+			
 			//基準点d
 			vertexDataSphar[start + 3].position.x = r * std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery);
 			vertexDataSphar[start + 3].position.y = r * std::sin(lat + kLatEvery);
@@ -2162,6 +2141,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			input->Update();
 
+			if (input->TriggerKey(DIK_SPACE)) {
+				Log("HIT 0\n");
+			}
+
+
 			//transform.rotate.y += 0.006f;
 			transform.rotate.y = 3.14f;
 			ImGui::Begin("Window");
@@ -2177,11 +2161,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat("Intensity", &directionalLightData->intensity, 0.01f);
 			directionalLightData->direction = Nomalize(directionalLightData->direction);
 			ImGui::ColorEdit4("color", &materialDataObj->color.x);
-			ImGui::End();
-			ImGui::Begin("UV");
 			ImGui::DragFloat2("UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f);
 			ImGui::DragFloat2("UVSScale", &uvTransformSprite.scale.x, 0.1f, -10.0f, 10.0f);
 			ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z);
+			ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
 			ImGui::End();
 
 			Matrix4x4 cameraMatrix = MakeAffineMatrixMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
