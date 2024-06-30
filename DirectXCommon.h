@@ -13,9 +13,6 @@
 class DirectXCommon 
 {
 public: // メンバ関数
-	// 初期化
-	void Intialize(WinApp* winApp);
-
 	// CPUHandle
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
 
@@ -34,6 +31,13 @@ public: // メンバ関数
 	// GPUHandle
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDSVGPUDescriptorHandle(uint32_t index);
 
+	// 初期化
+	void Intialize(WinApp* winApp);
+
+	// 描画前処理
+	void PreDraw();
+	// 描画後処理
+	void PostDraw();
 
 private:
 	/// <summary>
@@ -120,11 +124,13 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> dsvDescriptorHeap;
 	Microsoft::WRL::ComPtr < ID3D12Fence> fence;
 	HANDLE fenceEvent;
+	uint64_t fenceValue;
 	IDxcUtils* dxcUtils;
 	IDxcIncludeHandler* includeHandler;
 	IDxcCompiler3* dxcCompiler;
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT scissorRect;
+	D3D12_RESOURCE_BARRIER barrier;
 	uint32_t desriptorSizeSRV;
 	uint32_t desriptorSizeRTV;
 	uint32_t desriptorSizeDSV;
