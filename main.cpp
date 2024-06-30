@@ -12,6 +12,8 @@
 #include<sstream>
 #include<wrl.h>
 
+#include"Input.h"
+
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
 
@@ -943,9 +945,11 @@ void Log(const std::string& message) {
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3DResourceLeakchecker leakCheck;
 
-
 	//COMの初期化
 	CoInitializeEx(0, COINIT_MULTITHREADED);
+
+
+	
 
 
 
@@ -995,6 +999,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//出力ウィンドウへの文字入力
 	OutputDebugStringA("Hello,DirectX!\n");
+
+
+
+	//ポインタ
+	Input* input = nullptr;
+
+	// 入力初期化
+	input = new Input();
+	input->Intialize(wc.hInstance,hwnd);
+
 
 	//デバッグレイヤー
 #ifdef _DEBUG
@@ -2368,7 +2382,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	CloseHandle(fenceEvent);
 
 
-
+	delete input;
 
 	signatureBlob->Release();
 	if (errorBlob) {
