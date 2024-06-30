@@ -4,6 +4,8 @@
 #define DIRECTINPUT_VERSION    0x0800 // DirectInputのバージョン設定
 #include <dinput.h>
 
+#include"WinApp.h"
+
 #pragma comment(lib,"dinput8.lib")
 #pragma comment(lib,"dxguid.lib")
 
@@ -15,7 +17,7 @@ public:
 
 public: //メンバ関数
 	//初期化
-	void Intialize(HINSTANCE hInstance, HWND hwnd);
+	void Intialize(WinApp* winApp);
 	//更新
 	void Update();
 
@@ -31,6 +33,8 @@ public: //メンバ関数
 
 
 private: //メンバ変数
+	//WindowsAPI
+	WinApp* winApp_ = nullptr;
 	//キーボードデバイス生成
 	ComPtr<IDirectInputDevice8> keyboard;
 	ComPtr<IDirectInput8> directInput = nullptr;

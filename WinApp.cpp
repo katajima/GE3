@@ -26,8 +26,8 @@ LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 
 void WinApp::Initialize()
 {
-	WNDCLASS wc{};
-
+	//COMの初期化
+	CoInitializeEx(0, COINIT_MULTITHREADED);
 	//ウィンドウプロシージャ
 	wc.lpfnWndProc = WindowProc;
 
@@ -53,7 +53,7 @@ void WinApp::Initialize()
 	//クライアント領域を元に実際のサイズにwrcを変更してもらう
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
-	HWND hwnd = CreateWindow(
+	hwnd = CreateWindow(
 
 		wc.lpszClassName,      // 利用するクラス
 		L"GE3",				   // タイトルバーの文字 (何でもいい)
@@ -74,4 +74,11 @@ void WinApp::Initialize()
 
 void WinApp::Update()
 {
+
+}
+
+void WinApp::Finalize()
+{
+	CloseWindow(hwnd);
+	CoUninitialize();
 }
