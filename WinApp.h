@@ -12,10 +12,11 @@ public: // 静的メンバ関数
 public: // メンバ関数
 	// 初期化
 	void Initialize();
-	// 更新
-	void Update();
 	// 終了
 	void Finalize();
+
+	// メッセージの処理
+	bool ProcessMessage();
 
 	/// ウィンドウハンドルの取得
 	HWND GetHwnd() const { return hwnd; }
