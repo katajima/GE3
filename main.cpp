@@ -13,6 +13,7 @@
 #include<wrl.h>
 
 #include"Input.h"
+#include"WinApp.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -1000,11 +1001,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//出力ウィンドウへの文字入力
 	OutputDebugStringA("Hello,DirectX!\n");
 
-
+	WinApp* winApp = nullptr;
+	// WindowsAPI解放
+	winApp = new WinApp();
+	winApp->Initialize();
 
 	//ポインタ
 	Input* input = nullptr;
-
 	// 入力初期化
 	input = new Input();
 	input->Intialize(wc.hInstance,hwnd);
