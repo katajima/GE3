@@ -9,6 +9,8 @@
 #include"Logger.h"
 #include"StringUtility.h"
 #include"WinApp.h"
+#include<chrono>
+#include <thread>
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -104,6 +106,11 @@ private:
 
 	void InitializeImGui();
 
+	//FPS固定初期化
+	void InitializeFixFPS();
+	//FPS固定更新
+	void UpdateFixFPS();
+
 public:
 
 	// DescriptorHeapの作成関数
@@ -160,6 +167,9 @@ private:
 	uint32_t desriptorSizeSRV;
 	uint32_t desriptorSizeRTV;
 	uint32_t desriptorSizeDSV;
+
+	// 記録時間(FPS固定用)
+	std::chrono::steady_clock::time_point reference_;
 
 private:
 	// CPUHandle
