@@ -2160,6 +2160,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::NewFrame();
 
 
+			input->Update();
+
 			//transform.rotate.y += 0.006f;
 			transform.rotate.y = 3.14f;
 			ImGui::Begin("Window");
