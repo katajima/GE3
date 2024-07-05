@@ -9,6 +9,9 @@
 #include"externals/imgui/imgui_impl_win32.h"
 using namespace Microsoft::WRL;
 
+#include"externals/DirectXTex/DirectXTex.h"
+#include"externals/DirectXTex/d3dx12.h"
+
 
 void DirectXCommon::Intialize(WinApp* winApp)
 {

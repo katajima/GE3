@@ -12,13 +12,16 @@
 #include<sstream>
 #include<wrl.h>
 
-
+#include"Structs.h"
+#include"MathFanctions.h"
 #include"Input.h"
 #include"WinApp.h"
 #include"DirectXCommon.h"
 #include"D3DResourceLeakchecker.h"
 #include"Sprite.h"
 #include"SpriteCommon.h"
+
+
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -39,38 +42,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"StringUtility.h"
 #include"Logger.h"
 
-//行列
-struct Matrix4x4
-{
-	float m[4][4];
-};
-//行列
-struct Matrix3x3
-{
-	float m[3][3];
-};
 
-struct Vector4 final {
-	float x;
-	float y;
-	float z;
-	float w;
-};
-
-struct Vector3 final {
-	float x, y, z;
-};
-
-struct Vector2 final {
-	float x, y;
-};
-
-//Transform
-struct Transform {
-	Vector3 scale;
-	Vector3 rotate;
-	Vector3 translate;
-};
 
 struct VertexData {
 
@@ -109,486 +81,7 @@ struct ModelData
 
 
 
-#pragma region Math
 
-Vector3 Add(const Vector3& v1, const Vector3& v2) {
-	Vector3 result{};
-
-	result.x = v1.x + v2.x;
-	result.y = v1.y + v2.y;
-	result.z = v1.z + v2.z;
-
-
-	return result;
-};
-
-Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
-	Vector3 result{};
-
-	result.x = v1.x - v2.x;
-	result.y = v1.y - v2.y;
-	result.z = v1.z - v2.z;
-
-
-	return result;
-};
-
-float Dot(const Vector3& v1, const Vector3& v2) {
-	float result;
-
-	result = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-
-
-	return result;
-};
-
-float Length(const Vector3& v) {
-	float result;
-
-	result = sqrtf((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
-
-	return result;
-};
-float Length(const float& v) {
-	float result;
-
-	result = sqrtf((v * v));
-
-	return result;
-};
-
-float Clanp(float t) {
-
-	if (1.0f <= t) {
-		t = 1.0f;
-	}
-	if (0.0f >= t) {
-		t = 0.0f;
-	}
-
-	return t;
-}
-
-Vector3 Nomalize(const Vector3& v) {
-	Vector3 result{};
-	float length;
-
-	length = sqrtf((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
-
-	if (length != 0.0f) {
-		result.x = v.x / length;
-		result.y = v.y / length;
-		result.z = v.z / length;
-	};
-
-	return result;
-};
-
-//単位行列
-Matrix4x4 MakeIdentity4x4() {
-	Matrix4x4 result{};
-
-
-	for (int x = 0; x < 4; x++) {
-		for (int y = 0; y < 4; y++) {
-			if (x == y) {
-				result.m[y][x] = 1.0f;
-			}
-			else {
-				result.m[y][x] = 0.0f;
-			}
-		}
-	}
-	return result;
-}
-//行列の積
-Matrix4x4 Multiply(const Matrix4x4& v1, const Matrix4x4& v2) {
-	Matrix4x4 result{};
-
-	for (int x = 0; x < 4; x++) {
-		for (int y = 0; y < 4; y++) {
-			for (int z = 0; z < 4; z++) {
-				result.m[y][x] += v1.m[y][z] * v2.m[z][x];
-			}
-		}
-	}
-
-	return result;
-};
-//移動行列
-Matrix4x4 MakeTranslateMatrix(const  Vector3& translate) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = 1;
-	result.m[0][1] = 0;
-	result.m[0][2] = 0;
-	result.m[0][3] = 0;
-
-	result.m[1][0] = 0;
-	result.m[1][1] = 1;
-	result.m[1][2] = 0;
-	result.m[1][3] = 0;
-
-	result.m[2][0] = 0;
-	result.m[2][1] = 0;
-	result.m[2][2] = 1;
-	result.m[2][3] = 0;
-
-	result.m[3][0] = translate.x;
-	result.m[3][1] = translate.y;
-	result.m[3][2] = translate.z;
-	result.m[3][3] = 1;
-
-	return result;
-}
-//拡大縮小行列
-Matrix4x4 MakeScaleMatrix(const  Vector3& scale) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = scale.x;
-	result.m[0][1] = 0;
-	result.m[0][2] = 0;
-	result.m[0][3] = 0;
-
-	result.m[1][0] = 0;
-	result.m[1][1] = scale.y;
-	result.m[1][2] = 0;
-	result.m[1][3] = 0;
-
-	result.m[2][0] = 0;
-	result.m[2][1] = 0;
-	result.m[2][2] = scale.z;
-	result.m[2][3] = 0;
-
-	result.m[3][0] = 0;
-	result.m[3][1] = 0;
-	result.m[3][2] = 0;
-	result.m[3][3] = 1;
-
-	return result;
-}
-//回転行列X
-Matrix4x4 MakeRotateXMatrix(float rotate) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = 1;
-	result.m[0][1] = 0;
-	result.m[0][2] = 0;
-	result.m[0][3] = 0;
-	result.m[1][0] = 0;
-	result.m[1][1] = std::cos(rotate);
-	result.m[1][2] = std::sin(rotate);
-	result.m[1][3] = 0;
-	result.m[2][0] = 0;
-	result.m[2][1] = -std::sin(rotate);
-	result.m[2][2] = std::cos(rotate);
-	result.m[2][3] = 0;
-	result.m[3][0] = 0;
-	result.m[3][1] = 0;
-	result.m[3][2] = 0;
-	result.m[3][3] = 1;
-
-
-	return result;
-}
-//回転行列Y
-Matrix4x4 MakeRotateYMatrix(float rotate) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = std::cos(rotate);
-	result.m[0][1] = 0;
-	result.m[0][2] = -std::sin(rotate);;
-	result.m[0][3] = 0;
-	result.m[1][0] = 0;
-	result.m[1][1] = 1;
-	result.m[1][2] = 0;
-	result.m[1][3] = 0;
-	result.m[2][0] = std::sin(rotate);
-	result.m[2][1] = 0;
-	result.m[2][2] = std::cos(rotate);
-	result.m[2][3] = 0;
-	result.m[3][0] = 0;
-	result.m[3][1] = 0;
-	result.m[3][2] = 0;
-	result.m[3][3] = 1;
-
-
-	return result;
-}
-//回転行列Z
-Matrix4x4 MakeRotateZMatrix(float rotate) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = std::cos(rotate);
-	result.m[0][1] = std::sin(rotate);
-	result.m[0][2] = 0;
-	result.m[0][3] = 0;
-	result.m[1][0] = -std::sin(rotate);
-	result.m[1][1] = std::cos(rotate);
-	result.m[1][2] = 0;
-	result.m[1][3] = 0;
-	result.m[2][0] = 0;
-	result.m[2][1] = 0;
-	result.m[2][2] = 1;
-	result.m[2][3] = 0;
-	result.m[3][0] = 0;
-	result.m[3][1] = 0;
-	result.m[3][2] = 0;
-	result.m[3][3] = 1;
-
-
-	return result;
-}
-//逆行列
-Matrix4x4 Inverse(const Matrix4x4& m) {
-	Matrix4x4 result{};
-	float result2;
-
-	result2 =
-		1 / ((m.m[0][0] * m.m[1][1] * m.m[2][2] * m.m[3][3])
-			+ (m.m[0][0] * m.m[1][2] * m.m[2][3] * m.m[3][1])
-			+ (m.m[0][0] * m.m[1][3] * m.m[2][1] * m.m[3][2])
-
-			- (m.m[0][0] * m.m[1][3] * m.m[2][2] * m.m[3][1])
-			- (m.m[0][0] * m.m[1][2] * m.m[2][1] * m.m[3][3])
-			- (m.m[0][0] * m.m[1][1] * m.m[2][3] * m.m[3][2])
-
-			- (m.m[0][1] * m.m[1][0] * m.m[2][2] * m.m[3][3])
-			- (m.m[0][2] * m.m[1][0] * m.m[2][3] * m.m[3][1])
-			- (m.m[0][3] * m.m[1][0] * m.m[2][1] * m.m[3][2])
-
-			+ (m.m[0][3] * m.m[1][0] * m.m[2][2] * m.m[3][1])
-			+ (m.m[0][2] * m.m[1][0] * m.m[2][1] * m.m[3][3])
-			+ (m.m[0][1] * m.m[1][0] * m.m[2][3] * m.m[3][2])
-
-			+ (m.m[0][1] * m.m[1][2] * m.m[2][0] * m.m[3][3])
-			+ (m.m[0][2] * m.m[1][3] * m.m[2][0] * m.m[3][1])
-			+ (m.m[0][3] * m.m[1][1] * m.m[2][0] * m.m[3][2])
-
-			- (m.m[0][3] * m.m[1][2] * m.m[2][0] * m.m[3][1])
-			- (m.m[0][2] * m.m[1][1] * m.m[2][0] * m.m[3][3])
-			- (m.m[0][1] * m.m[1][3] * m.m[2][0] * m.m[3][2])
-
-			- (m.m[0][1] * m.m[1][2] * m.m[2][3] * m.m[3][0])
-			- (m.m[0][2] * m.m[1][3] * m.m[2][1] * m.m[3][0])
-			- (m.m[0][3] * m.m[1][1] * m.m[2][2] * m.m[3][0])
-
-
-			+ (m.m[0][3] * m.m[1][2] * m.m[2][1] * m.m[3][0])
-			+ (m.m[0][2] * m.m[1][1] * m.m[2][3] * m.m[3][0])
-			+ (m.m[0][1] * m.m[1][3] * m.m[2][2] * m.m[3][0]));
-
-
-	//一行目一列目
-	result.m[0][0] = (m.m[1][1] * m.m[2][2] * m.m[3][3]) + (m.m[1][2] * m.m[2][3] * m.m[3][1]) + (m.m[1][3] * m.m[2][1] * m.m[3][2])
-		- (m.m[1][3] * m.m[2][2] * m.m[3][1]) - (m.m[1][2] * m.m[2][1] * m.m[3][3]) - (m.m[1][1] * m.m[2][3] * m.m[3][2]);
-	//一行目二列目
-	result.m[0][1] = -(m.m[0][1] * m.m[2][2] * m.m[3][3]) - (m.m[0][2] * m.m[2][3] * m.m[3][1]) - (m.m[0][3] * m.m[2][1] * m.m[3][2])
-		+ (m.m[0][3] * m.m[2][2] * m.m[3][1]) + (m.m[0][2] * m.m[2][1] * m.m[3][3]) + (m.m[0][1] * m.m[2][3] * m.m[3][2]);
-	//一行目三列目
-	result.m[0][2] = (m.m[0][1] * m.m[1][2] * m.m[3][3]) + (m.m[0][2] * m.m[1][3] * m.m[3][1]) + (m.m[0][3] * m.m[1][1] * m.m[3][2])
-		- (m.m[0][3] * m.m[1][2] * m.m[3][1]) - (m.m[0][2] * m.m[1][1] * m.m[3][3]) - (m.m[0][1] * m.m[1][3] * m.m[3][2]);
-	//一行目四列目
-	result.m[0][3] = -(m.m[0][1] * m.m[1][2] * m.m[2][3]) - (m.m[0][2] * m.m[1][3] * m.m[2][1]) - (m.m[0][3] * m.m[1][1] * m.m[2][2])
-		+ (m.m[0][3] * m.m[1][2] * m.m[2][1]) + (m.m[0][2] * m.m[1][1] * m.m[2][3]) + (m.m[0][1] * m.m[1][3] * m.m[2][2]);
-
-
-	//二行目一列目
-	result.m[1][0] = -(m.m[1][0] * m.m[2][2] * m.m[3][3]) - (m.m[1][2] * m.m[2][3] * m.m[3][0]) - (m.m[1][3] * m.m[2][0] * m.m[3][2])
-		+ (m.m[1][3] * m.m[2][2] * m.m[3][0]) + (m.m[1][2] * m.m[2][0] * m.m[3][3]) + (m.m[1][0] * m.m[2][3] * m.m[3][2]);
-	//二行目二列目
-	result.m[1][1] = (m.m[0][0] * m.m[2][2] * m.m[3][3]) + (m.m[0][2] * m.m[2][3] * m.m[3][0]) + (m.m[0][3] * m.m[2][0] * m.m[3][2])
-		- (m.m[0][3] * m.m[2][2] * m.m[3][0]) - (m.m[0][2] * m.m[2][0] * m.m[3][3]) - (m.m[0][0] * m.m[2][3] * m.m[3][2]);
-	//二行目三列目
-	result.m[1][2] = -(m.m[0][0] * m.m[1][2] * m.m[3][3]) - (m.m[0][2] * m.m[1][3] * m.m[3][0]) - (m.m[0][3] * m.m[1][0] * m.m[3][2])
-		+ (m.m[0][3] * m.m[1][2] * m.m[3][0]) + (m.m[0][2] * m.m[1][0] * m.m[3][3]) + (m.m[0][0] * m.m[1][3] * m.m[3][2]);
-
-	//二行目四列目
-	result.m[1][3] = (m.m[0][0] * m.m[1][2] * m.m[2][3]) + (m.m[0][2] * m.m[1][3] * m.m[2][0]) + (m.m[0][3] * m.m[1][0] * m.m[2][2])
-		- (m.m[0][3] * m.m[1][2] * m.m[2][0]) - (m.m[0][2] * m.m[1][0] * m.m[2][3]) - (m.m[0][0] * m.m[1][3] * m.m[2][2]);
-
-
-	//三行目一列目
-	result.m[2][0] = (m.m[1][0] * m.m[2][1] * m.m[3][3]) + (m.m[1][1] * m.m[2][3] * m.m[3][0]) + (m.m[1][3] * m.m[2][0] * m.m[3][1])
-		- (m.m[1][3] * m.m[2][1] * m.m[3][0]) - (m.m[1][1] * m.m[2][0] * m.m[3][3]) - (m.m[1][0] * m.m[2][3] * m.m[3][1]);
-	//三行目二列目
-	result.m[2][1] = -(m.m[0][0] * m.m[2][1] * m.m[3][3]) - (m.m[0][1] * m.m[2][3] * m.m[3][0]) - (m.m[0][3] * m.m[2][0] * m.m[3][1])
-		+ (m.m[0][3] * m.m[2][1] * m.m[3][0]) + (m.m[0][1] * m.m[2][0] * m.m[3][3]) + (m.m[0][0] * m.m[2][3] * m.m[3][1]);
-	//三行目三列目
-	result.m[2][2] = (m.m[0][0] * m.m[1][1] * m.m[3][3]) + (m.m[0][1] * m.m[1][3] * m.m[3][0]) + (m.m[0][3] * m.m[1][0] * m.m[3][1])
-		- (m.m[0][3] * m.m[1][1] * m.m[3][0]) - (m.m[0][1] * m.m[1][0] * m.m[3][3]) - (m.m[0][0] * m.m[1][3] * m.m[3][1]);
-	//三行目四列目
-	result.m[2][3] = -(m.m[0][0] * m.m[1][1] * m.m[2][3]) - (m.m[0][1] * m.m[1][3] * m.m[2][0]) - (m.m[0][3] * m.m[1][0] * m.m[2][1])
-		+ (m.m[0][3] * m.m[1][1] * m.m[2][0]) + (m.m[0][1] * m.m[1][0] * m.m[2][3]) + (m.m[0][0] * m.m[1][3] * m.m[2][1]);
-
-
-	//四行目一列目
-	result.m[3][0] = -(m.m[1][0] * m.m[2][1] * m.m[3][2]) - (m.m[1][1] * m.m[2][2] * m.m[3][0]) - (m.m[1][2] * m.m[2][0] * m.m[3][1])
-		+ (m.m[1][2] * m.m[2][1] * m.m[3][0]) + (m.m[1][1] * m.m[2][0] * m.m[3][2]) + (m.m[1][0] * m.m[2][2] * m.m[3][1]);
-	//四行目二列目
-	result.m[3][1] = (m.m[0][0] * m.m[2][1] * m.m[3][2]) + (m.m[0][1] * m.m[2][2] * m.m[3][0]) + (m.m[0][2] * m.m[2][0] * m.m[3][1])
-		- (m.m[0][2] * m.m[2][1] * m.m[3][0]) - (m.m[0][1] * m.m[2][0] * m.m[3][2]) - (m.m[0][0] * m.m[2][2] * m.m[3][1]);
-	//四行目三列目
-	result.m[3][2] = -(m.m[0][0] * m.m[1][1] * m.m[3][2]) - (m.m[0][1] * m.m[1][2] * m.m[3][0]) - (m.m[0][2] * m.m[1][0] * m.m[3][1])
-		+ (m.m[0][2] * m.m[1][1] * m.m[3][0]) + (m.m[0][1] * m.m[1][0] * m.m[3][2]) + (m.m[0][0] * m.m[1][2] * m.m[3][1]);
-	//四行目四列目
-	result.m[3][3] = (m.m[0][0] * m.m[1][1] * m.m[2][2]) + (m.m[0][1] * m.m[1][2] * m.m[2][0]) + (m.m[0][2] * m.m[1][0] * m.m[2][1])
-		- (m.m[0][2] * m.m[1][1] * m.m[2][0]) - (m.m[0][1] * m.m[1][0] * m.m[2][2]) - (m.m[0][0] * m.m[1][2] * m.m[2][1]);
-
-	for (int x = 0; x < 4; x++) {
-		for (int y = 0; y < 4; y++) {
-
-			result.m[y][x] = result.m[y][x] * result2;
-
-		}
-	}
-
-
-	return result;
-}
-//転置行列
-Matrix4x4 Transpose(const Matrix4x4& m) {
-	Matrix4x4 result{};
-
-
-	for (int x = 0; x < 4; x++) {
-		for (int y = 0; y < 4; y++) {
-			result.m[y][x] = m.m[x][y];
-		}
-	}
-	return result;
-}
-//アフィン変換
-Matrix4x4 MakeAffineMatrixMatrix(const  Vector3& scale, const  Vector3& rotate, const  Vector3& translate) {
-	Matrix4x4 result{};
-
-	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
-	Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
-	Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
-	Matrix4x4 rotateXYZMatrix = Multiply(rotateXMatrix, Multiply(rotateYMatrix, rotateZMatrix));
-
-
-	result.m[0][0] = scale.x * rotateXYZMatrix.m[0][0];
-	result.m[0][1] = scale.x * rotateXYZMatrix.m[0][1];
-	result.m[0][2] = scale.x * rotateXYZMatrix.m[0][2];
-	result.m[0][3] = 0;
-	result.m[1][0] = scale.y * rotateXYZMatrix.m[1][0];
-	result.m[1][1] = scale.y * rotateXYZMatrix.m[1][1];
-	result.m[1][2] = scale.y * rotateXYZMatrix.m[1][2];
-	result.m[1][3] = 0;
-	result.m[2][0] = scale.z * rotateXYZMatrix.m[2][0];
-	result.m[2][1] = scale.z * rotateXYZMatrix.m[2][1];
-	result.m[2][2] = scale.z * rotateXYZMatrix.m[2][2];
-	result.m[2][3] = 0;
-	result.m[3][0] = translate.x;
-	result.m[3][1] = translate.y;
-	result.m[3][2] = translate.z;
-	result.m[3][3] = 1;
-
-
-
-	return result;
-};
-//正射影行列
-Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = 2 / (right - left);
-	result.m[0][1] = 0;
-	result.m[0][2] = 0;
-	result.m[0][3] = 0;
-
-	result.m[1][0] = 0;
-	result.m[1][1] = 2 / (top - bottom);
-	result.m[1][2] = 0;
-	result.m[1][3] = 0;
-
-	result.m[2][0] = 0;
-	result.m[2][1] = 0;
-	result.m[2][2] = 1 / (farClip - nearClip);
-	result.m[2][3] = 0;
-
-	result.m[3][0] = (left + right) / (left - right);
-	result.m[3][1] = (top + bottom) / (bottom - top);
-	result.m[3][2] = nearClip / (nearClip - farClip);
-	result.m[3][3] = 1;
-
-
-
-
-
-	return result;
-}
-//透視射影行列
-Matrix4x4 MakePerspectiveFovMatrix(float forY, float aspectRatio, float nearClip, float farClip) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = (1 / aspectRatio) * 1 / std::tan(forY / 2);
-	result.m[0][1] = 0;
-	result.m[0][2] = 0;
-	result.m[0][3] = 0;
-
-	result.m[1][0] = 0;
-	result.m[1][1] = 1 / std::tan(forY / 2);
-	result.m[1][2] = 0;
-	result.m[1][3] = 0;
-
-	result.m[2][0] = 0;
-	result.m[2][1] = 0;
-	result.m[2][2] = farClip / (farClip - nearClip);
-	result.m[2][3] = 1;
-
-	result.m[3][0] = 0;
-	result.m[3][1] = 0;
-	result.m[3][2] = (-nearClip * farClip) / (farClip - nearClip);
-	result.m[3][3] = 0;
-
-	return result;
-}
-//ビューポート変換行列
-Matrix4x4 MakeViewportMatrix(float leht, float top, float width, float height, float minDepth, float maxDepth) {
-	Matrix4x4 result{};
-
-	result.m[0][0] = width / 2;
-	result.m[0][1] = 0;
-	result.m[0][2] = 0;
-	result.m[0][3] = 0;
-
-	result.m[1][0] = 0;
-	result.m[1][1] = (-height) / 2;
-	result.m[1][2] = 0;
-	result.m[1][3] = 0;
-
-	result.m[2][0] = 0;
-	result.m[2][1] = 0;
-	result.m[2][2] = maxDepth - minDepth;
-	result.m[2][3] = 0;
-
-	result.m[3][0] = leht + (width / 2);
-	result.m[3][1] = top + (height / 2);
-	result.m[3][2] = minDepth;
-	result.m[3][3] = 1;
-
-	return result;
-};
-//座標変換
-Vector3 Transforms(const Vector3& vector, const Matrix4x4& matrix) {
-	Vector3 result{};
-
-	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
-	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
-	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + 1.0f * matrix.m[3][2];
-
-	float w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + 1.0f * matrix.m[3][3];
-	assert(w != 0.0f);
-	result.x /= w;
-	result.y /= w;
-	result.z /= w;
-	return result;
-}
-
-
-#pragma endregion //数学関数
 
 
 
@@ -732,9 +225,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	spriteCommon->Initialize(dxCommon);
 
 	Sprite* sprite = new Sprite();
-	sprite->Initialize();
+	sprite->Initialize(spriteCommon);
 
-	//HRESULT hr;
+
 
 
 
@@ -826,34 +319,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// VectorShaderへ渡す頂点データがどのようなものかを指定するオブジェクト
 
 
-#pragma region InputLayout
-
-
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
-	inputElementDescs[0].SemanticName = "POSITION";
-	inputElementDescs[0].SemanticIndex = 0;
-	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[1].SemanticName = "TEXCOORD";
-	inputElementDescs[1].SemanticIndex = 0;
-	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[2].SemanticName = "NORMAL";
-	inputElementDescs[2].SemanticIndex = 0;
-	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = _countof(inputElementDescs);
-
-
-#pragma endregion //InputLayout(インプットレイアウト)
-
-
-	// BlendState(ブレンドステート)の設定
-	// PixeiShaderからの出力をどのように書き込むかを設定する
-	//半透明処理はここの設定により制御され、書き込む色要素を決めることができる
+//#pragma region InputLayout
+//
+//
+//	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
+//	inputElementDescs[0].SemanticName = "POSITION";
+//	inputElementDescs[0].SemanticIndex = 0;
+//	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+//	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+//	inputElementDescs[1].SemanticName = "TEXCOORD";
+//	inputElementDescs[1].SemanticIndex = 0;
+//	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+//	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+//	inputElementDescs[2].SemanticName = "NORMAL";
+//	inputElementDescs[2].SemanticIndex = 0;
+//	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+//	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+//
+//	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+//	inputLayoutDesc.pInputElementDescs = inputElementDescs;
+//	inputLayoutDesc.NumElements = _countof(inputElementDescs);
+//
+//
+//#pragma endregion //InputLayout(インプットレイアウト)
 
 //
 //#pragma region BlendState
@@ -1001,32 +489,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	////------MaterialSprite用のResourceを作る------////
 
-
-#pragma region Material_Resource
-
-//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResourceSprite = dxCommon->CreateBufferResource(sizeof(Material));
-
-	//マテリアルにデータを書き込む
-	//Vector4* materialData = nullptr;
-
-	// Lightingを有効にする
-	Material* materialDataSprite = nullptr;
-
-	//書き込むためのアドレスを取得
-	materialResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&materialDataSprite));
-
-	//スプライトはLightingしないのでfalseにする
-	//materialDataSprite->enableLighting = false;
-
-	materialDataSprite->uvTransform = MakeIdentity4x4();
-
-	//今回は赤を書き込んで見る //白
-	*materialDataSprite = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
-
-#pragma endregion //マテリアルスプライト用Resource
-
-
 #pragma region Material_Resource
 
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
@@ -1049,7 +511,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//今回は赤を書き込んで見る //白
 	*materialDataObj = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
 
-#pragma endregion //マテリアルスプライト用Resource
+#pragma endregion //マテリアルOBJスプライト用Resource
 
 
 	////------Matrix用のResourceを作る------////
@@ -1071,21 +533,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//単位行列を書き込んでおく
 	transformationMatrixData->WVP = MakeIdentity4x4();
 	transformationMatrixData->World = MakeIdentity4x4();
-
-
-	////------transformationMatrixResource------////スプライト用
-
-	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResourceSprite = dxCommon->CreateBufferResource(sizeof(TransfomationMatrix));
-
-	//データを書き込む
-	TransfomationMatrix* transformationMatrixDataSprite = nullptr;
-
-	//書き込むためのアドレスを取得
-	transformationMatrixResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDataSprite));
-
-	//単位行列を書き込んでおく
-	transformationMatrixDataSprite->World = MakeIdentity4x4();
-	transformationMatrixDataSprite->WVP = MakeIdentity4x4();
 
 
 	////------transformationMatrixResourceSphar------////球用
@@ -1175,81 +622,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 #pragma endregion //三角形
-
-
-	////------VertexResourceSprite------//// 
-
-
-#pragma region MyRegion
-
-	//Sprite用のリソースを作る
-	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResouceSprite = dxCommon->CreateBufferResource(sizeof(VertexData) * 4);
-
-	//頂点バッファビューを作成する
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite{};
-
-	//リソースの先頭のアドレスを作成する
-	vertexBufferViewSprite.BufferLocation = vertexResouceSprite->GetGPUVirtualAddress();
-
-	//使用するリソースのサイズは頂点6つの分のサイズ
-	vertexBufferViewSprite.SizeInBytes = sizeof(VertexData) * 4;
-
-	//1頂点当たりのサイズ
-	vertexBufferViewSprite.StrideInBytes = sizeof(VertexData);
-
-
-
-	//頂点データを設定する
-	VertexData* vertexDataSprite = nullptr;
-	vertexResouceSprite->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
-
-	// 1枚目の三角形
-	vertexDataSprite[0].position = { 0.0f,360.0f,0.0f,1.0f };//左下
-	vertexDataSprite[0].texcoord = { 0.0f,1.0f };
-	vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };
-
-	vertexDataSprite[1].position = { 0.0f,0.0f,0.0f,1.0f };//左上
-	vertexDataSprite[1].texcoord = { 0.0f,0.0f };
-	vertexDataSprite[1].normal = { 0.0f,0.0f,-1.0f };
-
-	vertexDataSprite[2].position = { 640.0f,360.0f,0.0f,1.0f };//右下
-	vertexDataSprite[2].texcoord = { 1.0f,1.0f };
-	vertexDataSprite[2].normal = { 0.0f,0.0f,-1.0f };
-	//2枚目の三角形
-	vertexDataSprite[3].position = { 640.0f,0.0f,0.0f,1.0f };//右上
-	vertexDataSprite[3].texcoord = { 1.0f,0.0f };
-	vertexDataSprite[3].normal = { 0.0f,0.0f,-1.0f };
-
-
-
-#pragma endregion //スプライト
-
-
-#pragma region Index
-
-	//index用のあれやこれを作る
-	Microsoft::WRL::ComPtr < ID3D12Resource> indexResourceSprite = dxCommon->CreateBufferResource(sizeof(uint32_t) * 6);
-
-	D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
-
-	// リソースの先頭のアドレスから使う
-	indexBufferViewSprite.BufferLocation = indexResourceSprite->GetGPUVirtualAddress();
-
-	// 使用するリソースのサイズはインデック6つ分のサイズ
-	indexBufferViewSprite.SizeInBytes = sizeof(uint32_t) * 6;
-
-	// インデックはuint32_tとする
-	indexBufferViewSprite.Format = DXGI_FORMAT_R32_UINT;
-
-
-	// インデックリソースにデータを書き込む
-	uint32_t* indexDataSprite = nullptr;
-	indexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
-	indexDataSprite[0] = 0;		indexDataSprite[1] = 1;		indexDataSprite[2] = 2;
-	indexDataSprite[3] = 1;		indexDataSprite[4] = 3;		indexDataSprite[5] = 2;
-
-
-#pragma endregion //スプライトindex用
 
 
 	////------円------////
@@ -1532,19 +904,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		input->Update();
 
+		sprite->Update();
 
 
-
-		//transform.rotate.y += 0.006f;
 		transform.rotate.y = 3.14f;
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("translate", &transform.translate.x);
 		ImGui::DragFloat3("rotate", &transform.rotate.x);
 		ImGui::DragFloat3("camera.translate.x", &cameraTransform.translate.x, 0.1f);
-		//ImGui::DragFloat3("camera.rotate", &cameraTransform.rotate.x, 0.1f);
 		ImGui::SliderFloat3("camera.rotate", &cameraTransform.rotate.x, -3.14f, 3.14f);
-		//ImGui::Checkbox("useMonsterBoll", &useMonsterBall);
-		///ImGui::Checkbox("useenableLighting", materialData->enableLighting);
 		ImGui::DragInt("enableLighting", &materialDataObj->enableLighting);
 		ImGui::DragFloat3("LightDirection", &directionalLightData->direction.x);
 		ImGui::DragFloat("Intensity", &directionalLightData->intensity, 0.01f);
@@ -1573,8 +941,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransformSprite.scale);
 		uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransformSprite.rotate.z));
 		uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransformSprite.translate));
-		materialDataSprite->uvTransform = uvTransformMatrix;
-
+		
 		//UVTransformMaterial//球
 		Matrix4x4 uvTransformMatrixSphar = MakeScaleMatrix(uvTransformSphar.scale);
 		uvTransformMatrixSphar = Multiply(uvTransformMatrixSphar, MakeRotateZMatrix(uvTransformSphar.rotate.z));
@@ -1601,19 +968,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
+		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 
+		sprite->Draw();
 
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResourceObj->GetGPUVirtualAddress());
 
 		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU2);
 		//トランスフォームMatrixResource
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceObj->GetGPUVirtualAddress());
-		//vertexBufferViewSprite
 		dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewObj); //VBVを設定
 
 		dxCommon->GetCommandList()->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
-
-
+		
+		
+		
 
 
 
