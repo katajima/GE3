@@ -12,10 +12,13 @@
 #include<sstream>
 #include<wrl.h>
 
+
 #include"Input.h"
 #include"WinApp.h"
 #include"DirectXCommon.h"
 #include"D3DResourceLeakchecker.h"
+#include"Sprite.h"
+#include"SpriteCommon.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -723,9 +726,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon = new DirectXCommon();
 	dxCommon->Intialize(winApp);
 
+	SpriteCommon* spriteCommon = nullptr;
+	// スプライト共通部の初期化
+	spriteCommon = new SpriteCommon;
+	spriteCommon->Initialize();
 
-
-
+	Sprite* sprite = new Sprite();
+	sprite->Initialize();
 
 	HRESULT hr;
 
@@ -1643,6 +1650,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// WindowsAPI解放
 	delete winApp;
 
+	delete sprite;
+
+	delete spriteCommon;
 
 	return 0;
 }
