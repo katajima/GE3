@@ -224,9 +224,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
 
-	Sprite* sprite = new Sprite();
-	sprite->Initialize(spriteCommon);
-
+	std::vector<Sprite*> sprites;
+	for (uint32_t i = 0; i < 5; ++i) {
+		Sprite* sprite = new Sprite();
+		sprite->Initialize(spriteCommon);
+		sprites.push_back(sprite);
+	}
 
 
 
@@ -883,9 +886,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(winApp->GetClientWidth()) / float(winApp->GetClientHeight()), 0.1f, 100.0f);
 
 
-
-
-
 	materialDataObj->enableLighting = 1;
 
 	//ウィンドウの×ボタンが押されるまでループ
@@ -903,9 +903,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		input->Update();
+		for (uint32_t i = 0; i < 5; ++i) {
+			sprites[i]->Update();
 
-		sprite->Update();
+			Vector2 position = sprites[i]->GetPosition();
+			// 座標変更
+			position = { float(i) * 200 ,0};
+			// 変更を反映
+			sprites[i]->SetPosition(position);
 
+			//// サイズ変化
+			Vector2 size = sprites[i]->GetSize();
+			size.x = 100.0f;
+			size.y = 100.0f;
+			sprites[i]->SetSize(size);
+		}
+			
+			//float rotation = sprite->GetRotation();
+			//rotation += 0.01f;
+			//sprite->SetRotation(rotation);
+
+			//// 色を変化させる
+			//Vector4 color = sprite->GetColor();
+			//color.x += 0.01f;
+			//if (color.x >= 1.0f) {
+			//	color.x -= 1.0f;
+			//}
+			//sprite->SetColor(color);
+
+			
+		
 
 		transform.rotate.y = 3.14f;
 		ImGui::Begin("Window");
@@ -969,9 +996,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
 		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
-
-		sprite->Draw();
-
+		for (uint32_t i = 0; i < 5; ++i) {
+			sprites[i]->Draw();
+		}
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResourceObj->GetGPUVirtualAddress());
 
 		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU2);
@@ -1011,9 +1038,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	winApp->Finalize();
 	// WindowsAPI解放
 	delete winApp;
-
-	delete sprite;
-
+	for (uint32_t i = 0; i < 5; ++i) {
+		delete sprites[i];
+	}
 	delete spriteCommon;
 
 	return 0;

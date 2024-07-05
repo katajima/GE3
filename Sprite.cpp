@@ -78,7 +78,7 @@ void Sprite::Update()
 {
 
 	// 1枚目の三角形
-	vertexData[0].position = { 0.0f,360.0f,0.0f,1.0f };//左下
+	vertexData[0].position = { 0.0f,1.0f,0.0f,1.0f };//左下
 	vertexData[0].texcoord = { 0.0f,1.0f };
 	vertexData[0].normal = { 0.0f,0.0f,-1.0f };
 
@@ -86,11 +86,11 @@ void Sprite::Update()
 	vertexData[1].texcoord = { 0.0f,0.0f };
 	vertexData[1].normal = { 0.0f,0.0f,-1.0f };
 
-	vertexData[2].position = { 640.0f,360.0f,0.0f,1.0f };//右下
+	vertexData[2].position = { 1.0f,1.0f,0.0f,1.0f };//右下
 	vertexData[2].texcoord = { 1.0f,1.0f };
 	vertexData[2].normal = { 0.0f,0.0f,-1.0f };
 	//2枚目の三角形
-	vertexData[3].position = { 640.0f,0.0f,0.0f,1.0f };//右上
+	vertexData[3].position = { 1.0f,0.0f,0.0f,1.0f };//右上
 	vertexData[3].texcoord = { 1.0f,0.0f };
 	vertexData[3].normal = { 0.0f,0.0f,-1.0f };
 
@@ -101,8 +101,10 @@ void Sprite::Update()
 	indexData[4] = 3;		
 	indexData[5] = 2;
 
+	transform.scale = { size.x,size.y,1.0f };
+	transform.rotate = { 0.0f,0.0f,rotation };
+	transform.translate = { position.x,position.y,0.0f };
 	//transform変数を作る
-	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	////透視射影行列
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(1280), float(720), 0.0f, 100.0f);

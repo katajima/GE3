@@ -15,8 +15,27 @@ public:// メンバ関数
 	void Initialize(SpriteCommon* spriteCommon);
 	// 更新
 	void Update();
-	//
+	// 描画
 	void Draw();
+
+	///位置
+	// getter
+	const Vector2& GetPosition() const { return position; }
+	// setter
+	void SetPosition(const Vector2& position) { this->position = position; }
+
+	// 回転
+	float GetRotation() const { return rotation; }
+	void SetRotation(float rotation) { this->rotation = rotation; }
+
+	//サイズ
+	const Vector2& GetSize() const { return size; }
+	void SetSize(const Vector2& size) { this->size = size; }
+
+	//色
+	const Vector4& GetColor() const { return materialData->color; }
+	void SetColor(const Vector4& color) { materialData->color = color; }
+
 private:
 	SpriteCommon* spriteCommon_ = nullptr;
 
@@ -40,6 +59,12 @@ private:
 		Matrix4x4 WVP;
 		Matrix4x4 World;
 	};
+	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+
+	Vector2 size = { 640.0f,360.0f };
+	Vector2 position = { 0.0f,0.0f };
+	float rotation = 0.0f;
+
 	// バッファリソース
 	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
 	Microsoft::WRL::ComPtr < ID3D12Resource> indexResource;

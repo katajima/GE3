@@ -4,7 +4,7 @@
 #pragma region Math
 
 Vector3 Add(const Vector3& v1, const Vector3& v2);
-
+Vector2 Add(const Vector2& v1, const Vector2& v2);
 Vector3 Subtract(const Vector3& v1, const Vector3& v2);
 
 float Dot(const Vector3& v1, const Vector3& v2);
