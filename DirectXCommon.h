@@ -171,6 +171,7 @@ private:
 	// 記録時間(FPS固定用)
 	std::chrono::steady_clock::time_point reference_;
 
+	
 private:
 	// CPUHandle
 	static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
@@ -180,9 +181,9 @@ private:
 
 
 public:
-	//DirectTexを使ってTextureを読むためのLoadTextur関数
-	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
+	static const uint32_t kMaxSRVCount;
 
+	
 	////------CompileShader------////
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(
 		//CompileShaderするShaderファイルへのパス

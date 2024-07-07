@@ -1,20 +1,21 @@
 #include"Sprite.h"
 #include"SpriteCommon.h"
 #include <iostream>
+#include"TextureManager.h"
 
-void Sprite::Initialize(SpriteCommon* spriteCommon)
+void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 {
 	// 引数で受け取ってメンバ変数にする
 	this->spriteCommon_ = spriteCommon;
+	
+	TextureManager::GetInstance()->LoadTexture(textureFilePath);
 
+	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	
 	vertexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * 4);
-	if (!vertexResource) {
-		throw std::runtime_error("Failed to create vertex resource.");
-	}
+	
 	indexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 6);
-	if (!indexResource) {
-		throw std::runtime_error("Failed to create index resource.");
-	}
+	
 	//リソースの先頭のアドレスを作成する
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点6つの分のサイズ
@@ -29,27 +30,16 @@ void Sprite::Initialize(SpriteCommon* spriteCommon)
 	// インデックはuint32_tとする
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 
-	HRESULT hr;
-	hr = vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	if (FAILED(hr)) {
-		throw std::runtime_error("Failed to map vertex resource.");
-	}
-	hr = indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	if (FAILED(hr)) {
-		throw std::runtime_error("Failed to map index resource.");
-	}
 
+	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
-
+	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	
 	materialResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(Material));
-	if (!materialResource) {
-		throw std::runtime_error("Failed to create material resource.");
-	}
+	
 	//書き込むためのアドレスを取得
-	hr = materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-	if (FAILED(hr)) {
-		throw std::runtime_error("Failed to map material resource.");
-	}
+	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
+	
 
 	//今回は赤を書き込んで見る //白
 	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
@@ -58,20 +48,14 @@ void Sprite::Initialize(SpriteCommon* spriteCommon)
 
 	
 	transformationMatrixResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
-	if (!transformationMatrixResource) {
-		throw std::runtime_error("Failed to create transformation matrix resource.");
-	}
+	
 	//書き込むためのアドレスを取得
-	hr = transformationMatrixResource->Map(0, nullptr, reinterpret_cast<void**>(&transfomationMatrixData));
-	if (FAILED(hr)) {
-		throw std::runtime_error("Failed to map transformation matrix resource.");
-	}
+	transformationMatrixResource->Map(0, nullptr, reinterpret_cast<void**>(&transfomationMatrixData));
+	
 	//単位行列を書き込んでおく
 	transfomationMatrixData->WVP = MakeIdentity4x4();
 	transfomationMatrixData->World = MakeIdentity4x4();
 
-
-	
 }
 
 void Sprite::Update()
@@ -120,7 +104,7 @@ void Sprite::Draw()
 {
 	spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-	//spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+	//spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureIndex));
 
 	//vertexBufferViewSprite
 	spriteCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); //VBVを設定

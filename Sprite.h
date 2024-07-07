@@ -5,6 +5,7 @@
 #include<dxgi1_6.h>
 #include<cstdint>
 #include<wrl.h>
+#include<string>
 using namespace Microsoft::WRL;
 class SpriteCommon;
 
@@ -12,7 +13,7 @@ class Sprite
 {
 public:// メンバ関数
 	// 初期化
-	void Initialize(SpriteCommon* spriteCommon);
+	void Initialize(SpriteCommon* spriteCommon,std::string textureFilePath);
 	// 更新
 	void Update();
 	// 描画
@@ -82,5 +83,8 @@ private:
 
 	TransfomationMatrix* transfomationMatrixData;
 	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource;
+
+	//テクスチャ番号
+	uint32_t textureIndex = 0;
 };
 

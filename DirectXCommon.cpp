@@ -12,6 +12,7 @@ using namespace Microsoft::WRL;
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
 
+const uint32_t DirectXCommon::kMaxSRVCount = 512;
 
 void DirectXCommon::Intialize(WinApp* winApp)
 {
@@ -422,7 +423,7 @@ void DirectXCommon::CreateDescriptorHeap()
 
 
 	// SRV用のディスクリプタの数は128。SRVはShader内で触るものなので、ShaderVisibleはtrue
-	srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 
 	// DSV用のヒープでディスクリプタの数は1。DSVはShader内で触るものではないので、ShaderVisibleはfalse
 	dsvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
@@ -676,7 +677,11 @@ Microsoft::WRL::ComPtr <ID3D12Resource> DirectXCommon::CreateTextureResource(con
 
 
 	//3. Resourceを生成する
-
+	//assert(device != nullptr);
+	//if (device == nullptr) {
+	//	// デバイスが初期化されていない場合のエラーハンドリング
+	//	return nullptr;
+	//}
 	Microsoft::WRL::ComPtr <ID3D12Resource> resource = nullptr;
 	HRESULT hr = device->CreateCommittedResource(
 		&heapProperties, // Heapの設定
@@ -782,19 +787,3 @@ Microsoft::WRL::ComPtr<IDxcBlob> DirectXCommon::CompileShader(const std::wstring
 };
 
 //DirectTexを使ってTextureを読むためのLoadTextur関数
-DirectX::ScratchImage  DirectXCommon::LoadTexture(const std::string& filePath)
-{
-	// テクスチャファイルを読んでプログラムで扱えるようにする
-	DirectX::ScratchImage image{};
-	std::wstring filePathW = StringUtility::ConvertString(filePath);
-	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-	assert(SUCCEEDED(hr));
-
-	//ミニマップ作成
-	DirectX::ScratchImage mipImages{};
-	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-	assert(SUCCEEDED(hr));
-
-	//ミニマップ付きのデータを返す
-	return mipImages;
-}
