@@ -804,13 +804,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon->Finalize();
 	delete dxCommon;
 
-	/*signatureBlob->Release();
-	if (errorBlob) {
-		errorBlob->Release();
-	}
-	pixelShaderBlob->Release();
-	vertexShaderBlob->Release();*/
-
 	// WindowsAPIの終了処理
 	winApp->Finalize();
 	// WindowsAPI解放
