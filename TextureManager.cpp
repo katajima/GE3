@@ -37,10 +37,6 @@ void TextureManager::LoadTexture(const std::string& filePath) {
     // テクスチャ枚数上限チェック
     assert(textureDatas.size() + kSRVIndexTop < DirectXCommon::kMaxSRVCount);
 
-    // DirectXCommon インスタンスを取得
-    //DirectXCommon* dxCommon_ = DirectXCommon::GetInstance();
-    //assert(dxCommon_ != nullptr); // 確認
-    //assert(dxCommon_->GetDevice() != nullptr); // 確認
 
     // テクスチャファイルを読んでプログラムで扱えるようにする
     DirectX::ScratchImage image{};
@@ -64,6 +60,19 @@ void TextureManager::LoadTexture(const std::string& filePath) {
     textureData.filePath = filePath;
     textureData.metadata = mipImages.GetMetadata();
     textureData.resource = dxCommon_->CreateTextureResource(textureData.metadata);
+    
+    // コマンドリストを取得
+    Microsoft::WRL::ComPtr < ID3D12GraphicsCommandList> cmdList = dxCommon_->GetCommandList();
+
+    // リソースの状態遷移 (COPY_DEST -> PIXEL_SHADER_RESOURCE)
+    D3D12_RESOURCE_BARRIER barrier = {};
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Transition.pResource = textureData.resource.Get();
+    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+    cmdList->ResourceBarrier(1, &barrier);
 
     // metadataを基にSRVの設定
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -103,6 +112,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureInde
 {
 	//範囲外指定チェック
 	assert(textureIndex < textureDatas.size());
-	TextureData& textureData = textureDatas[textureIndex];
+    TextureData& textureData = textureDatas.back();
 	return textureData.srvHandleGPU;
 }

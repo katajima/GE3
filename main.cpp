@@ -235,9 +235,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprites[3]->Initialize(spriteCommon, "resources/uvChecker.png");
 		sprites[4]->Initialize(spriteCommon, "resources/uvChecker.png");*/
 		if (i % 2 == 0) {
+			
 			sprite->Initialize(spriteCommon, "resources/uvChecker.png");
 		}
 		else {
+			
 			sprite->Initialize(spriteCommon, "resources/monsterBall.png");
 		}
 		sprites.push_back(sprite);
@@ -719,20 +721,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			sprites[i]->SetSize(size);
 		}
 
-		//float rotation = sprite->GetRotation();
-		//rotation += 0.01f;
-		//sprite->SetRotation(rotation);
-
-		//// 色を変化させる
-		//Vector4 color = sprite->GetColor();
-		//color.x += 0.01f;
-		//if (color.x >= 1.0f) {
-		//	color.x -= 1.0f;
-		//}
-		//sprite->SetColor(color);
-
-
-
 
 		transform.rotate.y = 3.14f;
 		ImGui::Begin("Window");
@@ -807,11 +795,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewObj); //VBVを設定
 
 		//dxCommon->GetCommandList()->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
-
-
-
-
-
 
 
 

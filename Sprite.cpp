@@ -12,10 +12,6 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 	
 	indexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 6);
 	
-	TextureManager::GetInstance()->LoadTexture(textureFilePath);
-
-	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
-
 	//リソースの先頭のアドレスを作成する
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点6つの分のサイズ
@@ -55,6 +51,10 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 	//単位行列を書き込んでおく
 	transfomationMatrixData->WVP = MakeIdentity4x4();
 	transfomationMatrixData->World = MakeIdentity4x4();
+
+	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+
+	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 
 }
 
