@@ -1,4 +1,5 @@
 #pragma once
+#include <windows.h>
 #include<cstdint>
 #include<string>
 #include<fstream>
@@ -6,6 +7,7 @@
 #include<wrl.h>
 #include<d3d12.h>
 #include<dxgi1_6.h>
+#include<dxcapi.h>
 using namespace Microsoft::WRL;
 #include<vector>
 #include"externals/DirectXTex/DirectXTex.h"
@@ -18,7 +20,7 @@ public:
 	static TextureManager* GetInstance();
 	
 	// 初期化
-	void Initialize();
+	void Initialize(DirectXCommon* dxCommon);
 	
 	// 終了
 	void Finalize();
@@ -51,7 +53,7 @@ private:
 
 	//テクスチャデータ
 	std::vector<TextureData> textureDatas;
-	DirectXCommon* dxCommon;
+	DirectXCommon* dxCommon_ = nullptr;
 	static uint32_t kSRVIndexTop;
 
 };

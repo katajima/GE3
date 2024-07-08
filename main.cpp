@@ -224,8 +224,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
 
-	TextureManager::GetInstance()->Initialize();
-	//TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
+	TextureManager::GetInstance()->Initialize(dxCommon);
+
 	std::vector<Sprite*> sprites;
 	for (uint32_t i = 0; i < 5; ++i) {
 		Sprite* sprite = new Sprite();
@@ -234,12 +234,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprites[2]->Initialize(spriteCommon, "resources/uvChecker.png");
 		sprites[3]->Initialize(spriteCommon, "resources/uvChecker.png");
 		sprites[4]->Initialize(spriteCommon, "resources/uvChecker.png");*/
-
-		sprite->Initialize(spriteCommon, "resources/uvChecker.png");
+		if (i % 2 == 0) {
+			sprite->Initialize(spriteCommon, "resources/uvChecker.png");
+		}
+		else {
+			sprite->Initialize(spriteCommon, "resources/monsterBall.png");
+		}
 		sprites.push_back(sprite);
 	}
 	
-
 	////------平行光源用のResourceを作る------////
 
 

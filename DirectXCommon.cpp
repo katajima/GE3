@@ -14,27 +14,25 @@ using namespace Microsoft::WRL;
 
 const uint32_t DirectXCommon::kMaxSRVCount = 512;
 
-void DirectXCommon::Intialize(WinApp* winApp)
-{
-	// NULL検出
-	assert(winApp);
-	// メンバ変数に記録
-	this->winApp_ = winApp;
+//DirectXCommon* DirectXCommon::instance = nullptr;
 
-	InitializeFixFPS();
+void DirectXCommon::Intialize(WinApp* winApp) {
+    assert(winApp);
+    this->winApp_ = winApp;
 
-	InitializeDXGIDevice();
-	InitializeCommand();
-	CreateSwapChain();
-	CreateDepthBuffer();
-	CreateDescriptorHeap();
-	CreateRenderTargets();
-	InitializeDepthStencilView();
-	CreateFence();
-	InitializeViewport();
-	InitializeScissor();
-	CreateDXCCompiler();
-	InitializeImGui();
+    InitializeFixFPS();
+    InitializeDXGIDevice();
+    InitializeCommand();
+    CreateSwapChain();
+    CreateDepthBuffer();
+    CreateDescriptorHeap();
+    CreateRenderTargets();
+    InitializeDepthStencilView();
+    CreateFence();
+    InitializeViewport();
+    InitializeScissor();
+    CreateDXCCompiler();
+    InitializeImGui();
 }
 
 void DirectXCommon::PreDraw()
@@ -163,6 +161,15 @@ void DirectXCommon::Finalize()
 	////解放処理
 	CloseHandle(fenceEvent);
 }
+
+//DirectXCommon* DirectXCommon::GetInstance()
+//{
+//	if (instance == nullptr) {
+//		instance = new DirectXCommon;
+//	}
+//	return instance;
+//}
+
 /// <summary>
 /// SRV
 /// </summary>
@@ -677,11 +684,7 @@ Microsoft::WRL::ComPtr <ID3D12Resource> DirectXCommon::CreateTextureResource(con
 
 
 	//3. Resourceを生成する
-	//assert(device != nullptr);
-	//if (device == nullptr) {
-	//	// デバイスが初期化されていない場合のエラーハンドリング
-	//	return nullptr;
-	//}
+
 	Microsoft::WRL::ComPtr <ID3D12Resource> resource = nullptr;
 	HRESULT hr = device->CreateCommittedResource(
 		&heapProperties, // Heapの設定

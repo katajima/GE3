@@ -18,6 +18,9 @@
 class DirectXCommon
 {
 public: // メンバ関数
+	// シングルトンインスタンス
+	//static DirectXCommon* GetInstance();
+	//static DirectXCommon* instance;
 	// CPUHandle
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
 

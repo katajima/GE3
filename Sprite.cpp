@@ -8,14 +8,14 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 	// 引数で受け取ってメンバ変数にする
 	this->spriteCommon_ = spriteCommon;
 	
-	TextureManager::GetInstance()->LoadTexture(textureFilePath);
-
-	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
-	
 	vertexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * 4);
 	
 	indexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 6);
 	
+	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+
+	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+
 	//リソースの先頭のアドレスを作成する
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点6つの分のサイズ
@@ -104,7 +104,7 @@ void Sprite::Draw()
 {
 	spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-	//spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureIndex));
+	spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureIndex));
 
 	//vertexBufferViewSprite
 	spriteCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); //VBVを設定
