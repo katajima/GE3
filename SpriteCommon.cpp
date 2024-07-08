@@ -80,8 +80,8 @@ void SpriteCommon::CreateRootSignature()
 
 
 	//シリアライズにしてバイナリする
-	ID3DBlob* signatureBlob = nullptr;
-	ID3DBlob* errorBlob = nullptr;
+	Microsoft::WRL::ComPtr < ID3DBlob> signatureBlob = nullptr;
+	Microsoft::WRL::ComPtr < ID3DBlob> errorBlob = nullptr;
 
 	hr = D3D12SerializeRootSignature(&descriptionSignature,
 		D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);

@@ -198,7 +198,8 @@ ModelData LoadOdjFile(const std::string& directoryPath, const std::string& filen
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3DResourceLeakchecker leakCheck;
-	
+	//leakCheck.~D3DResourceLeakchecker();
+
 	//COMの初期化
 	//CoInitializeEx(0, COINIT_MULTITHREADED);
 

@@ -88,6 +88,8 @@ void Sprite::Update()
 	transform.scale = { size.x,size.y,1.0f };
 	transform.rotate = { 0.0f,0.0f,rotation };
 	transform.translate = { position.x,position.y,0.0f };
+	//transform.rotate.x = 3.14f;
+	//transform.rotate.z = 3.14f;
 	//transform変数を作る
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	////透視射影行列

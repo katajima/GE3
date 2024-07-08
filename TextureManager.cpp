@@ -22,6 +22,7 @@ void TextureManager::Initialize(DirectXCommon* dxCommon)
 
 void TextureManager::Finalize()
 {
+    //delete dxCommon_;
 }
 
 void TextureManager::LoadTexture(const std::string& filePath) {
