@@ -22,7 +22,8 @@ void TextureManager::Initialize(DirectXCommon* dxCommon)
 
 void TextureManager::Finalize()
 {
-    //delete dxCommon_;
+    delete instance;
+    instance = nullptr;
 }
 
 void TextureManager::LoadTexture(const std::string& filePath) {
@@ -43,9 +44,6 @@ void TextureManager::LoadTexture(const std::string& filePath) {
     DirectX::ScratchImage image{};
     std::wstring filePathW = StringUtility::ConvertString(filePath);
     // filePathWが正しいか確認
-    if (filePathW.empty()) {
-        throw std::runtime_error("ファイルパスが無効です: " + filePath);
-    }
     HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
     assert(SUCCEEDED(hr));
 
@@ -53,6 +51,8 @@ void TextureManager::LoadTexture(const std::string& filePath) {
     DirectX::ScratchImage mipImages{};
     hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
     assert(SUCCEEDED(hr));
+
+
 
     // テクスチャデータを追加
     textureDatas.resize(textureDatas.size() + 1);
