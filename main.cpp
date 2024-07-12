@@ -21,7 +21,8 @@
 #include"Sprite.h"
 #include"SpriteCommon.h"
 #include"TextureManager.h"
-
+#include"Object3d.h"
+#include"Object3dCommon.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -222,6 +223,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// スプライト共通部の初期化
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
+	
+	Object3dCommon* object3dCommon = nullptr;
+	// 3Dオブジェクト共通部分の初期化
+	object3dCommon = new Object3dCommon();
+	object3dCommon->Initialize();
+
+
 
 	TextureManager::GetInstance()->Initialize(dxCommon);
 
@@ -240,6 +248,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprites.push_back(sprite);
 	}
 	
+	Object3d* object3d = new Object3d();
+	object3d->Initialize();
+
 	////------平行光源用のResourceを作る------////
 
 
@@ -702,42 +713,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		input->Update();
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
 			sprites[i]->Update();
-
-			//Vector2 position = sprites[i]->GetPosition();
-			//// 座標変更
-			//position = { float(i + 1) * 200 ,300};
-			//// 変更を反映
-			//sprites[i]->SetPosition(position);
-
-			//float rotation = sprites[i]->GetRotation();
-			////rotation += 0.01f;
-			//sprites[i]->SetRotation(rotation);
-
-			//// サイズ変化
-			//Vector2 size = sprites[i]->GetSize();
-			//size.x = 200.0f;
-			//size.y = 200.0f;
-			//sprites[i]->SetSize(size);
-
-			////アンカーポイント
-			//Vector2 anchorPoint = sprites[i]->GetAnchorPoint();
-			//anchorPoint = { 0.5f,0.5f };
-			//sprites[i]->SetAnchorPoint(anchorPoint);
-
-			/*bool isFlipX = sprites[i]->GetIsFlipX();
-			isFlipX = true;
-			sprites[i]->SetIsFlipX(isFlipX);
-			bool isFlipY = sprites[i]->GetIsFlipY();
-			isFlipY = true;
-			sprites[i]->SetIsFlipY(isFlipY);*/
-
-			//// テクスチャ座標範囲指定
-			//Vector2 texLeftTop = sprites[i]->GetextureLeftTop();
-			//texLeftTop = { 0.0f,0.0f };
-			//sprites[i]->SetTextureLeftTop(texLeftTop);
-			//Vector2 texSize= sprites[i]->GetTextureSize();
-			//texSize = { 64.0f,64.0f };
-			//sprites[i]->SetTextureSize(texSize);
 		}
 
 
@@ -837,6 +812,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		delete sprites[i];
 	}
 	delete spriteCommon;
+
+	delete object3d;
+	delete object3dCommon;
 
 	//テクスチャマネージャーの終了
 	TextureManager::GetInstance()->Finalize();
