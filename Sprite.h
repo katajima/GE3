@@ -29,13 +29,37 @@ public:// メンバ関数
 	float GetRotation() const { return rotation; }
 	void SetRotation(float rotation) { this->rotation = rotation; }
 
-	//サイズ
+	// サイズ
 	const Vector2& GetSize() const { return size; }
 	void SetSize(const Vector2& size) { this->size = size; }
 
-	//色
+	// 色
 	const Vector4& GetColor() const { return materialData->color; }
 	void SetColor(const Vector4& color) { materialData->color = color; }
+
+	// アンカーポイント
+	const Vector2& GetAnchorPoint() const { return anchorPoint; };
+	void SetAnchorPoint(const Vector2& anchorPoint) { this->anchorPoint = anchorPoint; }
+
+	// フリップX
+	const bool& GetIsFlipX() const { return isFlipX_; };
+	void SetIsFlipX(const bool& isFlipX) { this->isFlipX_ = isFlipX; }
+	// フリップY
+	const bool& GetIsFlipY() const { return isFlipY_; };
+	void SetIsFlipY(const bool& isFlipY) { this->isFlipY_ = isFlipY; }
+
+	//テクスチャ左上座標
+	const Vector2& GetextureLeftTop() const { return textureLeftTop; };
+	void SetTextureLeftTop(const Vector2& textureLeftTop) { this->textureLeftTop = textureLeftTop; }
+	// テクスチャ切り出し座標
+	const Vector2& GetTextureSize() const { return textureSize; };
+	void SetTextureSize(const Vector2& textureSize) { this->textureSize = textureSize; }
+private:
+
+	// テクスチャサイズをイメージに合わせる
+	void AdjusttextureSize();
+
+
 
 private:
 	SpriteCommon* spriteCommon_ = nullptr;
@@ -86,5 +110,19 @@ private:
 
 	//テクスチャ番号
 	uint32_t textureIndex = 0;
+
+	// アンカーポイント
+	Vector2 anchorPoint = { 0.0f,0.0f };
+
+	// 左右フリップ
+	bool isFlipX_ = false;
+	// 上下フリップ
+	bool isFlipY_ = false;
+
+	// テクスチャ左上座標
+	Vector2 textureLeftTop = { 0.0f,0.0f };
+	// テクスチャ切り出し座標
+	Vector2 textureSize = { 100.0f,100.0f };
+
 };
 

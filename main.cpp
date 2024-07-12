@@ -226,7 +226,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	TextureManager::GetInstance()->Initialize(dxCommon);
 
 	std::vector<Sprite*> sprites;
-	for (uint32_t i = 0; i < 5; ++i) {
+	const int MaxSprite = 1;
+	for (uint32_t i = 0; i < MaxSprite; ++i) {
 		Sprite* sprite = new Sprite();	
 		if (i % 2 == 0) {
 			
@@ -699,20 +700,44 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		input->Update();
-		for (uint32_t i = 0; i < 5; ++i) {
+		for (uint32_t i = 0; i < MaxSprite; ++i) {
 			sprites[i]->Update();
 
-			Vector2 position = sprites[i]->GetPosition();
-			// 座標変更
-			position = { float(i) * 200 ,0 };
-			// 変更を反映
-			sprites[i]->SetPosition(position);
+			//Vector2 position = sprites[i]->GetPosition();
+			//// 座標変更
+			//position = { float(i + 1) * 200 ,300};
+			//// 変更を反映
+			//sprites[i]->SetPosition(position);
+
+			//float rotation = sprites[i]->GetRotation();
+			////rotation += 0.01f;
+			//sprites[i]->SetRotation(rotation);
 
 			//// サイズ変化
-			Vector2 size = sprites[i]->GetSize();
-			size.x = 100.0f;
-			size.y = 100.0f;
-			sprites[i]->SetSize(size);
+			//Vector2 size = sprites[i]->GetSize();
+			//size.x = 200.0f;
+			//size.y = 200.0f;
+			//sprites[i]->SetSize(size);
+
+			////アンカーポイント
+			//Vector2 anchorPoint = sprites[i]->GetAnchorPoint();
+			//anchorPoint = { 0.5f,0.5f };
+			//sprites[i]->SetAnchorPoint(anchorPoint);
+
+			/*bool isFlipX = sprites[i]->GetIsFlipX();
+			isFlipX = true;
+			sprites[i]->SetIsFlipX(isFlipX);
+			bool isFlipY = sprites[i]->GetIsFlipY();
+			isFlipY = true;
+			sprites[i]->SetIsFlipY(isFlipY);*/
+
+			//// テクスチャ座標範囲指定
+			//Vector2 texLeftTop = sprites[i]->GetextureLeftTop();
+			//texLeftTop = { 0.0f,0.0f };
+			//sprites[i]->SetTextureLeftTop(texLeftTop);
+			//Vector2 texSize= sprites[i]->GetTextureSize();
+			//texSize = { 64.0f,64.0f };
+			//sprites[i]->SetTextureSize(texSize);
 		}
 
 
@@ -778,7 +803,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
 		//dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
-		for (uint32_t i = 0; i < 5; ++i) {
+		for (uint32_t i = 0; i < MaxSprite; ++i) {
 			sprites[i]->Draw();
 		}
 		//dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResourceObj->GetGPUVirtualAddress());
@@ -808,7 +833,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	winApp->Finalize();
 	// WindowsAPI解放
 	delete winApp;
-	for (uint32_t i = 0; i < 5; ++i) {
+	for (uint32_t i = 0; i < MaxSprite; ++i) {
 		delete sprites[i];
 	}
 	delete spriteCommon;
