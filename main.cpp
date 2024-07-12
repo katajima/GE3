@@ -227,7 +227,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Object3dCommon* object3dCommon = nullptr;
 	// 3Dオブジェクト共通部分の初期化
 	object3dCommon = new Object3dCommon();
-	object3dCommon->Initialize();
+	object3dCommon->Initialize(dxCommon);
 
 
 
@@ -769,12 +769,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 描画前処理
 		dxCommon->PreDraw();
 
+		
+		// 3Dオブジェクトの描画準備
+		object3dCommon->DrawCommonSetting();
+
+		// 2Dオブジェクトの描画準備
 		spriteCommon->DrawCommonSetting();
 
 
 		////------平行光源用------////
-
-
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
 		//dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
