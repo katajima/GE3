@@ -34,7 +34,6 @@ public:
 	// テクスチャ番号からGPUハンドルを取得
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandleGPU(uint32_t textureIndex);
 
-
 private:
 	static TextureManager* instance;
 	TextureManager() = default;
@@ -49,11 +48,12 @@ private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
+		Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource;
 	};
 
 	//テクスチャデータ
 	std::vector<TextureData> textureDatas;
 	DirectXCommon* dxCommon_ = nullptr;
 	static uint32_t kSRVIndexTop;
-
+	//Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource;
 };

@@ -11,6 +11,7 @@
 #include"WinApp.h"
 #include<chrono>
 #include <thread>
+#include<vector>
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"

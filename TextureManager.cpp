@@ -62,18 +62,8 @@ void TextureManager::LoadTexture(const std::string& filePath) {
     textureData.metadata = mipImages.GetMetadata();
     textureData.resource = dxCommon_->CreateTextureResource(textureData.metadata);
     
-    // コマンドリストを取得
-    Microsoft::WRL::ComPtr < ID3D12GraphicsCommandList> cmdList = dxCommon_->GetCommandList();
+    textureData.intermediateResource = dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
 
-    // リソースの状態遷移 (COPY_DEST -> PIXEL_SHADER_RESOURCE)
-    D3D12_RESOURCE_BARRIER barrier = {};
-    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    barrier.Transition.pResource = textureData.resource.Get();
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-    cmdList->ResourceBarrier(1, &barrier);
 
     uint32_t srvIndex = static_cast<uint32_t>(textureDatas.size() - 1) + kSRVIndexTop;
     // SRVを作成するDescriptorHeapの場所を決める
@@ -86,7 +76,6 @@ void TextureManager::LoadTexture(const std::string& filePath) {
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
     srvDesc.Texture2D.MipLevels = UINT(textureData.metadata.mipLevels);
-
     // SRV
     dxCommon_->GetDevice()->CreateShaderResourceView(textureData.resource.Get(), &srvDesc, textureData.srvHandleCPU);
 }
@@ -113,6 +102,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureInde
 {
 	//範囲外指定チェック
 	assert(textureIndex < textureDatas.size());
-    TextureData& textureData = textureDatas.back();
+    TextureData& textureData = textureDatas[textureIndex];
 	return textureData.srvHandleGPU;
 }
