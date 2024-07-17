@@ -105,20 +105,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	std::vector <Model*> models;
+	
+	//std::vector <Model*> models;
 	const int MaxObject3d = 2;
-	for (uint32_t i = 0; i < MaxObject3d; ++i) {
-		Model* model = new Model();
-		if (i == 0) {
-			model->Initialize(modelCommon, "resources", "asix.obj");
-		}
-		else {
-			model->Initialize(modelCommon, "resources", "plane.obj");
-			//model->Initialize(modelCommon, "resources", "asix.obj");
-		}
-		models.push_back(model);
-	}
+	//for (uint32_t i = 0; i < MaxObject3d; ++i) {
+	//	
+	//	Model* model = new Model();
+	//	//model->SetScale({ 1,1,1 });
+	//	if (i==0) {
+	//		model->Initialize(modelCommon, "resources", "plane.obj");
+	//		
+	//	}
+	//	else {
+	//		model->Initialize(modelCommon, "resources", "axis.obj");
+	//	}
+	//	models.push_back(model);
+	//}
 
 	
 
@@ -126,15 +128,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		Object3d* object3d = new Object3d();
 		object3d->Initialize(object3dCommon);
-		if (i == 0) {
+		if (i == 1) {
+			ModelManager::GetInstance()->LoadModel("plane.obj");
 			object3d->SetModel("plane.obj");
 		}
 		else {
-			object3d->SetModel("asix.obj");
+			ModelManager::GetInstance()->LoadModel("axis.obj");
+			object3d->SetModel("axis.obj");
 		}
-		models[i]->SetScale({ 1.0f,1.0f,1.0f });
-		models[i]->SetRotate({ 0.0f,3.14f,0.0f });
-		models[i]->SetTranslate({ -2.0f + float((i * 4)),0.0f,0.0f });
+		
 
 		object3ds.push_back(object3d);
 	}
@@ -161,6 +163,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 3Dモデル
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
 			object3ds[i]->Update();
+			object3ds[i]->SetScale({ 1,1,1 });
+			if (i == 0) {
+				object3ds[i]->SetTranslate({ -2,0,10 });
+				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
+			}
+			if (i == 1) {
+				object3ds[i]->SetTranslate({ 5,0,10 });
+				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f,0.02f,0.0f }));
+			}
 		}
 
 		// スプライト
@@ -189,12 +200,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//3Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
 			object3ds[i]->Draw();
-			if (i == 0) {
-				models[0]->SetRotate(Add(models[0]->GetRotate(), Vector3{ 0.01f,0.01f,0 }));
-			}
-			else {
-				models[1]->SetRotate(Add(models[1]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
-			}
 		}
 
 
@@ -207,7 +212,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 2Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
-			//sprites[i]->Draw();
+			sprites[i]->Draw();
 		}
 
 		//描画後処理
@@ -240,7 +245,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete object3dCommon;
 
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
-		delete models[i];
+		//delete models[i];
 	}
 	/*for (uint32_t i = 0; i < MaxModel; ++i) {
 		delete models[i];

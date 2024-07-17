@@ -26,6 +26,18 @@ public:
 	// setter
 	void SetModel(Model* model) { this->model = model; }
 	void SetModel(const std::string& filePath);
+	//const Model& GetModel() const{ return model; }
+
+	// setter
+	void SetScale(const Vector3& scale) { transform.scale = scale; };
+	void SetRotate(const Vector3& rotate) { transform.rotate = rotate; };
+	void SetTranslate(const Vector3& translate) { transform.translate = translate; };
+
+	// getter
+	const Vector3& GetScale()const { return transform.scale; };
+	const Vector3& GetRotate()const { return transform.rotate; };
+	const Vector3& GetTranslate()const { return transform.translate; };
+
 
 private:
 

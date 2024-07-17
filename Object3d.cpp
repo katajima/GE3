@@ -51,15 +51,22 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 
 void Object3d::Update()
 {
+	assert(model);
 	Matrix4x4 cameraMatrix = MakeAffineMatrixMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
 	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 	// 透視投影行列
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
 
-	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(model->GetScale(), model->GetRotate(), model->GetTranslate());
+	//Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 	transfomationMatrixData->World = worldMatrix;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
+
+	model->SetScale(transform.scale);
+	model->SetRotate(transform.rotate);
+	model->SetTranslate(transform.translate);
+	//transform.scale = model->GetScale();
 
 }
 
