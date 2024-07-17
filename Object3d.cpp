@@ -56,7 +56,7 @@ void Object3d::Update()
 	// 透視投影行列
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
 
-	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(model->GetScale(), model->GetRotate(), model->GetTranslate());
+	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 	transfomationMatrixData->World = worldMatrix;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
@@ -75,6 +75,12 @@ void Object3d::Draw()
 		model->Draw();
 	}
 
+}
+
+void Object3d::SetModel(const std::string& filePath)
+{
+	//モデルを検索してセット
+	model = ModelManager::GetInstance()->FindModel(filePath);
 }
 
 

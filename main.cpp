@@ -25,7 +25,7 @@
 #include"Object3dCommon.h"
 #include"Model.h"
 #include"ModelCommon.h"
-
+#include"ModelManager.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -69,7 +69,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon = new DirectXCommon();
 	dxCommon->Intialize(winApp);
 
+	//テクスチャマネージャー
 	TextureManager::GetInstance()->Initialize(dxCommon);
+
+	//モデルマネージャー
+	ModelManager::GetInstance()->Initialize(dxCommon);
 
 	SpriteCommon* spriteCommon = nullptr;
 	// スプライト共通部の初期化
@@ -100,27 +104,41 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprites.push_back(sprite);
 	}
 
+
+	ModelManager::GetInstance()->LoadModel("plane.obj");
 	std::vector <Model*> models;
 	const int MaxObject3d = 2;
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		Model* model = new Model();
-		model->Initialize(modelCommon);
+		if (i == 0) {
+			model->Initialize(modelCommon, "resources", "asix.obj");
+		}
+		else {
+			model->Initialize(modelCommon, "resources", "plane.obj");
+			//model->Initialize(modelCommon, "resources", "asix.obj");
+		}
 		models.push_back(model);
 	}
+
+	
 
 	std::vector<Object3d*> object3ds;
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		Object3d* object3d = new Object3d();
-
 		object3d->Initialize(object3dCommon);
-		object3d->SetModel(models[i]);
-		models[i]->SetScale({1.0f,1.0f,1.0f});
-		models[i]->SetRotate({0.0f,3.14f,0.0f});
-		models[i]->SetTranslate({-2.0f + float((i*4)),0.0f,0.0f});
+		if (i == 0) {
+			object3d->SetModel("plane.obj");
+		}
+		else {
+			object3d->SetModel("asix.obj");
+		}
+		models[i]->SetScale({ 1.0f,1.0f,1.0f });
+		models[i]->SetRotate({ 0.0f,3.14f,0.0f });
+		models[i]->SetTranslate({ -2.0f + float((i * 4)),0.0f,0.0f });
 
 		object3ds.push_back(object3d);
 	}
-	
+
 
 
 	//ウィンドウの×ボタンが押されるまでループ
@@ -214,7 +232,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete spriteCommon;
 
 	//delete object3d;
-	
+
 
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		delete object3ds[i];
@@ -231,6 +249,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//テクスチャマネージャーの終了
 	TextureManager::GetInstance()->Finalize();
+
+	// モデルマネージャーの終了
+	ModelManager::GetInstance()->Finalize();
 
 	return 0;
 }

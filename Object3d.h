@@ -8,6 +8,7 @@
 #include<vector>
 #include<format>
 #include"Model.h"
+#include"ModelManager.h"
 using namespace Microsoft::WRL;
 
 class Object3dCommon;
@@ -24,6 +25,7 @@ public:
 
 	// setter
 	void SetModel(Model* model) { this->model = model; }
+	void SetModel(const std::string& filePath);
 
 private:
 

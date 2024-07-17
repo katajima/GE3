@@ -3,11 +3,11 @@
 #include"Object3d.h"
 #include"TextureManager.h"
 
-void Model::Initialize(ModelCommon* modelCommon)
+void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
 {
 	modelCommon_ = modelCommon;
 
-	modelData = LoadOdjFile("resources", "plane.obj");
+	modelData = LoadOdjFile(directorypath, filename);
 
 	// .objの参照しているテクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textuerFilePath);
