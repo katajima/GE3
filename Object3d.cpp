@@ -37,8 +37,6 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 	*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
 
 
-	
-
 
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
@@ -50,24 +48,16 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 
 void Object3d::Update()
 {
-	
-	
-
-
 	Matrix4x4 cameraMatrix = MakeAffineMatrixMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
 	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	////透視射影行列
+	// 透視投影行列
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
-
-
 
 	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(model->GetScale(), model->GetRotate(), model->GetTranslate());
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 	transfomationMatrixData->World = worldMatrix;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
 
-
-	
 }
 
 void Object3d::Draw()

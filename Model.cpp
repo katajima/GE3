@@ -11,12 +11,12 @@ void Model::Initialize(ModelCommon* modelCommon)
 
 	// .objの参照しているテクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textuerFilePath);
-	//読み込んだテクスチャの番号を取得
+	// 読み込んだテクスチャの番号を取得
 	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerFilePath);
 
 	vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
-
-	//リソースの先頭のアドレスを作成する
+	
+	// リソースの先頭のアドレスを作成する
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
 	vertexBufferView.StrideInBytes = sizeof(VertexData);
@@ -27,25 +27,28 @@ void Model::Initialize(ModelCommon* modelCommon)
 
 	// マテリアル
 	materialResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(Material));
-	//書き込むためのアドレスを取得
+	// 書き込むためのアドレスを取得
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 
 	//今回は赤を書き込んで見る //白
 	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
 	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableLighting = false;
+	materialData->enableLighting = true;
 }
 
 void Model::Draw()
 {
+	// マテリアルのバインド
 	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
+	// テクスチャのバインド
 	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textureIndex));
 
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); //VBVを設定
+	// 頂点バッファの設定
+	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 
+	// 描画
 	modelCommon_->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
-
 }
 
 

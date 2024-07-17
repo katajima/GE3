@@ -100,30 +100,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprites.push_back(sprite);
 	}
 
-	/*Model* model = nullptr;
+	Model* model = nullptr;
 	model =	new Model();
-	model->Initialize(modelCommon);*/
+	model->Initialize(modelCommon);
 
-	/*Object3d* object3d = new Object3d();
-	object3d->SetModel(model);
-	object3d->Initialize(object3dCommon);*/
 
-	std::vector < Model*> models;
-	const int MaxModel = 2;
-	for (uint32_t i = 0; i < MaxModel; ++i) {
-		Model* model = new Model();
-		model->Initialize(modelCommon);
-		models.push_back(model);
-	}
 	std::vector<Object3d*> object3ds;
 	const int MaxObject3d = 2;
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
-		Object3d* object3d2 = new Object3d();
+		Object3d* object3d = new Object3d();
 
-		object3d2->Initialize(object3dCommon);
-		object3d2->SetModel(models[i]);
+		object3d->Initialize(object3dCommon);
+		object3d->SetModel(model);
 
-		object3ds.push_back(object3d2);
+		object3ds.push_back(object3d);
 	}
 	
 
@@ -144,10 +134,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// Input
 		input->Update();
 
-		// 3Dモデル
-		//object3d->Update();
 
-		// 3Dモデル2
+		// 3Dモデル
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
 			object3ds[i]->Update();
 		}
@@ -176,10 +164,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		object3dCommon->DrawCommonSetting();
 
 		//3Dオブジェクトの描画
-		//object3d->Draw();
-
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
-			object3ds[i]->Draw();	
+			object3ds[i]->Draw();
 		}
 
 
@@ -224,10 +210,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	delete object3dCommon;
 
-	//delete model;
-	for (uint32_t i = 0; i < MaxModel; ++i) {
+	delete model;
+	/*for (uint32_t i = 0; i < MaxModel; ++i) {
 		delete models[i];
-	}
+	}*/
 	delete modelCommon;
 
 	//テクスチャマネージャーの終了

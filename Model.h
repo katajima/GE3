@@ -28,10 +28,9 @@ public:
 	const Vector3& GetTranslate()const { return transform.translate; };
 
 
-
 private:
 	ModelCommon* modelCommon_ = nullptr;
-
+	Transform transform;
 	// 頂点データ
 	struct VertexData {
 
@@ -58,7 +57,7 @@ private:
 		float padding[3];
 		Matrix4x4 uvTransform;
 	};
-	Transform transform;
+	
 	// Objファイルのデータ
 	ModelData modelData;
 
