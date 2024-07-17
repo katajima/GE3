@@ -23,6 +23,9 @@
 #include"TextureManager.h"
 #include"Object3d.h"
 #include"Object3dCommon.h"
+#include"Model.h"
+#include"ModelCommon.h"
+
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -46,7 +49,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3DResourceLeakchecker leakCheck;
-	
+
 	//COMの初期化
 	//CoInitializeEx(0, COINIT_MULTITHREADED);
 
@@ -72,33 +75,59 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// スプライト共通部の初期化
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
-	
+
 	Object3dCommon* object3dCommon = nullptr;
 	// 3Dオブジェクト共通部分の初期化
 	object3dCommon = new Object3dCommon();
 	object3dCommon->Initialize(dxCommon);
 
-	Object3d* object3d = new Object3d();
-	object3d->Initialize(object3dCommon);
-
-
-	
+	ModelCommon* modelCommon = nullptr;
+	modelCommon = new ModelCommon();
+	modelCommon->Initialize(dxCommon);
 
 	std::vector<Sprite*> sprites;
 	const int MaxSprite = 1;
 	for (uint32_t i = 0; i < MaxSprite; ++i) {
-		Sprite* sprite = new Sprite();	
+		Sprite* sprite = new Sprite();
 		if (i % 2 == 0) {
-			
+
 			sprite->Initialize(spriteCommon, "resources/uvChecker.png");
 		}
 		else {
-			
+
 			sprite->Initialize(spriteCommon, "resources/monsterBall.png");
 		}
 		sprites.push_back(sprite);
 	}
+
+	/*Model* model = nullptr;
+	model =	new Model();
+	model->Initialize(modelCommon);*/
+
+	/*Object3d* object3d = new Object3d();
+	object3d->SetModel(model);
+	object3d->Initialize(object3dCommon);*/
+
+	std::vector < Model*> models;
+	const int MaxModel = 2;
+	for (uint32_t i = 0; i < MaxModel; ++i) {
+		Model* model = new Model();
+		model->Initialize(modelCommon);
+		models.push_back(model);
+	}
+	std::vector<Object3d*> object3ds;
+	const int MaxObject3d = 2;
+	for (uint32_t i = 0; i < MaxObject3d; ++i) {
+		Object3d* object3d2 = new Object3d();
+
+		object3d2->Initialize(object3dCommon);
+		object3d2->SetModel(models[i]);
+
+		object3ds.push_back(object3d2);
+	}
 	
+
+
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
 		// Windowsのメッセージ処理
@@ -112,15 +141,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-
+		// Input
 		input->Update();
-		object3d->Update();
+
+		// 3Dモデル
+		//object3d->Update();
+
+		// 3Dモデル2
+		for (uint32_t i = 0; i < MaxObject3d; ++i) {
+			object3ds[i]->Update();
+		}
+
+		// スプライト
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
 			sprites[i]->Update();
 		}
 
 
-		
+
+
 		ImGui::Begin("Window");
 		ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
 		ImGui::End();
@@ -131,17 +170,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 描画前処理
 		dxCommon->PreDraw();
 
-		
+		//////////////---------3Dモデル-------------///////////////
+
 		// 3Dオブジェクトの描画準備
 		object3dCommon->DrawCommonSetting();
 
-		object3d->Draw();
+		//3Dオブジェクトの描画
+		//object3d->Draw();
+
+		for (uint32_t i = 0; i < MaxObject3d; ++i) {
+			object3ds[i]->Draw();	
+		}
+
+
+		//////////////--------スプライト-----------///////////////////
+
 
 		// 2Dオブジェクトの描画準備
 		spriteCommon->DrawCommonSetting();
 
+
+		// 2Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
-			sprites[i]->Draw();
+			//sprites[i]->Draw();
 		}
 
 		//描画後処理
@@ -165,8 +216,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	delete spriteCommon;
 
-	delete object3d;
+	//delete object3d;
+	
+
+	for (uint32_t i = 0; i < MaxObject3d; ++i) {
+		delete object3ds[i];
+	}
 	delete object3dCommon;
+
+	//delete model;
+	for (uint32_t i = 0; i < MaxModel; ++i) {
+		delete models[i];
+	}
+	delete modelCommon;
 
 	//テクスチャマネージャーの終了
 	TextureManager::GetInstance()->Finalize();

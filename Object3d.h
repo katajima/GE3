@@ -7,6 +7,7 @@
 #include<string>
 #include<vector>
 #include<format>
+#include"Model.h"
 using namespace Microsoft::WRL;
 
 class Object3dCommon;
@@ -21,8 +22,16 @@ public:
 	// 描画
 	void Draw();
 
+	// setter
+	void SetModel(Model* model) { this->model = model; }
+
 private:
+
+	Model* model = nullptr;
+
 	Object3dCommon* object3dCommon_ = nullptr;
+
+	
 
 	// 頂点データ
 	struct VertexData {
@@ -62,19 +71,7 @@ private:
 		Vector3 direction; //!< ライトの向き
 		float intensity; //!< 輝度
 	};
-	// Objファイルのデータ
-	ModelData modelData;
-
-	// バッファリソース
-	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
-	// バッファリソース内のデータを指すポインタ
-	VertexData* vertexData = nullptr;
-
-	//バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
-	Material* materialData;
+	
 
 	TransfomationMatrix* transfomationMatrixData;
 	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource;
@@ -89,14 +86,7 @@ private:
 
 
 public:
-	//マテリアルデータを読み込む
-	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
-
-	//モデルデータ読み込み
-	static ModelData LoadOdjFile(const std::string& directoryPath, const std::string& filename);
-
-
-
+	
 };
 
 
