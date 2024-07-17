@@ -11,7 +11,8 @@
 #include<fstream>
 #include<sstream>
 #include<wrl.h>
-#include"TextureManager.h"
+#include"DirectXGame/engine/base/TextureManager.h"
+#include"DirectXGame/engine/struct/Structs.h"
 
 void Object3d::Initialize(Object3dCommon* object3dCommon)
 {

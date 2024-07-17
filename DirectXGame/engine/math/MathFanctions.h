@@ -1,5 +1,5 @@
 #pragma once
-#include"Structs.h"
+#include"DirectXGame/engine/struct/Structs.h"
 
 #pragma region Math
 

@@ -1,7 +1,7 @@
 #include"Model.h"
 #include"ModelCommon.h"
 #include"Object3d.h"
-#include"TextureManager.h"
+#include"DirectXGame/engine/base/TextureManager.h"
 
 void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
 {

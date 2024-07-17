@@ -1,20 +1,26 @@
 #pragma once
-#include "DirectXCommon.h"
-
-class Object3dCommon
+#include"DirectXGame/engine/base/DirectXCommon.h"
+#include<d3d12.h>
+#include<dxgi1_6.h>
+#include<cstdint>
+#include<wrl.h>
+using namespace Microsoft::WRL;
+class SpriteCommon
 {
-public:
+public:// メンバ関数
 	// 初期化
 	void Initialize(DirectXCommon* dxCommon);
 
 	DirectXCommon* GetDxCommon() const { return dxCommon_; }
 
 	void DrawCommonSetting();
-private:
+
+private:// メンバ関数
 	// ルートシグネチャの作成
 	void CreateRootSignature();
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
+
 private:// メンバ変数
 	DirectXCommon* dxCommon_;
 
@@ -26,4 +32,5 @@ private:// メンバ変数
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
 
 };
+
 

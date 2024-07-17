@@ -4,7 +4,7 @@
 #define DIRECTINPUT_VERSION    0x0800 // DirectInputのバージョン設定
 #include <dinput.h>
 
-#include"WinApp.h"
+#include"DirectXGame/engine/base/WinApp.h"
 
 #pragma comment(lib,"dinput8.lib")
 #pragma comment(lib,"dxguid.lib")

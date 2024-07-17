@@ -12,20 +12,20 @@
 #include<sstream>
 #include<wrl.h>
 
-#include"Structs.h"
-#include"MathFanctions.h"
-#include"Input.h"
-#include"WinApp.h"
-#include"DirectXCommon.h"
-#include"D3DResourceLeakchecker.h"
-#include"Sprite.h"
-#include"SpriteCommon.h"
-#include"TextureManager.h"
-#include"Object3d.h"
-#include"Object3dCommon.h"
-#include"Model.h"
-#include"ModelCommon.h"
-#include"ModelManager.h"
+#include"DirectXGame/engine/struct/Structs.h"
+#include"DirectXGame/engine/math/MathFanctions.h"
+#include"DirectXGame/engine/input/Input.h"
+#include"DirectXGame/engine/base/WinApp.h"
+#include"DirectXGame/engine/base/DirectXCommon.h"
+#include"DirectXGame/engine/base/D3DResourceLeakchecker.h"
+#include"DirectXGame/engine/2d/Sprite.h"
+#include"DirectXGame/engine/2d/SpriteCommon.h"
+#include"DirectXGame/engine/base/TextureManager.h"
+#include"DirectXGame/engine/3d/Object3d.h"
+#include"DirectXGame/engine/3d/Object3dCommon.h"
+#include"DirectXGame/engine/3d/Model.h"
+#include"DirectXGame/engine/3d/ModelCommon.h"
+#include"DirectXGame/engine/3d/ModelManager.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -43,8 +43,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"dxcompiler.lib")
 
-#include"StringUtility.h"
-#include"Logger.h"
+#include"DirectXGame/engine/base/StringUtility.h"
+#include"DirectXGame/engine/base/Logger.h"
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {

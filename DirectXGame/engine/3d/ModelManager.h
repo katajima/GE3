@@ -12,7 +12,7 @@ using namespace Microsoft::WRL;
 #include<vector>
 #include<map>
 #include"Model.h"
-#include"DirectXCommon.h"
+#include"DirectXGame/engine/base/DirectXCommon.h"
 #include"ModelCommon.h"
 
 // テクスチャマネージャー
