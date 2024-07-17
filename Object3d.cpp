@@ -40,6 +40,9 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+	/*model->SetTranslate(transform.translate);
+	model->SetScale(transform.scale);
+	model->SetRotate(transform.rotate);*/
 
 	//カメラ
 	cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };

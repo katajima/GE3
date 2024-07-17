@@ -100,18 +100,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprites.push_back(sprite);
 	}
 
-	Model* model = nullptr;
-	model =	new Model();
-	model->Initialize(modelCommon);
-
+	std::vector <Model*> models;
+	const int MaxObject3d = 2;
+	for (uint32_t i = 0; i < MaxObject3d; ++i) {
+		Model* model = new Model();
+		model->Initialize(modelCommon);
+		models.push_back(model);
+	}
 
 	std::vector<Object3d*> object3ds;
-	const int MaxObject3d = 2;
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		Object3d* object3d = new Object3d();
 
 		object3d->Initialize(object3dCommon);
-		object3d->SetModel(model);
+		object3d->SetModel(models[i]);
+		models[i]->SetScale({1.0f,1.0f,1.0f});
+		models[i]->SetRotate({0.0f,3.14f,0.0f});
+		models[i]->SetTranslate({-2.0f + float((i*4)),0.0f,0.0f});
 
 		object3ds.push_back(object3d);
 	}
@@ -166,6 +171,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//3Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
 			object3ds[i]->Draw();
+			if (i == 0) {
+				models[0]->SetRotate(Add(models[0]->GetRotate(), Vector3{ 0.01f,0.01f,0 }));
+			}
+			else {
+				models[1]->SetRotate(Add(models[1]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
+			}
 		}
 
 
@@ -210,7 +221,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	delete object3dCommon;
 
-	delete model;
+	for (uint32_t i = 0; i < MaxObject3d; ++i) {
+		delete models[i];
+	}
 	/*for (uint32_t i = 0; i < MaxModel; ++i) {
 		delete models[i];
 	}*/
