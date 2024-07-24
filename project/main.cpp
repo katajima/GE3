@@ -27,6 +27,7 @@
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
 #include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/base/SrvManager.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -70,8 +71,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon = new DirectXCommon();
 	dxCommon->Intialize(winApp);
 
+	SrvManager* srvManager = nullptr;
+	// SRVマネージャの初期化
+	srvManager = new SrvManager();
+	srvManager->Initialize(dxCommon);
+
 	//テクスチャマネージャー
-	TextureManager::GetInstance()->Initialize(dxCommon);
+	TextureManager::GetInstance()->Initialize(dxCommon,srvManager);
 
 	//モデルマネージャー
 	ModelManager::GetInstance()->Initialize(dxCommon);
@@ -201,6 +207,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 描画前処理
 		dxCommon->PreDraw();
 
+		srvManager->PreDraw();
+
 		//////////////---------3Dモデル-------------///////////////
 
 		// 3Dオブジェクトの描画準備
@@ -236,6 +244,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon->Finalize();
 	delete dxCommon;
 
+	delete srvManager;
+
 	// WindowsAPIの終了処理
 	winApp->Finalize();
 	// WindowsAPI解放
@@ -253,12 +263,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	delete object3dCommon;
 
-	for (uint32_t i = 0; i < MaxObject3d; ++i) {
-		//delete models[i];
-	}
-	/*for (uint32_t i = 0; i < MaxModel; ++i) {
-		delete models[i];
-	}*/
+
 	delete modelCommon;
 
 	//テクスチャマネージャーの終了

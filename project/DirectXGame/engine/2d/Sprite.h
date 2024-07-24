@@ -124,5 +124,7 @@ private:
 	// テクスチャ切り出し座標
 	Vector2 textureSize = { 100.0f,100.0f };
 
+
+	std::string textureFilePath_;
 };
 
