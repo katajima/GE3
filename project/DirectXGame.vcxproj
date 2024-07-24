@@ -102,6 +102,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DirectXGame\engine\base\D3DResourceLeakchecker.cpp" />
+    <ClCompile Include="DirectXGame\engine\base\DebugCamera.cpp" />
     <ClCompile Include="DirectXGame\engine\base\DirectXCommon.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
@@ -148,6 +149,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXGame\engine\base\D3DResourceLeakchecker.h" />
+    <ClInclude Include="DirectXGame\engine\base\DebugCamera.h" />
     <ClInclude Include="DirectXGame\engine\base\DirectXCommon.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />

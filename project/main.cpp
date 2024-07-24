@@ -26,6 +26,7 @@
 #include"DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
+#include "DirectXGame/engine/base/DebugCamera.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -142,6 +143,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 
+	DebugCamera* debugCamera = nullptr;
+	debugCamera = new DebugCamera();
+	debugCamera->Initialize(input);
+
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
@@ -159,6 +164,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// Input
 		input->Update();
 
+		debugCamera->Update();
 
 		// 3Dモデル
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
