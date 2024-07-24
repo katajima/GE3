@@ -26,13 +26,14 @@ public: // メンバ関数
 	const int32_t GetClientWidth() { return kClientWidth; }
 	const int32_t GetClientHeight() { return kClientHeight; }
 	
+	//クライアント領域のサイズ
+	const int32_t kClientWidth = 1280;
+	const int32_t kClientHeight = 720;
 	//const FLOAT GetFLOATClientWidth() { return kClientWidth; }
 	//const FLOAT GetFLOATClientHeight() { return kClientHeight; }
 private:
 	HWND hwnd = nullptr; // ウィンドウハンドル
 	WNDCLASS wc{};       // ウィンドウクラス
-	//クライアント領域のサイズ
-	const int32_t kClientWidth = 1280;
-	const int32_t kClientHeight = 720;
+	
 };
 

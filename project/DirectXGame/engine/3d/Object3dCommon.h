@@ -1,5 +1,6 @@
 #pragma once
 #include "DirectXGame/engine/base/DirectXCommon.h"
+#include "DirectXGame/engine/base/Camera.h"
 
 class Object3dCommon
 {
@@ -10,6 +11,11 @@ public:
 	DirectXCommon* GetDxCommon() const { return dxCommon_; }
 
 	void DrawCommonSetting();
+
+	void SetDefaltCamera(Camera* camera) { this->defaultCamera = camera; }
+
+	Camera* GetDefaltCamera() const { return defaultCamera; }
+
 private:
 	// ルートシグネチャの作成
 	void CreateRootSignature();
@@ -17,6 +23,8 @@ private:
 	void CreateGraphicsPipeline();
 private:// メンバ変数
 	DirectXCommon* dxCommon_;
+
+	Camera* defaultCamera = nullptr;
 
 	//ルートシグネチャデスク
 	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};

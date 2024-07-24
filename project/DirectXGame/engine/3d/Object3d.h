@@ -1,5 +1,6 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
+#include "DirectXGame/engine/base/Camera.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>
@@ -38,8 +39,10 @@ public:
 	const Vector3& GetRotate()const { return transform.rotate; };
 	const Vector3& GetTranslate()const { return transform.translate; };
 
+	void SetCamera(Camera* camera) { this->camera = camera; }
 
 private:
+	Camera* camera = nullptr;
 
 	Model* model = nullptr;
 

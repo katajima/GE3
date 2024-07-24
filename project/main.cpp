@@ -26,6 +26,7 @@
 #include"DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
+#include"DirectXGame/engine/base/Camera.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -80,10 +81,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
 
+	Camera* camera = new Camera();
+	camera->SetRotate({ 0,0,0 });
+	camera->SetTranslate({ 0,0,-20 });
+
+
 	Object3dCommon* object3dCommon = nullptr;
 	// 3Dオブジェクト共通部分の初期化
 	object3dCommon = new Object3dCommon();
 	object3dCommon->Initialize(dxCommon);
+	object3dCommon->SetDefaltCamera(camera);
 
 	ModelCommon* modelCommon = nullptr;
 	modelCommon = new ModelCommon();
@@ -106,43 +113,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	
-	//std::vector <Model*> models;
 	const int MaxObject3d = 2;
-	//for (uint32_t i = 0; i < MaxObject3d; ++i) {
-	//	
-	//	Model* model = new Model();
-	//	//model->SetScale({ 1,1,1 });
-	//	if (i==0) {
-	//		model->Initialize(modelCommon, "resources", "plane.obj");
-	//		
-	//	}
-	//	else {
-	//		model->Initialize(modelCommon, "resources", "axis.obj");
-	//	}
-	//	models.push_back(model);
-	//}
-
 	
-
 	std::vector<Object3d*> object3ds;
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		Object3d* object3d = new Object3d();
 		object3d->Initialize(object3dCommon);
+		//object3d->SetCamera(object3dCommon->GetDefaltCamera());
 		if (i == 1) {
 			ModelManager::GetInstance()->LoadModel("plane.obj");
 			object3d->SetModel("plane.obj");
+			object3d->SetTranslate({ 4,0,10 });
 		}
 		else {
 			ModelManager::GetInstance()->LoadModel("axis.obj");
 			object3d->SetModel("axis.obj");
+			object3d->SetTranslate({ -2,0,10 });
 		}
 		
 
 		object3ds.push_back(object3d);
 	}
 
-
-
+	
+	
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
 		// Windowsのメッセージ処理
@@ -156,20 +150,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
+		Vector3 cameraR = camera->GetRotate();
+		Vector3 cameraT = camera->GetTranslate();
+		ImGui::Begin("Window");
+		ImGui::DragFloat3("camera Rotate", &cameraR.x,0.01f);
+		camera->SetRotate(cameraR);
+		ImGui::DragFloat3("camera translate", &cameraT.x, 0.1f);
+		camera->SetTranslate(cameraT);
+		Vector3 translateObj1 = object3ds[0]->GetTranslate();
+		ImGui::DragFloat3("object1 translate", &translateObj1.x, 0.1f);
+		object3ds[0]->SetTranslate(translateObj1);
+		Vector3 translateObj2 = object3ds[1]->GetTranslate();
+		ImGui::DragFloat3("object2 translate", &translateObj2.x, 0.1f);
+		object3ds[1]->SetTranslate(translateObj2);
+		ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
+		ImGui::End();
+
 		// Input
 		input->Update();
 
+		camera->Update();
 
 		// 3Dモデル
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
+			
 			object3ds[i]->Update();
+			object3ds[i]->SetCamera(object3dCommon->GetDefaltCamera());
 			object3ds[i]->SetScale({ 1,1,1 });
 			if (i == 0) {
-				object3ds[i]->SetTranslate({ -2,0,10 });
 				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
 			}
 			if (i == 1) {
-				object3ds[i]->SetTranslate({ 5,0,10 });
+				
 				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f,0.02f,0.0f }));
 			}
 		}
@@ -181,10 +193,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-
-		ImGui::Begin("Window");
-		ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
-		ImGui::End();
+		
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
 		ImGui::ShowDemoWindow();
