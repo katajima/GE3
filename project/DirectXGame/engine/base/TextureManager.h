@@ -61,11 +61,11 @@ private:
 
 	//テクスチャデータ
 	//std::vector<TextureData> textureDatas;
+	std::unordered_map<std::string, TextureData> textureDatas;
+
 	DirectXCommon* dxCommon_ = nullptr;
 	static uint32_t kSRVIndexTop;
 	//Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource;
-	//テクスチャデータ
-	std::unordered_map<std::string, TextureData> textureDatas;
 	
 	SrvManager* srvManager_ = nullptr;
 };

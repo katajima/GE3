@@ -152,7 +152,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		};
 
 		//ゲームの処理
-		ImGui_ImplDX12_NewFrame();
+		/*ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
@@ -170,7 +170,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("object2 translate", &translateObj2.x, 0.1f);
 		object3ds[1]->SetTranslate(translateObj2);
 		ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
-		ImGui::End();
+		ImGui::End();*/
 
 		// Input
 		input->Update();
@@ -202,7 +202,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 
 		// 描画前処理
 		dxCommon->PreDraw();

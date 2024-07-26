@@ -75,8 +75,9 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& filePath)
 {
 	//読み込み済みテクスチャを検索
-    if (textureDatas.contains(filePath)) {
-
+    auto it = textureDatas.find(filePath);
+    if (it != textureDatas.end()) {
+        return it->second.srvIndex;
     }
 	assert(0);
 	return 0;

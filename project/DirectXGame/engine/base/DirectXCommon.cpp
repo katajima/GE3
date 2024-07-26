@@ -68,7 +68,7 @@ void DirectXCommon::PreDraw()
 	commandList->ResourceBarrier(1, &barrier);
 
 	//ImGuiの内部コマンドを生成する
-	ImGui::Render();
+	//ImGui::Render();
 
 
 	// 描画先のRTVとDSVを設定する
@@ -83,8 +83,8 @@ void DirectXCommon::PreDraw()
 
 	commandList->ClearRenderTargetView(rtvHandles[backBufferInbex], clearColor, 0, nullptr);
 	// 描画用のDescriptorHeapの設定
-	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> descriptorHeaps[] = { srvDescriptorHeap };
-	commandList->SetDescriptorHeaps(1, descriptorHeaps->GetAddressOf());
+	//Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> descriptorHeaps[] = { srvDescriptorHeap };
+	//commandList->SetDescriptorHeaps(1, descriptorHeaps->GetAddressOf());
 
 	////------コマンドを積む------////
 	commandList->RSSetViewports(1, &viewport); // Viewportを設定
@@ -102,7 +102,7 @@ void DirectXCommon::PostDraw()
 		//今回はRenderTargetからPresentにする
 
 	// 実際のcommandListのImGuiの描画コマンドを積む(一番最後の描画)
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.Get());
+	//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.Get());
 
 
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -156,32 +156,14 @@ void DirectXCommon::Finalize()
 {
 	//COMの終了処理
 	//ImGui
-	ImGui_ImplDX12_Shutdown();
+	/*ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	ImGui::DestroyContext();*/
 	////解放処理
 	CloseHandle(fenceEvent);
 }
 
-//DirectXCommon* DirectXCommon::GetInstance()
-//{
-//	if (instance == nullptr) {
-//		instance = new DirectXCommon;
-//	}
-//	return instance;
-//}
 
-/// <summary>
-/// SRV
-/// </summary>
-D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVCPUDescriptorHandle(uint32_t index)
-{
-	return GetCPUDescriptorHandle(srvDescriptorHeap, desriptorSizeSRV, index);
-}
-D3D12_GPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVGPUDescriptorHandle(uint32_t index)
-{
-	return GetGPUDescriptorHandle(srvDescriptorHeap, desriptorSizeSRV, index);
-}
 /// <summary>
 ///  RTV
 /// </summary>
@@ -417,7 +399,7 @@ void DirectXCommon::CreateRenderTargets()
 void DirectXCommon::CreateDescriptorHeap()
 {
 	// DescriptorSizeを取得しておく
-	desriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	//desriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	desriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	desriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
@@ -431,7 +413,7 @@ void DirectXCommon::CreateDescriptorHeap()
 
 
 	// SRV用のディスクリプタの数は128。SRVはShader内で触るものなので、ShaderVisibleはtrue
-	srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
+	//srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 
 	// DSV用のヒープでディスクリプタの数は1。DSVはShader内で触るものではないので、ShaderVisibleはfalse
 	dsvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
@@ -546,17 +528,17 @@ void DirectXCommon::CreateDXCCompiler()
 
 void DirectXCommon::InitializeImGui()
 {
-	// ImGuiの初期化
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(winApp_->GetHwnd());
-	ImGui_ImplDX12_Init(device.Get(),
-		swapChainDesc.BufferCount,
-		rtvDesc.Format,
-		srvDescriptorHeap.Get(),
-		srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-		srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	//// ImGuiの初期化
+	//IMGUI_CHECKVERSION();
+	//ImGui::CreateContext();
+	//ImGui::StyleColorsDark();
+	//ImGui_ImplWin32_Init(winApp_->GetHwnd());
+	//ImGui_ImplDX12_Init(device.Get(),
+	//	swapChainDesc.BufferCount,
+	//	rtvDesc.Format,
+	//	srvDescriptorHeap.Get(),
+	//	srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+	//	srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 }
 
