@@ -205,9 +205,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//ImGui::ShowDemoWindow();
 
 		// 描画前処理
+		srvManager->PreDraw();
+		
 		dxCommon->PreDraw();
 
-		srvManager->PreDraw();
+		
 
 		//////////////---------3Dモデル-------------///////////////
 

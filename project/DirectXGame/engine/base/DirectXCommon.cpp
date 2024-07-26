@@ -33,7 +33,7 @@ void DirectXCommon::Intialize(WinApp* winApp) {
     InitializeViewport();
     InitializeScissor();
     CreateDXCCompiler();
-    InitializeImGui();
+    //InitializeImGui();
 }
 
 void DirectXCommon::PreDraw()
