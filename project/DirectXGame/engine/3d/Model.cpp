@@ -15,7 +15,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerFilePath);
 
 	vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
-	
+
 	// リソースの先頭のアドレスを作成する
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
@@ -34,10 +34,28 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableLighting = true;
+	materialData->isHalfLambert = true;
+
+
+
+	uvTransform = {
+		{1,1,1},
+		{0,0,0},
+		{0,0,0},
+	};
+
+
+	
 }
 
 void Model::Draw()
 {
+	//UVTransformMaterial//
+	Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransform.scale);
+	uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransform.rotate.z));
+	uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransform.translate));
+	materialData->uvTransform = uvTransformMatrix;
+
 	// マテリアルのバインド
 	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
@@ -77,7 +95,14 @@ Model::MaterialData Model::LoadMaterialTemplateFile(const std::string& directory
 			// 連結してファイルパスにする
 			materialData.textuerFilePath = directoryPath + "/" + textureFilename;
 		}
+		if (materialData.textuerFilePath.empty()) {
+			std::string textureFilename = "white.png";
+			s >> textureFilename;
+			// 連結してファイルパスにする
+			materialData.textuerFilePath = directoryPath + "/" + "white.png";
+		}
 	}
+
 
 	return materialData;
 }
@@ -129,15 +154,24 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 				s >> vertexDefinition;
 				// 頂点の要素へのindexは[位置/UV/法線]で格納されているので、分解してindexを取得する
 				std::istringstream v(vertexDefinition);
-				uint32_t elementIndices[3];
-				for (int32_t element = 0; element < 3; ++element) {
-					std::string index;
-					std::getline(v, index, '/');// /区切りでインデックスを読んでいく
-					elementIndices[element] = std::stoi(index);
+				//uint32_t elementIndices[3];
+				uint32_t elementIndices[3] = { 0, 0, 0 }; // デフォルト値0
+
+				std::string index;
+				int32_t element = 0;
+				while (std::getline(v, index, '/')) {
+					if (!index.empty()) {
+						elementIndices[element] = std::stoi(index);
+					}
+					element++;
 				}
+
 				//要素へのindexから、実際の要素の値を取得して、頂点を構築する
 				Vector4 position = positions[elementIndices[0] - 1];
-				Vector2 texcoord = texcoords[elementIndices[1] - 1];
+				Vector2 texcoord = { 0,0 };
+				if (elementIndices[1] > 0) {
+					texcoord = texcoords[elementIndices[1] - 1];
+				}
 				Vector3 normal = normals[elementIndices[2] - 1];
 				//VertexData vertex = { position,texcoord,normal };
 				//modelData.vertices.push_back(vertex);

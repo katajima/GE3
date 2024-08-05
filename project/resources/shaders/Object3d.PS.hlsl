@@ -6,6 +6,7 @@ struct Material {
     float32_t4 color;
     int32_t enableLighting;
     float32_t4x4 uvTransform;
+    int isLambert;
 };
 
 struct DirectionalLight
@@ -37,11 +38,18 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     if (gMaterial.enableLighting != 0) // LightingÇ∑ÇÈèÍçá
     {
-        float NdotL = dot(normalize(input.nomal), -gDirectionalLight.direction);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
-            
-        //float cos = saturate(dot(normalize(input.nomal), -gDirectionalLight.direction));
-        //output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+        float cos;
+        if (gMaterial.isLambert != 0)
+        {
+        
+            float NdotL = dot(normalize(input.nomal), -gDirectionalLight.direction);
+            cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        }
+        else
+        {
+            cos = saturate(dot(normalize(input.nomal), -gDirectionalLight.direction));    
+        }
+        output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
         output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
         output.color.a = gMaterial.color.a * textureColor.a;
 

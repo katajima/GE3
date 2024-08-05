@@ -68,6 +68,13 @@ void Object3d::Update()
 	transfomationMatrixData->World = worldMatrix;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
 
+	//uvTransform.rotate = model->GetUvTransformRotate();
+	//uvTransform.scale = model->GetUvTransformScale();
+	//uvTransform.translate = model->GetUvTransformTranslate();
+	
+	//model->SetUvTransformTranslate();
+
+
 	//model->SetScale(transform.scale);
 	//model->SetRotate(transform.rotate);
 	//model->SetTranslate(transform.translate);

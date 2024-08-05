@@ -12,25 +12,7 @@ class ModelCommon;
 
 class Model
 {
-public:
-	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename);
-
-	void Draw();
-
-	// setter
-	//void SetScale(const Vector3& scale) { transform.scale = scale; };
-	//void SetRotate(const Vector3& rotate) { transform.rotate = rotate; };
-	//void SetTranslate(const Vector3& translate) { transform.translate = translate; };
-
-	//// getter
-	//const Vector3& GetScale()const { return transform.scale; };
-	//const Vector3& GetRotate()const { return transform.rotate; };
-	//const Vector3& GetTranslate()const { return transform.translate; };
-
-
 private:
-	ModelCommon* modelCommon_ = nullptr;
-	Transform transform;
 	// 頂点データ
 	struct VertexData {
 
@@ -56,7 +38,36 @@ private:
 		int32_t enableLighting;
 		float padding[3];
 		Matrix4x4 uvTransform;
+		int32_t isHalfLambert;
 	};
+
+public:
+	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename);
+
+	void Draw();
+
+	// setter
+	void SetMaterial(Material* material) { materialData = material; };
+	void SetUvTransformTranslate(const Vector3& translate) { uvTransform.translate = translate; };
+	void SetUvTransformRotate(const Vector3& rotate) { uvTransform.rotate = rotate ; };
+	void SetUvTransformScale(const Vector3& scale) { uvTransform.scale = scale; };
+	
+	void SetLighting(const int32_t isLight) { materialData->enableLighting = isLight; };
+	void SetHalfLambert(const int32_t isLight) { materialData->isHalfLambert = isLight; };
+	
+	//// getter
+	const Vector3& GetUvTransformTranslate()const { return uvTransform.translate; };
+	const Vector3& GetUvTransformRotate()const { return uvTransform.rotate; };
+	const Vector3& GetUvTransformScale()const { return uvTransform.scale; };
+	
+	const int32_t& GetLighting()const { return materialData->enableLighting; };
+	const int32_t& GetHalfLambert()const { return materialData->isHalfLambert; };
+
+private:
+	ModelCommon* modelCommon_ = nullptr;
+	Transform transform;
+	Transform uvTransform;
+
 	
 	// Objファイルのデータ
 	ModelData modelData;
