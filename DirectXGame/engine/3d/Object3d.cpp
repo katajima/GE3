@@ -1,3 +1,4 @@
+
 #include"Object3dCommon.h"
 #include"Object3d.h"
 #include<cstdint>
@@ -18,7 +19,7 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 {
 	// 引数で受け取ってメンバ変数に記録する
 	this->object3dCommon_ = object3dCommon;
-	
+	this->camera = object3dCommon->GetDefaltCamera();
 	//トランスフォーム
 	transformationMatrixResource = object3dCommon_->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
 
@@ -46,27 +47,38 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 	model->SetRotate(transform.rotate);*/
 
 	//カメラ
-	cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
+	//cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
 
 }
 
 void Object3d::Update()
 {
 	assert(model);
-	Matrix4x4 cameraMatrix = MakeAffineMatrixMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	// 透視投影行列
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
+	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
+	Matrix4x4 worldViewProjectionMatrix;
+	if (camera) {
+		const Matrix4x4& viewMatrix = camera->GetViewMatrix();
+		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
+		worldViewProjectionMatrix = Multiply(worldMatrix, viewMatrix);
+		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, projectionMatrix);
+	}
+	else {
+		worldViewProjectionMatrix = worldMatrix;
+	}
 
-	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(model->GetScale(), model->GetRotate(), model->GetTranslate());
-	//Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 	transfomationMatrixData->World = worldMatrix;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
 
-	model->SetScale(transform.scale);
-	model->SetRotate(transform.rotate);
-	model->SetTranslate(transform.translate);
+	//uvTransform.rotate = model->GetUvTransformRotate();
+	//uvTransform.scale = model->GetUvTransformScale();
+	//uvTransform.translate = model->GetUvTransformTranslate();
+
+	//model->SetUvTransformTranslate();
+
+
+	//model->SetScale(transform.scale);
+	//model->SetRotate(transform.rotate);
+	//model->SetTranslate(transform.translate);
 	//transform.scale = model->GetScale();
 
 }
@@ -77,7 +89,7 @@ void Object3d::Draw()
 	object3dCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
 	object3dCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
-	
+
 	// 3Dモデルが割り当てれていれば描画する
 	if (model) {
 		model->Draw();
@@ -90,6 +102,3 @@ void Object3d::SetModel(const std::string& filePath)
 	//モデルを検索してセット
 	model = ModelManager::GetInstance()->FindModel(filePath);
 }
-
-
-
