@@ -3,11 +3,13 @@
 #include <iostream>
 #include"DirectXGame/engine/base/TextureManager.h"
 
-void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
+void Sprite::Initialize(SpriteCommon* spriteCommon, SrvManager* srvMana, std::string textureFilePath)
 {
 	// 引数で受け取ってメンバ変数にする
 	this->spriteCommon_ = spriteCommon;
-	
+	srvManager_ = srvMana;
+	textureFilePath_ = textureFilePath;
+
 	vertexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * 4);
 	
 	indexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 6);
@@ -54,7 +56,7 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 
 	TextureManager::GetInstance()->LoadTexture(textureFilePath);
 
-	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	textureIndex = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
 
 }
 
@@ -77,7 +79,7 @@ void Sprite::Update()
 	}
 
 	/// テクスチャ範囲指定-反映処理-
-	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMataData(textureIndex);
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetadata(textureFilePath_);
 	float tex_left = textureLeftTop.x / metadata.width;
 	float tex_right = (textureLeftTop.x + textureSize.x) / metadata.width;
 	float tex_top = textureLeftTop.y / metadata.height;
@@ -130,7 +132,10 @@ void Sprite::Draw()
 {
 	spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-	spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureIndex));
+	//spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureFilePath_));
+
+	srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvIndex(textureFilePath_));
+	//SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureFilePath_));
 
 	//vertexBufferViewSprite
 	spriteCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); //VBVを設定
@@ -147,7 +152,7 @@ void Sprite::Draw()
 void Sprite::AdjusttextureSize()
 {
 	// テクスチャメタデータを取得
-	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMataData(textureIndex);
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetadata(textureFilePath_);
 
 	textureSize.x = static_cast<float>(metadata.width);
 	textureSize.y = static_cast<float>(metadata.height);

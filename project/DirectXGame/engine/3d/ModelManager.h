@@ -13,6 +13,7 @@ using namespace Microsoft::WRL;
 #include<map>
 #include"Model.h"
 #include"DirectXGame/engine/base/DirectXCommon.h"
+#include"DirectXGame/engine/base/SrvManager.h"
 #include"ModelCommon.h"
 
 // テクスチャマネージャー
@@ -24,7 +25,7 @@ public:
 	void Finalize();
 
 	// 初期化
-	void Initialize(DirectXCommon* dxCommon);
+	void Initialize(DirectXCommon* dxCommon, SrvManager* srvMana);
 
 	/// <summary>
 	/// モデルファイルの読み込み
@@ -36,7 +37,7 @@ public:
 
 private:
 	static ModelManager* instance;
-
+	SrvManager* srvManager;
 	ModelManager() = default;
 	~ModelManager() = default;
 	ModelManager(ModelManager&) = delete;

@@ -1,6 +1,7 @@
 #pragma once
 #include"DirectXGame/engine/struct/Structs.h"
 #include"DirectXGame/engine/math/MathFanctions.h"
+#include"DirectXGame/engine/base/SrvManager.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>
@@ -13,7 +14,7 @@ class Sprite
 {
 public:// メンバ関数
 	// 初期化
-	void Initialize(SpriteCommon* spriteCommon,std::string textureFilePath);
+	void Initialize(SpriteCommon* spriteCommon,SrvManager *srvMana,std::string textureFilePath);
 	// 更新
 	void Update();
 	// 描画
@@ -63,7 +64,7 @@ private:
 
 private:
 	SpriteCommon* spriteCommon_ = nullptr;
-
+	SrvManager* srvManager_ = nullptr;
 	//頂点データ
 	struct VertexData {
 
@@ -124,5 +125,7 @@ private:
 	// テクスチャ切り出し座標
 	Vector2 textureSize = { 100.0f,100.0f };
 
+
+	std::string textureFilePath_;
 };
 

@@ -135,7 +135,7 @@ public:
 
 	Microsoft::WRL::ComPtr < ID3D12GraphicsCommandList> GetCommandList() { return commandList; }
 
-	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetSrvDescriptorHeap() { return srvDescriptorHeap; }
+	//Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetSrvDescriptorHeap() { return srvDescriptorHeap; }
 
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetRtvDescriptorHeap() { return rtvDescriptorHeap; }
 
@@ -157,7 +157,7 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> rtvDescriptorHeap;
-	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> srvDescriptorHeap;
+	//Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> srvDescriptorHeap;
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> dsvDescriptorHeap;
 	Microsoft::WRL::ComPtr < ID3D12Fence> fence;
 	HANDLE fenceEvent;
@@ -168,7 +168,7 @@ private:
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT scissorRect;
 	D3D12_RESOURCE_BARRIER barrier;
-	uint32_t desriptorSizeSRV;
+	//uint32_t desriptorSizeSRV;
 	uint32_t desriptorSizeRTV;
 	uint32_t desriptorSizeDSV;
 
@@ -185,7 +185,7 @@ private:
 
 
 public:
-	static const uint32_t kMaxSRVCount;
+	//static const uint32_t kMaxSRVCount;
 
 	
 	////------CompileShader------////

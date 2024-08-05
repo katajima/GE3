@@ -1,5 +1,6 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
+#include"DirectXGame/engine/base/SrvManager.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>
@@ -13,7 +14,7 @@ class ModelCommon;
 class Model
 {
 public:
-	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename);
+	void Initialize(ModelCommon* modelCommon,SrvManager* srvMana,const std::string& directorypath,const std::string& filename);
 
 	void Draw();
 
@@ -30,6 +31,7 @@ public:
 
 private:
 	ModelCommon* modelCommon_ = nullptr;
+	SrvManager* srvManager = nullptr;
 	Transform transform;
 	// 頂点データ
 	struct VertexData {

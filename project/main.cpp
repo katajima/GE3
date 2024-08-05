@@ -27,6 +27,7 @@
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
 #include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/base/SrvManager.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
@@ -70,11 +71,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon = new DirectXCommon();
 	dxCommon->Intialize(winApp);
 
+	SrvManager* srvManager = nullptr;
+	// SRVマネージャの初期化
+	srvManager = new SrvManager();
+	srvManager->Initialize(dxCommon);
+
 	//テクスチャマネージャー
-	TextureManager::GetInstance()->Initialize(dxCommon);
+	TextureManager::GetInstance()->Initialize(dxCommon,srvManager);
 
 	//モデルマネージャー
-	ModelManager::GetInstance()->Initialize(dxCommon);
+	ModelManager::GetInstance()->Initialize(dxCommon, srvManager);
 
 	SpriteCommon* spriteCommon = nullptr;
 	// スプライト共通部の初期化
@@ -102,11 +108,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Sprite* sprite = new Sprite();
 		if (i % 2 == 0) {
 
-			sprite->Initialize(spriteCommon, "resources/uvChecker.png");
+			sprite->Initialize(spriteCommon, srvManager,"resources/uvChecker.png");
 		}
 		else {
 
-			sprite->Initialize(spriteCommon, "resources/monsterBall.png");
+			sprite->Initialize(spriteCommon,srvManager, "resources/monsterBall.png");
 		}
 		sprites.push_back(sprite);
 	}
@@ -145,26 +151,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		};
 
-		//ゲームの処理
-		ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
+		////ゲームの処理
+		//ImGui_ImplDX12_NewFrame();
+		//ImGui_ImplWin32_NewFrame();
+		//ImGui::NewFrame();
 
-		Vector3 cameraR = camera->GetRotate();
-		Vector3 cameraT = camera->GetTranslate();
-		ImGui::Begin("Window");
-		ImGui::DragFloat3("camera Rotate", &cameraR.x,0.01f);
-		camera->SetRotate(cameraR);
-		ImGui::DragFloat3("camera translate", &cameraT.x, 0.1f);
-		camera->SetTranslate(cameraT);
-		Vector3 translateObj1 = object3ds[0]->GetTranslate();
-		ImGui::DragFloat3("object1 translate", &translateObj1.x, 0.1f);
-		object3ds[0]->SetTranslate(translateObj1);
-		Vector3 translateObj2 = object3ds[1]->GetTranslate();
-		ImGui::DragFloat3("object2 translate", &translateObj2.x, 0.1f);
-		object3ds[1]->SetTranslate(translateObj2);
-		ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
-		ImGui::End();
+		//Vector3 cameraR = camera->GetRotate();
+		//Vector3 cameraT = camera->GetTranslate();
+		//ImGui::Begin("Window");
+		//ImGui::DragFloat3("camera Rotate", &cameraR.x,0.01f);
+		//camera->SetRotate(cameraR);
+		//ImGui::DragFloat3("camera translate", &cameraT.x, 0.1f);
+		//camera->SetTranslate(cameraT);
+		//Vector3 translateObj1 = object3ds[0]->GetTranslate();
+		//ImGui::DragFloat3("object1 translate", &translateObj1.x, 0.1f);
+		//object3ds[0]->SetTranslate(translateObj1);
+		//Vector3 translateObj2 = object3ds[1]->GetTranslate();
+		//ImGui::DragFloat3("object2 translate", &translateObj2.x, 0.1f);
+		//object3ds[1]->SetTranslate(translateObj2);
+		//ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
+		//ImGui::End();
 
 		// Input
 		input->Update();
@@ -196,10 +202,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 
 		// 描画前処理
 		dxCommon->PreDraw();
+		srvManager->PreDraw();
+
 
 		//////////////---------3Dモデル-------------///////////////
 
@@ -208,7 +216,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//3Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
-			object3ds[i]->Draw();
+			//object3ds[i]->Draw();
 		}
 
 
@@ -235,6 +243,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	dxCommon->Finalize();
 	delete dxCommon;
+
+	delete srvManager;
 
 	// WindowsAPIの終了処理
 	winApp->Finalize();
