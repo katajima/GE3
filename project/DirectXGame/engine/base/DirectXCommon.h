@@ -186,7 +186,7 @@ private:
 
 
 public:
-	static const uint32_t kMaxSRVCount;
+	//static const uint32_t kMaxSRVCount;
 
 	
 	////------CompileShader------////

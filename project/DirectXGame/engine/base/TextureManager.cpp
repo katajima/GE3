@@ -18,7 +18,7 @@ uint32_t TextureManager::kSRVIndexTop = 1;
 void TextureManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
 {
     dxCommon_ = dxCommon;
-	textureDatas.reserve(DirectXCommon::kMaxSRVCount);
+	textureDatas.reserve(SrvManager::kMaxSRVCount);
     srvManager_ = srvManager;
 }
 
@@ -31,16 +31,14 @@ void TextureManager::Finalize()
 void TextureManager::LoadTexture(const std::string& filePath) {
     // 読み込み済みテクスチャを検索
     if (textureDatas.contains(filePath)) {
-
+        return;
     }
     // テクスチャ枚数上限チェック
     assert(srvManager_->IsMaxTextuer());
 
-
     // テクスチャファイルを読んでプログラムで扱えるようにする
     DirectX::ScratchImage image{};
     std::wstring filePathW = StringUtility::ConvertString(filePath);
-    // filePathWが正しいか確認
     HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
     assert(SUCCEEDED(hr));
 
@@ -49,27 +47,19 @@ void TextureManager::LoadTexture(const std::string& filePath) {
     hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
     assert(SUCCEEDED(hr));
 
-
-
     // テクスチャデータを追加
-    //textureDatas.resize(textureDatas.size() + 1);
-    // 追加したテクスチャデータの参照を取得する
     TextureData& textureData = textureDatas[filePath];
     textureData.metadata = mipImages.GetMetadata();
     textureData.resource = dxCommon_->CreateTextureResource(textureData.metadata);
-    
     textureData.intermediateResource = dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
 
-
-    //uint32_t srvIndex = static_cast<uint32_t>(textureDatas.size() - 1) + kSRVIndexTop;
     textureData.srvIndex = srvManager_->Allocate();
-    // SRVを作成するDescriptorHeapの場所を決める
     textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
     textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
 
-    srvManager_->CreateSRVforTexture2D(textureData.srvIndex,textureData.resource.Get(),textureData.metadata.format,UINT(textureData.metadata.mipLevels));
-   
+    srvManager_->CreateSRVforTexture2D(textureData.srvIndex, textureData.resource.Get(), textureData.metadata.format, UINT(textureData.metadata.mipLevels));
 }
+
 
 
 uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& filePath)

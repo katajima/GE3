@@ -28,11 +28,13 @@ public:
 
 	bool IsMaxTextuer();
 
+public:
+	// 最大SRV数(最大テクスチャ枚数)
+	static const uint32_t kMaxSRVCount;
 private:
 	DirectXCommon* directXCommon_ = nullptr;
 
-	// 最大SRV数(最大テクスチャ枚数)
-	static const uint32_t kMaxSRVCount;
+	
 	// SRV用のデスクリプタサイズ
 	uint32_t descriptorSize;
 	// SRV用デスクリプタヒープ
