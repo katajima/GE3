@@ -13,7 +13,7 @@ using namespace Microsoft::WRL;
 #include"externals/DirectXTex/d3dx12.h"
 #include"TextureManager.h"
 
-const uint32_t DirectXCommon::kMaxSRVCount = 512;
+//const uint32_t DirectXCommon::kMaxSRVCount = 512;
 
 //DirectXCommon* DirectXCommon::instance = nullptr;
 
