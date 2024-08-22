@@ -155,6 +155,8 @@ void ParticleManager::Draw()
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
 
+		commandList->SetComputeRootDescriptorTable(1, );
+
 		// テクスチャのSRVのDescriptorTableを設定
 		auto textureHandle = TextureManager::GetInstance()->GetSrvHandleGPU(group.materialData.textuerFilePath);
 		commandList->SetGraphicsRootDescriptorTable(1, textureHandle);
@@ -202,41 +204,46 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath)
 {
-	// 読み込み済み
+	// 既に読み込み済みの場合は何もしない
 	if (particleGroups.contains(name)) {
 		return;
 	}
+
 	ParticleGroup& particleGroup = particleGroups[name];
 	particleGroup.materialData.textuerFilePath = textureFilePath;
 
-	TextureManager::GetInstance()->LoadTexture(particleGroup.materialData.textuerFilePath);
+	TextureManager::GetInstance()->LoadTextureStruct(particleGroup.materialData.textuerFilePath);
+	// テクスチャをロード
+
+
+	// SRVインデックスを割り当て
 	particleGroup.srvIndex = srvManager_->Allocate();
 	particleGroup.materialData.textureIndex = particleGroup.srvIndex;
 
-
+	// バッファリソースを作成
 	particleGroup.resource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
+
+	// バッファをマップして初期化
 	particleGroup.instanceData = nullptr;
-	particleGroup.resource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instanceData));
-	particleGroup.instanceData->WVP = MakeIdentity4x4();
-	particleGroup.instanceData->World = MakeIdentity4x4();
-	particleGroup.instanceData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	HRESULT hr = particleGroup.resource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instanceData));
+	if (FAILED(hr)) {
+		// エラーハンドリング: バッファのマップ失敗
+		// 例: Logger::Error("Failed to map buffer resource.");
+		return;
+	}
+
+	// 初期データを設定
+	if (particleGroup.instanceData) {
+		particleGroup.instanceData->WVP = MakeIdentity4x4();
+		particleGroup.instanceData->World = MakeIdentity4x4();
+		particleGroup.instanceData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
 
 
-	/*D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
-	instancingSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	instancingSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	instancingSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	instancingSrvDesc.Buffer.FirstElement = 0;
-	instancingSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-	instancingSrvDesc.Buffer.NumElements = kNumMaxInstance;
-	instancingSrvDesc.Buffer.StructureByteStride = sizeof(ParticleForGPU);*/
-	
 
+	// SRVを作成
 	srvManager_->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.resource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
 
-	//D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = srvManager_->GetCPUDescriptorHandle(particleGroup.srvIndex);
-	//D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU = srvManager_->GetGPUDescriptorHandle(particleGroup.srvIndex);
-	//dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, instancingSrvHandleCPU);
 }
 
 Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate)

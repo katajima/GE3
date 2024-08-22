@@ -201,7 +201,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// スプライト
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
-			sprites[i]->Update();
+			//sprites[i]->Update();
 		}
 
 		// パーティクルの更新
