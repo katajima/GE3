@@ -81,12 +81,13 @@ void ParticleManager::Update()
 	billboardMatrix.m[3][1] = 0.0f;
 	billboardMatrix.m[3][2] = 0.0f;
 
-	numInstance = 0; // 描画すべきインスタンスのカウント
-
+	
 	// 全パーティクルグループに対する処理
 	for (auto& pair : particleGroups) // 各パーティクルグループに対して
 	{
 		ParticleGroup& group = pair.second;
+		group.instanceCount = 0; // 描画すべきインスタンスのカウント
+
 		for (auto particleIterator = group.particle.begin(); particleIterator != group.particle.end(); )
 		{
 			// パーティクルの寿命をチェック
@@ -95,7 +96,7 @@ void ParticleManager::Update()
 				continue;
 			}
 
-			if (numInstance < kNumMaxInstance) {
+			if (group.instanceCount < kNumMaxInstance) {
 				// 場の影響を計算 (加速)
 				if (upDataWind && IsCollision(acceleraionField.area, particleIterator->transform.translate)) {
 					particleIterator->velocity = Add(particleIterator->velocity, Multiply(kDeltaTime, acceleraionField.acceleration));
@@ -123,13 +124,13 @@ void ParticleManager::Update()
 				Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 
 				// インスタンシング用データに情報を書き込み
-				group.instanceData[numInstance].World = worldMatrix;
-				group.instanceData[numInstance].WVP = worldViewProjectionMatrix;
-				group.instanceData[numInstance].color = particleIterator->color;
-				group.instanceData[numInstance].color.w = alpha;
+				group.instanceData[group.instanceCount].World = worldMatrix;
+				group.instanceData[group.instanceCount].WVP = worldViewProjectionMatrix;
+				group.instanceData[group.instanceCount].color = particleIterator->color;
+				group.instanceData[group.instanceCount].color.w = alpha;
 
 				// インスタンス数をカウント
-				++numInstance;
+				++group.instanceCount;
 			}
 
 			++particleIterator;
@@ -174,12 +175,25 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 	ParticleGroup& particleGroup = particleGroups[name];
 
+	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+	std::uniform_real_distribution<float> distColor(0.0f, 1.0f);
+	std::uniform_real_distribution<float> distTime(1.0f, 3.0f);
 	for (uint32_t t = 0; t < count; ++t) {
 		Particle newParticle;
 		// パーティクルの初期化 (必要に応じて詳細を設定)
-		newParticle.transform.translate = position;
-		newParticle.currentTime = 0.0f;
-		newParticle.lifeTime = 1.0f; // 例: 1秒間生存するパーティクル
+		newParticle.transform.scale = { 1.0f,1.0f,1.0f };
+		newParticle.transform.rotate = { 0.0f,0.0f,0.0f };
+		newParticle.transform.translate = { distribution(randomEngine_),distribution(randomEngine_),distribution(randomEngine_) };
+		newParticle.color = { distColor(randomEngine_),distColor(randomEngine_),distColor(randomEngine_),1.0f };
+		newParticle.lifeTime = distTime(randomEngine_);
+		newParticle.currentTime = 0;
+
+
+		Vector3 randomTranslate{ distribution(randomEngine_),distribution(randomEngine_),distribution(randomEngine_) };
+		newParticle.transform.translate = Add(position, randomTranslate);
+
+		//速度
+		newParticle.velocity = { distribution(randomEngine_),distribution(randomEngine_),distribution(randomEngine_) };
 
 		// パーティクルをグループに追加
 		particleGroup.particle.push_back(newParticle);
@@ -208,18 +222,21 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.instanceData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
+	/*D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
 	instancingSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	instancingSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	instancingSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 	instancingSrvDesc.Buffer.FirstElement = 0;
 	instancingSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 	instancingSrvDesc.Buffer.NumElements = kNumMaxInstance;
-	instancingSrvDesc.Buffer.StructureByteStride = sizeof(ParticleForGPU);
+	instancingSrvDesc.Buffer.StructureByteStride = sizeof(ParticleForGPU);*/
 	
-	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = srvManager_->GetCPUDescriptorHandle(particleGroup.srvIndex);
-	D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU = srvManager_->GetGPUDescriptorHandle(particleGroup.srvIndex);
-	dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, instancingSrvHandleCPU);
+
+	srvManager_->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.resource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
+
+	//D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = srvManager_->GetCPUDescriptorHandle(particleGroup.srvIndex);
+	//D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU = srvManager_->GetGPUDescriptorHandle(particleGroup.srvIndex);
+	//dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, instancingSrvHandleCPU);
 }
 
 Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate)

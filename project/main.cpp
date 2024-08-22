@@ -184,20 +184,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		camera->Update();
 
-		// 3Dモデル
-		for (uint32_t i = 0; i < MaxObject3d; ++i) {
-			
-			object3ds[i]->Update();
-			object3ds[i]->SetCamera(object3dCommon->GetDefaltCamera());
-			object3ds[i]->SetScale({ 1,1,1 });
-			if (i == 0) {
-				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
-			}
-			if (i == 1) {
-				
-				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f,0.02f,0.0f }));
-			}
-		}
+		//// 3Dモデル
+		//for (uint32_t i = 0; i < MaxObject3d; ++i) {
+		//	
+		//	object3ds[i]->Update();
+		//	object3ds[i]->SetCamera(object3dCommon->GetDefaltCamera());
+		//	object3ds[i]->SetScale({ 1,1,1 });
+		//	if (i == 0) {
+		//		object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
+		//	}
+		//	if (i == 1) {
+		//		
+		//		object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f,0.02f,0.0f }));
+		//	}
+		//}
 
 		// スプライト
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
@@ -222,15 +222,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//////////////---------3Dモデル-------------///////////////
 
-		// 3Dオブジェクトの描画準備
+		//// 3Dオブジェクトの描画準備
 		object3dCommon->DrawCommonSetting();
 
-		//3Dオブジェクトの描画
-		for (uint32_t i = 0; i < MaxObject3d; ++i) {
-			object3ds[i]->Draw();
-		}
+		////3Dオブジェクトの描画
+		//for (uint32_t i = 0; i < MaxObject3d; ++i) {
+		//	object3ds[i]->Draw();
+		//}
 
-		// パーティクルの描画
+		//// パーティクルの描画
 		particleManager->Draw();
 
 		//////////////--------スプライト-----------///////////////////
