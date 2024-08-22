@@ -28,7 +28,8 @@
 #include"DirectXGame/engine/3d/ModelManager.h"
 #include"DirectXGame/engine/base/Camera.h"
 #include"DirectXGame/engine/base/SrvManager.h"
-
+#include"DirectXGame/engine/base/ParticleManager.h"
+#include"DirectXGame/engine/base/ParticleEmitter.h"
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
 
@@ -141,7 +142,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		object3ds.push_back(object3d);
 	}
 
+	ParticleManager* particleManager = ParticleManager::GetInstance();
+	particleManager->Initialize(dxCommon,srvManager);
+	particleManager->CreateParticleGroup("aa", "resources/uvChecker.png");
+
+	ParticleEmitter* emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 	
+
 	
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
@@ -197,8 +204,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			sprites[i]->Update();
 		}
 
+		// パーティクルの更新
+		particleManager->Update();
 
-
+		emitter->Update();
 		
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
@@ -221,6 +230,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			object3ds[i]->Draw();
 		}
 
+		// パーティクルの描画
+		particleManager->Draw();
 
 		//////////////--------スプライト-----------///////////////////
 
@@ -231,7 +242,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 2Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
-			sprites[i]->Draw();
+			//sprites[i]->Draw();
 		}
 
 		//描画後処理
@@ -267,6 +278,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	delete modelCommon;
+
+	// パーティクルマネージャーの終了
+	particleManager->Finalize();
 
 	//テクスチャマネージャーの終了
 	TextureManager::GetInstance()->Finalize();

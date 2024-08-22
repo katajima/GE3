@@ -115,6 +115,26 @@ Matrix4x4 Multiply(const Matrix4x4& v1, const Matrix4x4& v2) {
 
 	return result;
 };
+// Vector3同士
+Vector3 Multiply(const Vector3& v1, const Vector3& v2) {
+	Vector3 result{};
+
+	result.x = v1.x * v2.x;
+	result.y = v1.y * v2.y;
+	result.z = v1.z * v2.z;
+
+	return result;
+}
+// floatとVector3
+Vector3 Multiply(const float& v, const Vector3& v1) {
+	Vector3 result{};
+
+	result.x = v1.x * v;
+	result.y = v1.y * v;
+	result.z = v1.z * v;
+
+	return result;
+}
 //移動行列
 Matrix4x4 MakeTranslateMatrix(const  Vector3& translate) {
 	Matrix4x4 result{};
@@ -486,6 +506,10 @@ Vector3 Transforms(const Vector3& vector, const Matrix4x4& matrix) {
 	result.z /= w;
 	return result;
 }
-
+bool IsCollision(const AABB& aabb, const Vector3& point) {
+	return (point.x >= aabb.min.x && point.x <= aabb.max.x) &&
+		(point.y >= aabb.min.y && point.y <= aabb.max.y) &&
+		(point.z >= aabb.min.z && point.z <= aabb.max.z);
+}
 
 #pragma endregion //数学関数

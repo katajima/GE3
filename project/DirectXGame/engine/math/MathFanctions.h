@@ -20,6 +20,10 @@ Vector3 Nomalize(const Vector3& v);
 Matrix4x4 MakeIdentity4x4();
 //行列の積
 Matrix4x4 Multiply(const Matrix4x4& v1, const Matrix4x4& v2);
+
+Vector3 Multiply(const Vector3& v1, const Vector3& v2);
+
+Vector3 Multiply(const float& v2, const Vector3& v1);
 //移動行列
 Matrix4x4 MakeTranslateMatrix(const  Vector3& translate);
 //拡大縮小行列
@@ -45,5 +49,6 @@ Matrix4x4 MakeViewportMatrix(float leht, float top, float width, float height, f
 //座標変換
 Vector3 Transforms(const Vector3& vector, const Matrix4x4& matrix);
 
+bool IsCollision(const AABB& aabb, const Vector3& point);
 
 #pragma endregion //数学関数

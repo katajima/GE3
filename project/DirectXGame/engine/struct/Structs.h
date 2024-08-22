@@ -31,3 +31,9 @@ struct Transform {
 	Vector3 rotate;
 	Vector3 translate;
 };
+
+//AABB
+struct AABB {
+	Vector3 min; //!< 最小点
+	Vector3 max; //!< 最大点
+};

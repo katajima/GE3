@@ -33,36 +33,49 @@ struct ParticleForGPU
 	Matrix4x4 World;
 	Vector4 color;
 };
+// 頂点データ
+struct VertexData {
 
+	Vector4 position;
+	Vector2 texcoord;
+	Vector3 normal;
+};
+//マテリアルデータ
+struct MaterialData {
+	std::string textuerFilePath;
+	//テクスチャ番号
+	uint32_t textureIndex = 0;
+};
+struct  Node
+{
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<Node> children;
+};
+//モデルデータ
+struct ModelData
+{
+	std::vector<VertexData> vertices;
+	MaterialData material;
+	Node rootNode;
+};
+struct AcceleraionField {
+	Vector3 acceleration;
+	AABB area;
+};
+struct ParticleGroup
+{
+	MaterialData materialData;
+	std::list<Particle> particle;
+	uint32_t srvIndex;
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+	uint32_t instanceCount; // インスタンス数
+	ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
+};
 class ParticleManager
 {
 private:
-	// 頂点データ
-	struct VertexData {
 
-		Vector4 position;
-		Vector2 texcoord;
-		Vector3 normal;
-	};
-
-
-
-	//マテリアルデータ
-	struct MaterialData {
-		std::string textuerFilePath;
-		//テクスチャ番号
-		uint32_t textureIndex = 0;
-	};
-
-	struct ParticleGroup
-	{
-		MaterialData materialData;
-		std::list<Particle> particle;
-		uint32_t srvIndex;
-		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
-		uint32_t instanceCount; // インスタンス数
-		ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
-	};
 
 public:
 	// シングルトンインスタンス
@@ -70,6 +83,23 @@ public:
 
 	// 初期化
 	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager);
+
+	//
+	void Finalize();
+
+	// 更新
+	void Update();
+
+	// 描画
+	void Draw();
+
+	// パーティクルの発生
+	void Emit(const std::string name, const Vector3& position, uint32_t count);
+
+	std::unordered_map<std::string, ParticleGroup>& GetParticleGroups()
+	{
+		return particleGroups;
+	}
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
 
@@ -87,13 +117,22 @@ private:
 	ParticleManager(ParticleManager&) = delete;
 	ParticleManager& operator=(ParticleManager&) = delete;
 
-
-	
-
+	std::mt19937 randomEngine_;
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 
+	const uint32_t kNumMaxInstance = 100;
+	const float kDeltaTime = 1.0f / 60.0f;
+	bool usebillboard = true;
+	bool upData = true;
+	bool upDataWind = false;
+	uint32_t numInstance;
+
+	AcceleraionField acceleraionField;
+	
+	
+	
 
 	DirectXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
