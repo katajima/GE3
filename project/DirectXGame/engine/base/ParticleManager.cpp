@@ -36,6 +36,7 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
 	// 頂点リソースを作成
 	vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * modeldata.vertices.size());
 
+
 	// 頂点バッファビューを設定
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	vertexBufferView.SizeInBytes = sizeof(VertexData) * static_cast<UINT>(modeldata.vertices.size());
@@ -46,6 +47,30 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
 	vertexResource->Map(0, nullptr, &vertexData);
 	std::memcpy(vertexData, modeldata.vertices.data(), sizeof(VertexData) * modeldata.vertices.size());
 	vertexResource->Unmap(0, nullptr); // マッピングを解除
+
+
+	materialResource = dxCommon_->CreateBufferResource(sizeof(Material));
+
+	//書き込むためのアドレスを取得
+	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
+
+	//スプライトはLightingしないのでfalseにする
+	materialData->enableLighting = false;
+
+	materialData->uvTransform = MakeIdentity4x4();
+
+	//今回は赤を書き込んで見る //白
+	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
+
+
+	//平行光源用のリソースを作る
+	directionalLightResource = dxCommon_->CreateBufferResource(sizeof(DirectionalLight));
+	directionalLightData = nullptr;
+	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
+	//今回は赤を書き込んで見る //白
+	*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
+
+
 
 	// 加速度場の設定
 	acceleraionField.acceleration = { 15.0f, 0.0f, 0.0f };
@@ -87,7 +112,7 @@ void ParticleManager::Update()
 	{
 		ParticleGroup& group = pair.second;
 		group.instanceCount = 0; // 描画すべきインスタンスのカウント
-
+		
 		for (auto particleIterator = group.particle.begin(); particleIterator != group.particle.end(); )
 		{
 			// パーティクルの寿命をチェック
@@ -104,7 +129,10 @@ void ParticleManager::Update()
 
 				// 移動処理 (速度を位置に加算)
 				particleIterator->transform.translate = Add(particleIterator->transform.translate, Multiply(kDeltaTime, particleIterator->velocity));
-
+				
+				if (group.instanceCount == 0) {
+					poa = particleIterator->transform.translate;
+				}
 				// 経過時間を加算
 				particleIterator->currentTime += kDeltaTime;
 
@@ -129,6 +157,8 @@ void ParticleManager::Update()
 				group.instanceData[group.instanceCount].color = particleIterator->color;
 				group.instanceData[group.instanceCount].color.w = alpha;
 
+
+
 				// インスタンス数をカウント
 				++group.instanceCount;
 			}
@@ -146,27 +176,31 @@ void ParticleManager::Draw()
 
 	commandList->SetPipelineState(graphicsPipelineState.Get()); // PSOを設定
 
-	// 形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// 頂点バッファビューを設定
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 
+	commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+
+	//commandList->
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
 
-		commandList->SetComputeRootDescriptorTable(1, );
+		//commandList->SetGraphicsRootConstantBufferView(0, group.resource->GetGPUVirtualAddress());
+
+
+		commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
 		// テクスチャのSRVのDescriptorTableを設定
 		auto textureHandle = TextureManager::GetInstance()->GetSrvHandleGPU(group.materialData.textuerFilePath);
-		commandList->SetGraphicsRootDescriptorTable(1, textureHandle);
+		commandList->SetGraphicsRootDescriptorTable(2, textureHandle);
 
 		// インスタンシングデータのSRVのDescriptorTableを設定
 		auto srvHandle = srvManager_->GetGPUDescriptorHandle(group.srvIndex);
-		commandList->SetGraphicsRootDescriptorTable(2, srvHandle);
+		commandList->SetGraphicsRootDescriptorTable(1, srvHandle);
 
-		// Draw Call (インスタンシング描画)
-		commandList->DrawInstanced(group.instanceCount, 1, 0, 0);
+		// インスタンシングの描画コール
+		commandList->DrawInstanced(6 , kNumMaxInstance, 0, 0); // ここで6は1インスタンスあたりの頂点数
 	}
 }
 
@@ -204,7 +238,6 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath)
 {
-	// 既に読み込み済みの場合は何もしない
 	if (particleGroups.contains(name)) {
 		return;
 	}
@@ -212,38 +245,42 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	ParticleGroup& particleGroup = particleGroups[name];
 	particleGroup.materialData.textuerFilePath = textureFilePath;
 
-	TextureManager::GetInstance()->LoadTextureStruct(particleGroup.materialData.textuerFilePath);
-	// テクスチャをロード
+	TextureManager::GetInstance()->LoadTexture(textureFilePath);
 
-
-	// SRVインデックスを割り当て
 	particleGroup.srvIndex = srvManager_->Allocate();
 	particleGroup.materialData.textureIndex = particleGroup.srvIndex;
 
-	// バッファリソースを作成
 	particleGroup.resource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
 
-	// バッファをマップして初期化
 	particleGroup.instanceData = nullptr;
 	HRESULT hr = particleGroup.resource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instanceData));
+	for (uint32_t i = 0; i < kNumMaxInstance; ++i) {
+		//単位行列を書き込んでおく
+		particleGroup.instanceData[i].World = MakeIdentity4x4();
+		particleGroup.instanceData[i].WVP = MakeIdentity4x4();
+		particleGroup.instanceData[i].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+	
 	if (FAILED(hr)) {
-		// エラーハンドリング: バッファのマップ失敗
-		// 例: Logger::Error("Failed to map buffer resource.");
 		return;
 	}
 
-	// 初期データを設定
 	if (particleGroup.instanceData) {
-		particleGroup.instanceData->WVP = MakeIdentity4x4();
-		particleGroup.instanceData->World = MakeIdentity4x4();
-		particleGroup.instanceData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+		std::memset(particleGroup.instanceData, 0, sizeof(ParticleForGPU) * kNumMaxInstance);
 	}
 
+	D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
+	instancingSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	instancingSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	instancingSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	instancingSrvDesc.Buffer.FirstElement = 0;
+	instancingSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	instancingSrvDesc.Buffer.NumElements = kNumMaxInstance;
+	instancingSrvDesc.Buffer.StructureByteStride = sizeof(ParticleForGPU);
 
-
-	// SRVを作成
-	srvManager_->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.resource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
-
+	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU = srvManager_->GetCPUDescriptorHandle(particleGroup.srvIndex);
+	D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU = srvManager_->GetGPUDescriptorHandle(particleGroup.srvIndex);
+	dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, instancingSrvHandleCPU);
 }
 
 Particle ParticleManager::MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate)
@@ -299,7 +336,7 @@ void ParticleManager::CreateRootSignature()
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
 
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableとして定義
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameters[1].DescriptorTable.pDescriptorRanges = descriptorRangeForInstancing;
 	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForInstancing);

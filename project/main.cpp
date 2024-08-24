@@ -130,21 +130,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (i == 1) {
 			ModelManager::GetInstance()->LoadModel("plane.obj");
 			object3d->SetModel("plane.obj");
-			object3d->SetTranslate({ 4,0,10 });
+			object3d->SetTranslate({ -0.136430234f,-0.876318157f,-0.0530188680f });
 		}
 		else {
 			ModelManager::GetInstance()->LoadModel("axis.obj");
 			object3d->SetModel("axis.obj");
 			object3d->SetTranslate({ -2,0,10 });
 		}
-		
+		//+ poa{ x = -0.136430234 y = -0.876318157 z = -0.0530188680 }	Vector3
+
 
 		object3ds.push_back(object3d);
 	}
 
 	ParticleManager* particleManager = ParticleManager::GetInstance();
 	particleManager->Initialize(dxCommon,srvManager);
-	particleManager->CreateParticleGroup("aa", "resources/uvChecker.png");
+	particleManager->CreateParticleGroup("aa", "resources/monsterBall.png");
 
 	ParticleEmitter* emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 	
@@ -185,19 +186,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		camera->Update();
 
 		//// 3Dモデル
-		//for (uint32_t i = 0; i < MaxObject3d; ++i) {
-		//	
-		//	object3ds[i]->Update();
-		//	object3ds[i]->SetCamera(object3dCommon->GetDefaltCamera());
-		//	object3ds[i]->SetScale({ 1,1,1 });
-		//	if (i == 0) {
-		//		object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
-		//	}
-		//	if (i == 1) {
-		//		
-		//		object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f,0.02f,0.0f }));
-		//	}
-		//}
+		for (uint32_t i = 0; i < MaxObject3d; ++i) {
+			
+			object3ds[i]->Update();
+			object3ds[i]->SetCamera(object3dCommon->GetDefaltCamera());
+			object3ds[i]->SetScale({ 1,1,1 });
+			
+			if (i == 0) {
+				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
+				object3ds[i]->SetTranslate(particleManager->GetPoa());
+			}
+			if (i == 1) {
+				
+				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f,0.02f,0.0f }));
+			}
+		}
 
 		// スプライト
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
@@ -226,9 +229,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		object3dCommon->DrawCommonSetting();
 
 		////3Dオブジェクトの描画
-		//for (uint32_t i = 0; i < MaxObject3d; ++i) {
-		//	object3ds[i]->Draw();
-		//}
+		for (uint32_t i = 0; i < MaxObject3d; ++i) {
+			object3ds[i]->Draw();
+		}
 
 		//// パーティクルの描画
 		particleManager->Draw();

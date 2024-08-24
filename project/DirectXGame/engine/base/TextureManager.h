@@ -28,7 +28,7 @@ public:
 
 	//DirectTexを使ってTextureを読むためのLoadTextur関数
 	void LoadTexture(const std::string& filePath);
-	void LoadTextureStruct(const std::string& filePath);
+	//void LoadTextureStruct(const std::string& filePath);
 
 	// テクスチャ番号取得
 	uint32_t GetTextureIndexByFilePath(const std::string& filePath);

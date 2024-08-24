@@ -32,7 +32,9 @@ void ParticleEmitter::Update()
         }
 
         // 寿命が尽きたパーティクルを削除する処理
-        particleGroup.particle.remove_if([](const Particle& p) { return p.currentTime >= p.lifeTime; });
+        particleGroup.particle.remove_if([](const Particle& p) 
+            { return p.currentTime >= p.lifeTime; 
+            });
     }
 }
 

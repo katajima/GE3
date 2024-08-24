@@ -71,7 +71,9 @@ struct ParticleGroup
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 	uint32_t instanceCount; // インスタンス数
 	ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
+	D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
 };
+
 class ParticleManager
 {
 private:
@@ -105,6 +107,8 @@ public:
 
 	Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate);
 	
+	Vector3 GetPoa() { return poa; }
+
 private:
 	// ルートシグネチャの作成
 	void CreateRootSignature();
@@ -116,6 +120,27 @@ private:
 	~ParticleManager() = default;
 	ParticleManager(ParticleManager&) = delete;
 	ParticleManager& operator=(ParticleManager&) = delete;
+
+	// 平行高原
+	struct DirectionalLight {
+		Vector4 color; //!< ライトの色
+		Vector3 direction; //!< ライトの向き
+		float intensity; //!< 輝度
+	};	
+	//マテリアルデータ
+	struct Material {
+		Vector4 color;
+		int32_t enableLighting;
+		float padding[3];
+		Matrix4x4 uvTransform;
+	};
+	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
+	DirectionalLight* directionalLightData = nullptr;
+	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
+	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
+
+	// Lightingを有効にする
+	Material* materialData = nullptr;
 
 	std::mt19937 randomEngine_;
 
@@ -131,7 +156,7 @@ private:
 
 	AcceleraionField acceleraionField;
 	
-	
+	Vector3 poa;
 	
 
 	DirectXCommon* dxCommon_ = nullptr;
@@ -156,5 +181,7 @@ private:
 	// グラフィックスパイプラインステート
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
 
+	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
+	D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
 };
 
