@@ -194,7 +194,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			
 			if (i == 0) {
 				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
-				object3ds[i]->SetTranslate(particleManager->GetPoa());
+				//object3ds[i]->SetTranslate(particleManager->GetPoa());
 			}
 			if (i == 1) {
 				
@@ -208,9 +208,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		// パーティクルの更新
-		particleManager->Update();
+		//particleManager->Update();
 
-		emitter->Update();
+		//emitter->Update();
 		
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
@@ -234,7 +234,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//// パーティクルの描画
-		particleManager->Draw();
+		//particleManager->Draw();
 
 		//////////////--------スプライト-----------///////////////////
 
