@@ -14,7 +14,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTex", "externals\Dir
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "externals", "externals", "{9CC2B6E3-C739-411E-A815-EB7849DB7687}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "imgui\imgui.vcxproj", "{D4B7D890-2090-4178-9E9E-01E458973B08}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "externals\imgui\imgui.vcxproj", "{D4B7D890-2090-4178-9E9E-01E458973B08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +68,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77} = {9CC2B6E3-C739-411E-A815-EB7849DB7687}
+		{D4B7D890-2090-4178-9E9E-01E458973B08} = {9CC2B6E3-C739-411E-A815-EB7849DB7687}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E0A196FC-0119-4659-B926-CADDD0B0EC5B}
