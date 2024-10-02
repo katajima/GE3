@@ -231,7 +231,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Sprite");
 		ImGui::SetWindowSize(ImVec2(500, 100)); // Ensure you're using ImVec2 for the size
 		
-		ImGui::SliderFloat2("sprite", &aa.x,0,300);
+		ImGui::SliderFloat2("sprite", &aa.x,0,1200,"%5.1f");
 		sprites[0]->SetPosition(aa);
 		ImGui::End();
 
