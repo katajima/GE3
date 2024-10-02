@@ -26,6 +26,7 @@ public:
 
 	// setter
 	void SetModel(Model* model) { this->model = model; }
+	Model* GetModel() { return model; }
 	void SetModel(const std::string& filePath);
 	//const Model& GetModel() const{ return model; }
 

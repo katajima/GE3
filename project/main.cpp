@@ -32,6 +32,7 @@
 #include"DirectXGame/engine/base/ParticleManager.h"
 #include"DirectXGame/engine/base/ParticleEmitter.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
+#include"DirectXGame/engine/audio/Audio.h"
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
 
@@ -64,6 +65,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// 入力初期化
 	input = new Input();
 	input->Intialize(winApp);
+
+	//Audio* audio = nullptr;
+	// オーディオの初期化
+	//audio = Audio::GetInstance();
+	//audio->Initialize();
 
 	DirectXCommon* dxCommon = nullptr;
 	dxCommon = new DirectXCommon();
@@ -124,24 +130,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
 	const int MaxObject3d = 2;
 	
+	ModelManager::GetInstance()->LoadModel("plane.obj");
+	ModelManager::GetInstance()->LoadModel("axis.obj");
+
 	std::vector<Object3d*> object3ds;
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		Object3d* object3d = new Object3d();
 		object3d->Initialize(object3dCommon);
-		//object3d->SetCamera(object3dCommon->GetDefaltCamera());
 		if (i == 1) {
-			ModelManager::GetInstance()->LoadModel("plane.obj");
+			
 			object3d->SetModel("plane.obj");
 			object3d->SetTranslate({ -0.136430234f,-0.876318157f,-0.0530188680f });
+			//object3d->GetModel().GetModelData();
+			object3d->SetRotate(Vector3(0,3.14f,0));
 		}
 		else {
-			ModelManager::GetInstance()->LoadModel("axis.obj");
+			
 			object3d->SetModel("axis.obj");
 			object3d->SetTranslate({ -2,0,10 });
 		}
-		//+ poa{ x = -0.136430234 y = -0.876318157 z = -0.0530188680 }	Vector3
-
-
+		
 		object3ds.push_back(object3d);
 	}
 
@@ -151,6 +159,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	ParticleEmitter* emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 	
+
+
+
 #pragma region MyRegion 
 #ifdef _DEBUG
 	char buf[256];  // バッファサイズを固定
@@ -254,12 +265,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			object3ds[i]->SetScale({ 1,1,1 });
 			
 			if (i == 0) {
-				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.01f,0.02f,0.01f }));
-				//object3ds[i]->SetTranslate(particleManager->GetPoa());
+				ImGui::Begin("Mash Asix");
+				Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
+
+				for (size_t j = 0; j < mode.vertices.size(); j++) {
+					Model::VertexData& ver = mode.vertices[j]; // 頂点データを参照として取得
+
+					// ユニークなラベルを付与する
+					if (ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x,0.01f)) {
+						// 値が変更された場合にモデルデータを更新
+						object3ds[i]->GetModel()->SetModelData(mode);
+					}
+				}
+				ImGui::End();
 			}
 			if (i == 1) {
 				
-				object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f,0.02f,0.0f }));
+				// モデルの回転を更新
+				//object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f, 0.02f, 0.0f }));
+
+				ImGui::Begin("Mash Plane");
+				Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
+				
+				int size = int(mode.vertices.size());
+				ImGui::InputInt("size", &size);
+				for (size_t j = 0; j < mode.vertices.size(); j++) {
+					Model::VertexData& ver = mode.vertices[j]; // 頂点データを参照として取得
+
+					// ユニークなラベルを付与する
+					if (ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x, 0.01f)) {
+						// ここで値が変更された場合にモデルデータを更新
+						object3ds[i]->GetModel()->SetModelData(mode);
+					}
+				}
+
+				// 最後にモデルデータを更新
+				//object3ds[i]->GetModel().SetModelData(mode);
+				ImGui::End();
 			}
 		}
 
@@ -306,7 +348,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 2Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
-			sprites[i]->Draw();
+			//sprites[i]->Draw();
 		}
 
 		// ImGuiの描画
@@ -349,6 +391,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ImGuiマネージャーの終了
 	ImGuiManager::GetInstance()->Finalize();
 
+	// 音
+	//audio->Finalize();
 	// パーティクルマネージャーの終了
 	particleManager->Finalize();
 

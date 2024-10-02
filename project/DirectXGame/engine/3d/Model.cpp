@@ -160,3 +160,14 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 
 	return modelData;
 };
+
+void Model::UpdateVertexBuffer() {
+	// 頂点データのサイズを計算
+	size_t bufferSize = sizeof(VertexData) * modelData.vertices.size();
+
+	// バッファを更新するためにマッピング
+	void* pData;
+	vertexResource->Map(0, nullptr, &pData);
+	memcpy(pData, modelData.vertices.data(), bufferSize);
+	vertexResource->Unmap(0, nullptr);
+}

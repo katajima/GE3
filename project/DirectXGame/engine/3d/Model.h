@@ -10,27 +10,11 @@
 
 class ModelCommon;
 
+
+
 class Model
 {
 public:
-	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename);
-
-	void Draw();
-
-	// setter
-	//void SetScale(const Vector3& scale) { transform.scale = scale; };
-	//void SetRotate(const Vector3& rotate) { transform.rotate = rotate; };
-	//void SetTranslate(const Vector3& translate) { transform.translate = translate; };
-
-	//// getter
-	//const Vector3& GetScale()const { return transform.scale; };
-	//const Vector3& GetRotate()const { return transform.rotate; };
-	//const Vector3& GetTranslate()const { return transform.translate; };
-
-
-private:
-	ModelCommon* modelCommon_ = nullptr;
-	Transform transform;
 	// 頂点データ
 	struct VertexData {
 
@@ -50,6 +34,28 @@ private:
 		std::vector<VertexData> vertices;
 		MaterialData material;
 	};
+public:
+
+
+
+	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename);
+
+	void Draw();
+
+	ModelData& GetModelData(){ return modelData; }
+
+	void SetModelData(const ModelData& model) {
+		modelData = model;
+		UpdateVertexBuffer();
+	}
+
+	
+
+private:
+	ModelCommon* modelCommon_ = nullptr;
+	Transform transform;
+	
+	
 	//マテリアルデータ
 	struct Material {
 		Vector4 color;
@@ -78,7 +84,7 @@ public:
 	//モデルデータ読み込み
 	static ModelData LoadOdjFile(const std::string& directoryPath, const std::string& filename);
 
-
+	void UpdateVertexBuffer();
 };
 
 
