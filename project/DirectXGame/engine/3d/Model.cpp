@@ -8,6 +8,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	modelCommon_ = modelCommon;
 
 	modelData = LoadOdjFile(directorypath, filename);
+	
 
 	// .objの参照しているテクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textuerFilePath);
@@ -15,7 +16,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerFilePath);
 
 	vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
-	
+
 	// リソースの先頭のアドレスを作成する
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
@@ -23,6 +24,21 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+
+
+	// インデクスリソース
+	indexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * modelData.indices.size());
+
+
+	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
+	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
+
+	
+
+	uint32_t* indexData = nullptr;
+	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
 
 
 	// マテリアル
@@ -46,9 +62,13 @@ void Model::Draw()
 
 	// 頂点バッファの設定
 	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
+	// インデックスバッファの設定
+	modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
 
+	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
+	modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
 	// 描画
-	modelCommon_->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
+	//modelCommon_->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 }
 
 
@@ -147,6 +167,11 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 			modelData.vertices.push_back(triangle[2]);
 			modelData.vertices.push_back(triangle[1]);
 			modelData.vertices.push_back(triangle[0]);
+			// インデックスを追加
+			uint32_t indexStart = static_cast<uint32_t>(modelData.vertices.size()) - 3;
+			modelData.indices.push_back(indexStart);
+			modelData.indices.push_back(indexStart + 1);
+			modelData.indices.push_back(indexStart + 2);
 		}
 		else if (identifier == "mtllib") {
 			// MaterialTemplateLibraryファイルの名前を取得する
@@ -158,8 +183,27 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 
 	}
 
+	// インデックスを生成
+	GenerateIndices(modelData); // thisは省略可能
+
 	return modelData;
 };
+
+void Model::GenerateIndices(ModelData& modelData) {
+	modelData.indices.clear(); // インデックスをクリア
+
+	// インデックス生成の処理
+	uint32_t indexStart = 0;
+	for (size_t i = 0; i < modelData.vertices.size(); i += 3) {
+		// 三角形のインデックスを追加
+		if (i + 2 < modelData.vertices.size()) {
+			modelData.indices.push_back(indexStart);
+			modelData.indices.push_back(indexStart + 1);
+			modelData.indices.push_back(indexStart + 2);
+			indexStart += 3;
+		}
+	}
+}
 
 void Model::UpdateVertexBuffer() {
 	// 頂点データのサイズを計算
@@ -170,4 +214,25 @@ void Model::UpdateVertexBuffer() {
 	vertexResource->Map(0, nullptr, &pData);
 	memcpy(pData, modelData.vertices.data(), bufferSize);
 	vertexResource->Unmap(0, nullptr);
+}
+
+void Model::UpdateIndexBuffer() {
+	// インデックスデータのサイズを計算
+	size_t bufferSize = sizeof(uint32_t) * modelData.indices.size();
+
+	// バッファを更新するためにマッピング
+	void* pData;
+	indexResource->Map(0, nullptr, &pData);
+	memcpy(pData, modelData.indices.data(), bufferSize);
+	indexResource->Unmap(0, nullptr);
+}
+
+void Model::MoveVertices(const Vector3& offset) {
+	for (const auto& index : modelData.indices) {
+		modelData.vertices[index].position.x += offset.x;
+		modelData.vertices[index].position.y += offset.y;
+		modelData.vertices[index].position.z += offset.z;
+
+	}
+	UpdateVertexBuffer(); // バッファを更新
 }

@@ -177,7 +177,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif // _DEBUG
 #pragma endregion //ImGui試し用変数
 
-	
+	Vector3 offset{};
 	
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
@@ -265,17 +265,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			object3ds[i]->SetScale({ 1,1,1 });
 			
 			if (i == 0) {
-				ImGui::Begin("Mash Asix");
+				ImGui::Begin("Mash Axis");
+				ImGui::DragFloat3("Offset", &offset.x, 0.01f);
+
+				if (ImGui::Button("Move Vertices")) {
+					object3ds[i]->GetModel()->MoveVertices(offset); // 移動関数を呼び出す
+				}
+
 				Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
+				int size = int(mode.vertices.size());
+				ImGui::InputInt("vertices.size", &size);
+				size = int(mode.indices.size());
+				ImGui::InputInt("indices.size", &size);// オフセットを入力するためのUI
 
 				for (size_t j = 0; j < mode.vertices.size(); j++) {
-					Model::VertexData& ver = mode.vertices[j]; // 頂点データを参照として取得
+					Model::VertexData& ver = mode.vertices[j];
 
 					// ユニークなラベルを付与する
-					if (ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x,0.01f)) {
-						// 値が変更された場合にモデルデータを更新
-						object3ds[i]->GetModel()->SetModelData(mode);
-					}
+					ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x, 0.01f);
 				}
 				ImGui::End();
 			}
@@ -288,7 +295,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
 				
 				int size = int(mode.vertices.size());
-				ImGui::InputInt("size", &size);
+				ImGui::InputInt("vertices.size", &size);
+				size = int(mode.indices.size());
+				ImGui::InputInt("indices.size", &size);
 				for (size_t j = 0; j < mode.vertices.size(); j++) {
 					Model::VertexData& ver = mode.vertices[j]; // 頂点データを参照として取得
 

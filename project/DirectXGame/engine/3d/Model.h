@@ -32,6 +32,7 @@ public:
 	struct ModelData
 	{
 		std::vector<VertexData> vertices;
+		std::vector<uint32_t> indices; // 追加：インデックスデータ
 		MaterialData material;
 	};
 public:
@@ -47,9 +48,10 @@ public:
 	void SetModelData(const ModelData& model) {
 		modelData = model;
 		UpdateVertexBuffer();
+		UpdateIndexBuffer();
 	}
 
-	
+	void MoveVertices(const Vector3& offset);
 
 private:
 	ModelCommon* modelCommon_ = nullptr;
@@ -69,12 +71,13 @@ private:
 
 	// バッファリソース
 	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
+	Microsoft::WRL::ComPtr < ID3D12Resource> indexResource;
 	// バッファリソース内のデータを指すポインタ
 	VertexData* vertexData = nullptr;
 
 	//バッファリソースの使い道を補足するバッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-
+	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 	Material* materialData;
 public:
@@ -84,7 +87,11 @@ public:
 	//モデルデータ読み込み
 	static ModelData LoadOdjFile(const std::string& directoryPath, const std::string& filename);
 
+	static void GenerateIndices(ModelData& modelData);
+
 	void UpdateVertexBuffer();
+
+	void UpdateIndexBuffer();
 };
 
 
