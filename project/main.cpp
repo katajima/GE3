@@ -43,6 +43,9 @@
 #include"DirectXGame/engine/base/StringUtility.h"
 #include"DirectXGame/engine/base/Logger.h"
 
+
+#include"externals/imgui/imgui.h"
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3DResourceLeakchecker leakCheck;
@@ -148,7 +151,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	ParticleEmitter* emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 	
+#pragma region MyRegion 
 
+	char buf[256];  // バッファサイズを固定
+	buf[0] = '\0';  // 空の文字列で初期化
+
+	float f = 0.0f;
+
+	bool my_tool_active = true;
+	float my_color[4] = { 1.0f, 0.0f, 0.0f, 1.0f }; // Initial color
+
+
+#pragma endregion //ImGui試し用変数
+
+	
 	
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
@@ -159,6 +175,65 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		};
 		// ImGuiの受付開始
 		imguiManager->Begin();
+
+
+#pragma region MyRegion
+
+		ImGui::Text("Hello, world %d", 123);
+		if (ImGui::Button("Save"))
+		{
+			// Save ボタンの処理
+		}
+		ImGui::InputText("string", buf, IM_ARRAYSIZE(buf));
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+
+
+
+
+
+
+		// Create a window called "My First Tool", with a menu bar.
+		ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+				if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+				if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		// Edit a color stored as 4 floats
+		ImGui::ColorEdit4("Color", my_color);
+
+		// Generate samples and plot them
+		float samples[100];
+		for (int n = 0; n < 100; n++)
+			samples[n] = sinf(n * 0.2f + float(ImGui::GetTime()) * 1.5f);
+		ImGui::PlotLines("Samples", samples, 100);
+
+		// Display contents in a scrolling region
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+		ImGui::BeginChild("Scrolling");
+		for (int n = 0; n < 50; n++)
+			ImGui::Text("%04d: Some text", n);
+		ImGui::EndChild();
+		ImGui::End();
+
+		// デモウィンドウの表示オン
+		ImGui::ShowDemoWindow();
+
+
+		ImGui::Begin("My First Tool");
+		ImGui::SetWindowSize(Vector2(500,100));
+		Vector2 aa = sprites[0]->GetPosition();
+		ImGui::SliderFloat2("sprite", &aa.x,0,1280);
+		ImGui::End();
+
+#pragma endregion // ImGui
 
 
 		// Input
@@ -185,7 +260,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// スプライト
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
-			//sprites[i]->Update();
+			sprites[i]->Update();
 		}
 
 		// パーティクルの更新
@@ -196,9 +271,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// ImGuiの受付終了
 		imguiManager->End();
 
-		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
-		//ImGui::ShowDemoWindow();
-
+		
 		// 描画前処理
 		srvManager->PreDraw();
 		
@@ -228,7 +301,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 2Dオブジェクトの描画
 		for (uint32_t i = 0; i < MaxSprite; ++i) {
-			//sprites[i]->Draw();
+			sprites[i]->Draw();
 		}
 
 		// ImGuiの描画
