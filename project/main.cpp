@@ -161,7 +161,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool my_tool_active = true;
 	float my_color[4] = { 1.0f, 0.0f, 0.0f, 1.0f }; // Initial color
 
-
+	// スプライト
+	Vector2 aa = Vector2(100, 100);
 #pragma endregion //ImGui試し用変数
 
 	
@@ -227,10 +228,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::ShowDemoWindow();
 
 
-		ImGui::Begin("My First Tool");
-		ImGui::SetWindowSize(Vector2(500,100));
-		Vector2 aa = sprites[0]->GetPosition();
-		ImGui::SliderFloat2("sprite", &aa.x,0,1280);
+		ImGui::Begin("Sprite");
+		ImGui::SetWindowSize(ImVec2(500, 100)); // Ensure you're using ImVec2 for the size
+		
+		ImGui::SliderFloat2("sprite", &aa.x,0,300);
+		sprites[0]->SetPosition(aa);
 		ImGui::End();
 
 #pragma endregion // ImGui
