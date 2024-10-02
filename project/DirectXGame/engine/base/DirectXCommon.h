@@ -117,6 +117,8 @@ private:
 	void UpdateFixFPS();
 
 public:
+	// バックバッファの数を取得
+	size_t GetBackBufferCount() const { return backBuffers_.size(); }
 
 	// DescriptorHeapの作成関数
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap>CreateDescriptorHeap(
@@ -172,6 +174,8 @@ private:
 	//uint32_t desriptorSizeSRV;
 	uint32_t desriptorSizeRTV;
 	uint32_t desriptorSizeDSV;
+
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers_;
 
 	// 記録時間(FPS固定用)
 	std::chrono::steady_clock::time_point reference_;

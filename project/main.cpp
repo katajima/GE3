@@ -11,6 +11,7 @@
 #include<fstream>
 #include<sstream>
 #include<wrl.h>
+#include<vector>
 
 #include"DirectXGame/engine/struct/Structs.h"
 #include"DirectXGame/engine/math/MathFanctions.h"
@@ -30,16 +31,9 @@
 #include"DirectXGame/engine/base/SrvManager.h"
 #include"DirectXGame/engine/base/ParticleManager.h"
 #include"DirectXGame/engine/base/ParticleEmitter.h"
+#include"DirectXGame/engine/base/ImGuiManager.h"
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
-
-#include<vector>
-
-//ImGui
-#include"externals/imgui/imgui.h"
-#include"externals/imgui/imgui_impl_dx12.h"
-#include"externals/imgui/imgui_impl_win32.h"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -76,6 +70,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// SRVマネージャの初期化
 	srvManager = new SrvManager();
 	srvManager->Initialize(dxCommon);
+
+	// ImGuiマネージャー
+	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
+	imguiManager->Initialize(winApp, dxCommon);
+
 
 	//テクスチャマネージャー
 	TextureManager::GetInstance()->Initialize(dxCommon,srvManager);
@@ -158,27 +157,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			// ゲームループを抜ける
 			break;
 		};
+		// ImGuiの受付開始
+		imguiManager->Begin();
 
-		//ゲームの処理
-		/*ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-
-		Vector3 cameraR = camera->GetRotate();
-		Vector3 cameraT = camera->GetTranslate();
-		ImGui::Begin("Window");
-		ImGui::DragFloat3("camera Rotate", &cameraR.x,0.01f);
-		camera->SetRotate(cameraR);
-		ImGui::DragFloat3("camera translate", &cameraT.x, 0.1f);
-		camera->SetTranslate(cameraT);
-		Vector3 translateObj1 = object3ds[0]->GetTranslate();
-		ImGui::DragFloat3("object1 translate", &translateObj1.x, 0.1f);
-		object3ds[0]->SetTranslate(translateObj1);
-		Vector3 translateObj2 = object3ds[1]->GetTranslate();
-		ImGui::DragFloat3("object2 translate", &translateObj2.x, 0.1f);
-		object3ds[1]->SetTranslate(translateObj2);
-		ImGui::Text("PushKey [DIK_SPACE] = Log [HIT 0]");
-		ImGui::End();*/
 
 		// Input
 		input->Update();
@@ -212,6 +193,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//emitter->Update();
 		
+		// ImGuiの受付終了
+		imguiManager->End();
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
 		//ImGui::ShowDemoWindow();
@@ -248,6 +231,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//sprites[i]->Draw();
 		}
 
+		// ImGuiの描画
+		imguiManager->Draw();
+
 		//描画後処理
 		dxCommon->PostDraw();
 
@@ -281,6 +267,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	delete modelCommon;
+
+	// ImGuiマネージャーの終了
+	ImGuiManager::GetInstance()->Finalize();
 
 	// パーティクルマネージャーの終了
 	particleManager->Finalize();

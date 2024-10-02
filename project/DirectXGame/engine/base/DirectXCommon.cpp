@@ -44,7 +44,7 @@ void DirectXCommon::PreDraw()
 	//これから書き込むバックバッファのインデックスを取得
 	UINT backBufferInbex = swapChain->GetCurrentBackBufferIndex();
 
-
+	
 	////------TransitionBarrier------////
 
 	//TransitionBarrierの設定
@@ -365,6 +365,14 @@ void DirectXCommon::CreateRenderTargets()
 
 	hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
 	assert(SUCCEEDED(hr));
+
+
+	DXGI_SWAP_CHAIN_DESC swcDesc = {};
+	hr = swapChain->GetDesc(&swcDesc);
+	assert(SUCCEEDED(hr));
+
+	// 裏表の２つ分について
+	backBuffers_.resize(swcDesc.BufferCount);
 
 	////------RTV------////
 
