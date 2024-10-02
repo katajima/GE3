@@ -9,6 +9,7 @@ ImGuiManager* ImGuiManager::GetInstance() {
 
 void ImGuiManager::Initialize(WinApp* winApp, DirectXCommon* dxCommon)
 {
+#ifdef _DEBUG
 	HRESULT result;
 
 	dxCommon_ = dxCommon;
@@ -35,11 +36,13 @@ void ImGuiManager::Initialize(WinApp* winApp, DirectXCommon* dxCommon)
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, srvHeap_.Get(),
 		srvHeap_->GetCPUDescriptorHandleForHeapStart(),
 		srvHeap_->GetGPUDescriptorHandleForHeapStart());
+#endif // _DEBUG
 
 }
 
 void ImGuiManager::Finalize()
 {
+#ifdef _DEBUG
 	// 後始末
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -47,24 +50,30 @@ void ImGuiManager::Finalize()
 
 	// デスクリプタヒープを解放
 	srvHeap_.Reset();
+#endif // _DEBUG
 }
 
 void ImGuiManager::Begin()
 {
+#ifdef _DEBUG
 	// ImGuiフレーム開始
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+#endif // _DEBUG
 }
 
 void ImGuiManager::End()
 {
+#ifdef _DEBUG
 	// 描画前準備
 	ImGui::Render();
+#endif // _DEBUG
 }
 
 void ImGuiManager::Draw()
 {
+#ifdef _DEBUG
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList().Get();
 
 	// デスクリプタヒープの配列をセットするコマンド
@@ -72,4 +81,5 @@ void ImGuiManager::Draw()
 	commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	// 描画コマンドを発行
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+#endif // _DEBUG
 }

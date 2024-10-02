@@ -152,7 +152,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ParticleEmitter* emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 	
 #pragma region MyRegion 
-
+#ifdef _DEBUG
 	char buf[256];  // バッファサイズを固定
 	buf[0] = '\0';  // 空の文字列で初期化
 
@@ -163,6 +163,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// スプライト
 	Vector2 aa = Vector2(100, 100);
+#endif // _DEBUG
 #pragma endregion //ImGui試し用変数
 
 	
@@ -177,6 +178,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// ImGuiの受付開始
 		imguiManager->Begin();
 
+#ifdef _DEBUG
 
 #pragma region MyRegion
 
@@ -237,6 +239,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion // ImGui
 
+#endif // _DEBUG
 
 		// Input
 		input->Update();
