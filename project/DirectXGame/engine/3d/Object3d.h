@@ -69,6 +69,7 @@ private:
 	{
 		std::vector<VertexData> vertices;
 		std::vector<uint32_t> indices; // 追加：インデックスデータ
+		std::vector<VertexData> indicesPos;
 		MaterialData material;
 	};
 	//マテリアルデータ

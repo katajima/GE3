@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	//テクスチャマネージャー
-	TextureManager::GetInstance()->Initialize(dxCommon,srvManager);
+	TextureManager::GetInstance()->Initialize(dxCommon, srvManager);
 
 	//モデルマネージャー
 	ModelManager::GetInstance()->Initialize(dxCommon);
@@ -127,38 +127,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 
-	
+
 	const int MaxObject3d = 2;
-	
+
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("axis2.obj");
 
 	std::vector<Object3d*> object3ds;
 	for (uint32_t i = 0; i < MaxObject3d; ++i) {
 		Object3d* object3d = new Object3d();
 		object3d->Initialize(object3dCommon);
 		if (i == 1) {
-			
+
 			object3d->SetModel("plane.obj");
 			object3d->SetTranslate({ -0.136430234f,-0.876318157f,-0.0530188680f });
-			//object3d->GetModel().GetModelData();
-			object3d->SetRotate(Vector3(0,3.14f,0));
+			object3d->SetTranslate({ 100,0,10 });
+			object3d->SetRotate(Vector3(0, 3.14f, 0));
 		}
 		else {
-			
-			object3d->SetModel("axis.obj");
-			object3d->SetTranslate({ -2,0,10 });
+
+			object3d->SetModel("axis2.obj");
+			object3d->SetTranslate({ 0,0,10 });
+			object3d->SetRotate(Vector3(-1.57f, 3.14f, 0));
 		}
-		
+
 		object3ds.push_back(object3d);
 	}
 
 	ParticleManager* particleManager = ParticleManager::GetInstance();
-	particleManager->Initialize(dxCommon,srvManager);
+	particleManager->Initialize(dxCommon, srvManager);
 	particleManager->CreateParticleGroup("aa", "resources/monsterBall.png");
 
 	ParticleEmitter* emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
-	
+
 
 
 
@@ -174,11 +176,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// スプライト
 	Vector2 aa = Vector2(100, 100);
+	Vector3 cameraPos{0,10,0};
+	Vector3 cameraRotate{0.84f,0,0};
+
+	Vector3 axisPos{};
+	Vector3 axisRotate{};
 #endif // _DEBUG
 #pragma endregion //ImGui試し用変数
 
 	Vector3 offset{};
-	
+
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
 		// Windowsのメッセージ処理
@@ -243,8 +250,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		ImGui::Begin("Sprite");
 		ImGui::SetWindowSize(ImVec2(500, 100)); // Ensure you're using ImVec2 for the size
-		
-		ImGui::SliderFloat2("sprite", &aa.x,0,1200,"%5.1f");
+
+		ImGui::SliderFloat2("sprite", &aa.x, 0, 1200, "%5.1f");
 		sprites[0]->SetPosition(aa);
 		ImGui::End();
 
@@ -257,59 +264,87 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		camera->Update();
 
+
+		ImGui::Begin("Camera");
+		ImGui::DragFloat3("Translate",&cameraPos.x,0.1f);
+		ImGui::DragFloat3("Rotate",&cameraRotate.x,0.01f);
+		camera->SetTranslate(cameraPos);
+		camera->SetRotate(cameraRotate);
+		ImGui::End();
+
 		//// 3Dモデル
 		for (uint32_t i = 0; i < MaxObject3d; ++i) {
-			
+
 			object3ds[i]->Update();
 			object3ds[i]->SetCamera(object3dCommon->GetDefaltCamera());
 			object3ds[i]->SetScale({ 1,1,1 });
-			
+
 			if (i == 0) {
+
+				//object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f, 0.02f, 0.0f }));
+
+
 				ImGui::Begin("Mash Axis");
-				ImGui::DragFloat3("Offset", &offset.x, 0.01f);
+				
+				axisPos = object3ds[i]->GetTranslate();
+				axisRotate = object3ds[i]->GetRotate();
+				ImGui::DragFloat3("Translate", &axisPos.x, 0.1f);
+				ImGui::DragFloat3("Rotate", &axisRotate.x, 0.01f);
+				object3ds[i]->SetTranslate(axisPos);
+				object3ds[i]->SetRotate(axisRotate);
 
-				if (ImGui::Button("Move Vertices")) {
-					object3ds[i]->GetModel()->MoveVertices(offset); // 移動関数を呼び出す
-				}
+				
 
+				// モデルデータへのアクセス
 				Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
-				int size = int(mode.vertices.size());
-				ImGui::InputInt("vertices.size", &size);
-				size = int(mode.indices.size());
-				ImGui::InputInt("indices.size", &size);// オフセットを入力するためのUI
 
-				for (size_t j = 0; j < mode.vertices.size(); j++) {
-					Model::VertexData& ver = mode.vertices[j];
+				// 頂点数とインデックス数をUIに表示
+				int vertexSize = static_cast<int>(mode.vertices.size());
+				ImGui::InputInt("vertices.size", &vertexSize);
+				int indexSize = static_cast<int>(mode.indices.size());
+				ImGui::InputInt("indices.size", &indexSize);
 
-					// ユニークなラベルを付与する
-					ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x, 0.01f);
+				// インデックスを使って頂点を操作
+				for (size_t j = 0; j < mode.indices.size(); j++) {
+					uint32_t index = mode.indices[j];  // インデックスで頂点を取得
+					Model::VertexData& ver = mode.vertices[index];  // 頂点データを参照
+
+					// ユニークなラベルを付与し、ImGuiで位置を操作可能に
+					if (ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x, 0.01f)) {
+						// 値が変更された場合、モデルデータを更新
+						object3ds[i]->GetModel()->SetModelData(mode);
+					}
 				}
+
+
 				ImGui::End();
 			}
 			if (i == 1) {
-				
+
 				// モデルの回転を更新
 				//object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f, 0.02f, 0.0f }));
 
 				ImGui::Begin("Mash Plane");
 				Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
-				
-				int size = int(mode.vertices.size());
-				ImGui::InputInt("vertices.size", &size);
-				size = int(mode.indices.size());
-				ImGui::InputInt("indices.size", &size);
-				for (size_t j = 0; j < mode.vertices.size(); j++) {
-					Model::VertexData& ver = mode.vertices[j]; // 頂点データを参照として取得
 
-					// ユニークなラベルを付与する
+				// 頂点数とインデックス数を表示
+				int vertexSize = static_cast<int>(mode.vertices.size());
+				ImGui::InputInt("vertices.size", &vertexSize);
+				int indexSize = static_cast<int>(mode.indices.size());
+				ImGui::InputInt("indices.size", &indexSize);
+
+				// インデックスを使って頂点を操作
+				for (size_t j = 0; j < mode.indices.size(); j++) {
+					uint32_t index = mode.indices[j];  // インデックスで頂点を取得
+					Model::VertexData& ver = mode.vertices[index];  // 頂点データを参照
+
+					// ユニークなラベルを付与して、ImGuiで位置を操作可能にする
 					if (ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x, 0.01f)) {
-						// ここで値が変更された場合にモデルデータを更新
+						// 値が変更された場合、モデルデータを更新
 						object3ds[i]->GetModel()->SetModelData(mode);
 					}
 				}
 
-				// 最後にモデルデータを更新
-				//object3ds[i]->GetModel().SetModelData(mode);
 				ImGui::End();
 			}
 		}
@@ -323,17 +358,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//particleManager->Update();
 
 		//emitter->Update();
-		
+
 		// ImGuiの受付終了
 		imguiManager->End();
 
-		
+
 		// 描画前処理
 		srvManager->PreDraw();
-		
+
 		dxCommon->PreDraw();
 
-		
+
 
 		//////////////---------3Dモデル-------------///////////////
 

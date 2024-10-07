@@ -16,14 +16,29 @@ struct Vector4 final {
 	float y;
 	float z;
 	float w;
+
+	// == 演算子のオーバーロード
+	bool operator==(const Vector4& other) const {
+		return x == other.x && y == other.y && z == other.z && w == other.w;
+	}
 };
 
 struct Vector3 final {
 	float x, y, z;
+
+	// == 演算子のオーバーロード
+	bool operator==(const Vector3& other) const {
+		return x == other.x && y == other.y && z == other.z;
+	}
 };
 
 struct Vector2 final {
 	float x, y;
+
+	// == 演算子のオーバーロード
+	bool operator==(const Vector2& other) const {
+		return x == other.x && y == other.y;
+	}
 };
 //Transform
 struct Transform {
@@ -37,3 +52,4 @@ struct AABB {
 	Vector3 min; //!< 最小点
 	Vector3 max; //!< 最大点
 };
+

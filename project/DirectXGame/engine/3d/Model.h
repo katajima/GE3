@@ -15,13 +15,12 @@ class ModelCommon;
 class Model
 {
 public:
-	// 頂点データ
 	struct VertexData {
-
 		Vector4 position;
 		Vector2 texcoord;
 		Vector3 normal;
 	};
+
 	//マテリアルデータ
 	struct MaterialData {
 		std::string textuerFilePath;
@@ -33,8 +32,28 @@ public:
 	{
 		std::vector<VertexData> vertices;
 		std::vector<uint32_t> indices; // 追加：インデックスデータ
+		std::vector<VertexData> indicesPos;
 		MaterialData material;
 	};
+	// カスタムハッシュ関数
+	struct VertexHash {
+		size_t operator()(const VertexData& vertex) const {
+			// 簡単なハッシュ関数（例として位置のみを使用）
+			return std::hash<float>()(vertex.position.x) ^
+				std::hash<float>()(vertex.position.y) ^
+				std::hash<float>()(vertex.position.z);
+		}
+	};
+
+	
+	size_t operator()(const VertexData& vertex) const {
+		return std::hash<float>()(vertex.position.x) ^
+			std::hash<float>()(vertex.position.y) ^
+			std::hash<float>()(vertex.position.z) ^
+			std::hash<float>()(vertex.normal.x) ^
+			std::hash<float>()(vertex.texcoord.x);
+	}
+
 public:
 
 
@@ -53,6 +72,7 @@ public:
 
 	void MoveVertices(const Vector3& offset);
 
+	
 private:
 	ModelCommon* modelCommon_ = nullptr;
 	Transform transform;
@@ -88,6 +108,9 @@ public:
 	static ModelData LoadOdjFile(const std::string& directoryPath, const std::string& filename);
 
 	static void GenerateIndices(ModelData& modelData);
+
+	static void GenerateIndices2(ModelData& modelData);
+		
 
 	void UpdateVertexBuffer();
 

@@ -3,6 +3,13 @@
 #include"Object3d.h"
 #include"DirectXGame/engine/base/TextureManager.h"
 
+// 頂点を比較するためのオペレーター
+bool operator==(const Model::VertexData& v1, const Model::VertexData& v2) {
+	return v1.position == v2.position &&
+		v1.normal == v2.normal &&
+		v1.texcoord == v2.texcoord;
+}
+
 void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
 {
 	modelCommon_ = modelCommon;
@@ -29,12 +36,9 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	// インデクスリソース
 	indexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * modelData.indices.size());
 
-
 	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
 	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
-
-	
 
 	uint32_t* indexData = nullptr;
 	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
@@ -167,11 +171,6 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 			modelData.vertices.push_back(triangle[2]);
 			modelData.vertices.push_back(triangle[1]);
 			modelData.vertices.push_back(triangle[0]);
-			// インデックスを追加
-			uint32_t indexStart = static_cast<uint32_t>(modelData.vertices.size()) - 3;
-			modelData.indices.push_back(indexStart);
-			modelData.indices.push_back(indexStart + 1);
-			modelData.indices.push_back(indexStart + 2);
 		}
 		else if (identifier == "mtllib") {
 			// MaterialTemplateLibraryファイルの名前を取得する
@@ -184,7 +183,7 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 	}
 
 	// インデックスを生成
-	GenerateIndices(modelData); // thisは省略可能
+	GenerateIndices2(modelData); // thisは省略可能
 
 	return modelData;
 };
@@ -192,15 +191,56 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 void Model::GenerateIndices(ModelData& modelData) {
 	modelData.indices.clear(); // インデックスをクリア
 
-	// インデックス生成の処理
-	uint32_t indexStart = 0;
-	for (size_t i = 0; i < modelData.vertices.size(); i += 3) {
-		// 三角形のインデックスを追加
-		if (i + 2 < modelData.vertices.size()) {
-			modelData.indices.push_back(indexStart);
-			modelData.indices.push_back(indexStart + 1);
-			modelData.indices.push_back(indexStart + 2);
-			indexStart += 3;
+	// インデックス作成のために、すでに存在する頂点のリスト
+	std::vector<uint32_t> uniqueIndices;
+
+	// すべての頂点をチェック
+	for (size_t i = 0; i < modelData.vertices.size(); ++i) {
+		const VertexData& vertex = modelData.vertices[i];
+		bool found = false; // 一致する頂点が見つかったかどうかのフラグ
+
+		// すでに追加されている頂点と比較
+		for (size_t j = 0; j < uniqueIndices.size(); ++j) {
+			const VertexData& existingVertex = modelData.vertices[uniqueIndices[j]];
+
+			// 頂点の位置、法線、テクスチャ座標が一致しているか確認
+			if (vertex.position == existingVertex.position &&
+				vertex.normal == existingVertex.normal &&
+				vertex.texcoord == existingVertex.texcoord) {
+				// 一致したら既存のインデックスを使用
+				modelData.indices.push_back(uniqueIndices[j]);
+				found = true;
+				break;
+			}
+		}
+
+		// 一致する頂点が見つからなければ、新しいインデックスを追加
+		if (!found) {
+			uniqueIndices.push_back(static_cast<uint32_t>(i));
+			modelData.indices.push_back(static_cast<uint32_t>(i));
+		}
+	}
+}
+
+void Model::GenerateIndices2(ModelData& modelData) {
+	modelData.indices.clear();
+
+	// ハッシュマップで頂点の重複を管理
+	std::unordered_map<VertexData, uint32_t, VertexHash> vertexMap;
+
+	for (size_t i = 0; i < modelData.vertices.size(); ++i) {
+		const VertexData& vertex = modelData.vertices[i];
+
+		// 既に同じ頂点が登録されているかチェック
+		auto it = vertexMap.find(vertex);
+		if (it != vertexMap.end()) {
+			// 既存のインデックスを使用
+			modelData.indices.push_back(it->second);
+		}
+		else {
+			// 新しいインデックスを追加
+			vertexMap[vertex] = static_cast<uint32_t>(i);
+			modelData.indices.push_back(static_cast<uint32_t>(i));
 		}
 	}
 }
