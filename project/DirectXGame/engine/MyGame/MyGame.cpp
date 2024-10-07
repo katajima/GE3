@@ -4,19 +4,11 @@
 
 void MyGame::Initialize()
 {
+	Framework::Initialize();
 	
-	
-
-	
-
-	// WindowsAPI解放
-	winApp = new WinApp();
-	winApp->Initialize();
-
 	// 入力初期化
 	input = new Input();
 	input->Intialize(winApp);
-
 
 	//オーディオの初期化
 	audio = Audio::GetInstance();
@@ -24,49 +16,23 @@ void MyGame::Initialize()
 
 
 
+	
 
-
-	dxCommon = new DirectXCommon();
-	dxCommon->Intialize(winApp);
-
-
-	// SRVマネージャの初期化
-	srvManager = new SrvManager();
-	srvManager->Initialize(dxCommon);
-
-	// ImGuiマネージャー
-	imguiManager = ImGuiManager::GetInstance();
-	imguiManager->Initialize(winApp, dxCommon);
 
 
 	//テクスチャマネージャー
 	TextureManager::GetInstance()->Initialize(dxCommon, srvManager);
-
 	//モデルマネージャー
 	ModelManager::GetInstance()->Initialize(dxCommon);
 
 
-	// スプライト共通部の初期化
-	spriteCommon = new SpriteCommon;
-	spriteCommon->Initialize(dxCommon);
+	
 
 	camera = new Camera();
 	camera->SetRotate({ 0,0,0 });
 	camera->SetTranslate({ 0,0,-20 });
 
-
-
-	// 3Dオブジェクト共通部分の初期化
-	object3dCommon = new Object3dCommon();
-	object3dCommon->Initialize(dxCommon);
 	object3dCommon->SetDefaltCamera(camera);
-
-
-	modelCommon = new ModelCommon();
-	modelCommon->Initialize(dxCommon);
-
-
-
 
 	for (int i = 0;  i < static_cast<int>(MaxSprite); ++i) {
 		Sprite* sprite = new Sprite();
@@ -80,10 +46,6 @@ void MyGame::Initialize()
 		}
 		sprites.push_back(sprite);
 	}
-
-
-
-
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
@@ -122,69 +84,40 @@ void MyGame::Finalize()
 {
 	delete input;
 
-	dxCommon->Finalize();
-	delete dxCommon;
-
-	delete srvManager;
-
-	// WindowsAPIの終了処理
-	winApp->Finalize();
-	// WindowsAPI解放
-	delete winApp;
 	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
 		delete sprites[i];
 	}
-	delete spriteCommon;
-
-	
-
 	for (int i = 0; i < static_cast<int>(MaxObject3d); ++i) {
 		delete object3ds[i];
 	}
-	delete object3dCommon;
 
-
-	delete modelCommon;
-
-	// ImGuiマネージャーの終了
-	ImGuiManager::GetInstance()->Finalize();
-
+	
 	// 音
 	audio->Finalize();
 	// パーティクルマネージャーの終了
 	particleManager->Finalize();
 	//
 	delete emitter;
-
+	
+	// ImGuiマネージャーの終了
+	ImGuiManager::GetInstance()->Finalize();
 	//テクスチャマネージャーの終了
 	TextureManager::GetInstance()->Finalize();
-
 	// モデルマネージャーの終了
 	ModelManager::GetInstance()->Finalize();
+	// 基底クラスの終了処理
+	Framework::Finalize();
 }
 
 void MyGame::Update()
 {
-
-	
-	// Windowsのメッセージ処理
-	if (winApp->ProcessMessage()) {
-		// ゲームループを抜ける
-		endRequst_ = true;
-	};
-
-
-
+	Framework::Update();
 	// ImGuiの受付開始
 	imguiManager->Begin();
 
 
-
-
 	// Input
 	input->Update();
-
-
 
 	camera->Update();
 
@@ -289,13 +222,9 @@ void MyGame::Update()
 
 void MyGame::Draw()
 {
-
 	// 描画前処理
 	srvManager->PreDraw();
-
 	dxCommon->PreDraw();
-
-
 
 	//////////////---------3Dモデル-------------///////////////
 

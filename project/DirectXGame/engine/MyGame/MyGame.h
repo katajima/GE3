@@ -50,48 +50,36 @@
 
 #include"externals/imgui/imgui.h"
 
-class  MyGame
+#include"Framework.h"
+
+class  MyGame : public Framework
 {
 public:
 	
 	// 初期化
-	void Initialize();
+	void Initialize() override;
 
 	// 終了
-	void Finalize();
+	void Finalize() override;
 
 	// 毎フレーム更新
-	void Update();
+	void Update() override;
 
 	// 描画
-	void Draw();
-
-	// 終了フラグのチェック
-	bool IsEndRequst() { return endRequst_; }
+	void Draw() override;
 
 private:
-	D3DResourceLeakchecker leakCheck;
+	//D3DResourceLeakchecker leakCheck;
 
-	// ウィンアップ
-	WinApp* winApp = nullptr;
+	
 	//インプット
 	Input* input = nullptr;
 	// 音
 	Audio* audio = nullptr;
-	// ダイレクトX
-	DirectXCommon* dxCommon = nullptr;
-	// SRVマネージャー
-	SrvManager* srvManager = nullptr;
-	// ImGuiマネージャー
-	ImGuiManager* imguiManager;
-	// スプライトこもん
-	SpriteCommon* spriteCommon = nullptr;
+	
 	// カメラ
 	Camera* camera;
-	// オブジェクトコモン
-	Object3dCommon* object3dCommon = nullptr;
-	// モデルコモン
-	ModelCommon* modelCommon = nullptr;
+	
 	// スプライト
 	std::vector<Sprite*> sprites;
 	// モデル
