@@ -66,10 +66,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	input = new Input();
 	input->Intialize(winApp);
 
-	//Audio* audio = nullptr;
-	// オーディオの初期化
-	//audio = Audio::GetInstance();
-	//audio->Initialize();
+	Audio* audio = nullptr;
+	//オーディオの初期化
+	audio = Audio::GetInstance();
+	audio->Initialize();
+	
+
+	uint32_t sound = audio->LoadWave("/Windows/Media/Alarm01.wav");
+
 
 	DirectXCommon* dxCommon = nullptr;
 	dxCommon = new DirectXCommon();
@@ -186,6 +190,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 offset{};
 
+	audio->PlayWave(sound);
+
 	//ウィンドウの×ボタンが押されるまでループ
 	while (true) {
 		// Windowsのメッセージ処理
@@ -261,6 +267,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// Input
 		input->Update();
+
+		
 
 		camera->Update();
 
@@ -436,7 +444,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ImGuiManager::GetInstance()->Finalize();
 
 	// 音
-	//audio->Finalize();
+	audio->Finalize();
 	// パーティクルマネージャーの終了
 	particleManager->Finalize();
 

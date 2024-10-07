@@ -129,10 +129,9 @@ void Audio::SoundPlayWave(IXAudio2* xAudio2, const SoundData& soundData) {
 
 uint32_t Audio::PlayWave(uint32_t soundDataHandle)
 {
-	soundDataHandle;
-	// 音声再生
-	//SoundPlayWave(xAudio2.Get(), SoundData(soundDataHandle));
-	return 0;
+	// 今回は soundDataHandle を使用せず、直接 soundData1 を再生
+	SoundPlayWave(xAudio2.Get(), soundData1);
+	return soundDataHandle;
 }
 
 uint32_t Audio::LoadWave(const char* filename)
@@ -140,7 +139,7 @@ uint32_t Audio::LoadWave(const char* filename)
 	// 音声読み込み
 	soundData1 = SoundLoadWave(filename);
 
-	return 0;
+	return soundData1.bufferSize;
 }
 
 
