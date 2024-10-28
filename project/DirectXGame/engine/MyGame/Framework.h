@@ -21,7 +21,8 @@
 #include"DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/base/StringUtility.h"
 #include"DirectXGame/engine/base/Logger.h"
-
+#include"DirectXGame/engine/3d/LineCommon.h"
+#include"DirectXGame/engine/3d/Line.h"
 // ゲーム全体
 class Framework
 {
@@ -63,5 +64,8 @@ protected:
 	Object3dCommon* object3dCommon = nullptr;
 	// モデルコモン
 	ModelCommon* modelCommon = nullptr;
+	// ラインコモン
+	LineCommon* lineCommon = nullptr;
+
 };
 

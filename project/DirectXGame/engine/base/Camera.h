@@ -12,8 +12,8 @@ public: // メンバ関数
 	void Update();
 
 	// setter
-	void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }
-	void SetTranslate(const Vector3& translate) { transform.translate = translate; }
+	//void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }
+	//void SetTranslate(const Vector3& translate) { transform.translate = translate; }
 	void SetFovY(const float fovY) { fovY_ = fovY; }
 	void SetAspectRatio(const float aspect) { aspect_ = aspect; }
 	void SetNearClip(const float nearC) { nearClip_ = nearC; }
@@ -28,7 +28,7 @@ public: // メンバ関数
 
 
 private:
-	Transform transform;
+	//Transform transform;
 	Matrix4x4 worldMatrix;
 	Matrix4x4 viewMatrix;
 	Matrix4x4 projectionMatrix;
@@ -37,7 +37,8 @@ private:
 	float aspect_ = float(1280) / float(720);
 	float nearClip_ = 0.1f;
 	float farClip_ = 100.0f;
-
+public:
+	Transform transform;
 };
 
 

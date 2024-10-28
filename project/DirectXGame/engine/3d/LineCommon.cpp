@@ -1,21 +1,22 @@
-#include"Object3dCommon.h"
+#include "LineCommon.h"
+#include "combaseapi.h"
 
 
-Object3dCommon* Object3dCommon::GetInstance()
+LineCommon* LineCommon::GetInstance()
 {
 
-	static Object3dCommon instance;
+	static LineCommon instance;
 	return &instance;
 }
 
-void Object3dCommon::Initialize(DirectXCommon* dxCommon)
+void LineCommon::Initialize(DirectXCommon* dxCommon)
 {
 	dxCommon_ = dxCommon;
 
 	CreateGraphicsPipeline();
 }
 
-void Object3dCommon::DrawCommonSetting()
+void LineCommon::DrawCommonSetting()
 {
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
@@ -23,11 +24,10 @@ void Object3dCommon::DrawCommonSetting()
 	dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get()); //PSOを設定
 
 	//形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
-	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 }
 
-void Object3dCommon::CreateRootSignature()
+void LineCommon::CreateRootSignature()
 {
 	HRESULT hr;
 
@@ -36,14 +36,10 @@ void Object3dCommon::CreateRootSignature()
 	descriptorRange[0].NumDescriptors = 1; // 数は1つ
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
-	
 	// Roosignature(ルートシグネチャ)作成
 	//ShaderとResorceをどのように関連付けるかを示したオブジェクト
 
-	//Roosignature作成
-	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
-
-	descriptionSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	
 
 	// RootParameter作成。複数指定できるのではい
 	D3D12_ROOT_PARAMETER rootParameters[4] = {};
@@ -65,6 +61,10 @@ void Object3dCommon::CreateRootSignature()
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
 	rootParameters[3].Descriptor.ShaderRegister = 1; //レジスタ番号1を使う
 
+
+	//Roosignature作成
+	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
+	descriptionSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	descriptionSignature.pParameters = rootParameters;   // ルートパラメータ配列へのポインタ
 	descriptionSignature.NumParameters = _countof(rootParameters);  //配列の長さ
 
@@ -104,7 +104,7 @@ void Object3dCommon::CreateRootSignature()
 	assert(SUCCEEDED(hr));
 }
 
-void Object3dCommon::CreateGraphicsPipeline()
+void LineCommon::CreateGraphicsPipeline()
 {
 	HRESULT hr;
 	CreateRootSignature();
@@ -117,19 +117,12 @@ void Object3dCommon::CreateGraphicsPipeline()
 #pragma region InputLayout
 
 
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
 	inputElementDescs[0].SemanticIndex = 0;
 	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[1].SemanticName = "TEXCOORD";
-	inputElementDescs[1].SemanticIndex = 0;
-	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[2].SemanticName = "NORMAL";
-	inputElementDescs[2].SemanticIndex = 0;
-	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -175,12 +168,12 @@ void Object3dCommon::CreateGraphicsPipeline()
 
 
 	// Shaderをコンパイルする
-	Microsoft::WRL::ComPtr < IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Object3d.VS.hlsl",
+	Microsoft::WRL::ComPtr < IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Line.VS.hlsl",
 		L"vs_6_0");
 
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr < IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Object3d.PS.hlsl",
+	Microsoft::WRL::ComPtr < IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Line.PS.hlsl",
 		L"ps_6_0");
 
 	assert(pixelShaderBlob != nullptr);
@@ -208,9 +201,9 @@ void Object3dCommon::CreateGraphicsPipeline()
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
 	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
-	//利用するトロポジ(形状)のタイプ。三角形
+	//利用するトロポジ(形状)のタイプ。線形
 	graphicsPipelineStateDesc.PrimitiveTopologyType =
-		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 
 	//どのように画面に色を打ち込むかの設定(気にしなくて良い)
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;

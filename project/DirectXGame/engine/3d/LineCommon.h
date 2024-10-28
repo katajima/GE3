@@ -1,11 +1,20 @@
 #pragma once
-#include "DirectXGame/engine/base/DirectXCommon.h"
+#include <array>
+#include <cstdint>
+#include <d3d12.h>
+#include <memory>
+#include <string>
+#include <wrl.h>
+#include "DirectXGame/engine/struct/Structs.h"
 #include "DirectXGame/engine/base/Camera.h"
+#include "DirectXGame/engine/base/DirectXCommon.h"
 
-class Object3dCommon
+class LineCommon
 {
 public:
-	static Object3dCommon* GetInstance();
+
+public:
+	static LineCommon* GetInstance();
 	// 初期化
 	void Initialize(DirectXCommon* dxCommon);
 
@@ -22,17 +31,16 @@ private:
 	void CreateRootSignature();
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
-private:// メンバ変数
-	DirectXCommon* dxCommon_;
 
+
+private:
 	Camera* defaultCamera = nullptr;
 
-	//ルートシグネチャデスク
-	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
-	//ルートシグネチャ
-	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
-	// グラフィックスパイプラインステート
-	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
+	// ルートシグネチャ
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+	// パイプラインステートオブジェクト
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState;
 
+	DirectXCommon* dxCommon_;
 };
 

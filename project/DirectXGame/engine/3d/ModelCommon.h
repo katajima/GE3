@@ -5,6 +5,8 @@
 class ModelCommon
 {
 public:
+	// インスタンス
+	static ModelCommon* GetInstance();
 	// 初期化
 	void Initialize(DirectXCommon* dxCommon);
 

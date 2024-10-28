@@ -30,6 +30,11 @@ void Framework::Initialize()
 
 	modelCommon = new ModelCommon();
 	modelCommon->Initialize(dxCommon);
+
+	// ラインコモン
+	lineCommon = new LineCommon();
+	lineCommon->Initialize(dxCommon);
+
 }
 
 void Framework::Finalize()
@@ -48,6 +53,8 @@ void Framework::Finalize()
 	delete object3dCommon;
 
 	delete modelCommon;
+
+	delete lineCommon;
 }
 
 void Framework::Update()

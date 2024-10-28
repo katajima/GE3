@@ -68,7 +68,17 @@ float Clanp(float t) {
 
 	return t;
 }
+float Clanp(float t, float min, float max) {
 
+	if (max <= t) {
+		t = max;
+	}
+	if (min >= t) {
+		t = min;
+	}
+
+	return t;
+}
 Vector3 Nomalize(const Vector3& v) {
 	Vector3 result{};
 	float length;
@@ -132,6 +142,16 @@ Vector3 Multiply(const float& v, const Vector3& v1) {
 	result.x = v1.x * v;
 	result.y = v1.y * v;
 	result.z = v1.z * v;
+
+	return result;
+}
+Vector3 Multiply(const Vector3& v1, const float& v2)
+{
+	Vector3 result{};
+
+	result.x = v1.x * v2;
+	result.y = v1.y * v2;
+	result.z = v1.z * v2;
 
 	return result;
 }
@@ -512,4 +532,83 @@ bool IsCollision(const AABB& aabb, const Vector3& point) {
 		(point.z >= aabb.min.z && point.z <= aabb.max.z);
 }
 
+
+
+Vector3 Catmullom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t) {
+
+	const float s = 0.5f;
+
+	float t2 = t * t;  // tの2乗
+	float t3 = t2 * t; // tの3乗
+
+	Vector3 pt{};
+	Vector3 e3{};
+	Vector3 e2{};
+	Vector3 e1{};
+	Vector3 e0{};
+	//
+	e3.x = (((-p0.x) + (3 * p1.x) + (-3 * p2.x) + (p3.x)));
+	e3.y = (((-p0.y) + (3 * p1.y) + (-3 * p2.y) + (p3.y)));
+	e3.z = (((-p0.z) + (3 * p1.z) + (-3 * p2.z) + (p3.z)));
+	//
+	e2.x = (((2 * p0.x) + (-5 * p1.x) + (4 * p2.x) + (-p3.x)));
+	e2.y = (((2 * p0.y) + (-5 * p1.y) + (4 * p2.y) + (-p3.y)));
+	e2.z = (((2 * p0.z) + (-5 * p1.z) + (4 * p2.z) + (-p3.z)));
+	//
+	e1 = Subtract(p2, p0);
+	//
+	e0 = Multiply(p1, 2);
+
+	pt.x = (e3.x * t3 + e2.x * t2 + e1.x * t + e0.x) * s;
+	pt.y = (e3.y * t3 + e2.y * t2 + e1.y * t + e0.y) * s;
+	pt.z = (e3.z * t3 + e2.z * t2 + e1.z * t + e0.z) * s;
+
+	return pt;
+}
+
+Vector3 Catmullom(std::vector<Vector3> points, float t) {
+	assert(points.size() >= 4 && "制御点は4点以上必要です");
+
+	// 区間数は制御点の数-1
+	size_t division = points.size() - 1;
+	// 1区間分の長さ　(全体を1.0とした場合)
+	float areaWhidth = 1.0f / division;
+
+	// 区間分の始点を0.0f,終点を1.0fとしたときにの現在位置
+	float t_2 = std::fmod(t, areaWhidth) * division;
+	// 下限(0,0f)と上限(1.0f)の範囲に収める
+	t_2 = Clanp(t_2, 0.0f, 1.0f);
+
+	// 区間番号
+	size_t index = static_cast<size_t>(t / areaWhidth);
+	// 区間番号が上限を超えないように収める
+	if (index >= division) {
+		index = division - 1;
+	}
+	// 4頂点分のインデックス
+	size_t index0 = index - 1;
+	size_t index1 = index;
+	size_t index2 = index + 1;
+	size_t index3 = index + 2;
+
+	// 最初の区間のp0はp1を重複使用する
+	if (index == 0) {
+		index0 = index1;
+	}
+
+	// 最後の区間のp3はp2を重複使用する
+	if (index3 >= points.size()) {
+		index3 = index2;
+	}
+
+	// 4点の座標
+	const Vector3& p0 = points[index0];
+	const Vector3& p1 = points[index1];
+	const Vector3& p2 = points[index2];
+	const Vector3& p3 = points[index3];
+
+
+	// 4点を指定してCatmull-Rom補間
+	return Catmullom(p0, p1, p2, p3, t_2);
+}
 #pragma endregion //数学関数

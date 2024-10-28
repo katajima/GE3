@@ -5,6 +5,8 @@
 // SRV管理
 class SrvManager {
 public:
+	// シングルトンインスタンス
+	static SrvManager* GetInstance();
 
 	// 初期化
 	void Initialize(DirectXCommon* dxCommon);
@@ -32,6 +34,8 @@ public:
 	// 最大SRV数(最大テクスチャ枚数)
 	static const uint32_t kMaxSRVCount;
 private:
+	static SrvManager* instance;
+
 	DirectXCommon* directXCommon_ = nullptr;
 
 

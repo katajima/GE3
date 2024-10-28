@@ -26,6 +26,7 @@
 #include"DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
+
 #include"DirectXGame/engine/base/Camera.h"
 #include"DirectXGame/engine/base/SrvManager.h"
 #include"DirectXGame/engine/base/ParticleManager.h"
@@ -68,6 +69,12 @@ public:
 	// 描画
 	void Draw() override;
 
+	// 横回転
+	std::vector<Vector3> GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns);
+
+	// 縦回転
+	std::vector<Vector3> GenerateVerticalSpiralControlPoints(float radius, float height, int numPoints, float turns);
+
 private:
 	//D3DResourceLeakchecker leakCheck;
 
@@ -79,16 +86,47 @@ private:
 	
 	// カメラ
 	Camera* camera;
-	
+	Vector3 cameraR;
+	Vector3 cameraT;
+
+
+	Vector3 cameraDebugT;
+	Vector3 cameraDebugR;
+	bool flag = false;
+
 	// スプライト
-	std::vector<Sprite*> sprites;
+	std::vector<std::unique_ptr<Sprite>> sprites;
 	// モデル
-	std::vector<Object3d*> object3ds;
+	std::vector<std::unique_ptr<Object3d>> railObject;
+
+	// 列車のオブジェクト
+	std::unique_ptr<Object3d> train;
+
+	// 建物オブジェクト
+	std::vector<std::unique_ptr<Object3d>> buildingObject;
+
+
 	// パーティクルマネジャー
 	ParticleManager* particleManager;
 	// パーティクルエミッター
 	ParticleEmitter* emitter;
 	
+	Line* line;
+
+	// スプライン曲線制御点(通過点)
+	std::vector<Vector3> controlPoints_;
+
+	// 線分で描画する用の頂点リスト
+	std::vector<Vector3> pointsDrawing;
+	// 線分の数
+	const size_t segmentCount = 100;
+
+	float  move_t = 0;
+
+	float move_t2 = 0;
+
+	float moveSpeed = 0.0001f;
+
 private:
 	// ゲーム終了フラグ
 	bool endRequst_ = false;
@@ -96,7 +134,12 @@ private:
 
 
 	const int MaxSprite = 1;
-	const int MaxObject3d = 2;
+
+	// 建物
+	const int MaxBuildingObject3d = 5;
+
+	// レール
+	const int MaxRailObject = 100;
 
 #pragma region MyRegion 
 #ifdef _DEBUG

@@ -1,5 +1,7 @@
 #pragma once
 #include"DirectXGame/engine/struct/Structs.h"
+#include<vector>
+#include <cmath> // sin, cos
 
 #pragma region Math
 
@@ -13,7 +15,7 @@ float Length(const Vector3& v);
 float Length(const float& v);
 
 float Clanp(float t);
-
+float Clanp(float t, float min, float max);
 Vector3 Nomalize(const Vector3& v);
 
 //単位行列
@@ -24,6 +26,8 @@ Matrix4x4 Multiply(const Matrix4x4& v1, const Matrix4x4& v2);
 Vector3 Multiply(const Vector3& v1, const Vector3& v2);
 
 Vector3 Multiply(const float& v2, const Vector3& v1);
+
+Vector3 Multiply(const Vector3& v1, const float& v2);
 //移動行列
 Matrix4x4 MakeTranslateMatrix(const  Vector3& translate);
 //拡大縮小行列
@@ -50,5 +54,11 @@ Matrix4x4 MakeViewportMatrix(float leht, float top, float width, float height, f
 Vector3 Transforms(const Vector3& vector, const Matrix4x4& matrix);
 
 bool IsCollision(const AABB& aabb, const Vector3& point);
+
+
+// スプライン曲線
+Vector3 Catmullom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t);
+// スプライン曲線
+Vector3 Catmullom(std::vector<Vector3> controlPoints, float t);
 
 #pragma endregion //数学関数

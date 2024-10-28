@@ -5,7 +5,7 @@
 void MyGame::Initialize()
 {
 	Framework::Initialize();
-	
+
 	// 入力初期化
 	input = new Input();
 	input->Intialize(winApp);
@@ -16,7 +16,7 @@ void MyGame::Initialize()
 
 
 
-	
+
 
 
 
@@ -24,18 +24,31 @@ void MyGame::Initialize()
 	TextureManager::GetInstance()->Initialize(dxCommon, srvManager);
 	//モデルマネージャー
 	ModelManager::GetInstance()->Initialize(dxCommon);
+	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("resources/train.png");
+	TextureManager::GetInstance()->LoadTexture("resources/rail.png");
 
 
-	
 
 	camera = new Camera();
-	camera->SetRotate({ 0,0,0 });
-	camera->SetTranslate({ 0,0,-20 });
+	camera->transform.rotate = { 0.36f,0,0 };
+	camera->transform.translate = { 5,32.5f,-59.2f };
 
+	cameraDebugT = camera->transform.translate;
+	cameraDebugR = camera->transform.rotate;
+
+	cameraT.y = 1.0f;
+
+	lineCommon->SetDefaltCamera(camera);
+
+	line = new Line();
+	line->Initialize(lineCommon);
+
+	// オブジェクト3D
 	object3dCommon->SetDefaltCamera(camera);
 
-	for (int i = 0;  i < static_cast<int>(MaxSprite); ++i) {
-		Sprite* sprite = new Sprite();
+	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
+		auto sprite = std::make_unique<Sprite>();
 		if (i % 2 == 0) {
 
 			sprite->Initialize(spriteCommon, "resources/uvChecker.png");
@@ -44,33 +57,18 @@ void MyGame::Initialize()
 
 			sprite->Initialize(spriteCommon, "resources/monsterBall.png");
 		}
-		sprites.push_back(sprite);
+		sprites.push_back(std::move(sprite));
 	}
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("axis2.obj");
+	ModelManager::GetInstance()->LoadModel("train.obj");
+	ModelManager::GetInstance()->LoadModel("rail.obj");
+	ModelManager::GetInstance()->LoadModel("building.obj");
 
 
-	for (int i = 0;  i < static_cast<int>(MaxObject3d); ++i) {
-		Object3d* object3d = new Object3d();
-		object3d->Initialize(object3dCommon);
-		if (i == 1) {
 
-			object3d->SetModel("plane.obj");
-			object3d->SetTranslate({ -0.136430234f,-0.876318157f,-0.0530188680f });
-			object3d->SetTranslate({ 100,0,10 });
-			object3d->SetRotate(Vector3(0, 3.14f, 0));
-		}
-		else {
-
-			object3d->SetModel("axis2.obj");
-			object3d->SetTranslate({ 0,0,10 });
-			object3d->SetRotate(Vector3(-1.57f, 3.14f, 0));
-		}
-
-		object3ds.push_back(object3d);
-	}
 
 	particleManager = ParticleManager::GetInstance();
 	particleManager->Initialize(dxCommon, srvManager);
@@ -78,27 +76,88 @@ void MyGame::Initialize()
 
 	emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 
+
+	// スパイラルのパラメータ
+	float radius = 10.0f;  // 半径
+	float height = 50.0f;  // 全体の高さ
+	int numPoints = MaxRailObject;   // 制御点の数
+	float turns = 7.0f;    // 回転数 (スパイラルの巻き数)
+
+	// スパイラル制御点を生成
+	//std::vector<Vector3> controlPoints;
+	controlPoints_ = GenerateSpiralControlPoints(radius, height, numPoints, turns);
+
+
+	for (int i = 0; i < static_cast<int>(MaxRailObject); ++i) {
+		// unique_ptr で Object3d を作成
+		auto object3d = std::make_unique<Object3d>();
+		object3d->Initialize(object3dCommon);
+
+		float index = float(i) / float(MaxRailObject);
+
+		Vector3 pos = Catmullom(controlPoints_, index + 0.00001f);
+		Vector3 pos2 = Catmullom(controlPoints_, index + 0.00002f);
+
+		object3d->SetModel("rail.obj");
+		object3d->transform.translate = pos;
+
+		
+
+		// 進行方向のベクトルを計算
+		Vector3 velocity = Subtract(pos2, pos);
+
+		// カメラの回転を更新
+		float rotateY = std::atan2(velocity.x, velocity.z);
+		float length = Length(Vector3(velocity.x, 0, velocity.z));
+		float rotateX = std::atan2(velocity.y, -length);
+
+		object3d->transform.rotate = Vector3(rotateX, rotateY, 0);
+
+		// railObject に unique_ptr を追加
+		railObject.push_back(std::move(object3d));
+	}
+
+	// 列車オブジェクトを unique_ptr で作成
+	train = std::make_unique<Object3d>();
+	train->Initialize(object3dCommon);
+	train->SetModel("train.obj");
+	train->transform.translate = Catmullom(controlPoints_, 1);
+
+
+	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
+		// unique_ptr で Object3d を作成
+		auto object3d = std::make_unique<Object3d>();
+		object3d->Initialize(object3dCommon);
+		object3d->SetModel("building.obj");
+
+		buildingObject.push_back(std::move(object3d));
+
+	}
+
+
+	buildingObject[0]->transform.translate = Vector3{ 30,0,30 };
+	buildingObject[1]->transform.translate = Vector3{ -30,0,30 };
+	buildingObject[2]->transform.translate = Vector3{ -30,0,-30 };
+	buildingObject[3]->transform.translate = Vector3{ 30,0,-30 };
+	buildingObject[4]->transform.translate = Vector3{ 30,0,-60 };
+
+
 }
 
 void MyGame::Finalize()
 {
 	delete input;
 
-	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
-		delete sprites[i];
-	}
-	for (int i = 0; i < static_cast<int>(MaxObject3d); ++i) {
-		delete object3ds[i];
-	}
+	delete line;
 
-	
+
 	// 音
 	audio->Finalize();
 	// パーティクルマネージャーの終了
 	particleManager->Finalize();
 	//
 	delete emitter;
-	
+
 	// ImGuiマネージャーの終了
 	ImGuiManager::GetInstance()->Finalize();
 	//テクスチャマネージャーの終了
@@ -123,93 +182,114 @@ void MyGame::Update()
 
 
 	ImGui::Begin("Camera");
-	ImGui::DragFloat3("Translate", &cameraPos.x, 0.1f);
-	ImGui::DragFloat3("Rotate", &cameraRotate.x, 0.01f);
-	camera->SetTranslate(cameraPos);
-	camera->SetRotate(cameraRotate);
+	ImGui::DragFloat3("cameraDebugT", &cameraDebugT.x, 0.1f);
+	ImGui::DragFloat3("cameraDebugR", &cameraDebugR.x, 0.01f);
+	ImGui::InputFloat3("Translate", &camera->transform.translate.x);
+	ImGui::DragFloat3("cameraT", &cameraT.x,0.1f);
+	ImGui::InputFloat3("Rotate", &camera->transform.rotate.x);
+	ImGui::DragFloat3("CameraR", &cameraR.x, 0.01f);
+	ImGui::Checkbox("flag", &flag);
+	ImGui::End();
+	ImGui::Begin("t");
+	ImGui::SliderFloat("t", &move_t, 0.0f, 1.0f);
+	ImGui::DragFloat("moveSpeed", &moveSpeed, 0.0001f, 0.0f, 0.0f, "%.6f");
+	ImGui::End();
+	ImGui::Begin("controlPoints");
+	// 制御点の個々の編集
+	for (int i = 0; i < controlPoints_.size(); ++i) {
+		// ラベルをユニークにするために制御点のインデックスを使う
+		std::string label = "Translate " + std::to_string(i);
+		ImGui::DragFloat3(label.c_str(), &controlPoints_[i].x,0.1f);
+	}
 	ImGui::End();
 
-	//// 3Dモデル
-	for (int i = 0;  i < static_cast<int>(MaxObject3d); ++i) {
-
-		object3ds[i]->Update();
-		object3ds[i]->SetCamera(object3dCommon->GetDefaltCamera());
-		object3ds[i]->SetScale({ 1,1,1 });
-
-		if (i == 0) {
-
-			//object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f, 0.02f, 0.0f }));
-
-
-			ImGui::Begin("Mash Axis");
-
-			axisPos = object3ds[i]->GetTranslate();
-			axisRotate = object3ds[i]->GetRotate();
-			ImGui::DragFloat3("Translate", &axisPos.x, 0.1f);
-			ImGui::DragFloat3("Rotate", &axisRotate.x, 0.01f);
-			object3ds[i]->SetTranslate(axisPos);
-			object3ds[i]->SetRotate(axisRotate);
 
 
 
-			// モデルデータへのアクセス
-			Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
-
-			// 頂点数とインデックス数をUIに表示
-			int vertexSize = static_cast<int>(mode.vertices.size());
-			ImGui::InputInt("vertices.size", &vertexSize);
-			int indexSize = static_cast<int>(mode.indices.size());
-			ImGui::InputInt("indices.size", &indexSize);
-
-			// インデックスを使って頂点を操作
-			for (size_t j = 0; j < mode.indices.size(); j++) {
-				uint32_t index = mode.indices[j];  // インデックスで頂点を取得
-				Model::VertexData& ver = mode.vertices[index];  // 頂点データを参照
-
-				// ユニークなラベルを付与し、ImGuiで位置を操作可能に
-				if (ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x, 0.01f)) {
-					// 値が変更された場合、モデルデータを更新
-					object3ds[i]->GetModel()->SetModelData(mode);
-				}
-			}
-
-
-			ImGui::End();
-		}
-		if (i == 1) {
-
-			// モデルの回転を更新
-			//object3ds[i]->SetRotate(Add(object3ds[i]->GetRotate(), Vector3{ 0.0f, 0.02f, 0.0f }));
-
-			ImGui::Begin("Mash Plane");
-			Model::ModelData& mode = object3ds[i]->GetModel()->GetModelData();
-
-			// 頂点数とインデックス数を表示
-			int vertexSize = static_cast<int>(mode.vertices.size());
-			ImGui::InputInt("vertices.size", &vertexSize);
-			int indexSize = static_cast<int>(mode.indices.size());
-			ImGui::InputInt("indices.size", &indexSize);
-
-			// インデックスを使って頂点を操作
-			for (size_t j = 0; j < mode.indices.size(); j++) {
-				uint32_t index = mode.indices[j];  // インデックスで頂点を取得
-				Model::VertexData& ver = mode.vertices[index];  // 頂点データを参照
-
-				// ユニークなラベルを付与して、ImGuiで位置を操作可能にする
-				if (ImGui::DragFloat3(("pos " + std::to_string(j)).c_str(), &ver.position.x, 0.01f)) {
-					// 値が変更された場合、モデルデータを更新
-					object3ds[i]->GetModel()->SetModelData(mode);
-				}
-			}
-
-			ImGui::End();
-		}
+	move_t += moveSpeed;
+	move_t2 = move_t + 0.01f;
+	if (move_t >= 1.0f) {
+		move_t = 1.0f;
 	}
+	if (move_t <= 0.0f) {
+		move_t = 0.0f;
+	}
+	// スプライン上の位置を取得
+	Vector3 pos = Catmullom(controlPoints_, move_t);
+	Vector3 pos2 = Catmullom(controlPoints_, move_t + 0.01f);
+
+	// 進行方向のベクトルを計算
+	Vector3 velocity = Subtract(pos2, pos);
+
+	// カメラの回転を更新
+	float rotateY = std::atan2(velocity.x, velocity.z);
+	float length = Length(Vector3(velocity.x, 0, velocity.z));
+	float rotateX = std::atan2(-velocity.y, length);
+
+	// カメラの位置と回転を設定
+	if (flag) {
+		camera->transform.translate = Vector3(pos.x + cameraT.x,pos.y + cameraT.y,pos.z + cameraT.z);
+		camera->transform.rotate = Vector3(rotateX + cameraR.x, rotateY + cameraR.y, 0 + cameraR.z);
+	}
+	else {
+		camera->transform.rotate = cameraDebugR;
+		camera->transform.translate = cameraDebugT;
+	}
+	
+
+	train->transform.translate = pos;
+	train->transform.rotate = Vector3(rotateX, rotateY, 0);
+
+
+
+	//// 3Dモデル
+	for (int i = 0; i < static_cast<int>(MaxRailObject); ++i) {
+		float index = float(i) / float(MaxRailObject);
+		Vector3 pos = Catmullom(controlPoints_, index + 0.00001f);
+		Vector3 pos2 = Catmullom(controlPoints_, index + 0.00002f);
+		railObject[i]->transform.translate = pos;
+
+		// 進行方向のベクトルを計算
+		Vector3 velocity = Subtract(pos2, pos);
+
+		// カメラの回転を更新
+		float rotateY = std::atan2(velocity.x, velocity.z);
+		float length = Length(Vector3(velocity.x, 0, velocity.z));
+		float rotateX = std::atan2(velocity.y, -length);
+
+		// Z軸の回転を計算
+		float rotateZ = 0.0f; // 初期値は0
+
+		//// ここでZ軸の回転を計算する
+		//// オブジェクトの前方ベクトルを計算
+		//Vector3 forward;
+		//forward.x = cos(rotateY) * cos(rotateX);
+		//forward.y = sin(rotateX);
+		//forward.z = sin(rotateY) * cos(rotateX);
+
+		//// Z軸回転を計算（ベクトルから導出）
+		//rotateZ = std::atan2(forward.y, forward.z); // Z軸のロール
+
+		// Z軸を常に上方向に維持する
+		railObject[i]->transform.rotate = Vector3(rotateX, rotateY, rotateZ);
+		railObject[i]->Update();
+	}
+
+
+	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
+		buildingObject[i]->Update();
+	}
+
+
+	// 列車
+	train->Update();
 
 	// スプライト
-	for (int i = 0;  i < static_cast<int>(MaxSprite); ++i) {
-		sprites[i]->Update();
+	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
+		//sprites[i]->Update();
 	}
+
+	line->Update();
 
 	// パーティクルの更新
 	//particleManager->Update();
@@ -226,15 +306,30 @@ void MyGame::Draw()
 	srvManager->PreDraw();
 	dxCommon->PreDraw();
 
+	//////////////---------ライン
+	lineCommon->DrawCommonSetting();
+	//line->Draw();
+
+
 	//////////////---------3Dモデル-------------///////////////
 
 	//// 3Dオブジェクトの描画準備
 	object3dCommon->DrawCommonSetting();
 
 	////3Dオブジェクトの描画
-	for (int i = 0;  i < static_cast<int>(MaxObject3d); ++i) {
-		object3ds[i]->Draw();
+
+	// レール
+	for (int i = 0; i < static_cast<int>(MaxRailObject); ++i) {
+		railObject[i]->Draw();
 	}
+
+	// 建物
+	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
+		buildingObject[i]->Draw();
+	}
+
+	// 列車
+	train->Draw();
 
 	//// パーティクルの描画
 	//particleManager->Draw();
@@ -247,7 +342,7 @@ void MyGame::Draw()
 
 
 	// 2Dオブジェクトの描画
-	for (int i = 0;  i < static_cast<int>(MaxSprite); ++i) {
+	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
 		//sprites[i]->Draw();
 	}
 
@@ -256,4 +351,51 @@ void MyGame::Draw()
 
 	//描画後処理
 	dxCommon->PostDraw();
+}
+
+std::vector<Vector3> MyGame::GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns)
+{
+	std::vector<Vector3> controlPoints;
+
+	// 1回転あたりのラジアン（2π = 360度）
+	float fullTurnRadians = 2.0f * 3.14159265359f;
+
+	// 各制御点の座標を計算
+	for (int i = 0; i < numPoints; ++i) {
+		float t = float(i) / float(numPoints - 1);  // 0から1までの値を生成
+		float angle = t * turns * fullTurnRadians;  // 回転角度
+		float y = t * height;                       // Y軸の高さ
+		float x = radius * std::cosf(angle);         // X座標
+		float z = radius * std::sinf(angle);         // Z座標
+
+		controlPoints.push_back({ x, y, z });
+	}
+	return controlPoints;
+}
+
+
+std::vector<Vector3> MyGame::GenerateVerticalSpiralControlPoints(float radius, float height, int numPoints, float turns)
+{
+	std::vector<Vector3> controlPoints;
+
+	// numPointsが1未満の場合は無効
+	if (numPoints < 1) return controlPoints;
+
+	// 1回転あたりのラジアン（2π = 360度）
+	const float fullTurnRadians = 2.0f * 3.14159265359f;
+
+	// 各制御点の座標を計算
+	for (int i = 0; i < numPoints; ++i) {
+		float t = static_cast<float>(i) / (numPoints - 1); // 0から1までの値を生成
+		float angle = t * turns * fullTurnRadians;         // 回転角度
+		float currentHeight = t * height;                   // Z軸の進み具合（高さ）
+
+		// XとYで円形の動きを生成
+		float x = radius * std::cosf(angle);                // X軸の円形回転
+		float y = radius * std::sinf(angle);                // Y軸の円形回転
+
+		// 新たな制御点をベクトルに追加
+		controlPoints.emplace_back(x, y,currentHeight);
+	}
+	return controlPoints;
 }

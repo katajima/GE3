@@ -53,3 +53,10 @@ struct AABB {
 	Vector3 max; //!< 最大点
 };
 
+struct Quaternion {
+	float x;
+	float y;
+	float z;
+	float w;
+};
+

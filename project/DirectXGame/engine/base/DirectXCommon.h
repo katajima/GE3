@@ -20,6 +20,8 @@
 class DirectXCommon
 {
 public: // メンバ関数
+	// インスタンス
+	static DirectXCommon* GetInstance();
 	// シングルトンインスタンス
 	//static DirectXCommon* GetInstance();
 	//static DirectXCommon* instance;
@@ -117,6 +119,7 @@ private:
 	void UpdateFixFPS();
 
 public:
+
 	// バックバッファの数を取得
 	size_t GetBackBufferCount() const { return backBuffers_.size(); }
 
