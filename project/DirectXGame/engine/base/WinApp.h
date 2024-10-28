@@ -19,21 +19,21 @@ public: // メンバ関数
 	bool ProcessMessage();
 
 	/// ウィンドウハンドルの取得
-	HWND GetHwnd() const { return hwnd; }
+	static HWND GetHwnd(){ return hwnd; }
 
-	HINSTANCE GetHInstance() { return wc.hInstance; }
+	static HINSTANCE GetHInstance() { return wc.hInstance; }
 
-	const int32_t GetClientWidth() { return kClientWidth; }
-	const int32_t GetClientHeight() { return kClientHeight; }
+	static int32_t GetClientWidth() { return kClientWidth; }
+	static int32_t GetClientHeight() { return kClientHeight; }
 	
 	//クライアント領域のサイズ
-	const int32_t kClientWidth = 1280;
-	const int32_t kClientHeight = 720;
+	static const int32_t kClientWidth = 1280;
+	static const int32_t kClientHeight = 720;
 	//const FLOAT GetFLOATClientWidth() { return kClientWidth; }
 	//const FLOAT GetFLOATClientHeight() { return kClientHeight; }
 private:
-	HWND hwnd = nullptr; // ウィンドウハンドル
-	WNDCLASS wc{};       // ウィンドウクラス
+	inline static HWND hwnd = nullptr; // ウィンドウハンドル
+	inline static WNDCLASS wc{};       // ウィンドウクラス
 	
 };
 

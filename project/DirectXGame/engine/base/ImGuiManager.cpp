@@ -7,7 +7,7 @@ ImGuiManager* ImGuiManager::GetInstance() {
 	return &instance;
 }
 
-void ImGuiManager::Initialize(WinApp* winApp, DirectXCommon* dxCommon)
+void ImGuiManager::Initialize(DirectXCommon* dxCommon)
 {
 #ifdef _DEBUG
 	HRESULT result;
@@ -30,7 +30,7 @@ void ImGuiManager::Initialize(WinApp* winApp, DirectXCommon* dxCommon)
 	ImGui::StyleColorsDark();
 
 	// プラットフォームとレンダラーのバックエンドを設定する
-	ImGui_ImplWin32_Init(winApp->GetHwnd());
+	ImGui_ImplWin32_Init(WinApp::GetHwnd());
 	ImGui_ImplDX12_Init(
 		dxCommon_->GetDevice().Get(), static_cast<int>(dxCommon_->GetBackBufferCount()),
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, srvHeap_.Get(),

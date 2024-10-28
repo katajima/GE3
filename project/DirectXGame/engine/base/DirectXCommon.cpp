@@ -19,9 +19,9 @@ DirectXCommon* DirectXCommon::GetInstance() {
 	return &instance;
 }
 
-void DirectXCommon::Intialize(WinApp* winApp) {
-    assert(winApp);
-    this->winApp_ = winApp;
+void DirectXCommon::Intialize(/*WinApp* winApp*/) {
+    /*assert(winApp);
+    this->winApp_ = winApp;*/
 
     InitializeFixFPS();
     InitializeDXGIDevice();
@@ -304,10 +304,10 @@ void DirectXCommon::CreateSwapChain()
 {
 	HRESULT hr;
 	////------スワップチェーン------////
-
+	//WinApp::GetClientWidth;
 	//スワップチェーンを生成する
-	swapChainDesc.Width = winApp_->GetClientWidth();    //画面の幅。ウィンドウクライアント領域を同じものにしておく
-	swapChainDesc.Height = winApp_->GetClientHeight();  //画面の高さ。ウィンドウクライアント領域を同じものにしておく
+	swapChainDesc.Width = WinApp::GetClientWidth();   //画面の幅。ウィンドウクライアント領域を同じものにしておく
+	swapChainDesc.Height = WinApp::GetClientHeight();  //画面の高さ。ウィンドウクライアント領域を同じものにしておく
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //色の形式
 	swapChainDesc.SampleDesc.Count = 1;  //マルチサンプルしない
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  //描画ターゲットとして利用する
@@ -315,7 +315,7 @@ void DirectXCommon::CreateSwapChain()
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;  //モニターにうつしたら、中身を確認
 
 	//コマンドキュー、ウィンドウハンドル
-	hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue.Get(), winApp_->GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain.GetAddressOf()));
+	hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue.Get(), WinApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain.GetAddressOf()));
 	assert(SUCCEEDED(hr));
 }
 
@@ -442,8 +442,8 @@ void DirectXCommon::CreateDepthBuffer()
 
 	//生成するResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Width = winApp_->GetClientWidth();  // Textureの幅
-	resourceDesc.Height = winApp_->GetClientHeight(); // Textureの高さ
+	resourceDesc.Width = WinApp::GetClientWidth();  // Textureの幅
+	resourceDesc.Height = WinApp::GetClientHeight(); // Textureの高さ
 	resourceDesc.MipLevels = 1; // mipmapの数
 	resourceDesc.DepthOrArraySize = 1; // 奥行き or 配列Textureの配列数
 	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; //　DepthStencilとして利用可能なフォーマット
@@ -516,9 +516,9 @@ void DirectXCommon::InitializeScissor()
 {
 	//基本的にビューポートと同じ矩形が構成されるようにする
 	scissorRect.left = 0;
-	scissorRect.right = winApp_->GetClientWidth();
+	scissorRect.right = WinApp::GetClientWidth();
 	scissorRect.top = 0;
-	scissorRect.bottom = winApp_->GetClientHeight();
+	scissorRect.bottom = WinApp::GetClientHeight();
 }
 
 void DirectXCommon::CreateDXCCompiler()
@@ -538,18 +538,6 @@ void DirectXCommon::CreateDXCCompiler()
 
 void DirectXCommon::InitializeImGui()
 {
-	//// ImGuiの初期化
-	//IMGUI_CHECKVERSION();
-	//ImGui::CreateContext();
-	//ImGui::StyleColorsDark();
-	//ImGui_ImplWin32_Init(winApp_->GetHwnd());
-	//ImGui_ImplDX12_Init(device.Get(),
-	//	swapChainDesc.BufferCount,
-	//	rtvDesc.Format,
-	//	srvDescriptorHeap.Get(),
-	//	srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-	//	srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
 }
 
 void DirectXCommon::InitializeFixFPS()

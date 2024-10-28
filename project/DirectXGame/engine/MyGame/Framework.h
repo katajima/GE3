@@ -52,6 +52,9 @@ protected:
 	bool endRequst_ = false;
 	// ウィンアップ
 	WinApp* winApp = nullptr;
+	//
+	Input* input = nullptr;
+
 	// ダイレクトX
 	DirectXCommon* dxCommon = nullptr;
 	// SRVマネージャー
@@ -65,7 +68,7 @@ protected:
 	// モデルコモン
 	ModelCommon* modelCommon = nullptr;
 	// ラインコモン
-	LineCommon* lineCommon = nullptr;
+	//LineCommon* lineCommon = nullptr;
 
 };
 

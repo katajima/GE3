@@ -16,6 +16,8 @@ public:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public: //メンバ関数
+	static Input* GetInstance();
+
 	//初期化
 	void Intialize(WinApp* winApp);
 	//更新

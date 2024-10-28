@@ -44,7 +44,7 @@ public: // メンバ関数
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDSVGPUDescriptorHandle(uint32_t index);
 
 	// 初期化
-	void Intialize(WinApp* winApp);
+	void Intialize(/*WinApp* winApp*/);
 
 	// 描画前処理
 	void PreDraw();
@@ -148,7 +148,7 @@ public:
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetDsvDescriptorHeap() { return dsvDescriptorHeap; }
 private:
 	// WindowsAPI
-	WinApp* winApp_ = nullptr;
+	//WinApp* winApp_ = nullptr;
 	// DirectX12デバイス
 	Microsoft::WRL::ComPtr<ID3D12Device> device;
 	// DXGIファクトリ

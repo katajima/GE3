@@ -52,6 +52,7 @@
 #include"externals/imgui/imgui.h"
 
 #include"Framework.h"
+#include"DirectXGame/application/scene/GamePlayScene.h"
 
 class  MyGame : public Framework
 {
@@ -69,99 +70,13 @@ public:
 	// 描画
 	void Draw() override;
 
-	// 横回転
-	std::vector<Vector3> GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns);
-
-	// 縦回転
-	std::vector<Vector3> GenerateVerticalSpiralControlPoints(float radius, float height, int numPoints, float turns);
 
 private:
-	//D3DResourceLeakchecker leakCheck;
-
 	
-	//インプット
-	Input* input = nullptr;
-	// 音
-	Audio* audio = nullptr;
-	
-	// カメラ
-	Camera* camera;
-	Vector3 cameraR;
-	Vector3 cameraT;
-
-
-	Vector3 cameraDebugT;
-	Vector3 cameraDebugR;
-	bool flag = false;
-
-	// スプライト
-	std::vector<std::unique_ptr<Sprite>> sprites;
-	// モデル
-	std::vector<std::unique_ptr<Object3d>> railObject;
-
-	// 列車のオブジェクト
-	std::unique_ptr<Object3d> train;
-
-	// 建物オブジェクト
-	std::vector<std::unique_ptr<Object3d>> buildingObject;
-
-
-	// パーティクルマネジャー
-	ParticleManager* particleManager;
-	// パーティクルエミッター
-	ParticleEmitter* emitter;
-	
-	Line* line;
-
-	// スプライン曲線制御点(通過点)
-	std::vector<Vector3> controlPoints_;
-
-	// 線分で描画する用の頂点リスト
-	std::vector<Vector3> pointsDrawing;
-	// 線分の数
-	const size_t segmentCount = 100;
-
-	float  move_t = 0;
-
-	float move_t2 = 0;
-
-	float moveSpeed = 0.0001f;
+	GamePlayScene* scene_;
 
 private:
 	// ゲーム終了フラグ
 	bool endRequst_ = false;
-
-
-
-	const int MaxSprite = 1;
-
-	// 建物
-	const int MaxBuildingObject3d = 5;
-
-	// レール
-	const int MaxRailObject = 100;
-
-#pragma region MyRegion 
-#ifdef _DEBUG
-	char buf[256];  // バッファサイズを固定
-	
-
-	float f = 0.0f;
-
-	bool my_tool_active = true;
-	float my_color[4] = { 1.0f, 0.0f, 0.0f, 1.0f }; // Initial color
-
-	// スプライト
-	Vector2 aa = Vector2(100, 100);
-	Vector3 cameraPos{ 0,10,0 };
-	Vector3 cameraRotate{ 0.84f,0,0 };
-
-	Vector3 axisPos{};
-	Vector3 axisRotate{};
-
-	Vector3 offset{};
-#endif // _DEBUG
-#pragma endregion //ImGui試し用変数
-
 };
 

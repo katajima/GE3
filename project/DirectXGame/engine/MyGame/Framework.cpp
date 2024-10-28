@@ -7,33 +7,30 @@ void Framework::Initialize()
 	winApp->Initialize();
 
 
-	dxCommon = new DirectXCommon();
-	dxCommon->Intialize(winApp);
+	dxCommon = DirectXCommon::GetInstance();
+	dxCommon->Intialize();
 
-
+	Input::GetInstance()->Intialize(winApp);
+	
 	// SRVマネージャの初期化
-	srvManager = new SrvManager();
+	srvManager = SrvManager::GetInstance();
 	srvManager->Initialize(dxCommon);
 
 	// ImGuiマネージャー
 	imguiManager = ImGuiManager::GetInstance();
-	imguiManager->Initialize(winApp, dxCommon);
+	imguiManager->Initialize(dxCommon);
 
 	// スプライト共通部の初期化
-	spriteCommon = new SpriteCommon;
+	spriteCommon = new SpriteCommon();
 	spriteCommon->Initialize(dxCommon);
 
 	// 3Dオブジェクト共通部分の初期化
-	object3dCommon = new Object3dCommon();
+	object3dCommon = new Object3dCommon;
 	object3dCommon->Initialize(dxCommon);
 	
 
-	modelCommon = new ModelCommon();
+	modelCommon = new ModelCommon;
 	modelCommon->Initialize(dxCommon);
-
-	// ラインコモン
-	lineCommon = new LineCommon();
-	lineCommon->Initialize(dxCommon);
 
 }
 
@@ -43,22 +40,27 @@ void Framework::Finalize()
 	winApp->Finalize();
 	// WindowsAPI解放
 	delete winApp;
-	dxCommon->Finalize();
-	delete dxCommon;
+	
+	
+	// ImGuiマネージャーの終了
+	imguiManager->Finalize();
+	//delete imguiManager;
+
+	
 
 	delete srvManager;
-	
+	//
 	delete spriteCommon;
-
+	//
 	delete object3dCommon;
-
-	delete modelCommon;
-
-	delete lineCommon;
+	//
+	delete modelCommon;	
 }
 
 void Framework::Update()
 {
+
+	Input::GetInstance()->Update();
 	// Windowsのメッセージ処理
 	if (winApp->ProcessMessage()) {
 		// ゲームループを抜ける
