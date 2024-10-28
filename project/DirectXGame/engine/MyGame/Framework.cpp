@@ -3,7 +3,7 @@
 void Framework::Initialize()
 {
 	// WindowsAPI解放
-	winApp = new WinApp();
+	winApp = std::make_unique<WinApp>();
 	winApp->Initialize();
 
 
@@ -11,7 +11,7 @@ void Framework::Initialize()
 	dxCommon = std::make_unique<DirectXCommon>();
 	dxCommon->Intialize();
 
-	Input::GetInstance()->Intialize(winApp);
+	Input::GetInstance()->Intialize(winApp.get());
 	
 	// SRVマネージャの初期化
 	srvManager = SrvManager::GetInstance();
@@ -32,7 +32,7 @@ void Framework::Initialize()
 	object3dCommon->Initialize(dxCommon.get());
 	
 
-	modelCommon = new ModelCommon;
+	modelCommon = std::make_unique<ModelCommon>();
 	modelCommon->Initialize(dxCommon.get());
 
 
@@ -45,17 +45,11 @@ void Framework::Finalize()
 {
 	// WindowsAPIの終了処理
 	winApp->Finalize();
-	// WindowsAPI解放
-	delete winApp;
 	
 	dxCommon->Finalize();
 
 	// ImGuiマネージャーの終了
 	imguiManager->Finalize();
-	
-	delete modelCommon;	
-
-	//delete sceneFactory_;
 }
 
 void Framework::Update()

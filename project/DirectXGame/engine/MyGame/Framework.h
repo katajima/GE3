@@ -55,7 +55,8 @@ protected:
 	// ゲーム終了フラグ
 	bool endRequst_ = false;
 	// ウィンアップ
-	WinApp* winApp = nullptr;
+	
+	std::unique_ptr < WinApp> winApp;
 	//
 	Input* input = nullptr;
 
@@ -70,7 +71,7 @@ protected:
 	// オブジェクトコモン
 	Object3dCommon* object3dCommon = nullptr;
 	// モデルコモン
-	ModelCommon* modelCommon = nullptr;
+	std::unique_ptr <ModelCommon> modelCommon;
 	// ラインコモン
 	//LineCommon* lineCommon = nullptr;
 
