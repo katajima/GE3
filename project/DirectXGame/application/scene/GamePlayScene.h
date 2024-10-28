@@ -13,24 +13,25 @@
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/LineCommon.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
+#include"DirectXGame/engine/scene/BaseScene.h"
 
 // ゲームプレイシーン
-class GamePlayScene
+class GamePlayScene : public BaseScene
 {
 public:
 	// 初期化
-	void Initialize();
+	void Initialize() override;
 
 	// 終了
-	void Finalize();
+	void Finalize() override;
 
 	// 毎フレーム更新
-	void Update();
+	void Update() override;
 
 	// 描画
-	void Draw3D();
+	void Draw3D() override;
 
-	void Draw2D();
+	void Draw2D() override;
 
 	// 横回転
 	std::vector<Vector3> GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns);

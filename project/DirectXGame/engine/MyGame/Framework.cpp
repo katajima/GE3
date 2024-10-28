@@ -38,6 +38,7 @@ void Framework::Initialize()
 
 	TextureManager::GetInstance()->Initialize(dxCommon.get());
 	ModelManager::GetInstance()->Initialize(dxCommon.get());
+
 }
 
 void Framework::Finalize()
@@ -53,12 +54,16 @@ void Framework::Finalize()
 	imguiManager->Finalize();
 	
 	delete modelCommon;	
+
+	//delete sceneFactory_;
 }
 
 void Framework::Update()
 {
 
 	Input::GetInstance()->Update();
+
+	
 	// Windowsのメッセージ処理
 	if (winApp->ProcessMessage()) {
 		// ゲームループを抜ける

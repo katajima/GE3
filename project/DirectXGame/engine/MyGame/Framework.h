@@ -23,6 +23,10 @@
 #include"DirectXGame/engine/base/Logger.h"
 #include"DirectXGame/engine/3d/LineCommon.h"
 #include"DirectXGame/engine/3d/Line.h"
+#include"DirectXGame/engine/scene/SceneManager.h"
+#include"DirectXGame/engine/scene/AbstractSceneFactory.h"
+#include"memory"
+
 // ゲーム全体
 class Framework
 {
@@ -70,5 +74,8 @@ protected:
 	// ラインコモン
 	//LineCommon* lineCommon = nullptr;
 
+	
+	// シーンファクトリー
+	std::unique_ptr<AbstractSceneFactory> sceneFactory_;
 };
 

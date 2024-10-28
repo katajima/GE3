@@ -52,7 +52,9 @@
 #include"externals/imgui/imgui.h"
 
 #include"Framework.h"
-#include"DirectXGame/application/scene/GamePlayScene.h"
+
+#include "DirectXGame/application/scene/SceneFactory.h"
+
 
 class  MyGame : public Framework
 {
@@ -70,11 +72,11 @@ public:
 	// 描画
 	void Draw() override;
 
+	void InitializeResource();
 
 private:
 	
-	GamePlayScene* scene_;
-
+	
 private:
 	// ゲーム終了フラグ
 	bool endRequst_ = false;

@@ -6,9 +6,16 @@ void MyGame::Initialize()
 {
 	Framework::Initialize();
 
+	// 最初のシーン
+	sceneFactory_ = std::make_unique<SceneFactory>();
+	// シーンマネージャーに最初のシーンをセット
+	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
+	
+	SceneManager::GetInstance()->ChangeScene("TITLE");
 
-	scene_ = new GamePlayScene();
-	scene_->Initialize();
+	// リソース初期化
+	InitializeResource();
+
 }
 
 void MyGame::Finalize()
@@ -26,11 +33,7 @@ void MyGame::Finalize()
 	// モデルマネージャーの終了
 	ModelManager::GetInstance()->Finalize();
 	//
-
-
-	scene_->Finalize();
-	delete scene_;
-
+	SceneManager::GetInstance()->Finalize();
 	// 基底クラスの終了処理
 	Framework::Finalize();
 }
@@ -43,7 +46,7 @@ void MyGame::Update()
 	Framework::Update();
 
 
-	scene_->Update();
+	SceneManager::GetInstance()->Update();
 
 
 	// ImGuiの受付終了
@@ -61,16 +64,32 @@ void MyGame::Draw()
 	//// 3Dオブジェクトの描画準備
 	Object3dCommon::GetInstance()->DrawCommonSetting();
 
-	scene_->Draw3D();	
+	SceneManager::GetInstance()->Draw3D();
 
 	// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 
-	scene_->Draw2D();
+	SceneManager::GetInstance()->Draw2D();
 
 	// ImGuiの描画
 	imguiManager->Draw();
 
 	//描画後処理
 	dxCommon->PostDraw();
+}
+
+void MyGame::InitializeResource()
+{
+	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("resources/train.png");
+	TextureManager::GetInstance()->LoadTexture("resources/rail.png");
+
+
+	ModelManager::GetInstance()->LoadModel("plane.obj");
+	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("axis2.obj");
+	ModelManager::GetInstance()->LoadModel("train.obj");
+	ModelManager::GetInstance()->LoadModel("rail.obj");
+	ModelManager::GetInstance()->LoadModel("building.obj");
+
 }

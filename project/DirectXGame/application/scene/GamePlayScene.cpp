@@ -16,10 +16,7 @@ void GamePlayScene::Initialize()
 void GamePlayScene::InitializeResources()
 {
 	
-	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
-	TextureManager::GetInstance()->LoadTexture("resources/train.png");
-	TextureManager::GetInstance()->LoadTexture("resources/rail.png");
-
+	
 	// オブジェクト3D
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
@@ -36,13 +33,7 @@ void GamePlayScene::InitializeResources()
 		sprites.push_back(std::move(sprite));
 	}
 
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	ModelManager::GetInstance()->LoadModel("axis.obj");
-	ModelManager::GetInstance()->LoadModel("axis2.obj");
-	ModelManager::GetInstance()->LoadModel("train.obj");
-	ModelManager::GetInstance()->LoadModel("rail.obj");
-	ModelManager::GetInstance()->LoadModel("building.obj");
-
+	
 
 	// スパイラルのパラメータ
 	float radius = 10.0f;  // 半径
@@ -263,6 +254,7 @@ void GamePlayScene::Draw3D()
 	//// パーティクルの描画
 	//particleManager->Draw();
 }
+
 void GamePlayScene::Draw2D() 
 {
 	//////////////--------スプライト-----------///////////////////
