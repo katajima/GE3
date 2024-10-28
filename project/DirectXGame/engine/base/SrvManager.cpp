@@ -24,6 +24,12 @@ void SrvManager::Initialize(DirectXCommon* dxCommon)
 
 }
 
+void SrvManager::Finalize()
+{
+	delete instance;
+	instance = nullptr;
+}
+
 uint32_t SrvManager::Allocate()
 {
 	assert(kMaxSRVCount > useIndex);

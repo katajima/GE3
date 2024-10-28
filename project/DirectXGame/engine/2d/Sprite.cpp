@@ -3,12 +3,12 @@
 #include <iostream>
 #include"DirectXGame/engine/base/TextureManager.h"
 
-void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
+void Sprite::Initialize(/*SpriteCommon* spriteCommon,*/ std::string textureFilePath)
 {
 
 	textureFilePath_ = textureFilePath;
 	// 引数で受け取ってメンバ変数にする
-	this->spriteCommon_ = spriteCommon;
+	this->spriteCommon_ = SpriteCommon::GetInstance();
 	
 	vertexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * 4);
 	

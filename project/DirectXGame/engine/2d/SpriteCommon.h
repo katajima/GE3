@@ -8,10 +8,14 @@ using namespace Microsoft::WRL;
 class SpriteCommon
 {
 public:// メンバ関数
+	static SpriteCommon* instance;
+
 	static SpriteCommon* GetInstance();
 
 	// 初期化
 	void Initialize(DirectXCommon* dxCommon);
+
+	void Finalize();
 
 	DirectXCommon* GetDxCommon() const { return dxCommon_; }
 

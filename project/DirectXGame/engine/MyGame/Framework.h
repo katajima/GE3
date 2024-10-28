@@ -56,7 +56,7 @@ protected:
 	Input* input = nullptr;
 
 	// ダイレクトX
-	DirectXCommon* dxCommon = nullptr;
+	std::unique_ptr < DirectXCommon> dxCommon = nullptr;
 	// SRVマネージャー
 	SrvManager* srvManager = nullptr;
 	// ImGuiマネージャー

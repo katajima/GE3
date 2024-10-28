@@ -13,7 +13,7 @@ class Sprite
 {
 public:// メンバ関数
 	// 初期化
-	void Initialize(SpriteCommon* spriteCommon,std::string textureFilePath);
+	void Initialize(/*SpriteCommon* spriteCommon,*/std::string textureFilePath);
 	// 更新
 	void Update();
 	// 描画

@@ -21,7 +21,7 @@ class DirectXCommon
 {
 public: // メンバ関数
 	// インスタンス
-	static DirectXCommon* GetInstance();
+	//static DirectXCommon* GetInstance();
 	// シングルトンインスタンス
 	//static DirectXCommon* GetInstance();
 	//static DirectXCommon* instance;

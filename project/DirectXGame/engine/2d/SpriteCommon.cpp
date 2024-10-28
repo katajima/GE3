@@ -1,9 +1,13 @@
 #include"SpriteCommon.h"
 
+SpriteCommon* SpriteCommon::instance = nullptr;
+
 SpriteCommon* SpriteCommon::GetInstance()
 {
-	static SpriteCommon instance;
-	return &instance;
+	if (instance == nullptr) {
+		instance = new SpriteCommon;
+	}
+	return instance;
 }
 
 void SpriteCommon::Initialize(DirectXCommon* dxCommon)
@@ -11,6 +15,12 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	dxCommon_ = dxCommon;
 
 	CreateGraphicsPipeline();
+}
+
+void SpriteCommon::Finalize()
+{
+	delete instance;
+	instance = nullptr;
 }
 
 void SpriteCommon::DrawCommonSetting()

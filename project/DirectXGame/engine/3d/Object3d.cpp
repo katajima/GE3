@@ -15,10 +15,12 @@
 #include"DirectXGame/engine/struct/Structs.h"
 #include <iostream>
 
-void Object3d::Initialize(Object3dCommon* object3dCommon)
+void Object3d::Initialize(/*Object3dCommon* object3dCommon*/)
 {
+	Object3dCommon::GetInstance();
+
 	// 引数で受け取ってメンバ変数に記録する
-	this->object3dCommon_ = object3dCommon;
+	this->object3dCommon_ = Object3dCommon::GetInstance();
 	this->camera = object3dCommon_->GetDefaltCamera();
 	//トランスフォーム
 	transformationMatrixResource = object3dCommon_->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));

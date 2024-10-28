@@ -28,7 +28,9 @@ public:
 	void Update();
 
 	// 描画
-	void Draw();
+	void Draw3D();
+
+	void Draw2D();
 
 	// 横回転
 	std::vector<Vector3> GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns);
@@ -44,19 +46,7 @@ private:
 private:
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
-	DirectXCommon* dxCommon_ = nullptr;
-
-
-	// SRVマネージャー
-	std::unique_ptr <SrvManager> srvManager = nullptr;
-	// ImGuiマネージャー
-	ImGuiManager* imguiManager = nullptr;
-	// スプライトこもん
-	std::unique_ptr <SpriteCommon> spriteCommon = nullptr;
-	// オブジェクトコモン
-	std::unique_ptr < Object3dCommon> object3dCommon = nullptr;
 	
-
 
 	// カメラ
 	std::unique_ptr < Camera> camera;

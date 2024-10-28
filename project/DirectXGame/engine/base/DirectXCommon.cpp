@@ -14,10 +14,10 @@ using namespace Microsoft::WRL;
 #include"TextureManager.h"
 
 
-DirectXCommon* DirectXCommon::GetInstance() {
-	static DirectXCommon instance;
-	return &instance;
-}
+//DirectXCommon* DirectXCommon::GetInstance() {
+//	static DirectXCommon instance;
+//	return &instance;
+//}
 
 void DirectXCommon::Intialize(/*WinApp* winApp*/) {
     /*assert(winApp);
@@ -156,11 +156,6 @@ void DirectXCommon::PostDraw()
 
 void DirectXCommon::Finalize()
 {
-	//COMの終了処理
-	//ImGui
-	/*ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();*/
 	////解放処理
 	CloseHandle(fenceEvent);
 }

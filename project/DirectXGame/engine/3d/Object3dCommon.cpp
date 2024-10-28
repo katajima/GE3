@@ -1,11 +1,13 @@
 #include"Object3dCommon.h"
 
+Object3dCommon* Object3dCommon::instance = nullptr;
 
 Object3dCommon* Object3dCommon::GetInstance()
 {
-
-	static Object3dCommon instance;
-	return &instance;
+	if (instance == nullptr) {
+		instance = new Object3dCommon;
+	}
+	return instance;
 }
 
 void Object3dCommon::Initialize(DirectXCommon* dxCommon)
@@ -13,6 +15,12 @@ void Object3dCommon::Initialize(DirectXCommon* dxCommon)
 	dxCommon_ = dxCommon;
 
 	CreateGraphicsPipeline();
+}
+
+void Object3dCommon::Finalize()
+{
+	delete instance;
+	instance = nullptr;
 }
 
 void Object3dCommon::DrawCommonSetting()

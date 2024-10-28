@@ -21,7 +21,7 @@ public:
 	static TextureManager* GetInstance();
 	
 	// 初期化
-	void Initialize(DirectXCommon* dxCommon,SrvManager* srvManager);
+	void Initialize(DirectXCommon* dxCommon/*,SrvManager* srvManager*/);
 	
 	// 終了
 	void Finalize();
@@ -39,7 +39,7 @@ public:
 	// メタデータを取得
 	const DirectX::TexMetadata& GetMataData(const std::string& filePach);
 
-	SrvManager* GetSrvManager(){ return srvManager_; }
+	SrvManager* GetSrvManager(){ return SrvManager::GetInstance(); }
 
 
 

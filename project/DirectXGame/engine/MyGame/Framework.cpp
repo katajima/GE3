@@ -7,31 +7,37 @@ void Framework::Initialize()
 	winApp->Initialize();
 
 
-	dxCommon = DirectXCommon::GetInstance();
+	//dxCommon = 
+	dxCommon = std::make_unique<DirectXCommon>();
 	dxCommon->Intialize();
 
 	Input::GetInstance()->Intialize(winApp);
 	
 	// SRVマネージャの初期化
 	srvManager = SrvManager::GetInstance();
-	srvManager->Initialize(dxCommon);
+	srvManager->Initialize(dxCommon.get());
+
+	
 
 	// ImGuiマネージャー
 	imguiManager = ImGuiManager::GetInstance();
-	imguiManager->Initialize(dxCommon);
+	imguiManager->Initialize(dxCommon.get());
 
 	// スプライト共通部の初期化
-	spriteCommon = new SpriteCommon();
-	spriteCommon->Initialize(dxCommon);
+	spriteCommon = SpriteCommon::GetInstance();
+	spriteCommon->Initialize(dxCommon.get());
 
 	// 3Dオブジェクト共通部分の初期化
-	object3dCommon = new Object3dCommon;
-	object3dCommon->Initialize(dxCommon);
+	object3dCommon = Object3dCommon::GetInstance();
+	object3dCommon->Initialize(dxCommon.get());
 	
 
 	modelCommon = new ModelCommon;
-	modelCommon->Initialize(dxCommon);
+	modelCommon->Initialize(dxCommon.get());
 
+
+	TextureManager::GetInstance()->Initialize(dxCommon.get());
+	ModelManager::GetInstance()->Initialize(dxCommon.get());
 }
 
 void Framework::Finalize()
@@ -41,19 +47,11 @@ void Framework::Finalize()
 	// WindowsAPI解放
 	delete winApp;
 	
-	
+	dxCommon->Finalize();
+
 	// ImGuiマネージャーの終了
 	imguiManager->Finalize();
-	//delete imguiManager;
-
 	
-
-	delete srvManager;
-	//
-	delete spriteCommon;
-	//
-	delete object3dCommon;
-	//
 	delete modelCommon;	
 }
 

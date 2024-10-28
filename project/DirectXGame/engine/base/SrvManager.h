@@ -11,6 +11,8 @@ public:
 	// 初期化
 	void Initialize(DirectXCommon* dxCommon);
 
+	void Finalize();
+
 	uint32_t Allocate();
 
 	// デスクリプタハンドル計算

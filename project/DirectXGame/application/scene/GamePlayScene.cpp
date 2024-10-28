@@ -6,54 +6,32 @@ void GamePlayScene::Initialize()
 	audio_ = Audio::GetInstance();
 	// 入力初期化
 	input_ = Input::GetInstance();
-	//
-	dxCommon_ = DirectXCommon::GetInstance();
 	
-
-	
-	// ImGuiマネージャー
-	imguiManager = ImGuiManager::GetInstance();
-	
-	// スプライトコモン
-	spriteCommon = std::make_unique <SpriteCommon>();
-	spriteCommon->Initialize(dxCommon_);
-		
-	//オブジェクトコモン	
-	object3dCommon = std::make_unique<Object3dCommon>();
-	object3dCommon->Initialize(dxCommon_);
-
-
 	// カメラ
 	InitializeCamera();
 	// リソース
 	InitializeResources();
-	
-
 }
 
 void GamePlayScene::InitializeResources()
 {
-	srvManager = std::make_unique<SrvManager>();
-	srvManager->Initialize(dxCommon_);
-	//モデルマネージャー
-	ModelManager::GetInstance()->Initialize(dxCommon_);
-	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager.get());
+	
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/train.png");
 	TextureManager::GetInstance()->LoadTexture("resources/rail.png");
 
 	// オブジェクト3D
-	object3dCommon->SetDefaltCamera(camera.get());
+	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
 	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
 		auto sprite = std::make_unique<Sprite>();
 		if (i % 2 == 0) {
 
-			sprite->Initialize(spriteCommon.get(), "resources/uvChecker.png");
+			sprite->Initialize("resources/uvChecker.png");
 		}
 		else {
 
-			sprite->Initialize(spriteCommon.get(), "resources/monsterBall.png");
+			sprite->Initialize("resources/monsterBall.png");
 		}
 		sprites.push_back(std::move(sprite));
 	}
@@ -64,15 +42,6 @@ void GamePlayScene::InitializeResources()
 	ModelManager::GetInstance()->LoadModel("train.obj");
 	ModelManager::GetInstance()->LoadModel("rail.obj");
 	ModelManager::GetInstance()->LoadModel("building.obj");
-
-
-
-
-	/*particleManager = ParticleManager::GetInstance();
-	particleManager->Initialize(dxCommon, srvManager);
-	particleManager->CreateParticleGroup("aa", "resources/monsterBall.png");
-
-	emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);*/
 
 
 	// スパイラルのパラメータ
@@ -89,7 +58,7 @@ void GamePlayScene::InitializeResources()
 	for (int i = 0; i < static_cast<int>(MaxRailObject); ++i) {
 		// unique_ptr で Object3d を作成
 		auto object3d = std::make_unique<Object3d>();
-		object3d->Initialize(object3dCommon.get());
+		object3d->Initialize();
 
 		float index = float(i) / float(MaxRailObject);
 
@@ -117,7 +86,7 @@ void GamePlayScene::InitializeResources()
 
 	// 列車オブジェクトを unique_ptr で作成
 	train = std::make_unique<Object3d>();
-	train->Initialize(object3dCommon.get());
+	train->Initialize();
 	train->SetModel("train.obj");
 	train->transform.translate = Catmullom(controlPoints_, 1);
 
@@ -125,7 +94,7 @@ void GamePlayScene::InitializeResources()
 	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
 		// unique_ptr で Object3d を作成
 		auto object3d = std::make_unique<Object3d>();
-		object3d->Initialize(object3dCommon.get());
+		object3d->Initialize();
 		object3d->SetModel("building.obj");
 
 		buildingObject.push_back(std::move(object3d));
@@ -161,13 +130,7 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
-	// ImGuiの受付開始
-	imguiManager->Begin();
-
-
-	// Input
-	//input_->Update();
-
+	
 	camera->Update();
 
 
@@ -278,34 +241,10 @@ void GamePlayScene::Update()
 	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
 		//sprites[i]->Update();
 	}
-
-	//line->Update();
-
-	// パーティクルの更新
-	//particleManager->Update();
-
-	//emitter->Update();
-
-	// ImGuiの受付終了
-	imguiManager->End();
 }
 
-void GamePlayScene::Draw()
+void GamePlayScene::Draw3D()
 {	
-	// 描画前処理
-	srvManager->PreDraw();
-	dxCommon_->PreDraw();
-
-	//////////////---------ライン
-	//lineCommon->DrawCommonSetting();
-	//line->Draw();
-
-
-	//////////////---------3Dモデル-------------///////////////
-
-	//// 3Dオブジェクトの描画準備
-	object3dCommon->DrawCommonSetting();
-
 	////3Dオブジェクトの描画
 
 	// レール
@@ -323,26 +262,20 @@ void GamePlayScene::Draw()
 
 	//// パーティクルの描画
 	//particleManager->Draw();
-
+}
+void GamePlayScene::Draw2D() 
+{
 	//////////////--------スプライト-----------///////////////////
 
 
-	// 2Dオブジェクトの描画準備
-	spriteCommon->DrawCommonSetting();
 
 
-	// 2Dオブジェクトの描画
+
+// 2Dオブジェクトの描画
 	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
 		//sprites[i]->Draw();
 	}
-
-	// ImGuiの描画
-	imguiManager->Draw();
-
-	//描画後処理
-	dxCommon_->PostDraw();
 }
-
 
 
 std::vector<Vector3> GamePlayScene::GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns)
