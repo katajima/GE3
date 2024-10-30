@@ -33,11 +33,39 @@ public:
 
 	void Draw2D() override;
 
+	void UpdateImGui();
+private: //レール関係
+	void InitializeRail();
+
+	void UpdateRail();
+
+	
+
 	// 横回転
 	std::vector<Vector3> GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns);
 
 	// 縦回転
 	std::vector<Vector3> GenerateVerticalSpiralControlPoints(float radius, float height, int numPoints, float turns);
+
+	// 
+	//std::vector<Vector3>
+
+	const Object3d& GetObject3d() { return *train; }
+
+	void SetParent(const Object3d* parent) {
+		// 親子関係を結ぶ
+		train->parent_ = parent;
+	}
+
+	Vector3 GetWorldPos() {
+		// ワールド座標を入れる
+		Vector3 worldPos;
+		worldPos.x = train->mat_.m[3][0];
+		worldPos.y = train->mat_.m[3][1];
+		worldPos.z = train->mat_.m[3][2];
+		return worldPos;
+	};
+
 private:
 
 	void InitializeResources();
@@ -53,7 +81,7 @@ private:
 	std::unique_ptr < Camera> camera;
 	Vector3 cameraR;
 	Vector3 cameraT;
-
+	Object3d ca;
 
 	Vector3 cameraDebugT;
 	Vector3 cameraDebugR;
@@ -63,17 +91,28 @@ private:
 	std::vector<std::unique_ptr<Sprite>> sprites;
 	// モデル
 	std::vector<std::unique_ptr<Object3d>> railObject;
+	std::vector<std::unique_ptr<Object3d>> railObject2;
 
 	// 列車のオブジェクト
 	std::unique_ptr<Object3d> train;
 
+	std::unique_ptr<Object3d> AllrailObject;
+
 	// 建物オブジェクト
 	std::vector<std::unique_ptr<Object3d>> buildingObject;
 
-	//Line* line;
-
+	
 	// スプライン曲線制御点(通過点)
 	std::vector<Vector3> controlPoints_;
+
+	// スプライン曲線
+	std::vector<Vector3> controlPoints2_;
+
+
+
+
+
+
 
 	// 線分で描画する用の頂点リスト
 	std::vector<Vector3> pointsDrawing;
@@ -92,6 +131,6 @@ private:
 	const int MaxBuildingObject3d = 5;
 
 	// レール
-	const int MaxRailObject = 400;
+	const int MaxRailObject = 100;
 };
 

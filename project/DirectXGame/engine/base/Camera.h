@@ -29,7 +29,6 @@ public: // メンバ関数
 
 private:
 	//Transform transform;
-	Matrix4x4 worldMatrix;
 	Matrix4x4 viewMatrix;
 	Matrix4x4 projectionMatrix;
 	Matrix4x4 viewProjectionMatrix;
@@ -39,6 +38,8 @@ private:
 	float farClip_ = 100.0f;
 public:
 	Transform transform;
+	//Transform transform;
+	Matrix4x4 worldMatrix;
 };
 
 

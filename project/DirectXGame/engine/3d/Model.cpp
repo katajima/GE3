@@ -15,7 +15,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	modelCommon_ = modelCommon;
 
 	modelData = LoadOdjFile(directorypath, filename);
-	
+
 
 	// .objの参照しているテクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textuerFilePath);
@@ -73,6 +73,31 @@ void Model::Draw()
 	modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
 	// 描画
 	//modelCommon_->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
+}
+
+void Model::DrawInstance(size_t instanceCount) {
+	// マテリアルのバインド
+	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+
+	// テクスチャのバインド
+	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
+
+	// 頂点バッファの設定
+	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
+	// インデックスバッファの設定
+	modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
+
+	// 描画コマンドの確認
+	if (instanceCount > 0 && !modelData.indices.empty()) {
+		// インデックス数とインスタンス数を正しく指定して描画
+		modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(
+			static_cast<UINT>(modelData.indices.size()), // インデックス数
+			static_cast<UINT>(instanceCount),           // インスタンス数
+			0,                                          // 最初のインデックス
+			0,                                          // 最初の頂点
+			0                                           // 最初の引数
+		);
+	}
 }
 
 

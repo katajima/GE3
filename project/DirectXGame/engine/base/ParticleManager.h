@@ -19,14 +19,7 @@ using namespace Microsoft::WRL;
 #include<random>
 #include<numbers>
 
-struct Particle
-{
-	Transform transform;
-	Vector3 velocity;
-	Vector4 color;
-	float lifeTime;
-	float currentTime;
-};
+
 struct ParticleForGPU
 {
 	Matrix4x4 WVP;
@@ -59,41 +52,48 @@ struct ModelData
 	MaterialData material;
 	Node rootNode;
 };
-struct AcceleraionField {
-	Vector3 acceleration;
-	AABB area;
-};
-struct ParticleGroup
-{
-	MaterialData materialData;
-	std::list<Particle> particle;
-	uint32_t srvIndex;
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
-	uint32_t instanceCount; // インスタンス数
-	ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
-	D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
-};
+
 
 class ParticleManager
 {
-private:
-
+public:
+	struct Particle
+	{
+		Transform transform;
+		Vector3 velocity;
+		Vector4 color;
+		float lifeTime;
+		float currentTime;
+	};
+	struct AcceleraionField {
+		Vector3 acceleration;
+		AABB area;
+	};
+	struct ParticleGroup
+	{
+		MaterialData materialData;
+		std::list<Particle> particle;
+		uint32_t srvIndex;
+		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+		uint32_t instanceCount; // インスタンス数
+		ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
+		D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
+	};
 
 public:
 	// シングルトンインスタンス
 	static ParticleManager* GetInstance();
 
 	// 初期化
-	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager);
-
-	//
-	void Finalize();
-
+	void Initialize(DirectXCommon* dxCommon/*, SrvManager* srvManager*/);
 	// 更新
 	void Update();
-
 	// 描画
 	void Draw();
+	// 終了
+	void Finalize();
+
+	
 
 	// パーティクルの発生
 	void Emit(const std::string name, const Vector3& position, uint32_t count);
@@ -105,9 +105,9 @@ public:
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
 
-	Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate);
+	//Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate);
 	
-	Vector3 GetPoa() { return poa; }
+	//Vector3 GetPoa() { return poa; }
 
 private:
 	// ルートシグネチャの作成
@@ -121,28 +121,33 @@ private:
 	ParticleManager(ParticleManager&) = delete;
 	ParticleManager& operator=(ParticleManager&) = delete;
 
-	// 平行高原
-	struct DirectionalLight {
-		Vector4 color; //!< ライトの色
-		Vector3 direction; //!< ライトの向き
-		float intensity; //!< 輝度
-	};	
-	//マテリアルデータ
-	struct Material {
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-	};
-	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
-	DirectionalLight* directionalLightData = nullptr;
-	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
+	DirectXCommon* dxCommon_ = nullptr;
+	SrvManager* srvManager_ = nullptr;
 
-	// Lightingを有効にする
-	Material* materialData = nullptr;
+
+	//// 平行高原
+	//struct DirectionalLight {
+	//	Vector4 color; //!< ライトの色
+	//	Vector3 direction; //!< ライトの向き
+	//	float intensity; //!< 輝度
+	//};	
+	////マテリアルデータ
+	//struct Material {
+	//	Vector4 color;
+	//	int32_t enableLighting;
+	//	float padding[3];
+	//	Matrix4x4 uvTransform;
+	//};
+	//Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
+	//DirectionalLight* directionalLightData = nullptr;
+	////マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
+	//Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
+
+	//// Lightingを有効にする
+	//Material* materialData = nullptr;
 
 	std::mt19937 randomEngine_;
+
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
@@ -159,29 +164,27 @@ private:
 	Vector3 poa;
 	
 
-	DirectXCommon* dxCommon_ = nullptr;
-	SrvManager* srvManager_ = nullptr;
+	
+	//// バッファリソース
+	//Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
+	//// バッファリソース内のデータを指すポインタ
+	//VertexData* vertexData = nullptr;
 
-	// バッファリソース
-	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
-	// バッファリソース内のデータを指すポインタ
-	VertexData* vertexData = nullptr;
-
-	//バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	////バッファリソースの使い道を補足するバッファビュー
+	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 	
 
 
 	Transform transform;
 
-	//ルートシグネチャデスク
-	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
-	//ルートシグネチャ
-	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
-	// グラフィックスパイプラインステート
-	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
+	////ルートシグネチャデスク
+	//D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
+	////ルートシグネチャ
+	//Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
+	//// グラフィックスパイプラインステート
+	//Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
-	D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
+	//D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
+	//D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
 };
 

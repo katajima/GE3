@@ -37,7 +37,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     if (gMaterial.enableLighting != 0) // LightingÇ∑ÇÈèÍçá
     {
-        float NdotL = dot(normalize(input.nomal), -gDirectionalLight.direction);
+        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
             
         //float cos = saturate(dot(normalize(input.nomal), -gDirectionalLight.direction));

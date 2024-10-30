@@ -35,10 +35,14 @@ void Framework::Initialize()
 	modelCommon = std::make_unique<ModelCommon>();
 	modelCommon->Initialize(dxCommon.get());
 
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Initialize(dxCommon.get());
 
 	TextureManager::GetInstance()->Initialize(dxCommon.get());
 	ModelManager::GetInstance()->Initialize(dxCommon.get());
 
+	
+	emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 }
 
 void Framework::Finalize()
@@ -47,7 +51,8 @@ void Framework::Finalize()
 	winApp->Finalize();
 	
 	dxCommon->Finalize();
-
+	// パーティクルマネージャーの終了
+	particleManager_->Finalize();
 	// ImGuiマネージャーの終了
 	imguiManager->Finalize();
 }

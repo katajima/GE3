@@ -21,7 +21,7 @@ void ParticleEmitter::Update()
 
     // 全パーティクルグループ内の全パーティクルを処理する
     for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
-        ParticleGroup& particleGroup = groupPair.second;
+        ParticleManager::ParticleGroup& particleGroup = groupPair.second;
 
         // 各パーティクルの更新
         for (auto& particle : particleGroup.particle) {
@@ -32,7 +32,7 @@ void ParticleEmitter::Update()
         }
 
         // 寿命が尽きたパーティクルを削除する処理
-        particleGroup.particle.remove_if([](const Particle& p) 
+        particleGroup.particle.remove_if([](const ParticleManager::Particle& p)
             { return p.currentTime >= p.lifeTime; 
             });
     }

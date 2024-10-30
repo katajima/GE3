@@ -75,7 +75,10 @@ protected:
 	// ラインコモン
 	//LineCommon* lineCommon = nullptr;
 
+	ParticleManager* particleManager_ = nullptr;
 	
+	ParticleEmitter* emitter = nullptr;
+
 	// シーンファクトリー
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_;
 };

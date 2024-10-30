@@ -57,7 +57,7 @@ float Length(const float& v) {
 	return result;
 };
 
-float Clanp(float t) {
+float Clamp(float t) {
 
 	if (1.0f <= t) {
 		t = 1.0f;
@@ -68,7 +68,7 @@ float Clanp(float t) {
 
 	return t;
 }
-float Clanp(float t, float min, float max) {
+float Clamp(float t, float min, float max) {
 
 	if (max <= t) {
 		t = max;
@@ -79,7 +79,7 @@ float Clanp(float t, float min, float max) {
 
 	return t;
 }
-Vector3 Nomalize(const Vector3& v) {
+Vector3 Normalize(const Vector3& v) {
 	Vector3 result{};
 	float length;
 
@@ -526,6 +526,7 @@ Vector3 Transforms(const Vector3& vector, const Matrix4x4& matrix) {
 	result.z /= w;
 	return result;
 }
+
 bool IsCollision(const AABB& aabb, const Vector3& point) {
 	return (point.x >= aabb.min.x && point.x <= aabb.max.x) &&
 		(point.y >= aabb.min.y && point.y <= aabb.max.y) &&
@@ -534,7 +535,7 @@ bool IsCollision(const AABB& aabb, const Vector3& point) {
 
 
 
-Vector3 Catmullom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t) {
+Vector3 CatmullRom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t) {
 
 	const float s = 0.5f;
 
@@ -566,7 +567,7 @@ Vector3 Catmullom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const V
 	return pt;
 }
 
-Vector3 Catmullom(std::vector<Vector3> points, float t) {
+Vector3 CatmullRom(std::vector<Vector3> points, float t) {
 	assert(points.size() >= 4 && "制御点は4点以上必要です");
 
 	// 区間数は制御点の数-1
@@ -577,7 +578,7 @@ Vector3 Catmullom(std::vector<Vector3> points, float t) {
 	// 区間分の始点を0.0f,終点を1.0fとしたときにの現在位置
 	float t_2 = std::fmod(t, areaWhidth) * division;
 	// 下限(0,0f)と上限(1.0f)の範囲に収める
-	t_2 = Clanp(t_2, 0.0f, 1.0f);
+	t_2 = Clamp(t_2, 0.0f, 1.0f);
 
 	// 区間番号
 	size_t index = static_cast<size_t>(t / areaWhidth);
@@ -609,6 +610,6 @@ Vector3 Catmullom(std::vector<Vector3> points, float t) {
 
 
 	// 4点を指定してCatmull-Rom補間
-	return Catmullom(p0, p1, p2, p3, t_2);
+	return CatmullRom(p0, p1, p2, p3, t_2);
 }
 #pragma endregion //数学関数

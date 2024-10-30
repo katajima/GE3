@@ -46,8 +46,11 @@ void MyGame::Update()
 	Framework::Update();
 
 
-	SceneManager::GetInstance()->Update();
 
+	SceneManager::GetInstance()->Update();
+	
+	emitter->Update();
+	particleManager_->Update();
 
 	// ImGuiの受付終了
 	imguiManager->End();
@@ -66,11 +69,13 @@ void MyGame::Draw()
 
 	SceneManager::GetInstance()->Draw3D();
 
+	particleManager_->Draw();
+
 	// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->Draw2D();
-
+	
 	// ImGuiの描画
 	imguiManager->Draw();
 
@@ -91,5 +96,9 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("train.obj");
 	ModelManager::GetInstance()->LoadModel("rail.obj");
 	ModelManager::GetInstance()->LoadModel("building.obj");
+
+
+	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png");
+
 
 }

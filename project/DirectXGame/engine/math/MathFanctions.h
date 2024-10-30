@@ -14,9 +14,9 @@ float Dot(const Vector3& v1, const Vector3& v2);
 float Length(const Vector3& v);
 float Length(const float& v);
 
-float Clanp(float t);
-float Clanp(float t, float min, float max);
-Vector3 Nomalize(const Vector3& v);
+float Clamp(float t);
+float Clamp(float t, float min, float max);
+Vector3 Normalize(const Vector3& v);
 
 //単位行列
 Matrix4x4 MakeIdentity4x4();
@@ -57,8 +57,8 @@ bool IsCollision(const AABB& aabb, const Vector3& point);
 
 
 // スプライン曲線
-Vector3 Catmullom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t);
+Vector3 CatmullRom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t);
 // スプライン曲線
-Vector3 Catmullom(std::vector<Vector3> controlPoints, float t);
+Vector3 CatmullRom(std::vector<Vector3> controlPoints, float t);
 
 #pragma endregion //数学関数

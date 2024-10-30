@@ -62,6 +62,8 @@ public:
 
 	void Draw();
 
+	void DrawInstance(size_t instanceCount);
+
 	ModelData& GetModelData(){ return modelData; }
 
 	void SetModelData(const ModelData& model) {
@@ -100,6 +102,9 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 	Material* materialData;
+
+
+	VertexData instanceData_;
 public:
 	//マテリアルデータを読み込む
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);

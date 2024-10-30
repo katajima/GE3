@@ -24,23 +24,23 @@ public:
 	// 描画
 	void Draw();
 
+	// 初期化
+	void InitializeInstance(size_t size);
+	// 更新
+	void UpdateInstance();
+
+	void DrawInstance();
+
 	// setter
 	void SetModel(Model* model) { this->model = model; }
 	Model* GetModel() { return model; }
 	void SetModel(const std::string& filePath);
 	//const Model& GetModel() const{ return model; }
 
-	// setter
-	//void SetScale(const Vector3& scale) { transform.scale = scale; };
-	//void SetRotate(const Vector3& rotate) { transform.rotate = rotate; };
-	//void SetTranslate(const Vector3& translate) { transform.translate = translate; };
-
-	//// getter
-	//const Vector3& GetScale()const { return transform.scale; };
-	//const Vector3& GetRotate()const { return transform.rotate; };
-	//const Vector3& GetTranslate()const { return transform.translate; };
-
+	
 	void SetCamera(Camera* camera) { this->camera = camera; }
+
+	
 
 private:
 	Camera* camera = nullptr;
@@ -48,8 +48,6 @@ private:
 	Model* model = nullptr;
 
 	Object3dCommon* object3dCommon_ = nullptr;
-
-	
 
 	// 頂点データ
 	struct VertexData {
@@ -101,11 +99,20 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
 	DirectionalLight* directionalLightData = nullptr;
 
-	//Transform cameraTransform;
+	
+	std::vector<TransfomationMatrix*> InstanseTransfomationMatrixData;
+	std::vector<Microsoft::WRL::ComPtr < ID3D12Resource>> InstanseTransformationMatrixResource;
 
-
+	size_t size_;
 public:
 	Transform transform;
+
+	Matrix4x4 mat_;
+
+	// 親となるワールド変換へのポインタ
+	const Object3d* parent_ = nullptr;
+
+	std::vector<Transform> transforms;
 };
 
 
