@@ -20,21 +20,21 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
-	camera->Update();
+	camera->UpdateMatrix();
 
 
 	ImGui::Begin("Camera");
 	ImGui::DragFloat3("cameraDebugT", &cameraDebugT.x, 0.1f);
 	ImGui::DragFloat3("cameraDebugR", &cameraDebugR.x, 0.01f);
-	ImGui::InputFloat3("Translate", &camera->transform.translate.x);
+	ImGui::InputFloat3("Translate", &camera->transform_.translate.x);
 	ImGui::DragFloat3("cameraT", &cameraT.x, 0.1f);
-	ImGui::InputFloat3("Rotate", &camera->transform.rotate.x);
+	ImGui::InputFloat3("Rotate", &camera->transform_.rotate.x);
 	ImGui::DragFloat3("CameraR", &cameraR.x, 0.01f);
 	ImGui::Checkbox("flag", &flag);
 	ImGui::End();
 
-	camera->transform.rotate = cameraDebugR;
-	camera->transform.translate = cameraDebugT;
+	camera->transform_.rotate = cameraDebugR;
+	camera->transform_.translate = cameraDebugT;
 
 	if (Input::GetInstance()->TriggerKey(DIK_RETURN)) {
 		// シーン切り替え
@@ -68,11 +68,11 @@ void TitleScene::InitializeResources()
 void TitleScene::InitializeCamera()
 {
 	camera = std::make_unique <Camera>();
-	camera->transform.rotate = { 0.36f,0,0 };
-	camera->transform.translate = { 5,32.5f,-59.2f };
+	camera->transform_.rotate = { 0.36f,0,0 };
+	camera->transform_.translate = { 5,32.5f,-59.2f };
 
-	cameraDebugT = camera->transform.translate;
-	cameraDebugR = camera->transform.rotate;
+	cameraDebugT = camera->transform_.translate;
+	cameraDebugR = camera->transform_.rotate;
 
 	cameraT.y = 1.0f;
 }

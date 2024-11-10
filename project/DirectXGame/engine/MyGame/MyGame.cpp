@@ -88,6 +88,8 @@ void MyGame::InitializeResource()
 	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/train.png");
 	TextureManager::GetInstance()->LoadTexture("resources/rail.png");
+	TextureManager::GetInstance()->LoadTexture("resources/reticle.png");
+	TextureManager::GetInstance()->LoadTexture("resources/white.png");
 
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
@@ -96,6 +98,8 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("train.obj");
 	ModelManager::GetInstance()->LoadModel("rail.obj");
 	ModelManager::GetInstance()->LoadModel("building.obj");
+	ModelManager::GetInstance()->LoadModel("Sphere.obj");
+	ModelManager::GetInstance()->LoadModel("long.obj");
 
 
 	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png");

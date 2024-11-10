@@ -50,21 +50,21 @@ private: //レール関係
 	// 
 	//std::vector<Vector3>
 
-	const Object3d& GetObject3d() { return *train; }
+	const Object3d& GetObject3d() { return train; }
 
 	void SetParent(const Object3d* parent) {
 		// 親子関係を結ぶ
-		train->parent_ = parent;
+		train.parent_ = parent;
 	}
 
-	Vector3 GetWorldPos() {
-		// ワールド座標を入れる
-		Vector3 worldPos;
-		worldPos.x = train->mat_.m[3][0];
-		worldPos.y = train->mat_.m[3][1];
-		worldPos.z = train->mat_.m[3][2];
-		return worldPos;
-	};
+
+	void CalculationWorldCameraPosition();
+	
+	void CalculationWorld3DReticlePosition();
+
+	void CalculationWorld2DReticlePosition();
+
+	
 
 private:
 
@@ -86,6 +86,7 @@ private:
 	Vector3 cameraDebugT;
 	Vector3 cameraDebugR;
 	bool flag = false;
+	Object3d cameraObj_;
 
 	// スプライト
 	std::vector<std::unique_ptr<Sprite>> sprites;
@@ -94,13 +95,21 @@ private:
 	std::vector<std::unique_ptr<Object3d>> railObject2;
 
 	// 列車のオブジェクト
-	std::unique_ptr<Object3d> train;
+	Object3d train;
+	Object3d trainTemp;
+	// レティクル
+	Object3d object3DReticle_;
 
-	std::unique_ptr<Object3d> AllrailObject;
+	// レティクル位置
+	Vector2 reticlePos_;
+
+
+	// レール
+	//std::unique_ptr<Object3d> AllrailObject;
 
 	// 建物オブジェクト
 	std::vector<std::unique_ptr<Object3d>> buildingObject;
-
+	std::vector<Vector3> buildingPos;
 	
 	// スプライン曲線制御点(通過点)
 	std::vector<Vector3> controlPoints_;
@@ -108,9 +117,11 @@ private:
 	// スプライン曲線
 	std::vector<Vector3> controlPoints2_;
 
-
-
-
+	// レチクル画像
+	std::unique_ptr <Sprite> sprite2DReticle_;
+	
+	// レーザー
+	Object3d laser;
 
 
 
@@ -124,11 +135,19 @@ private:
 	float move_t2 = 0;
 
 	float moveSpeed = 0.0001f;
+
+	// スコア
+	int Score_ = 0;
+
+	// レーザーエネルギー
+	float energy_ = 100;
+	std::unique_ptr <Sprite> spriteEnergy_;
+
 private:
 	const int MaxSprite = 1;
 
 	// 建物
-	const int MaxBuildingObject3d = 5;
+	const int MaxBuildingObject3d = 10;
 
 	// レール
 	const int MaxRailObject = 100;

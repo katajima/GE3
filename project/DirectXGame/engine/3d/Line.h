@@ -9,7 +9,7 @@
 
 class LineCommon;
 
-class Line
+class LineDraw
 {
 public:
 	void Initialize(LineCommon *lineCommon);

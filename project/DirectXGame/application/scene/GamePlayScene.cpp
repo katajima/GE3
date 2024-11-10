@@ -1,6 +1,9 @@
 #include "GamePlayScene.h"
 #include <iostream>//用いるヘッダファイルが変わります。
+#include <corecrt_math_defines.h>
+#include <algorithm>
 
+// 初期化
 void GamePlayScene::Initialize()
 {
 	//オーディオの初期化
@@ -14,6 +17,62 @@ void GamePlayScene::Initialize()
 	InitializeResources();
 }
 
+// カメラ位置
+void GamePlayScene::CalculationWorldCameraPosition()
+{
+	{
+		// 自機から3Dレティクルのへの距離
+		const float kDistancePlayerTo3DReticle = 1.0f;
+		// 自機から3Dレティクルへのオフセット(Z+向き)
+		Vector3 offset = { 0, 2.0f, 1.0f };
+		// 自機のワールド行列の回転を反映
+		offset = TransformNormal(offset, train.mat_);
+		// ベクトルの長さを整える
+		offset = Multiply(Normalize(offset), kDistancePlayerTo3DReticle);
+		// 3Dレティクルの座標を設定
+		cameraObj_.transform.translate = Add(train.GetWorldPosition(), offset);
+		//
+		cameraObj_.Update();
+	}
+}
+
+// レティクル3D関係
+void GamePlayScene::CalculationWorld3DReticlePosition()
+{
+	{
+		// 自機から3Dレティクルのへの距離
+		const float kDistancePlayerTo3DReticle = 80.0f;
+		// 自機から3Dレティクルへのオフセット(Z+向き)
+		Vector3 offset = { 0, 0, 1.0f };
+		// 自機のワールド行列の回転を反映
+		offset = TransformNormal(offset, trainTemp.mat_);
+		// ベクトルの長さを整える
+		offset = Multiply(Normalize(offset), kDistancePlayerTo3DReticle);
+		// 3Dレティクルの座標を設定
+		object3DReticle_.transform.translate = Add(train.GetWorldPosition(), offset);
+		//
+		object3DReticle_.Update();
+	}
+}
+// レティクル2D関係
+void GamePlayScene::CalculationWorld2DReticlePosition() {
+
+	Vector3 positionReticle = object3DReticle_.GetWorldPosition();
+
+	// ビューポート行列
+	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, float(WinApp::GetClientWidth()), float(WinApp::GetClientHeight()), 0, 1);
+
+	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
+	Matrix4x4 matViewProjectionViewport = Multiply(camera->viewMatrix_, Multiply(camera->projectionMatrix_, matViewport));
+
+	// ワールド→スクリーン座標変換（ここで3Dから2Dになる）
+	positionReticle = Transforms(positionReticle, matViewProjectionViewport);
+
+	// スプライトのレティクルに座標設定
+	sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
+}
+
+// 各オブジェクトやスプライトなどの初期化
 void GamePlayScene::InitializeResources()
 {
 
@@ -21,69 +80,90 @@ void GamePlayScene::InitializeResources()
 	// オブジェクト3D
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
-	// スプライト
-	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
-		auto sprite = std::make_unique<Sprite>();
-		if (i % 2 == 0) {
-
-			sprite->Initialize("resources/uvChecker.png");
-		}
-		else {
-
-			sprite->Initialize("resources/monsterBall.png");
-		}
-		sprites.push_back(std::move(sprite));
-	}
-
-
 	// レールかんけい
 	InitializeRail();
 
 
 	// 列車オブジェクトを unique_ptr で作成
-	train = std::make_unique<Object3d>();
-	train->Initialize();
-	train->SetModel("train.obj");
-	train->transform.translate = CatmullRom(controlPoints_, 1);
+	train.Initialize();
+	train.SetModel("train.obj");
+	train.transform.translate = CatmullRom(controlPoints_, 1);
 
+	trainTemp.Initialize();
+	trainTemp.transform.translate = train.transform.translate;
+
+
+	std::vector<Vector3> buildingPos = {
+	{10.0f, 0.0f, 10.0f},   // controlPoints2_[0] 付近
+	{60.0f, 2.0f, 60.0f},   // controlPoints2_[1] 付近
+	{110.0f, 4.0f, -10.0f}, // controlPoints2_[2] 付近
+	{160.0f, 6.0f, -40.0f}, // controlPoints2_[3] 付近
+	{210.0f, 8.0f, -110.0f},// controlPoints2_[4] 付近
+	{240.0f, 10.0f, -30.0f},// controlPoints2_[5] 付近
+	{310.0f, 12.0f, 20.0f}, // controlPoints2_[6] 付近
+	{370.0f, 14.0f, 80.0f}, // controlPoints2_[7] 付近
+	{420.0f, 16.0f, 120.0f},// controlPoints2_[8] 付近
+	{460.0f, 18.0f, 140.0f},// controlPoints2_[9] 付近
+	{510.0f, 20.0f, 210.0f},// controlPoints2_[10] 付近
+	{570.0f, 22.0f, 260.0f},// controlPoints2_[11] 付近
+	{630.0f, 24.0f, 280.0f},// controlPoints2_[12] 付近
+	{660.0f, 26.0f, 240.0f},// controlPoints2_[13] 付近
+	{710.0f, 28.0f, 180.0f},// controlPoints2_[14] 付近
+	{780.0f, 30.0f, 130.0f},// controlPoints2_[15] 付近
+	{830.0f, 32.0f, 70.0f}, // controlPoints2_[16] 付近
+	{880.0f, 34.0f, 20.0f}, // controlPoints2_[17] 付近
+	{910.0f, 36.0f, -30.0f},// controlPoints2_[18] 付近
+	{960.0f, 38.0f, -80.0f},// controlPoints2_[19] 付近
+	{1020.0f, 40.0f, -120.0f}// controlPoints2_[20] 付近
+	};
 	// 建物
 	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
 		// unique_ptr で Object3d を作成
 		auto object3d = std::make_unique<Object3d>();
 		object3d->Initialize();
-		object3d->SetModel("building.obj");
-
+		object3d->SetModel("Sphere.obj");
+		object3d->transform.translate = buildingPos[i];
 		buildingObject.push_back(std::move(object3d));
 	}
 
+	// レチクル
+	object3DReticle_.Initialize();
+	object3DReticle_.SetModel("train.obj");
 
-	buildingObject[0]->transform.translate = Vector3{ 50,0,50 };
-	buildingObject[1]->transform.translate = Vector3{ -30,0,30 };
-	buildingObject[2]->transform.translate = Vector3{ -30,0,-30 };
-	buildingObject[3]->transform.translate = Vector3{ 30,0,-30 };
-	buildingObject[4]->transform.translate = Vector3{ 30,0,-60 };
+	// レーザー
+	laser.Initialize();
+	laser.SetModel("long.obj");
 
+	// スプライト
+	sprite2DReticle_ = std::make_unique<Sprite>();
+	sprite2DReticle_->Initialize("resources/reticle.png");
+	sprite2DReticle_->SetSize({ 10, 10 });
+	sprite2DReticle_->SetAnchorPoint(Vector2{0.5f,0.5f});
+	sprite2DReticle_->SetColor(Vector4{ 1,0,0,1 });
 	
-	SetParent(&ca);
-
-	//train->parent_ = //(camera->GetWorldMatrix());
-
+	spriteEnergy_ = std::make_unique<Sprite>();
+	spriteEnergy_->Initialize("resources/white.png");
+	spriteEnergy_->SetPosition(Vector2(20, 600));
+	spriteEnergy_->SetSize({ 10, 10 });
+	spriteEnergy_->SetAnchorPoint(Vector2{0.0f,0.0f});
+	spriteEnergy_->SetColor(Vector4{ 1,0,0,1 });
+	
 }
-
+// カメラ初期化
 void GamePlayScene::InitializeCamera()
 {
 	camera = std::make_unique <Camera>();
-	camera->transform.rotate = { 0.36f,0,0 };
-	camera->transform.translate = { 5,32.5f,-59.2f };
+	camera->transform_.rotate = { 0.36f,0,0 };
+	camera->transform_.translate = { 5,32.5f,-59.2f };
 
-	cameraDebugT = camera->transform.translate;
-	cameraDebugR = camera->transform.rotate;
+	cameraDebugT = camera->transform_.translate;
+	cameraDebugR = camera->transform_.rotate;
 
 	cameraT.y = 1.0f;
 
-	//ca.transform = camera->transform;
+	cameraObj_.Initialize();
 }
-
+// レール初期化
 void GamePlayScene::InitializeRail()
 {
 	// スパイラルのパラメータ
@@ -128,14 +208,34 @@ void GamePlayScene::InitializeRail()
 
 
 	controlPoints2_ = {
-		{10,10,10},
-		{50,20,20},
-		{90,200,30},
-		{130,40,10},
-		{170,50,-10},
-		{210,60,10},
-		{250,30,-40},
-		{290,10,10},
+		{0.0f, 0.0f, 0.0f},
+		{50.0f, 2.0f, 50.0f},
+		{100.0f, 4.0f, 00.0f},
+		{150.0f, 6.0f, -50.0f},
+		{200.0f, 8.0f, -100.0f},
+		{250.0f, 100.0f, -50.0f},
+		{300.0f, 12.0f, 00.0f},
+		{350.0f, 14.0f, 50.0f},
+		{400.0f, 16.0f, 100.0f},
+		{450.0f, 18.0f, 150.0f},
+		{500.0f, 20.0f, 200.0f},
+		{550.0f, 22.0f, 250.0f},
+		{600.0f, 24.0f, 300.0f},
+		{650.0f, 26.0f, 250.0f},
+		{700.0f, 28.0f, 200.0f},
+		{750.0f, 30.0f, 150.0f},
+		{800.0f, 32.0f, 100.0f},
+		{850.0f, 34.0f, 50.0f},
+		{900.0f, 36.0f, 00.0f},
+		{950.0f, 38.0f, -50.0f},
+		{1000.0f, 40.0f, -100.0f},
+		{1100.0f, 60.0f, -105.0f},
+		{1100.0f, 80.0f, -110.0f},
+		{1100.0f, 100.0f, -115.0f},
+		{1100.0f, 80.0f, -120.0f},
+		{1100.0f, 60.0f, -125.0f},
+		{1100.0f, 40.0f, -130.0f},
+
 	};
 
 	float spacing = 3.5f; // オブジェクト間の距離（密度調整）
@@ -161,8 +261,6 @@ void GamePlayScene::InitializeRail()
 			Vector3 velocity = Subtract(posNext, pos);
 
 
-			//velocity = Normalize(velocity);
-
 			// 回転計算
 			float rotateY = std::atan2(velocity.x, velocity.z);
 			float length = Length(Vector3(velocity.x, 0, velocity.z));
@@ -185,65 +283,39 @@ void GamePlayScene::InitializeRail()
 		// セグメントの終了時に累積距離を更新
 		totalDistanceTraveled += segmentLength;
 	}
-
-
-
-
-
-
-
-	AllrailObject = std::make_unique<Object3d>();
-	AllrailObject->InitializeInstance(MaxRailObject);
-	AllrailObject->SetModel("rail.obj");
-
-	// レール インスタンス
-	for (int i = 0; i < static_cast<int>(MaxRailObject); ++i) {
-		float index = float(i) / float(MaxRailObject);
-
-		Vector3 pos = CatmullRom(controlPoints_, index + 0.00001f);
-		Vector3 pos2 = CatmullRom(controlPoints_, index + 0.00002f);
-
-		AllrailObject->transforms[i].translate = pos;
-
-
-		//AllrailObject->transforms[i].translate = Vector3{ float(i),float(i),float(i) };
-		// 進行方向のベクトルを計算
-		Vector3 velocity = Subtract(pos2, pos);
-
-		// カメラの回転を更新
-		float rotateY = std::atan2(velocity.x, velocity.z);
-		float length = Length(Vector3(velocity.x, 0, velocity.z));
-		float rotateX = std::atan2(velocity.y, -length);
-
-		AllrailObject->transforms[i].rotate = Vector3(rotateX, rotateY, 0);
-	}
 }
-
-
+// 終了
 void GamePlayScene::Finalize()
 {
 
 }
-
+// ImGui更新
 void GamePlayScene::UpdateImGui()
 {
 	ImGui::Begin("Camera");
 	ImGui::DragFloat3("cameraDebugT", &cameraDebugT.x, 0.1f);
 	ImGui::DragFloat3("cameraDebugR", &cameraDebugR.x, 0.01f);
-	ImGui::InputFloat3("Translate", &camera->transform.translate.x);
+	ImGui::InputFloat3("Translate", &camera->transform_.translate.x);
 	ImGui::DragFloat3("cameraT", &cameraT.x, 0.1f);
-	ImGui::InputFloat3("Rotate", &camera->transform.rotate.x);
+	ImGui::InputFloat3("Rotate", &camera->transform_.rotate.x);
 	ImGui::DragFloat3("CameraR", &cameraR.x, 0.01f);
 	ImGui::InputFloat3("cameraCa", &ca.transform.translate.x);
 	ImGui::Checkbox("flag", &flag);
 	ImGui::End();
 
 	ImGui::Begin("train");
-	ImGui::SliderFloat("t", &move_t, 0.0f, 1.0f);
-	ImGui::DragFloat("moveSpeed", &moveSpeed, 0.0001f, 0.0f, 0.0f, "%.6f");
-	ImGui::InputFloat3("tanslate", &train->transform.translate.x);
-	Vector3 pop = GetWorldPos();
-	ImGui::InputFloat3("tanslate2", &pop.x);
+	{
+		ImGui::SliderFloat("t", &move_t, 0.0f, 1.0f);
+		ImGui::DragFloat("moveSpeed", &moveSpeed, 0.0001f, 0.0f, 0.0f, "%.6f");
+		Vector3 pos = train.GetWorldPosition();
+		Vector3 pos2 = trainTemp.GetWorldPosition();
+		Vector3 pos3 = object3DReticle_.GetWorldPosition();
+		ImGui::InputFloat3("tanslateW", &pos.x);
+		ImGui::InputFloat3("trainTempW", &pos2.x);
+		ImGui::InputFloat3("object3DReticle_W", &pos3.x);
+		ImGui::InputInt("Score", &Score_);
+		ImGui::InputFloat("energy", &energy_);
+	}
 	ImGui::End();
 
 	ImGui::Begin("controlPoints");
@@ -269,16 +341,8 @@ void GamePlayScene::UpdateImGui()
 		ImGui::DragFloat3(label.c_str(), &railObject2[i]->transform.translate.x, 0.1f);
 	}
 	ImGui::End();
-
-
-	ImGui::Begin("AllrailObject");
-	for (int i = 0; i < controlPoints_.size(); ++i) {
-		std::string label = "Translate " + std::to_string(i);
-		ImGui::DragFloat3(label.c_str(), &AllrailObject->transforms[i].translate.x, 0.0001f, 0.0f, 0.0f);
-	}
-	ImGui::End();
 }
-
+// レール更新
 void GamePlayScene::UpdateRail()
 {
 	for (int i = 0; i < static_cast<int>(railObject2.size()); ++i) {
@@ -303,132 +367,254 @@ void GamePlayScene::UpdateRail()
 		railObject2[i]->Update();
 	}
 }
-
+// 更新処理
 void GamePlayScene::Update()
 {
 	// ImGui
 	UpdateImGui();
 
-	// パーティクルの更新
-	//particleManager->Update();
-
-	camera->Update();
+	
 
 
-
-
-
+	// スプライン上のカメラの移動
 	move_t += moveSpeed;
-	move_t2 = move_t + 0.01f;
 	if (move_t >= 1.0f) {
 		move_t = 1.0f;
 	}
-	if (move_t <= 0.0f) {
+	else if (move_t <= 0.0f) {
 		move_t = 0.0f;
 	}
-	// スプライン上の位置を取得
+
+	// 列車の現在位置と進行方向を取得
 	Vector3 pos = CatmullRom(controlPoints2_, move_t);
-	Vector3 pos2 = CatmullRom(controlPoints2_, move_t + 0.01f);
+	Vector3 posNext = CatmullRom(controlPoints2_, move_t + 0.0001f);
 
-	// 進行方向のベクトルを計算
-	Vector3 velocity = Subtract(pos2, pos);
-
-	// カメラの回転を更新
-	float rotateY = std::atan2(velocity.x, velocity.z);
-	float length = Length(Vector3(velocity.x, 0, velocity.z));
-	float rotateX = std::atan2(-velocity.y, length);
-
-	// カメラの位置と回転を設定
-	if (flag) {
-
-		//Vector3 CameraPos = Vector3(pos.x + cameraT.x, pos.y + cameraT.y, pos.z + cameraT.z);
-		//Vector3 CameraRot = Vector3(rotateX + cameraR.x, rotateY + cameraR.y, 0 + cameraR.z);
-		//camera->worldMatrix = MakeAffineMatrixMatrix({1,1,1}, CameraRot,CameraPos)
-
-		/*camera->worldMatrix.m[3][0] = pos.x;
-		camera->worldMatrix.m[3][1] = pos.y;
-		camera->worldMatrix.m[3][2] = pos.z;*/
-
-		//camera->transform.translate.y = 1.0f;
-
-		camera->transform.translate = Vector3(pos.x + cameraT.x, pos.y + cameraT.y, pos.z + cameraT.z);
-		camera->transform.rotate = Vector3(rotateX + cameraR.x, rotateY + cameraR.y, 0 + cameraR.z);
+	// 列車の進行方向ベクトルを計算
+	Vector3 velocity = Normalize(Subtract(posNext, pos));
+	
+	// 目標速度を計算
+	float targetSpeed;
+	if (velocity.y > 0.01f) {
+		// 上り坂（yが正の方向）
+		targetSpeed = 0.0001f; // 上り坂での最小速度
+	}
+	else if (velocity.y < -0.01f) {
+		// 下り坂（yが負の方向）
+		targetSpeed = 0.0005f; // 下り坂での最大速度
 	}
 	else {
-		camera->transform.rotate = cameraDebugR;
-		camera->transform.translate = cameraDebugT;
+		// 平坦な場合（yの値がほぼゼロ）
+		targetSpeed = 0.0002f; // 平坦なときの速度
+	}
+
+	// 現在の速度 `moveSpeed` を目標速度 `targetSpeed` に滑らかに補間
+	float smoothingFactor = 0.01f; // 補間のスムーズさを調整（0に近いほど滑らかになる）
+	moveSpeed = moveSpeed + (targetSpeed - moveSpeed) * smoothingFactor;
+
+
+	// 列車の回転計算
+	float rotateY = std::atan2(velocity.x, velocity.z);
+	float horizontalLength = Length(Vector3(velocity.x, 0, velocity.z));
+	float rotateX = std::atan2(-velocity.y, horizontalLength);
+
+	// 列車の位置と回転を設定
+	train.transform.translate = pos;
+	train.transform.rotate = Vector3(rotateX, rotateY, 0);
+
+	// トロッコから出るレザーいち
+	trainTemp.transform.translate = train.transform.translate;
+	trainTemp.transform.rotate.x = train.transform.rotate.x + reticlePos_.y;
+	trainTemp.transform.rotate.y = train.transform.rotate.y + reticlePos_.x;
+	trainTemp.transform.rotate.z = train.transform.rotate.z;
+
+
+	// レーザー
+	laser.transform.translate = train.transform.translate;
+
+	Vector3 velocityLaser = Subtract(train.transform.translate, object3DReticle_.transform.translate);
+	// レーザーの回転を更新
+	float rotateLY = std::atan2(velocityLaser.x, velocityLaser.z);
+	float lengthL = Length(Vector3(velocityLaser.x, 0, velocityLaser.z));
+	float rotateLX = std::atan2(velocityLaser.y, -lengthL);
+	 
+	laser.transform.rotate = Vector3(rotateLX, rotateLY, laser.transform.rotate.z);
+
+
+	// エネルギー
+	if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+		energy_ -= 0.5f;
+	}
+	else {
+		energy_ += 0.5f;
+	}
+	if (energy_ > 100) {
+		energy_ = 100;
+	}
+	else if (energy_ < 0) {
+		energy_ = 0;
+	}
+	if (energy_ < 10) {
+		laser.transform.scale.x = 0.2f;
+		laser.transform.scale.y = 0.2f;
+		spriteEnergy_->SetColor(Vector4(1, 0, 0, 1));
+	}
+	else {
+		laser.transform.scale = { 1,1,1 };
+		spriteEnergy_->SetColor(Vector4(0, 0, 1, 1));
+	}
+	spriteEnergy_->SetSize(Vector2(energy_ *2,30));
+	
+
+	// 衝突判定ImGui
+	bool isCollisionDetected = false;
+	ImGui::Begin("Collision");
+	for (int i = 0; i < static_cast<int>(buildingObject.size()); ++i) {
+		Sphere sphere = { buildingObject[i]->GetWorldPosition(), 3 };
+		Vector3 origin = train.GetWorldPosition();
+		Vector3 target = object3DReticle_.GetWorldPosition();
+		Vector3 diff = Subtract(target, origin); // 差分ベクトルの計算
+
+		Segment segment = { origin, diff };
+
+		if (IsCollision(sphere, segment)) {
+			// 衝突が検出されたらフラグを立てる
+			isCollisionDetected = true;
+			if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+				Score_ += 1;
+			}
+		}
+		// ラベルをユニークにするために制御点のインデックスを使う
+		std::string label = "Translate " + std::to_string(i);
+		ImGui::Checkbox(label.c_str(), &isCollisionDetected);
+		isCollisionDetected = false;
+
+	}
+	ImGui::End();
+
+	// 当たり判定
+	for (int i = 0; i < static_cast<int>(buildingObject.size()); ++i) {
+		Sphere sphere = { buildingObject[i]->GetWorldPosition(), 3 };
+		Vector3 origin = train.GetWorldPosition();
+		Vector3 target = object3DReticle_.GetWorldPosition();
+		Vector3 diff = Subtract(target, origin); // 差分ベクトルの計算
+
+		Segment segment = { origin, diff };
+
+		if (IsCollision(sphere, segment)) {
+			// 衝突が検出されたらフラグを立てる
+			isCollisionDetected = true;
+			break; // 1つでも衝突したらループを抜ける
+		}
+	}
+
+	// 衝突した場合は黒に、していない場合は元の色に戻す
+	if (isCollisionDetected) {
+		if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+			sprite2DReticle_->SetColor(Vector4(0, 0, 0, 1)); // 黒
+		}
+	}
+	else {
+		sprite2DReticle_->SetColor(Vector4(1, 1, 1, 1)); // 白（元の色）
+	}
+	
+	sprite2DReticle_->Update();
+
+
+
+
+
+
+	// 押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_A)) {
+		reticlePos_.x -= 0.005f;
+	}
+	else if (input_->PushKey(DIK_D)) {
+		reticlePos_.x += 0.005f;
+	}
+	if (input_->PushKey(DIK_W)) {
+		reticlePos_.y -= 0.005f;
+	}
+	else if (input_->PushKey(DIK_S)) {
+		reticlePos_.y += 0.005f;
+	}
+	
+	if (reticlePos_.x >= 0.35f) {
+		reticlePos_.x = 0.35f;
+	}
+	else if (reticlePos_.x <= -0.35f) {
+		reticlePos_.x = -0.35f;
+	}
+	
+	if (reticlePos_.y >= 0.17f) {
+		reticlePos_.y = 0.17f;
+	}
+	else if (reticlePos_.y <= -0.2f) {
+		reticlePos_.y = -0.2f;
 	}
 
 
-	train->transform.translate = pos;
-	train->transform.rotate = Vector3(rotateX, rotateY, 0);
+	/// レールカメラ
+	// カメラの回転を設定
+	if (flag) {
+		camera->transform_ = cameraObj_.transform;
+		camera->transform_.rotate = Vector3(rotateX, rotateY, 0);
 
+		// 必要に応じて行列を更新
+		camera->UpdateMatrix();
 
+	}
+	else {
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			cameraDebugT.z += 0.5f;
+		}
+		else if(Input::GetInstance()->PushKey(DIK_DOWN)){
+			cameraDebugT.z -= 0.5f;
+		}
+		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			cameraDebugT.x += 0.5f;
+		}
+		else if(Input::GetInstance()->PushKey(DIK_LEFT)){
+			cameraDebugT.x -= 0.5f;
+		}
 
-	//// 3Dモデル
-	// 列車レール
-	for (int i = 0; i < static_cast<int>(controlPoints_.size()); ++i) {
-		float index = float(i) / float(controlPoints_.size());
-		Vector3 pos = CatmullRom(controlPoints_, index + 0.00001f);
-		Vector3 pos2 = CatmullRom(controlPoints_, index + 0.00002f);
-		railObject[i]->transform.translate = pos;
-
-		// 進行方向のベクトルを計算
-		Vector3 velocity = Subtract(pos2, pos);
-
-		// カメラの回転を更新
-		float rotateY = std::atan2(velocity.x, velocity.z);
-		float length = Length(Vector3(velocity.x, 0, velocity.z));
-		float rotateX = std::atan2(velocity.y, -length);
-
-		// Z軸の回転を計算
-		float rotateZ = 0.0f; // 初期値は0
-
-		//// ここでZ軸の回転を計算する
-		//// オブジェクトの前方ベクトルを計算
-		//Vector3 forward;
-		//forward.x = cos(rotateY) * cos(rotateX);
-		//forward.y = sin(rotateX);
-		//forward.z = sin(rotateY) * cos(rotateX);
-
-		//// Z軸回転を計算（ベクトルから導出）
-		//rotateZ = std::atan2(forward.y, forward.z); // Z軸のロール
-
-		// Z軸を常に上方向に維持する
-		railObject[i]->transform.rotate = Vector3(rotateX, rotateY, rotateZ);
-		railObject[i]->Update();
+		camera->transform_.rotate = cameraDebugR;
+		camera->transform_.translate = cameraDebugT;
+		camera->UpdateMatrix();
 	}
 
 
+	
 
+	spriteEnergy_->Update();
+	
 	UpdateRail();
-
-
-
 
 	// ビル
 	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
-		//buildingObject[i]->Update();
+		buildingObject[i]->Update();		
 	}
-
-
 	// 列車
-	train->Update();
+	train.Update();
+	trainTemp.Update();
 
-	// スプライト
-	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
-		//sprites[i]->Update();
-	}
+	// レーザー
+	laser.Update();
+
+
+
+	// カメラ
+	CalculationWorldCameraPosition();
+
+	// 自機のワールド座標から3Dレティクルのワールド座標を計算
+	CalculationWorld3DReticlePosition();
+	// 3Dレティクルのワールド座標から2Dレティクルのスクリーン座標を計算
+	CalculationWorld2DReticlePosition();
+
 }
-
+// 3D描画
 void GamePlayScene::Draw3D()
 {
 	////3Dオブジェクトの描画
-
-	// レール
-	for (int i = 0; i < static_cast<int>(controlPoints_.size()); ++i) {
-		//railObject[i]->Draw();
-	}
 
 	// レール2
 	for (int i = 0; i < railObject2.size(); ++i) {
@@ -437,31 +623,32 @@ void GamePlayScene::Draw3D()
 
 	// 建物
 	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
-		//buildingObject[i]->Draw();
+		buildingObject[i]->Draw();		
 	}
 
 
-	//AllrailObject->DrawInstance();
-
+	
 	// 列車
-	train->Draw();
+	train.Draw();
 
-	//// パーティクルの描画
-	//particleManager->Draw();
+	// レチクル
+	//object3DReticle_.Draw();
+
+	if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+		// レーザー
+		laser.Draw();
+	}
+
 }
-
+// 2D描画
 void GamePlayScene::Draw2D()
 {
 	//////////////--------スプライト-----------///////////////////
 
+	sprite2DReticle_->Draw();
 
 
-
-
-// 2Dオブジェクトの描画
-	for (int i = 0; i < static_cast<int>(MaxSprite); ++i) {
-		//sprites[i]->Draw();
-	}
+	spriteEnergy_->Draw();
 }
 
 

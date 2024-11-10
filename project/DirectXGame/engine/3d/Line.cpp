@@ -1,7 +1,7 @@
 #include "Line.h"
 #include "LineCommon.h"
 
-void Line::Initialize(LineCommon *lineCommon)
+void LineDraw::Initialize(LineCommon *lineCommon)
 {
 	// 引数で受け取ってメンバ変数に記録する
 	this->lineCommon_ = lineCommon;
@@ -71,7 +71,7 @@ void Line::Initialize(LineCommon *lineCommon)
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 }
 
-void Line::Update()
+void LineDraw::Update()
 {
 	// ワールド行列を作成（線の位置、スケール、回転を表す）
 	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
@@ -96,7 +96,7 @@ void Line::Update()
 	}
 }
 
-void Line::Draw()
+void LineDraw::Draw()
 {
 	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
 	// マテリアルのバインド

@@ -62,6 +62,10 @@ void Sprite::Initialize(/*SpriteCommon* spriteCommon,*/ std::string textureFileP
 
 void Sprite::Update()
 {
+	transform.scale = { size.x,size.y,1.0f };
+	transform.rotate = { 0.0f,0.0f,rotation };
+	transform.translate = { position.x,position.y,0.0f };
+
 	float left = 0.0f - anchorPoint.x;
 	float right = 1.0f - anchorPoint.x;
 	float top = 0.0f - anchorPoint.y;
@@ -111,21 +115,19 @@ void Sprite::Update()
 	indexData[4] = 3;		
 	indexData[5] = 2;
 
-	transform.scale = { size.x,size.y,1.0f };
-	transform.rotate = { 0.0f,0.0f,rotation };
-	transform.translate = { position.x,position.y,0.0f };
+
 	//transform.rotate.x = 3.14f;
 	//transform.rotate.z = 3.14f;
 	//transform変数を作る
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	////透視射影行列
-	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(1280), float(720), 0.0f, 100.0f);
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::GetClientWidth()), float(WinApp::GetClientHeight()), 0.0f, 100.0f);
 	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 	transfomationMatrixData->World = worldViewProjectionMatrix;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
 
-
+	materialData->color;
 }
 
 void Sprite::Draw()

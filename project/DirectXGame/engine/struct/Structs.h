@@ -60,3 +60,78 @@ struct Quaternion {
 	float w;
 };
 
+// 円
+struct Sphere {
+	Vector3 center; //!<中心点
+	float radius;   //!<半径 
+};
+
+//平面
+struct Plane {
+	Vector3 nomal;  //!< 法線
+	float distance; //!< 距離 
+};
+
+
+
+//直線
+struct Line
+{
+	Vector3 origin; //!<始点
+	Vector3 diff;   //!<終点への差分ベクトル
+};
+//半直線
+struct Ray
+{
+	Vector3 origin; //!<始点
+	Vector3 diff;   //!<終点への差分ベクトル
+};
+//線分
+struct Segment
+{
+	Vector3 origin; //!<始点
+	Vector3 diff;   //!<終点への差分ベクトル
+};
+//三角形
+struct Triangle
+{
+	Vector3 vertices[3]; // !頂点
+};
+
+//ばね
+struct Spring
+{
+	Vector3 anchor;      // アンカーの固定された端の位置
+	float naturalLength; // 自然長
+	float stiffness;     // 剛性。バネ定数k
+	float dampingCoefficient; // 減衰係数
+};
+struct Ball {
+	Vector3 position;		//位置
+	Vector3 veloctiy;		//速度
+	Vector3 acceleration;	//加速度
+	float mass;				//質量
+	float radius;			//半径
+	unsigned int color;		//色
+};
+struct Pendulum {
+	Vector3 anchor;				// アンカーポイント
+	float length;				// 紐の長さ
+	float angle;				// 現在の角度
+	float angularVelocity;		// 角度ω
+	float angularAcceleration;	// 角加速度
+};
+struct ConicalPendulum {
+	Vector3 anchor;				// アンカーポイント
+	float length;				// 紐の長さ
+	float halfApexAngle;		// 円錐の頂角の半分
+	float angle;				// 現在の角度
+	float angularVelocity;		// 角度ω
+
+};
+
+struct  Capsule
+{
+	Segment segment;
+	float radius;
+};

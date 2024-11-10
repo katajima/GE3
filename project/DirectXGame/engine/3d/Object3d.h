@@ -40,7 +40,14 @@ public:
 	
 	void SetCamera(Camera* camera) { this->camera = camera; }
 
-	
+	Vector3 GetWorldPosition() {
+		// ワールド座標を入れる
+		Vector3 worldPos;
+		worldPos.x = mat_.m[3][0];
+		worldPos.y = mat_.m[3][1];
+		worldPos.z = mat_.m[3][2];
+		return worldPos;
+	};
 
 private:
 	Camera* camera = nullptr;

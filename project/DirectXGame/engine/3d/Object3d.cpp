@@ -49,29 +49,29 @@ void Object3d::Initialize()
 
 void Object3d::Update()
 {
-	assert(model);
-	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
+	//assert(model);
+	mat_ = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix;
 	if (camera) {
 		const Matrix4x4& viewMatrix = camera->GetViewMatrix();
 		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
-		worldViewProjectionMatrix = Multiply(worldMatrix, viewMatrix);
+		worldViewProjectionMatrix = Multiply(mat_, viewMatrix);
 		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, projectionMatrix);
 	}
 	else {
-		worldViewProjectionMatrix = worldMatrix;
+		worldViewProjectionMatrix = mat_;
 	}
 
 	
 
-	transfomationMatrixData->World = worldMatrix;
+	transfomationMatrixData->World = mat_;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
 
 	if (parent_) {
 		mat_ = Multiply(mat_, parent_->mat_);
 	}
 
-	mat_ = worldMatrix;
+	
 }
 
 void Object3d::Draw()
