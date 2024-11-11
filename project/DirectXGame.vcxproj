@@ -103,6 +103,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXGame\application\base\Enemy.cpp" />
     <ClCompile Include="DirectXGame\application\base\RailCamera.cpp" />
     <ClCompile Include="DirectXGame\application\scene\SceneFactory.cpp" />
     <ClCompile Include="DirectXGame\engine\scene\BaseScene.cpp" />
@@ -180,6 +181,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DirectXGame\application\base\Enemy.h" />
     <ClInclude Include="DirectXGame\application\base\RailCamera.h" />
     <ClInclude Include="DirectXGame\application\scene\SceneFactory.h" />
     <ClInclude Include="DirectXGame\engine\scene\AbstractSceneFactory.h" />

@@ -15,6 +15,8 @@
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/scene/BaseScene.h"
 
+#include"DirectXGame/application/base/Enemy.h"
+
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
 {
@@ -34,12 +36,14 @@ public:
 	void Draw2D() override;
 
 	void UpdateImGui();
+
 private: //レール関係
 	void InitializeRail();
-
+	// レール更新
 	void UpdateRail();
+	// トロッコ更新
+	void UpdateTrain();
 
-	
 
 	// 横回転
 	std::vector<Vector3> GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns);
@@ -47,35 +51,47 @@ private: //レール関係
 	// 縦回転
 	std::vector<Vector3> GenerateVerticalSpiralControlPoints(float radius, float height, int numPoints, float turns);
 
-	// 
-	//std::vector<Vector3>
-
-	const Object3d& GetObject3d() { return train; }
-
-	void SetParent(const Object3d* parent) {
-		// 親子関係を結ぶ
-		train.parent_ = parent;
-	}
-
 
 	void CalculationWorldCameraPosition();
-	
+
 	void CalculationWorld3DReticlePosition();
 
 	void CalculationWorld2DReticlePosition();
 
-	
+	// レティクル
+	void UpdateReticle();
+
+	// レーザー更新
+	void UpdateLaser();
 
 private:
 
 	void InitializeResources();
 	void InitializeCamera();
 
+	/// <summary>
+	//衝突判定と応答
+	/// </summary>
+	void ChekAllCollisions();
+
+	// 敵生成
+	void EnemyGenerate(Vector3 position, float HP);
+	//
+	void LoadEnemyPopData();
+	//敵発生コマンドの更新
+	void UpdateEnemyPopCommands();
 
 private:
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
-	
+
+	// 敵
+	std::list < std::unique_ptr <Enemy>> enemys_;
+	//敵発生コマンド
+	std::stringstream enemyPopCommands;
+	bool isWait_ = 0;
+	int waitTimer_ = true;
+
 
 	// カメラ
 	std::unique_ptr < Camera> camera;
@@ -85,7 +101,8 @@ private:
 
 	Vector3 cameraDebugT;
 	Vector3 cameraDebugR;
-	bool flag = false;
+	
+	bool flag = true;
 	Object3d cameraObj_;
 
 	// スプライト
@@ -110,16 +127,16 @@ private:
 	// 建物オブジェクト
 	std::vector<std::unique_ptr<Object3d>> buildingObject;
 	std::vector<Vector3> buildingPos;
-	
+
 	// スプライン曲線制御点(通過点)
-	std::vector<Vector3> controlPoints_;
+	//std::vector<Vector3> controlPoints_;
 
 	// スプライン曲線
 	std::vector<Vector3> controlPoints2_;
 
 	// レチクル画像
 	std::unique_ptr <Sprite> sprite2DReticle_;
-	
+
 	// レーザー
 	Object3d laser;
 
@@ -142,6 +159,8 @@ private:
 	// レーザーエネルギー
 	float energy_ = 100;
 	std::unique_ptr <Sprite> spriteEnergy_;
+
+	float damage_ = 10;
 
 private:
 	const int MaxSprite = 1;
