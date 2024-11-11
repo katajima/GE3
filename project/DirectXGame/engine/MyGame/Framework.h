@@ -25,6 +25,7 @@
 #include"DirectXGame/engine/3d/Line.h"
 #include"DirectXGame/engine/scene/SceneManager.h"
 #include"DirectXGame/engine/scene/AbstractSceneFactory.h"
+#include"DirectXGame/application/GlobalVariables/GlobalVariables.h"
 #include"memory"
 
 // ゲーム全体

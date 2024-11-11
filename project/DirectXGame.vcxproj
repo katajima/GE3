@@ -46,12 +46,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\externals\imgui;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\externals\imgui;$(SolutionDir)\externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\externals\imgui;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\externals\imgui;$(SolutionDir)\externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -105,6 +105,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="DirectXGame\application\base\Enemy.cpp" />
     <ClCompile Include="DirectXGame\application\base\RailCamera.cpp" />
+    <ClCompile Include="DirectXGame\application\GlobalVariables\GlobalVariables.cpp" />
     <ClCompile Include="DirectXGame\application\scene\SceneFactory.cpp" />
     <ClCompile Include="DirectXGame\engine\scene\BaseScene.cpp" />
     <ClCompile Include="DirectXGame\application\scene\GamePlayScene.cpp" />
@@ -183,6 +184,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="DirectXGame\application\base\Enemy.h" />
     <ClInclude Include="DirectXGame\application\base\RailCamera.h" />
+    <ClInclude Include="DirectXGame\application\GlobalVariables\GlobalVariables.h" />
     <ClInclude Include="DirectXGame\application\scene\SceneFactory.h" />
     <ClInclude Include="DirectXGame\engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="DirectXGame\engine\scene\BaseScene.h" />

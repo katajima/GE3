@@ -13,6 +13,14 @@ void GamePlayScene::Initialize()
 	// 入力初期化
 	input_ = Input::GetInstance();
 
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* gropName = "controlPoint";
+	// グループを追加する
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+	for (int i = 0; i < controlPointObjects_.size(); i++) {
+		std::string label = "Translate " + std::to_string(i);
+		globalVariables->AddItem(gropName, label, controlPoints2_[i]);
+	}
 	// カメラ
 	InitializeCamera();
 	// リソース
@@ -20,43 +28,65 @@ void GamePlayScene::Initialize()
 
 	// 敵生成
 	LoadEnemyPopData();;
+
+
+	UpdateRail();
 }
 
 // レール初期化
 void GamePlayScene::InitializeRail()
 {
+	
 	controlPoints2_ = {
-		{0.0f, 0.0f, 0.0f},
-		{50.0f, 2.0f, 50.0f},
-		{100.0f, 4.0f, 00.0f},
-		{150.0f, 6.0f, -50.0f},
-		{200.0f, 8.0f, -100.0f},
-		{250.0f, 100.0f, -50.0f},
-		{300.0f, 12.0f, 00.0f},
-		{350.0f, 14.0f, 50.0f},
-		{400.0f, 16.0f, 100.0f},
-		{450.0f, 18.0f, 150.0f},
-		{500.0f, 20.0f, 200.0f},
-		{550.0f, 22.0f, 250.0f},
-		{600.0f, 24.0f, 300.0f},
-		{650.0f, 26.0f, 250.0f},
-		{700.0f, 28.0f, 200.0f},
-		{750.0f, 30.0f, 150.0f},
-		{800.0f, 32.0f, 100.0f},
-		{850.0f, 34.0f, 50.0f},
-		{900.0f, 36.0f, 00.0f},
-		{950.0f, 38.0f, -50.0f},
-		{1000.0f, 40.0f, -100.0f},
-		{1100.0f, 60.0f, -105.0f},
-		{1100.0f, 80.0f, -110.0f},
-		{1100.0f, 100.0f, -115.0f},
-		{1100.0f, 80.0f, -120.0f},
-		{1100.0f, 60.0f, -125.0f},
-		{1100.0f, 40.0f, -130.0f},
-
+		{0.0f, 0.0f, 0.0f},// 視点
+		{0.0f, 0.0f, 30.0f}, // 
+		{0.0f, 0.0f, 60.0f}, //
+		{0.0f, 10.0f, 80.0f},
+		{0.0f, 12.0f, 90.0f},
+		{0.0f, 12.0f, 100.0f},// 下り
+		{5.0f, 12.0f, 105.0f},
+		{10.0f, 10.0f, 110.0f},
+		{20.0f, 5.0f, 120.0f},
+		{30.0f, -0.0f, 110.0f},
+		{40.0f, -5.0f, 100.0f},
+		{45.0f, -7.5f, 95.0f},
+		{30.0f, -10.0f, 90.0f},
+		{20.0f, -15.0f, 100.0f},
+		{10.0f, -20.0f, 110.0f},
+		{20.0f, -25.0f, 120.0f},
+		{30.0f, -30.0f, 130.0f},
+		{40.0f, -33.0f, 140.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
 	};
 
-	float spacing = 3.5f; // オブジェクト間の距離（密度調整）
+	ApplyGlobalVariables();
+
+	float spacing = 1.0f; // オブジェクト間の距離（密度調整）
 	float totalDistanceTraveled = 0.0f; // 累積距離
 
 	for (size_t i = 0; i < controlPoints2_.size() - 1; ++i) {
@@ -66,23 +96,25 @@ void GamePlayScene::InitializeRail()
 		float segmentLength = Length(Subtract(end, start));
 		float distanceTraveled = 0.0f;
 
-		// セグメント内で等間隔にオブジェクトを配置
+		// 各セグメント内でオブジェクトを配置
 		while (distanceTraveled < segmentLength) {
-			// 各セグメントの位置に基づくtの計算
-			float t = (totalDistanceTraveled + distanceTraveled) / (segmentLength * (controlPoints2_.size() - 1));
+			// セグメント内の `t` の計算（ローカルな範囲 [0, 1]）
+			float tLocal = distanceTraveled / segmentLength;
 
-			// CatmullRom関数で位置を補間
-			Vector3 pos = CatmullRom(controlPoints2_, t);
+			// グローバルな `t` を計算（Catmull-Rom 関数に渡す）
+			float tGlobal = (i + tLocal) / (controlPoints2_.size() - 1);
+
+			// Catmull-Rom 補間で位置を計算
+			Vector3 pos = CatmullRom(controlPoints2_, tGlobal);
 
 			// 進行方向のベクトルを計算
-			Vector3 posNext = CatmullRom(controlPoints2_, t + 0.01f);
-			Vector3 velocity = Subtract(posNext, pos);
+			Vector3 posNext = CatmullRom(controlPoints2_, tGlobal + 0.01f);
+			Vector3 velocity = Normalize(Subtract(posNext, pos));
 
-
-			// 回転計算
+			// 回転の計算
 			float rotateY = std::atan2(velocity.x, velocity.z);
 			float length = Length(Vector3(velocity.x, 0, velocity.z));
-			float rotateX = std::atan2(velocity.y, -length);
+			float rotateX = std::atan2(velocity.y, length);
 
 			// オブジェクトの生成と配置
 			auto object3d = std::make_unique<Object3d>();
@@ -93,14 +125,25 @@ void GamePlayScene::InitializeRail()
 
 			railObject2.push_back(std::move(object3d));
 
-
 			// 次の配置位置に進める
 			distanceTraveled += spacing;
 		}
 
-		// セグメントの終了時に累積距離を更新
+		// 累積距離の更新
 		totalDistanceTraveled += segmentLength;
 	}
+
+
+
+
+	for (int i = 0; i < controlPoints2_.size(); ++i) {
+		auto object3d = std::make_unique<Object3d>();
+		object3d->Initialize();
+		object3d->SetModel("Sphere.obj");
+		object3d->transform.translate = controlPoints2_[i];
+		controlPointObjects_.push_back(std::move(object3d));
+	}
+
 }
 
 // カメラ初期化
@@ -137,40 +180,6 @@ void GamePlayScene::InitializeResources()
 	trainTemp.Initialize();
 	trainTemp.transform.translate = train.transform.translate;
 
-
-	std::vector<Vector3> buildingPos = {
-	{10.0f, 0.0f, 10.0f},   // controlPoints2_[0] 付近
-	{60.0f, 2.0f, 60.0f},   // controlPoints2_[1] 付近
-	{110.0f, 4.0f, -10.0f}, // controlPoints2_[2] 付近
-	{160.0f, 6.0f, -40.0f}, // controlPoints2_[3] 付近
-	{210.0f, 8.0f, -110.0f},// controlPoints2_[4] 付近
-	{240.0f, 10.0f, -30.0f},// controlPoints2_[5] 付近
-	{310.0f, 12.0f, 20.0f}, // controlPoints2_[6] 付近
-	{370.0f, 14.0f, 80.0f}, // controlPoints2_[7] 付近
-	{420.0f, 16.0f, 120.0f},// controlPoints2_[8] 付近
-	{460.0f, 18.0f, 140.0f},// controlPoints2_[9] 付近
-	{510.0f, 20.0f, 210.0f},// controlPoints2_[10] 付近
-	{570.0f, 22.0f, 260.0f},// controlPoints2_[11] 付近
-	{630.0f, 24.0f, 280.0f},// controlPoints2_[12] 付近
-	{660.0f, 26.0f, 240.0f},// controlPoints2_[13] 付近
-	{710.0f, 28.0f, 180.0f},// controlPoints2_[14] 付近
-	{780.0f, 30.0f, 130.0f},// controlPoints2_[15] 付近
-	{830.0f, 32.0f, 70.0f}, // controlPoints2_[16] 付近
-	{880.0f, 34.0f, 20.0f}, // controlPoints2_[17] 付近
-	{910.0f, 36.0f, -30.0f},// controlPoints2_[18] 付近
-	{960.0f, 38.0f, -80.0f},// controlPoints2_[19] 付近
-	{1020.0f, 40.0f, -120.0f}// controlPoints2_[20] 付近
-	};
-	// 建物
-	for (int i = 0; i < static_cast<int>(MaxBuildingObject3d); ++i) {
-		// unique_ptr で Object3d を作成
-		auto object3d = std::make_unique<Object3d>();
-		object3d->Initialize();
-		object3d->SetModel("Sphere.obj");
-		object3d->transform.translate = buildingPos[i];
-		buildingObject.push_back(std::move(object3d));
-	}
-
 	// レチクル
 	object3DReticle_.Initialize();
 	object3DReticle_.SetModel("train.obj");
@@ -192,6 +201,10 @@ void GamePlayScene::InitializeResources()
 	spriteEnergy_->SetSize({ 10, 10 });
 	spriteEnergy_->SetAnchorPoint(Vector2{ 0.0f,0.0f });
 	spriteEnergy_->SetColor(Vector4{ 1,0,0,1 });
+
+	// 天球
+	objectSkydome_.Initialize();
+	objectSkydome_.SetModel("skydome.obj");
 
 }
 // 
@@ -267,6 +280,21 @@ void GamePlayScene::UpdateImGui()
 	ImGui::End();
 #endif
 }
+
+// 調整項目
+void GamePlayScene::ApplyGlobalVariables()
+{
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance(); 
+	const char* gropName = "controlPoint"; 
+	// グループを追加する 
+	GlobalVariables::GetInstance()->CreateGroup(gropName); 
+	for (int i = 0; i < controlPointObjects_.size(); i++) {
+		std::string label = "Translate " + std::to_string(i); 
+		controlPoints2_[i] = globalVariables->GetVector3Value(gropName, label);
+		globalVariables->SetValue(gropName, label, controlPoints2_[i]);
+	}
+
+}
 // レール更新
 void GamePlayScene::UpdateRail()
 {
@@ -292,6 +320,11 @@ void GamePlayScene::UpdateRail()
 		railObject2[i]->Update();
 	}
 
+	// コントロールポイント位置
+	for (int i = 0; i < static_cast<int>(controlPoints2_.size()); ++i) {
+		controlPointObjects_[i]->transform.translate = controlPoints2_[i];
+		controlPointObjects_[i]->Update();
+	}
 }
 // トロッコ更新
 void GamePlayScene::UpdateTrain()
@@ -349,7 +382,6 @@ void GamePlayScene::UpdateTrain()
 // レティクル更新
 void GamePlayScene::UpdateReticle()
 {
-
 
 	// 押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_A)) {
@@ -443,6 +475,9 @@ void GamePlayScene::UpdateLaser()
 // 更新処理
 void GamePlayScene::Update()
 {
+	// 調整項目
+	ApplyGlobalVariables();
+	
 	// ImGuiの更新
 	UpdateImGui();
 
@@ -497,12 +532,15 @@ void GamePlayScene::Update()
 	for (const auto& enemy : enemys_) {
 		enemy->Update(); // 参照を通してアクセス
 	}
-
+	objectSkydome_.Update();
 	// 当たり判定
 	ChekAllCollisions();
+
+	
 }
 
 #pragma endregion //更新関係
+
 
 #pragma region 
 
@@ -752,7 +790,10 @@ void GamePlayScene::Draw3D()
 		}
 	}
 
-
+	// コントロールポイント位置描画
+	for (int i = 0; i < static_cast<int>(controlPointObjects_.size()); ++i) {
+		controlPointObjects_[i]->Draw();
+	}
 
 	// 敵
 	for (const auto& enemy : enemys_) {
@@ -771,6 +812,9 @@ void GamePlayScene::Draw3D()
 		// レーザー
 		laser.Draw();
 	}
+
+	// 天球
+	objectSkydome_.Draw();
 
 }
 // 2D描画

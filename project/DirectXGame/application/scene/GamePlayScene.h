@@ -16,6 +16,7 @@
 #include"DirectXGame/engine/scene/BaseScene.h"
 
 #include"DirectXGame/application/base/Enemy.h"
+#include"DirectXGame/application/GlobalVariables/GlobalVariables.h"
 
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
@@ -36,6 +37,9 @@ public:
 	void Draw2D() override;
 
 	void UpdateImGui();
+
+
+	void ApplyGlobalVariables();
 
 private: //レール関係
 	void InitializeRail();
@@ -102,7 +106,7 @@ private:
 	Vector3 cameraDebugT;
 	Vector3 cameraDebugR;
 	
-	bool flag = true;
+	bool flag = false;
 	Object3d cameraObj_;
 
 	// スプライト
@@ -128,11 +132,11 @@ private:
 	std::vector<std::unique_ptr<Object3d>> buildingObject;
 	std::vector<Vector3> buildingPos;
 
-	// スプライン曲線制御点(通過点)
-	//std::vector<Vector3> controlPoints_;
-
+	
 	// スプライン曲線
 	std::vector<Vector3> controlPoints2_;
+	std::vector<std::unique_ptr<Object3d>> controlPointObjects_;
+
 
 	// レチクル画像
 	std::unique_ptr <Sprite> sprite2DReticle_;
@@ -161,6 +165,9 @@ private:
 	std::unique_ptr <Sprite> spriteEnergy_;
 
 	float damage_ = 10;
+
+	// 天球
+	Object3d objectSkydome_;
 
 private:
 	const int MaxSprite = 1;

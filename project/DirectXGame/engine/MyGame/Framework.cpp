@@ -41,7 +41,10 @@ void Framework::Initialize()
 	TextureManager::GetInstance()->Initialize(dxCommon.get());
 	ModelManager::GetInstance()->Initialize(dxCommon.get());
 
-	
+	// グローバル変数の読み込み
+	GlobalVariables::GetInstance()->LoadFiles();
+
+
 	emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 }
 

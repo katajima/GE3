@@ -45,7 +45,8 @@ void MyGame::Update()
 
 	Framework::Update();
 
-
+	// グローバル変数の更新
+	GlobalVariables::GetInstance()->Update();
 
 	SceneManager::GetInstance()->Update();
 	
@@ -100,6 +101,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("building.obj");
 	ModelManager::GetInstance()->LoadModel("Sphere.obj");
 	ModelManager::GetInstance()->LoadModel("long.obj");
+	ModelManager::GetInstance()->LoadModel("skydome.obj");
 
 
 	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png");
