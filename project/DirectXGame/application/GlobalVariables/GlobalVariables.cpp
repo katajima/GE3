@@ -341,6 +341,7 @@ void GlobalVariables::AddItem(const std::string& groupName, const std::string& k
 
 
 void GlobalVariables::Update() {
+#ifdef _DEBUG
 	if (!ImGui::Begin("Global Variables", nullptr, ImGuiWindowFlags_MenuBar)) {
 		ImGui::End();
 		return;
@@ -397,6 +398,7 @@ void GlobalVariables::Update() {
 
 	ImGui::EndMenuBar();
 	ImGui::End();
+#endif
 }
 
 

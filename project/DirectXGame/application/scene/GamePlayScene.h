@@ -14,6 +14,7 @@
 #include"DirectXGame/engine/3d/LineCommon.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/scene/BaseScene.h"
+#include"DirectXGame/engine/scene/SceneManager.h"
 
 #include"DirectXGame/application/base/Enemy.h"
 #include"DirectXGame/application/GlobalVariables/GlobalVariables.h"
@@ -78,23 +79,17 @@ private:
 	/// </summary>
 	void ChekAllCollisions();
 
-	// 敵生成
-	void EnemyGenerate(Vector3 position, float HP);
-	//
-	void LoadEnemyPopData();
-	//敵発生コマンドの更新
-	void UpdateEnemyPopCommands();
+	void PlaceObjectsAlongSpline(const std::vector<Vector3>& controlPoints, float spacing);
+	
+	void PlaceObjectsOnCurve(const std::vector<Vector3>& controlPoints, float spacing);
 
 private:
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
 	// 敵
-	std::list < std::unique_ptr <Enemy>> enemys_;
-	//敵発生コマンド
-	std::stringstream enemyPopCommands;
-	bool isWait_ = 0;
-	int waitTimer_ = true;
+	std::vector<std::unique_ptr <Enemy>> enemys_;
+
 
 
 	// カメラ
@@ -106,6 +101,7 @@ private:
 	Vector3 cameraDebugT;
 	Vector3 cameraDebugR;
 	
+
 	bool flag = false;
 	Object3d cameraObj_;
 
@@ -159,15 +155,19 @@ private:
 
 	// スコア
 	int Score_ = 0;
+	std::unique_ptr<Sprite> spriteScoreNum_[4][10];
+
 
 	// レーザーエネルギー
 	float energy_ = 100;
 	std::unique_ptr <Sprite> spriteEnergy_;
 
-	float damage_ = 10;
+	float damage_ = 100;
 
 	// 天球
 	Object3d objectSkydome_;
+
+	int t = 180;
 
 private:
 	const int MaxSprite = 1;

@@ -1,13 +1,18 @@
 #include "Camera.h"
 #include "DirectXGame/engine/base/WinApp.h"
 #include <DirectXGame/engine/3d/Object3d.h>
+Camera* Camera::GetInstance()
+{
+	static Camera instance;
+	return &instance;
+}
 Camera::Camera()
 
 	:transform_({ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} })
 	, fovY_(0.45f)
 	, aspect_(float(1280) / float(720))
 	, nearClip_(0.1f)
-	, farClip_(100.0f)
+	, farClip_(1000.0f)
 	, worldMatrix_(MakeAffineMatrixMatrix(transform_.scale, transform_.rotate, transform_.translate))
 	, viewMatrix_(Inverse(worldMatrix_))
 	, projectionMatrix_(MakePerspectiveFovMatrix(fovY_, aspect_, nearClip_, farClip_))
@@ -78,12 +83,5 @@ void Camera::LookAt(const Vector3& cameraPosition, const Vector3& targetPosition
 	projectionMatrix_ = MakePerspectiveFovMatrix(fovY_, aspect_, nearClip_, farClip_);
 	viewProjectionMatrix_ = Multiply(viewMatrix_, projectionMatrix_);
 }
-
-
-
-
-
-
-
 
 

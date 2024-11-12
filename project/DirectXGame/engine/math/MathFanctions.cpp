@@ -1,6 +1,7 @@
 #include"MathFanctions.h"
 #include<cmath>
 #include"assert.h"
+#include <algorithm>
 #pragma region Math
 
 Vector3 Add(const Vector3& v1, const Vector3& v2) {
@@ -603,85 +604,6 @@ Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
 	return result;
 }
 
-Vector3 CatmullRom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t) {
-
-	const float s = 0.5f;
-
-	float t2 = t * t;  // tの2乗
-	float t3 = t2 * t; // tの3乗
-
-	Vector3 pt{};
-	Vector3 e3{};
-	Vector3 e2{};
-	Vector3 e1{};
-	Vector3 e0{};
-	//
-	e3.x = (((-p0.x) + (3 * p1.x) + (-3 * p2.x) + (p3.x)));
-	e3.y = (((-p0.y) + (3 * p1.y) + (-3 * p2.y) + (p3.y)));
-	e3.z = (((-p0.z) + (3 * p1.z) + (-3 * p2.z) + (p3.z)));
-	//
-	e2.x = (((2 * p0.x) + (-5 * p1.x) + (4 * p2.x) + (-p3.x)));
-	e2.y = (((2 * p0.y) + (-5 * p1.y) + (4 * p2.y) + (-p3.y)));
-	e2.z = (((2 * p0.z) + (-5 * p1.z) + (4 * p2.z) + (-p3.z)));
-	//
-	e1 = Subtract(p2, p0);
-	//
-	e0 = Multiply(p1, 2);
-
-	pt.x = (e3.x * t3 + e2.x * t2 + e1.x * t + e0.x) * s;
-	pt.y = (e3.y * t3 + e2.y * t2 + e1.y * t + e0.y) * s;
-	pt.z = (e3.z * t3 + e2.z * t2 + e1.z * t + e0.z) * s;
-
-	return pt;
-}
-
-Vector3 CatmullRom(std::vector<Vector3> points, float t) {
-	assert(points.size() >= 4 && "制御点は4点以上必要です");
-
-	// 区間数は制御点の数-1
-	size_t division = points.size() - 1;
-	// 1区間分の長さ　(全体を1.0とした場合)
-	float areaWhidth = 1.0f / division;
-
-	// 区間分の始点を0.0f,終点を1.0fとしたときにの現在位置
-	float t_2 = std::fmod(t, areaWhidth) * division;
-	// 下限(0,0f)と上限(1.0f)の範囲に収める
-	t_2 = Clamp(t_2, 0.0f, 1.0f);
-
-	// 区間番号
-	size_t index = static_cast<size_t>(t / areaWhidth);
-	// 区間番号が上限を超えないように収める
-	if (index >= division) {
-		index = division - 1;
-	}
-	// 4頂点分のインデックス
-	size_t index0 = index - 1;
-	size_t index1 = index;
-	size_t index2 = index + 1;
-	size_t index3 = index + 2;
-
-	// 最初の区間のp0はp1を重複使用する
-	if (index == 0) {
-		index0 = index1;
-	}
-
-	// 最後の区間のp3はp2を重複使用する
-	if (index3 >= points.size()) {
-		index3 = index2;
-	}
-
-	// 4点の座標
-	const Vector3& p0 = points[index0];
-	const Vector3& p1 = points[index1];
-	const Vector3& p2 = points[index2];
-	const Vector3& p3 = points[index3];
-
-
-	// 4点を指定してCatmull-Rom補間
-	return CatmullRom(p0, p1, p2, p3, t_2);
-}
-
-
 Vector3 Cross(const Vector3& v1, const Vector3& v2) {
 	Vector3 result{};
 
@@ -1039,4 +961,212 @@ bool IsPointInsideAABB(const Vector3& point, const AABB& aabb) {
 		(point.y >= aabb.min.y && point.y <= aabb.max.y) &&
 		(point.z >= aabb.min.z && point.z <= aabb.max.z);
 }
+
+
+
+Vector3 CatmullRom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t) {
+
+	const float s = 0.5f;
+
+	float t2 = t * t;  // tの2乗
+	float t3 = t2 * t; // tの3乗
+
+	Vector3 pt{};
+	Vector3 e3{};
+	Vector3 e2{};
+	Vector3 e1{};
+	Vector3 e0{};
+	//
+	e3.x = (((-p0.x) + (3 * p1.x) + (-3 * p2.x) + (p3.x)));
+	e3.y = (((-p0.y) + (3 * p1.y) + (-3 * p2.y) + (p3.y)));
+	e3.z = (((-p0.z) + (3 * p1.z) + (-3 * p2.z) + (p3.z)));
+	//
+	e2.x = (((2 * p0.x) + (-5 * p1.x) + (4 * p2.x) + (-p3.x)));
+	e2.y = (((2 * p0.y) + (-5 * p1.y) + (4 * p2.y) + (-p3.y)));
+	e2.z = (((2 * p0.z) + (-5 * p1.z) + (4 * p2.z) + (-p3.z)));
+	//
+	e1 = Subtract(p2, p0);
+	//
+	e0 = Multiply(p1, 2);
+
+	pt.x = (e3.x * t3 + e2.x * t2 + e1.x * t + e0.x) * s;
+	pt.y = (e3.y * t3 + e2.y * t2 + e1.y * t + e0.y) * s;
+	pt.z = (e3.z * t3 + e2.z * t2 + e1.z * t + e0.z) * s;
+
+	return pt;
+}
+
+Vector3 CatmullRom(std::vector<Vector3> points, float t) {
+	assert(points.size() >= 4 && "制御点は4点以上必要です");
+
+	// 区間数は制御点の数-1
+	size_t division = points.size() - 1;
+	// 1区間分の長さ　(全体を1.0とした場合)
+	float areaWhidth = 1.0f / division;
+
+	// 区間分の始点を0.0f,終点を1.0fとしたときにの現在位置
+	float t_2 = std::fmod(t, areaWhidth) * division;
+	// 下限(0,0f)と上限(1.0f)の範囲に収める
+	t_2 = Clamp(t_2, 0.0f, 1.0f);
+
+	// 区間番号
+	size_t index = static_cast<size_t>(t / areaWhidth);
+	// 区間番号が上限を超えないように収める
+	if (index >= division) {
+		index = division - 1;
+	}
+	// 4頂点分のインデックス
+	size_t index0 = index - 1;
+	size_t index1 = index;
+	size_t index2 = index + 1;
+	size_t index3 = index + 2;
+
+	// 最初の区間のp0はp1を重複使用する
+	if (index == 0) {
+		index0 = index1;
+	}
+
+	// 最後の区間のp3はp2を重複使用する
+	if (index3 >= points.size()) {
+		index3 = index2;
+	}
+
+	// 4点の座標
+	const Vector3& p0 = points[index0];
+	const Vector3& p1 = points[index1];
+	const Vector3& p2 = points[index2];
+	const Vector3& p3 = points[index3];
+
+
+	// 4点を指定してCatmull-Rom補間
+	return CatmullRom(p0, p1, p2, p3, t_2);
+}
+
+// カーブ上の点を取得 (Catmull-Rom)
+Vector3 CatmullRom2(const std::vector<Vector3>& controlPoints, float t) {
+	int p0, p1, p2, p3;
+	p1 = static_cast<int>(t);
+	p2 = (p1 + 1) % (int)controlPoints.size();
+	p3 = (p2 + 1) % (int)controlPoints.size();
+	p0 = (p1 - 1 + (int)controlPoints.size()) % (int)controlPoints.size();
+
+	t = t - static_cast<int>(t); // 小数部分のみを取り出す
+
+	float t2 = t * t;
+	float t3 = t2 * t;
+
+	Vector3 result = Add(
+		Add(
+			Multiply(controlPoints[p0], -0.5f * t3 + t2 - 0.5f * t),
+			Multiply(controlPoints[p1], 1.5f * t3 - 2.5f * t2 + 1.0f)),
+		Add(
+			Multiply(controlPoints[p2], -1.5f * t3 + 2.0f * t2 + 0.5f * t),
+			Multiply(controlPoints[p3], 0.5f * t3 - 0.5f * t2)
+		)
+	);
+	return result;
+}
+// 2点間の距離を計算する関数
+float Distance2(const Vector3& a, const Vector3& b) {
+	return std::sqrtf(std::powf(b.x - a.x, 2) + std::powf(b.y - a.y, 2) + std::powf(b.z - a.z, 2));
+}
+
+// アーク長を計算する関数
+float CalculateArcLength(const std::vector<Vector3>& controlPoints, int numSamples) {
+	float totalLength = 0.0f;
+	Vector3 prevPos = CatmullRom(controlPoints, 0.0f);
+
+	for (int i = 1; i <= numSamples; ++i) {
+		float t = static_cast<float>(i) / numSamples;
+		Vector3 currPos = CatmullRom(controlPoints, t);
+		totalLength += Distance2(prevPos, currPos);
+		prevPos = currPos;
+	}
+
+	return totalLength;
+}
+
+// アーク長に基づく位置を取得する関数
+float FindTByArcLength(const std::vector<Vector3>& controlPoints, float targetLength, int numSamples) {
+	float currentLength = 0.0f;
+	Vector3 prevPos = CatmullRom(controlPoints, 0.0f);
+
+	for (int i = 1; i <= numSamples; ++i) {
+		float t = static_cast<float>(i) / numSamples;
+		Vector3 currPos = CatmullRom(controlPoints, t);
+		currentLength += Distance2(prevPos, currPos);
+
+		if (currentLength >= targetLength) {
+			return t;
+		}
+		prevPos = currPos;
+	}
+
+	return 1.0f; // 最後まで到達した場合
+}
+
+
+// 曲線を細かくサンプリングし、累積アーク長を計算
+std::vector<std::pair<float, float>> CalculateArcLengths(const std::vector<Vector3>& controlPoints, int numSamples) {
+	std::vector<std::pair<float, float>> arcLengths;
+	arcLengths.push_back({ 0.0f, 0.0f });
+
+	float totalLength = 0.0f;
+	Vector3 prevPos = CatmullRom(controlPoints, 0.0f);
+
+	for (int i = 1; i <= numSamples; ++i) {
+		float t = static_cast<float>(i) / numSamples;
+		Vector3 currPos = CatmullRom(controlPoints, t);
+		totalLength += Distance2(prevPos, currPos);
+		arcLengths.push_back({ t, totalLength });
+		prevPos = currPos;
+	}
+
+	return arcLengths;
+}
+
+// アーク長からtを逆算する関数
+float GetTFromArcLength(const std::vector<std::pair<float, float>>& arcLengths, float targetLength) {
+	for (size_t i = 1; i < arcLengths.size(); ++i) {
+		if (arcLengths[i].second >= targetLength) {
+			float t1 = arcLengths[i - 1].first;
+			float t2 = arcLengths[i].first;
+			float l1 = arcLengths[i - 1].second;
+			float l2 = arcLengths[i].second;
+
+			// 線形補間でtを求める
+			return t1 + (targetLength - l1) / (l2 - l1) * (t2 - t1);
+		}
+	}
+	return 1.0f;
+}
+
+// 曲率を計算する関数
+float Curvature(const Vector3& p0, const Vector3& p1, const Vector3& p2) {
+	Vector3 v1 = Subtract(p1, p0);
+	Vector3 v2 = Subtract(p2, p1);
+	float angle = std::acos(Dot(Normalize(v1), Normalize(v2)));
+	return angle / Distance2(p0, p1);
+}
+
+// 曲率に基づくアダプティブサンプリング
+std::vector<float> AdaptiveSampling(const std::vector<Vector3>& controlPoints, int baseSamples) {
+	std::vector<float> samplePoints;
+	samplePoints.push_back(0.0f);
+
+	for (int i = 1; i < baseSamples; ++i) {
+		float t = static_cast<float>(i) / baseSamples;
+		Vector3 p0 = CatmullRom2(controlPoints, std::max(t - 0.01f, 0.0f));
+		Vector3 p1 = CatmullRom2(controlPoints, t);
+		Vector3 p2 = CatmullRom2(controlPoints, std::min(t + 0.01f, 1.0f));
+
+		float curvature = Curvature(p0, p1, p2);
+		float sampleRate = std::clamp(1.0f / (curvature + 0.1f), 0.01f, 0.2f);
+		samplePoints.push_back(samplePoints.back() + sampleRate);
+	}
+
+	return samplePoints;
+}
+
+
 #pragma endregion //数学関数

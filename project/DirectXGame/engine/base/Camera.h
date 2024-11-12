@@ -16,7 +16,10 @@ struct ConstBufferDataViewProjection {
 class Camera
 {
 public: // メンバ関数
+	static Camera* GetInstance();	
 	Camera();
+
+
 
 	// 更新
 	void UpdateMatrix();
@@ -42,7 +45,7 @@ public: // メンバ関数
 	const Vector3& GetTranslate() const { return transform_.translate; }
 
 
-private:
+public:
 	
 	float fovY_ = 0.45f;
 	float aspect_ = float(1280) / float(720);

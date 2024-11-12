@@ -8,7 +8,7 @@ class Enemy
 {
 public:
 	// 初期化
-	void Initialize(Vector3 position,float HP);
+	void Initialize(Vector3 position,float HP,Camera* camera);
 	
 	// 毎フレーム更新
 	void Update();
@@ -32,6 +32,11 @@ public:
 	Object3d& GetObjectTrans() { return object_; }
 	// 3Dオブジェクトの参照を返す（読み取り専用）
 	//const Object3d& GetObjectTrans() const { return object_; }
+
+	Vector3& GetPostion() { return object_.transform.translate; };
+	float& GetHP() { return HP_; };
+
+	void SetPostion(Vector3 pos) { object_.transform.translate = pos; }
 
 private:
 	// オブジェクト

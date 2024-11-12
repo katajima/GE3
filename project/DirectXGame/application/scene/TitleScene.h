@@ -50,7 +50,7 @@ private:
 	bool flag = false;
 
 	// 列車のオブジェクト
-	std::unique_ptr<Object3d> train;
+	std::unique_ptr<Object3d> title;
 };
 
 

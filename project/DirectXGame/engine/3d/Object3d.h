@@ -54,7 +54,7 @@ private:
 
 	Model* model = nullptr;
 
-	Object3dCommon* object3dCommon_ = nullptr;
+	//Object3dCommon* object3dCommon_ = nullptr;
 
 	// 頂点データ
 	struct VertexData {

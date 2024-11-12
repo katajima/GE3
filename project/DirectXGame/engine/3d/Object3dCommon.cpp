@@ -182,7 +182,10 @@ void Object3dCommon::CreateGraphicsPipeline()
 
 	//三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
+	
+	//rasterizerDesc.DepthBias = 1; 
+	//rasterizerDesc.DepthBiasClamp = 0.0f; 
+	//rasterizerDesc.SlopeScaledDepthBias = 1.0f;
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr < IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Object3d.VS.hlsl",
@@ -247,6 +250,4 @@ void Object3dCommon::CreateGraphicsPipeline()
 		IID_PPV_ARGS(&graphicsPipelineState));
 
 	assert(SUCCEEDED(hr));
-
-
 }

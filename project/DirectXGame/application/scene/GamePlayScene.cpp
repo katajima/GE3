@@ -8,35 +8,6 @@
 // 初期化
 void GamePlayScene::Initialize()
 {
-	//オーディオの初期化
-	audio_ = Audio::GetInstance();
-	// 入力初期化
-	input_ = Input::GetInstance();
-
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* gropName = "controlPoint";
-	// グループを追加する
-	GlobalVariables::GetInstance()->CreateGroup(gropName);
-	for (int i = 0; i < controlPointObjects_.size(); i++) {
-		std::string label = "Translate " + std::to_string(i);
-		globalVariables->AddItem(gropName, label, controlPoints2_[i]);
-	}
-	// カメラ
-	InitializeCamera();
-	// リソース
-	InitializeResources();
-
-	// 敵生成
-	LoadEnemyPopData();;
-
-
-	UpdateRail();
-}
-
-// レール初期化
-void GamePlayScene::InitializeRail()
-{
-	
 	controlPoints2_ = {
 		{0.0f, 0.0f, 0.0f},// 視点
 		{0.0f, 0.0f, 30.0f}, // 
@@ -82,57 +53,59 @@ void GamePlayScene::InitializeRail()
 		{50.0f, -33.0f, 130.0f},
 		{50.0f, -33.0f, 130.0f},
 		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
+		{50.0f, -33.0f, 130.0f},
 	};
+	// カメラ
+	InitializeCamera();
+	//オーディオの初期化
+	audio_ = Audio::GetInstance();
+	// 入力初期化
+	input_ = Input::GetInstance();
 
-	ApplyGlobalVariables();
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 
-	float spacing = 1.0f; // オブジェクト間の距離（密度調整）
-	float totalDistanceTraveled = 0.0f; // 累積距離
 
-	for (size_t i = 0; i < controlPoints2_.size() - 1; ++i) {
-		Vector3 start = controlPoints2_[i];
-		Vector3 end = controlPoints2_[i + 1];
-
-		float segmentLength = Length(Subtract(end, start));
-		float distanceTraveled = 0.0f;
-
-		// 各セグメント内でオブジェクトを配置
-		while (distanceTraveled < segmentLength) {
-			// セグメント内の `t` の計算（ローカルな範囲 [0, 1]）
-			float tLocal = distanceTraveled / segmentLength;
-
-			// グローバルな `t` を計算（Catmull-Rom 関数に渡す）
-			float tGlobal = (i + tLocal) / (controlPoints2_.size() - 1);
-
-			// Catmull-Rom 補間で位置を計算
-			Vector3 pos = CatmullRom(controlPoints2_, tGlobal);
-
-			// 進行方向のベクトルを計算
-			Vector3 posNext = CatmullRom(controlPoints2_, tGlobal + 0.01f);
-			Vector3 velocity = Normalize(Subtract(posNext, pos));
-
-			// 回転の計算
-			float rotateY = std::atan2(velocity.x, velocity.z);
-			float length = Length(Vector3(velocity.x, 0, velocity.z));
-			float rotateX = std::atan2(velocity.y, length);
-
-			// オブジェクトの生成と配置
-			auto object3d = std::make_unique<Object3d>();
-			object3d->Initialize();
-			object3d->SetModel("rail.obj");
-			object3d->transform.translate = pos;
-			object3d->transform.rotate = Vector3(rotateX, rotateY, 0);
-
-			railObject2.push_back(std::move(object3d));
-
-			// 次の配置位置に進める
-			distanceTraveled += spacing;
-		}
-
-		// 累積距離の更新
-		totalDistanceTraveled += segmentLength;
+	for (int i = 0; i < 40; i++) {
+		auto enemy = std::make_unique<Enemy>();
+		enemy->Initialize({ 10, 0, 0 }, 100, camera.get());
+		enemys_.push_back(std::move(enemy));
 	}
 
+	const char* gropName = "enemys";
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+	for (int i = 0; i < enemys_.size(); i++) {
+		std::string label = "Translate " + std::to_string(i);
+		globalVariables->AddItem(gropName, label, enemys_[i]->GetPostion());
+	}
+
+
+	// レールかんけい
+	InitializeRail();
+
+	// リソース
+	InitializeResources();
+
+	UpdateRail();
+}
+
+// レール初期化
+void GamePlayScene::InitializeRail()
+{
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+
+	const char* groupName = "controlPoint";
+	globalVariables->CreateGroup(groupName);
+	for (int i = 0; i < controlPoints2_.size(); i++) {
+		std::string label = "Translate " + std::to_string(i);
+		globalVariables->AddItem(groupName, label, controlPoints2_[i]);
+		controlPoints2_[i] = globalVariables->GetVector3Value(groupName, label);
+	}
+
+
+	//PlaceObjectsAlongSpline(controlPoints2_, 0.1f);
+
+	PlaceObjectsOnCurve(controlPoints2_, 0.1f);
 
 
 
@@ -140,16 +113,17 @@ void GamePlayScene::InitializeRail()
 		auto object3d = std::make_unique<Object3d>();
 		object3d->Initialize();
 		object3d->SetModel("Sphere.obj");
+		object3d->SetCamera(camera.get());
 		object3d->transform.translate = controlPoints2_[i];
 		controlPointObjects_.push_back(std::move(object3d));
 	}
 
 }
-
 // カメラ初期化
 void GamePlayScene::InitializeCamera()
 {
 	camera = std::make_unique <Camera>();
+	//camera = Camera::GetInstance();
 	camera->transform_.rotate = { 0.36f,0,0 };
 	camera->transform_.translate = { 5,32.5f,-59.2f };
 
@@ -157,6 +131,15 @@ void GamePlayScene::InitializeCamera()
 	cameraDebugR = camera->transform_.rotate;
 
 	cameraT.y = 1.0f;
+
+
+	flag = true;
+#ifdef _DEBUG
+
+	flag = false;
+
+#endif // _DEBUG]
+
 
 	cameraObj_.Initialize();
 }
@@ -168,15 +151,11 @@ void GamePlayScene::InitializeResources()
 	// オブジェクト3D
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
-	// レールかんけい
-	InitializeRail();
-
-
 	// 列車オブジェクトを unique_ptr で作成
 	train.Initialize();
 	train.SetModel("train.obj");
 	train.transform.translate = CatmullRom(controlPoints2_, 1);
-
+	train.SetCamera(camera.get());
 	trainTemp.Initialize();
 	trainTemp.transform.translate = train.transform.translate;
 
@@ -187,7 +166,7 @@ void GamePlayScene::InitializeResources()
 	// レーザー
 	laser.Initialize();
 	laser.SetModel("long.obj");
-
+	laser.SetCamera(camera.get());
 	// スプライト
 	sprite2DReticle_ = std::make_unique<Sprite>();
 	sprite2DReticle_->Initialize("resources/reticle.png");
@@ -205,10 +184,43 @@ void GamePlayScene::InitializeResources()
 	// 天球
 	objectSkydome_.Initialize();
 	objectSkydome_.SetModel("skydome.obj");
+	objectSkydome_.SetCamera(camera.get());
 
+	for (int j = 0; j < 4; j++) {
+		for (int i = 0; i < 10; i++) {
+			std::string label = "resources/num/" + std::to_string(i) + ".png";
+			spriteScoreNum_[j][i] = std::make_unique<Sprite>();
+			spriteScoreNum_[j][i]->Initialize(label);
+			spriteScoreNum_[j][i]->SetSize({ 50, 50 });
+			spriteScoreNum_[j][i]->SetPosition({ -10, -10 });
+		}
+	}
 }
 // 
 
+// 調整項目
+void GamePlayScene::ApplyGlobalVariables()
+{
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* gropName = "controlPoint";
+	// グループを追加する 
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+	for (int i = 0; i < controlPointObjects_.size(); i++) {
+		std::string label = "Translate " + std::to_string(i);
+		controlPoints2_[i] = globalVariables->GetVector3Value(gropName, label);
+		globalVariables->SetValue(gropName, label, controlPoints2_[i]);
+	}
+
+	gropName = "enemys";
+	// グループを追加する 
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+	for (int i = 0; i < enemys_.size(); i++) {
+		std::string label = "Translate " + std::to_string(i);
+		enemys_[i]->SetPostion(globalVariables->GetVector3Value(gropName, label));
+		//globalVariables->SetValue(gropName, label, controlPoints2_[i]);
+	}
+
+}
 #pragma endregion 初期化関係
 
 
@@ -218,7 +230,7 @@ void GamePlayScene::InitializeResources()
 void GamePlayScene::UpdateImGui()
 {
 
-#ifdef _DEBUG
+
 
 	if (Input::GetInstance()->PushKey(DIK_UP)) {
 		cameraDebugT.z += 0.5f;
@@ -235,6 +247,7 @@ void GamePlayScene::UpdateImGui()
 
 	camera->transform_.rotate = cameraDebugR;
 	camera->transform_.translate = cameraDebugT;
+#ifdef _DEBUG
 	camera->UpdateMatrix();
 	ImGui::Begin("Camera");
 	ImGui::DragFloat3("cameraDebugT", &cameraDebugT.x, 0.1f);
@@ -249,7 +262,7 @@ void GamePlayScene::UpdateImGui()
 
 	ImGui::Begin("train");
 	{
-		ImGui::SliderFloat("t", &move_t, 0.0f, 1.0f);
+		ImGui::SliderFloat("t", &move_t, 0.0f, 1.0f, "%.6f");
 		ImGui::DragFloat("moveSpeed", &moveSpeed, 0.0001f, 0.0f, 0.0f, "%.6f");
 		Vector3 pos = train.GetWorldPosition();
 		Vector3 pos2 = trainTemp.GetWorldPosition();
@@ -279,21 +292,6 @@ void GamePlayScene::UpdateImGui()
 	}
 	ImGui::End();
 #endif
-}
-
-// 調整項目
-void GamePlayScene::ApplyGlobalVariables()
-{
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance(); 
-	const char* gropName = "controlPoint"; 
-	// グループを追加する 
-	GlobalVariables::GetInstance()->CreateGroup(gropName); 
-	for (int i = 0; i < controlPointObjects_.size(); i++) {
-		std::string label = "Translate " + std::to_string(i); 
-		controlPoints2_[i] = globalVariables->GetVector3Value(gropName, label);
-		globalVariables->SetValue(gropName, label, controlPoints2_[i]);
-	}
-
 }
 // レール更新
 void GamePlayScene::UpdateRail()
@@ -332,7 +330,7 @@ void GamePlayScene::UpdateTrain()
 	// スプライン上のカメラの移動
 	move_t += moveSpeed;
 	if (move_t >= 1.0f) {
-		move_t = 1.0f;
+		move_t = 0.9999f;
 	}
 	else if (move_t <= 0.0f) {
 		move_t = 0.0f;
@@ -385,16 +383,16 @@ void GamePlayScene::UpdateReticle()
 
 	// 押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_A)) {
-		reticlePos_.x -= 0.005f;
+		reticlePos_.x -= 0.01f;
 	}
 	else if (input_->PushKey(DIK_D)) {
-		reticlePos_.x += 0.005f;
+		reticlePos_.x += 0.01f;
 	}
 	if (input_->PushKey(DIK_W)) {
-		reticlePos_.y -= 0.005f;
+		reticlePos_.y -= 0.01f;
 	}
 	else if (input_->PushKey(DIK_S)) {
-		reticlePos_.y += 0.005f;
+		reticlePos_.y += 0.01f;
 	}
 
 	if (reticlePos_.x >= 0.35f) {
@@ -456,12 +454,12 @@ void GamePlayScene::UpdateLaser()
 		laser.transform.scale.x = 0.2f;
 		laser.transform.scale.y = 0.2f;
 		spriteEnergy_->SetColor(Vector4(1, 0, 0, 1));
-		damage_ = 1;
+		damage_ = 10;
 	}
 	else {
 		laser.transform.scale = { 1,1,2 };
 		spriteEnergy_->SetColor(Vector4(0, 0, 1, 1));
-		damage_ = 10;
+		damage_ = 100;
 	}
 	spriteEnergy_->SetSize(Vector2(energy_ * 2, 30));
 
@@ -477,7 +475,7 @@ void GamePlayScene::Update()
 {
 	// 調整項目
 	ApplyGlobalVariables();
-	
+
 	// ImGuiの更新
 	UpdateImGui();
 
@@ -508,11 +506,16 @@ void GamePlayScene::Update()
 		else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 			cameraDebugT.x -= 0.5f;
 		}
-
+		if (Input::GetInstance()->PushKey(DIK_O)) {
+			cameraDebugT.y += 0.5f;
+		}
+		else if (Input::GetInstance()->PushKey(DIK_L)) {
+			cameraDebugT.y -= 0.5f;
+		}
+#endif // _DEBUG
 		camera->transform_.rotate = cameraDebugR;
 		camera->transform_.translate = cameraDebugT;
 		camera->UpdateMatrix();
-#endif // _DEBUG
 	}
 
 
@@ -527,16 +530,25 @@ void GamePlayScene::Update()
 	UpdateReticle();
 
 	// 敵PoP情報
-	UpdateEnemyPopCommands();
+	//UpdateEnemyPopCommands();
 	// 敵
-	for (const auto& enemy : enemys_) {
-		enemy->Update(); // 参照を通してアクセス
+	for (int i = 0; i < enemys_.size(); i++) {
+		enemys_[i]->Update();
 	}
 	objectSkydome_.Update();
 	// 当たり判定
 	ChekAllCollisions();
 
-	
+
+
+	if(move_t >= 0.999f) {
+		t--;
+	}
+	if (t <= 0) {
+		// シーン切り替え
+		SceneManager::GetInstance()->ChangeScene("TITLE");
+	}
+
 }
 
 #pragma endregion //更新関係
@@ -616,7 +628,7 @@ void GamePlayScene::ChekAllCollisions()
 				enemy->addDamage(damage_);
 
 				if (!enemy->GetAlive()) {
-					Score_ += 10;
+					Score_ += 40;
 				}
 
 				isCollisionDetected = true;
@@ -636,93 +648,81 @@ void GamePlayScene::ChekAllCollisions()
 	}
 
 }
-// 敵生成
-void GamePlayScene::EnemyGenerate(Vector3 position, float HP)
+// 
+void GamePlayScene::PlaceObjectsAlongSpline(const std::vector<Vector3>& controlPoints, float spacing)
 {
-	// Enemy オブジェクトを生成
-	auto enemy_ = std::make_unique<Enemy>();
-	// 初期化
-	// 位置とHP
-	enemy_->Initialize(position, HP);
+	const int baseSamples = 200;
+	auto samplePoints = AdaptiveSampling(controlPoints, baseSamples);
 
-	// 所有権を移動してリストに追加
-	enemys_.push_back(std::move(enemy_));
+	// 累積距離を計算して均等な間隔で配置
+	float totalLength = samplePoints.back();
+	float currentLength = 0.0f;
+
+	for (float length = 0.0f; length < totalLength; length += spacing) {
+		float t = length / totalLength;
+		Vector3 pos = CatmullRom(controlPoints, t);
+
+		// オブジェクトの回転計算
+		float deltaT = 0.001f;
+		Vector3 posNext = CatmullRom(controlPoints, (std::min)(t + deltaT, 1.0f));
+		Vector3 velocity = Normalize(Subtract(posNext, pos));
+
+		float rotateY = std::atan2(velocity.x, velocity.z);
+		float length2D = Length(Vector3(velocity.x, 0, velocity.z));
+		float rotateX = std::atan2(velocity.y, length2D);
+
+		auto object3d = std::make_unique<Object3d>();
+		object3d->Initialize();
+		object3d->SetModel("rail.obj");
+		object3d->SetCamera(camera.get());
+		object3d->transform.translate = pos;
+		object3d->transform.rotate = Vector3(rotateX, rotateY, 0);
+		railObject2.push_back(std::move(object3d));
+
+		currentLength += spacing;
+	}
 }
-//　CSV読み込み
-void GamePlayScene::LoadEnemyPopData()
-{
-	// ファイルを開く
-	std::ifstream file;
-	file.open("resources/enemyPop.csv");
-	assert(file.is_open());
 
-	// ファイルの内容を文字列ストリームにコピー
-	enemyPopCommands << file.rdbuf();
+// カーブに沿ったオブジェクトの配置
+void GamePlayScene::PlaceObjectsOnCurve(const std::vector<Vector3>& controlPoints, float spacing) {
+	float totalLength = 0.0f;
+	const int segments = 200;
+	std::vector<Vector3> points;
 
-	// ファイルを閉じる
-	file.close();
-}
-// 敵のPoP設定
-void GamePlayScene::UpdateEnemyPopCommands()
-{
-	//待機処理
-	if (isWait_) {
-		waitTimer_--;
-		if (waitTimer_ <= 0) {
-			//待機終了
-			isWait_ = false;
+	// カーブ全体の長さを計算し、サンプリング
+	for (int i = 0; i < segments; ++i) {
+		float t = static_cast<float>(i) / segments;
+		points.push_back(CatmullRom2(controlPoints, t));
+		if (i > 0) {
+			totalLength += Length(Subtract(points[i], points[i - 1]));
 		}
 	}
 
-	// 1桁分の文字列を入れる変数
-	std::string line;
-	// コマンド実行ループ
-	while (getline(enemyPopCommands, line)) {
-		// 1行分の文字列をストリームに変換して解析しやすくする
-		std::istringstream line_stream(line);
+	float currentLength = 0.0f;
+	for (float length = 0.0f; length < totalLength; length += spacing) {
+		// 現在のアーク長に対応するt値を探索
+		float t = length / totalLength;
+		Vector3 position = CatmullRom2(controlPoints, t);
 
-		std::string word;
-		//,区切りで行の先頭文字列を取得
-		getline(line_stream, word, ',');
+		// 向きを計算
+		Vector3 posNext = CatmullRom2(controlPoints, (std::min)(t + 0.01f, 1.0f));
+		Vector3 forward = Normalize(Subtract(posNext, position));
 
-		// "//"から始まる行はコメント
-		if (word.find("//") == 0) {
-			// コメント行を飛ばす
-			continue;
-		}
-		// POPコマンド
-		if (word.find("POP") == 0) {
-			// x座標
-			getline(line_stream, word, ',');
-			float x = (float)std::atof(word.c_str());
-			// y座標
-			getline(line_stream, word, ',');
-			float y = (float)std::atof(word.c_str());
-			// z座標
-			getline(line_stream, word, ',');
-			float z = (float)std::atof(word.c_str());
-			// HP
-			getline(line_stream, word, ',');
-			float hp = (float)std::atof(word.c_str());
-			//敵を発生させる
-			EnemyGenerate(Vector3{ x, y, z }, hp);
-		}
-		else if (word.find("WAIT") == 0) {
-			//,区切りで行の先頭文字列を取得
-			getline(line_stream, word, ',');
+		float rotateY = std::atan2(forward.x, forward.z);
+		float length2D = Length({ forward.x, 0, forward.z });
+		float rotateX = std::atan2(forward.y, length2D);
 
-			//待ち時間
-			int32_t waitTime = atoi(word.c_str());
-
-			//待機開始
-			isWait_ = true;
-			waitTimer_ = waitTime;
-
-			//コマンドループを抜ける
-			break;
-		}
+		// オブジェクトの配置
+		auto object3d = std::make_unique<Object3d>();
+		object3d->Initialize();
+		object3d->SetModel("rail.obj");
+		object3d->SetCamera(camera.get());
+		object3d->transform.translate = position;
+		object3d->transform.rotate = Vector3{ rotateX, rotateY, 0 };
+		railObject2.push_back(std::move(object3d));
 	}
 }
+
 // コントロールポイントの設置
 std::vector<Vector3> GamePlayScene::GenerateSpiralControlPoints(float radius, float height, int numPoints, float turns)
 {
@@ -783,6 +783,10 @@ void GamePlayScene::Draw3D()
 {
 	////3Dオブジェクトの描画
 
+	// 天球
+	objectSkydome_.Draw();
+
+
 	// レール2
 	for (int i = 0; i < railObject2.size(); ++i) {
 		if (300 >= Distance(railObject2[i]->GetWorldPosition(), train.GetWorldPosition())) {
@@ -790,17 +794,20 @@ void GamePlayScene::Draw3D()
 		}
 	}
 
+#ifdef _DEBUG
 	// コントロールポイント位置描画
 	for (int i = 0; i < static_cast<int>(controlPointObjects_.size()); ++i) {
 		controlPointObjects_[i]->Draw();
 	}
+#endif
 
 	// 敵
-	for (const auto& enemy : enemys_) {
-		if (enemy->GetAlive() && 300 >= Distance(enemy->GetObjectTrans().GetWorldPosition(), train.GetWorldPosition())) {
-			enemy->Draw(); // 参照を通してアクセス
+	for (int i = 0; i < enemys_.size(); i++) {
+		if (enemys_[i]->GetAlive()) {
+			enemys_[i]->Draw();
 		}
 	}
+
 
 	// 列車
 	train.Draw();
@@ -813,8 +820,6 @@ void GamePlayScene::Draw3D()
 		laser.Draw();
 	}
 
-	// 天球
-	objectSkydome_.Draw();
 
 }
 // 2D描画
@@ -826,5 +831,22 @@ void GamePlayScene::Draw2D()
 
 
 	spriteEnergy_->Draw();
+
+
+	int numDigits = (Score_ == 0) ? 1 : static_cast<int>(log10(Score_)) + 1;
+
+	int divisor = 1;
+	for (int j = 0; j < numDigits; j++) {
+		int digit = (Score_ / divisor) % 10;
+		divisor *= 10;
+
+		for (int i = 0; i < 10; i++) {
+			if (digit == i) {
+				spriteScoreNum_[j][i]->SetPosition(Vector2{ 1000.0f - (j * 50), 650.0f });
+				spriteScoreNum_[j][i]->Update();
+				spriteScoreNum_[j][i]->Draw();
+			}
+		}
+	}
 }
 

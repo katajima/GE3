@@ -18,7 +18,9 @@ void ModelManager::Finalize()
 
 void ModelManager::Initialize(DirectXCommon* dxCommon)
 {
-	modelCommon = new ModelCommon;
+	
+	//modelCommon = new ModelCommon;
+	modelCommon = ModelCommon::GetInstance();
 	modelCommon->Initialize(dxCommon);
 }
 

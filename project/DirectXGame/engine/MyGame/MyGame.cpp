@@ -12,7 +12,8 @@ void MyGame::Initialize()
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
 	SceneManager::GetInstance()->ChangeScene("TITLE");
-
+	//
+	//Camera::GetInstance();
 	// リソース初期化
 	InitializeResource();
 
@@ -70,7 +71,7 @@ void MyGame::Draw()
 
 	SceneManager::GetInstance()->Draw3D();
 
-	particleManager_->Draw();
+	//particleManager_->Draw();
 
 	// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
@@ -91,7 +92,12 @@ void MyGame::InitializeResource()
 	TextureManager::GetInstance()->LoadTexture("resources/rail.png");
 	TextureManager::GetInstance()->LoadTexture("resources/reticle.png");
 	TextureManager::GetInstance()->LoadTexture("resources/white.png");
-
+	TextureManager::GetInstance()->LoadTexture("resources/enemy.png");
+	TextureManager::GetInstance()->LoadTexture("resources/sky.png");
+	for (int i = 0; i < 10; i++) {
+		std::string label = "resources/num/" + std::to_string(i) + ".png";
+		TextureManager::GetInstance()->LoadTexture(label);
+	}
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
@@ -102,9 +108,9 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("Sphere.obj");
 	ModelManager::GetInstance()->LoadModel("long.obj");
 	ModelManager::GetInstance()->LoadModel("skydome.obj");
+	ModelManager::GetInstance()->LoadModel("enemy.obj");
+	ModelManager::GetInstance()->LoadModel("title.obj");
 
 
 	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png");
-
-
 }

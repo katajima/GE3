@@ -4,6 +4,7 @@
 #include <cmath> // sin, cos
 #include<assert.h>
 
+
 #pragma region Math
 
 Vector3 Add(const Vector3& v1, const Vector3& v2);
@@ -71,6 +72,8 @@ Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 Vector3 CatmullRom(const Vector3& p0, const Vector3 p1, const Vector3 p2, const Vector3 p3, float t);
 // スプライン曲線
 Vector3 CatmullRom(std::vector<Vector3> controlPoints, float t);
+// カーブ上の点を取得 (Catmull-Rom)
+Vector3 CatmullRom2(const std::vector<Vector3>& controlPoints, float t);
 
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
@@ -105,5 +108,29 @@ Vector3 Perpendicular(const Vector3& vector);
 Plane PlaneFromPoints(const Vector3& p1, const Vector3& p2, const Vector3& p3);
 //反射ベクトル
 Vector3 Reflect(const Vector3& input, const Vector3& normal);
+
+
+// 2点間の距離を計算する関数
+float Distance(const Vector3& a, const Vector3& b);
+
+// アーク長を計算する関数
+float CalculateArcLength(const std::vector<Vector3>& controlPoints, int numSamples);
+
+// アーク長に基づく位置を取得する関数
+float FindTByArcLength(const std::vector<Vector3>& controlPoints, float targetLength, int numSamples);
+
+
+// 曲線を細かくサンプリングし、累積アーク長を計算
+std::vector<std::pair<float, float>> CalculateArcLengths(const std::vector<Vector3>& controlPoints, int numSamples);
+
+// アーク長からtを逆算する関数
+float GetTFromArcLength(const std::vector<std::pair<float, float>>& arcLengths, float targetLength);
+
+// 曲率を計算する関数
+float Curvature(const Vector3& p0, const Vector3& p1, const Vector3& p2);
+
+// 曲率に基づくアダプティブサンプリング
+std::vector<float> AdaptiveSampling(const std::vector<Vector3>& controlPoints, int baseSamples);
+
 
 #pragma endregion //数学関数
