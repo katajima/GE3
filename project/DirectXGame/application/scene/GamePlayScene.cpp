@@ -196,6 +196,7 @@ void GamePlayScene::InitializeResources()
 		}
 	}
 
+
 	spriteEnter_ = std::make_unique<Sprite>();
 	spriteEnter_->Initialize("resources/enter.png");
 	spriteEnter_->SetPosition(Vector2(20, 600));
