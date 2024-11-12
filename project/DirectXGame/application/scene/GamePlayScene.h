@@ -169,6 +169,9 @@ private:
 
 	int t = 180;
 
+	//
+	std::unique_ptr <Sprite> spriteEnter_;
+
 private:
 	const int MaxSprite = 1;
 

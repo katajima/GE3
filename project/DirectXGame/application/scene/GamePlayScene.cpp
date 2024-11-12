@@ -176,7 +176,7 @@ void GamePlayScene::InitializeResources()
 
 	spriteEnergy_ = std::make_unique<Sprite>();
 	spriteEnergy_->Initialize("resources/white.png");
-	spriteEnergy_->SetPosition(Vector2(20, 600));
+	spriteEnergy_->SetPosition(Vector2(20, 550));
 	spriteEnergy_->SetSize({ 10, 10 });
 	spriteEnergy_->SetAnchorPoint(Vector2{ 0.0f,0.0f });
 	spriteEnergy_->SetColor(Vector4{ 1,0,0,1 });
@@ -195,6 +195,13 @@ void GamePlayScene::InitializeResources()
 			spriteScoreNum_[j][i]->SetPosition({ -10, -10 });
 		}
 	}
+
+	spriteEnter_ = std::make_unique<Sprite>();
+	spriteEnter_->Initialize("resources/enter.png");
+	spriteEnter_->SetPosition(Vector2(20, 600));
+	spriteEnter_->SetSize({ 400, 120 });
+	spriteEnter_->SetAnchorPoint(Vector2{ 0.0f,0.0f });
+
 }
 // 
 
@@ -848,5 +855,9 @@ void GamePlayScene::Draw2D()
 			}
 		}
 	}
+
+	spriteEnter_->Update();
+	spriteEnter_->Draw();
+
 }
 
