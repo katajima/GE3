@@ -112,7 +112,7 @@ void GamePlayScene::InitializeRail()
 	for (int i = 0; i < controlPoints2_.size(); ++i) {
 		auto object3d = std::make_unique<Object3d>();
 		object3d->Initialize();
-		object3d->SetModel("Sphere.obj");
+		//object3d->SetModel("Sphere.obj");
 		object3d->SetCamera(camera.get());
 		object3d->transform.translate = controlPoints2_[i];
 		controlPointObjects_.push_back(std::move(object3d));
@@ -153,7 +153,7 @@ void GamePlayScene::InitializeResources()
 
 	// 列車オブジェクトを unique_ptr で作成
 	train.Initialize();
-	train.SetModel("train.obj");
+	//train.SetModel("train.obj");
 	train.transform.translate = CatmullRom(controlPoints2_, 1);
 	train.SetCamera(camera.get());
 	trainTemp.Initialize();
@@ -161,11 +161,11 @@ void GamePlayScene::InitializeResources()
 
 	// レチクル
 	object3DReticle_.Initialize();
-	object3DReticle_.SetModel("train.obj");
+	//object3DReticle_.SetModel("train.obj");
 
 	// レーザー
 	laser.Initialize();
-	laser.SetModel("long.obj");
+	//laser.SetModel("long.obj");
 	laser.SetCamera(camera.get());
 	// スプライト
 	sprite2DReticle_ = std::make_unique<Sprite>();
@@ -183,7 +183,7 @@ void GamePlayScene::InitializeResources()
 
 	// 天球
 	objectSkydome_.Initialize();
-	objectSkydome_.SetModel("skydome.obj");
+	//objectSkydome_.SetModel("skydome.obj");
 	objectSkydome_.SetCamera(camera.get());
 
 	for (int j = 0; j < 4; j++) {

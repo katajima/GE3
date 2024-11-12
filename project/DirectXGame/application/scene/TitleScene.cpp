@@ -62,7 +62,7 @@ void TitleScene::InitializeResources()
 	// 列車オブジェクトを unique_ptr で作成
 	title = std::make_unique<Object3d>();
 	title->Initialize();
-	title->SetModel("title.obj");
+	//title->SetModel("title.obj");
 	title->SetCamera(camera.get());
 	title->transform.translate = { 0,0,20 };
 }

@@ -100,17 +100,17 @@ void MyGame::InitializeResource()
 		TextureManager::GetInstance()->LoadTexture(label);
 	}
 
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	ModelManager::GetInstance()->LoadModel("axis.obj");
-	ModelManager::GetInstance()->LoadModel("axis2.obj");
-	ModelManager::GetInstance()->LoadModel("train.obj");
-	ModelManager::GetInstance()->LoadModel("rail.obj");
-	ModelManager::GetInstance()->LoadModel("building.obj");
-	ModelManager::GetInstance()->LoadModel("Sphere.obj");
-	ModelManager::GetInstance()->LoadModel("long.obj");
-	ModelManager::GetInstance()->LoadModel("skydome.obj");
-	ModelManager::GetInstance()->LoadModel("enemy.obj");
-	ModelManager::GetInstance()->LoadModel("title.obj");
+	//ModelManager::GetInstance()->LoadModel("plane.obj");
+	//ModelManager::GetInstance()->LoadModel("axis.obj");
+	//ModelManager::GetInstance()->LoadModel("axis2.obj");
+	//ModelManager::GetInstance()->LoadModel("train.obj");
+	//ModelManager::GetInstance()->LoadModel("rail.obj");
+	//ModelManager::GetInstance()->LoadModel("building.obj");
+	//ModelManager::GetInstance()->LoadModel("Sphere.obj");
+	//ModelManager::GetInstance()->LoadModel("long.obj");
+	//ModelManager::GetInstance()->LoadModel("skydome.obj");
+	//ModelManager::GetInstance()->LoadModel("enemy.obj");
+	//ModelManager::GetInstance()->LoadModel("title.obj");
 
 
 	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png");
