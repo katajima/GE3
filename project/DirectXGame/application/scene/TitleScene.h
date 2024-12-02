@@ -73,6 +73,10 @@ private:
 
 	Vector3 str;
 	Vector3 end;
+
+
+	std::vector < std::unique_ptr <LineDraw>> line_;
+
 };
 
 

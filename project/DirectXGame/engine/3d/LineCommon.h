@@ -30,7 +30,7 @@ public:
 
 	//Camera* GetDefaltCamera() const { return defaultCamera; }
 
-	void DrawLine3d(const Vector3& p1, const Vector3& p2, const Vector4& color, Camera* camera);
+	//void DrawLine3d(const Vector3& p1, const Vector3& p2, const Vector4& color, Camera* camera);
 
 private:
 	// ルートシグネチャの作成

@@ -15,10 +15,15 @@ void TitleScene::Initialize()
 
 
 	particleManager_ = ParticleManager::GetInstance();
-	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png", ModelManager::GetInstance()->FindModel("axis.obj"));
+	particleManager_->emitAABB.center = Vector3{ 0,0,0 };
+	particleManager_->emitAABB.max = Vector3{ 1.0f,1.0f,1.0f };
+	particleManager_->emitAABB.min = Vector3{ -100.0f,-1.0f,-1.0f };
+
+	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"));
 	particleManager_->SetCamera(camera.get());
-	
-	emitter_ = new ParticleEmitter("aa", Transform{ (1.0f, 1.0f, 1.0f),(0.0f, 0.0f, 0.0f),(0.0f, 0.0f, 0.0f) }, 10, 1, 1);
+
+	//particleManager_->Emit("aa", Vector3(100.0f, 10.0f, 0.0f) , 100);
+	emitter_ =   new ParticleEmitter("aa", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), particleManager_->emitAABB.center }, 100, 2.0f, 1.0f);
 	emitter_->Emit();
 
 	// 列車オブジェクトを unique_ptr で作成
@@ -35,6 +40,14 @@ void TitleScene::Initialize()
 	
 	str = { 0,0,0 };
 	end = { 10,0,10 };
+
+	for (int i = 0; i < 24; i++) {
+		auto line = std::make_unique<LineDraw>();
+		line->Initialize(LineCommon::GetInstance());
+		line->SetCamera(camera.get());
+
+		line_.push_back(std::move(line));
+	}
 }
 
 void TitleScene::Finalize()
@@ -74,6 +87,9 @@ void TitleScene::Update()
 	lineDraw_.Update();
 	lineDraw2_.Update();
 
+	for (size_t i = 0; i < 24; i += 2) {
+		line_[i]->Update();
+	}
 
 	ImGui::Begin("line");
 	ImGui::DragFloat3("str", &str.x, 0.1f);
@@ -97,7 +113,8 @@ void TitleScene::DrawP3D()
 
 void TitleScene::DrawLine3D()
 {
-	
+	particleManager_->GetInstance()->DrawAABB(line_);
+
 	lineDraw_.Draw3D(str, end, Vector4{ 1,1,1,1 });
 	lineDraw2_.Draw3D(str, Vector3(-10,10,0), Vector4{1,1,0,1});
 }

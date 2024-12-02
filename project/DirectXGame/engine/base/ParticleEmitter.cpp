@@ -7,7 +7,6 @@ ParticleEmitter::ParticleEmitter(std::string name, Transform transform, uint32_t
 	frequency_ = frequency;
 	frequencyTime_ = frequencyTime;
 	transform_ = transform;
-	
 }
 
 void ParticleEmitter::Update()
@@ -26,7 +25,7 @@ void ParticleEmitter::Update()
         // 各パーティクルの更新
         for (auto& particle : particleGroup.particle) {
             // 位置の更新
-            particle.transform.translate = Add(particle.transform.translate, Vector3{ 0.0f, 0.1f, 0.0f });
+            particle.transform.translate = Add(particle.transform.translate, Vector3{ 0.0f, 0.0f, 0.0f });
             // 寿命の増加
             particle.currentTime += kDeltaTime;
         }

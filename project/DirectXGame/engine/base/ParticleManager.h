@@ -21,6 +21,9 @@ using namespace Microsoft::WRL;
 #include "DirectXGame/engine/base/Camera.h"
 #include"DirectXGame/engine/3d/Object3dCommon.h"
 #include "DirectXGame/engine/3d/Model.h"
+#include"DirectXGame/engine/3d/Line.h"
+#include"DirectXGame/engine/3d/LineCommon.h"
+
 
 struct ParticleForGPU
 {
@@ -87,6 +90,14 @@ public:
 
 	};
 
+	//Emit
+	struct EmiterAABB
+	{
+		Vector3 center;
+		Vector3 min;
+		Vector3 max;
+	};
+	EmiterAABB emitAABB;
 public:
 	// シングルトンインスタンス
 	static ParticleManager* GetInstance();
@@ -113,6 +124,8 @@ public:
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model);
 
 	void SetCamera(Camera* camera) { this->camera = camera; }
+
+	void DrawAABB(/*const EmiterAABB& emitAABB, */std::vector<std::unique_ptr<LineDraw>>& lineDraw_);
 
 private:
 	// ルートシグネチャの作成
@@ -186,5 +199,9 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
 
 	Model* model_;
+
+	
+	//std::vector < std::unique_ptr <LineDraw>> line_;
+
 };
 

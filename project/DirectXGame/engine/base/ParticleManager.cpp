@@ -22,6 +22,10 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon/*, SrvManager* srvManag
 	
 
 	CreateGraphicsPipeline();
+
+	
+	
+
 }
 
 void ParticleManager::Finalize()
@@ -65,12 +69,7 @@ void ParticleManager::Update()
 		billboardMatrix.m[3][1] = 0.0f;
 		billboardMatrix.m[3][2] = 0.0f;
 
-		ImGui::Begin("mat");
-		ImGui::DragFloat4("1",materialData->uvTransform.m[0]);
-		ImGui::DragFloat4("2",materialData->uvTransform.m[1]);
-		ImGui::DragFloat4("3",materialData->uvTransform.m[2]);
-		ImGui::DragFloat4("tra", materialData->uvTransform.m[3]);
-		ImGui::End();
+		
 		// 全パーティクルグループに対する処理
 		for (auto& pair : particleGroups) // 各パーティクルグループに対して
 		{
@@ -141,6 +140,9 @@ void ParticleManager::Update()
 
 void ParticleManager::Draw()
 {
+
+
+
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
 
@@ -181,7 +183,15 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 	ParticleGroup& particleGroup = particleGroups[name];
 
-	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+
+	//emitAABB.min = { -1.0f,-1.0f,-1.0f};
+	//emitAABB.max = { 1.0f,1.0f,1.0f };
+	emitAABB.center = position;
+
+	std::uniform_real_distribution<float> distributionX(emitAABB.min.x, emitAABB.max.x);
+	std::uniform_real_distribution<float> distributionY(emitAABB.min.y, emitAABB.max.y);
+	std::uniform_real_distribution<float> distributionZ(emitAABB.min.z, emitAABB.max.z);
+	std::uniform_real_distribution<float> distributionVelo(-1.0f, 1.0f);
 	std::uniform_real_distribution<float> distColor(0.0f, 1.0f);
 	std::uniform_real_distribution<float> distTime(1.0f, 3.0f);
 	for (uint32_t t = 0; t < count; ++t) {
@@ -189,17 +199,22 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 		// パーティクルの初期化 (必要に応じて詳細を設定)
 		newParticle.transform.scale = { 1.0f,1.0f,1.0f };
 		newParticle.transform.rotate = { 0.0f,0.0f,0.0f };
-		newParticle.transform.translate = { distribution(randomEngine_),distribution(randomEngine_),distribution(randomEngine_) };
+		newParticle.transform.translate = 
+		{ 
+			emitAABB.center.x + distributionX(randomEngine_),
+			emitAABB.center.y + distributionY(randomEngine_),
+			emitAABB.center.z + distributionZ(randomEngine_) 
+		};
 		newParticle.color = { 1,1,1,1 };// { distColor(randomEngine_), distColor(randomEngine_), distColor(randomEngine_), 1.0f };
 		newParticle.lifeTime = distTime(randomEngine_);
 		newParticle.currentTime = 0;
 
 
-		Vector3 randomTranslate{ distribution(randomEngine_),distribution(randomEngine_),distribution(randomEngine_) };
-		newParticle.transform.translate = Add(position, randomTranslate);
+		//Vector3 randomTranslate{ distributionX(randomEngine_),distributionY(randomEngine_),distributionZ(randomEngine_) };
+		//newParticle.transform.translate = Add(emitAABB.center, randomTranslate);
 
 		//速度
-		newParticle.velocity = { distribution(randomEngine_),distribution(randomEngine_),distribution(randomEngine_) };
+		newParticle.velocity = { distributionVelo(randomEngine_),distributionVelo(randomEngine_),distributionVelo(randomEngine_) };
 		//newParticle.velocity = { 1,0,0 };
 		// パーティクルをグループに追加
 		particleGroup.particle.push_back(newParticle);
@@ -306,6 +321,42 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.instancingSrvHandleCPU = SrvManager::GetInstance()->GetCPUDescriptorHandle(particleGroup.srvIndex);
 	particleGroup.instancingSrvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(particleGroup.srvIndex);
 	dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, particleGroup.instancingSrvHandleCPU);
+
+	
+
+}
+
+void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, */std::vector<std::unique_ptr<LineDraw>>& lineDraw_)
+{
+	// 各頂点を計算
+	Vector3 v0 = { emitAABB.min.x, emitAABB.min.y, emitAABB.min.z }; // 左下前
+	Vector3 v1 = { emitAABB.max.x, emitAABB.min.y, emitAABB.min.z }; // 右下前
+	Vector3 v2 = { emitAABB.max.x, emitAABB.max.y, emitAABB.min.z }; // 右上前
+	Vector3 v3 = { emitAABB.min.x, emitAABB.max.y, emitAABB.min.z }; // 左上前
+
+	Vector3 v4 = { emitAABB.min.x, emitAABB.min.y, emitAABB.max.z }; // 左下後
+	Vector3 v5 = { emitAABB.max.x, emitAABB.min.y, emitAABB.max.z }; // 右下後
+	Vector3 v6 = { emitAABB.max.x, emitAABB.max.y, emitAABB.max.z }; // 右上後
+	Vector3 v7 = { emitAABB.min.x, emitAABB.max.y, emitAABB.max.z }; // 左上後
+
+	// ライン描画用の配列
+	Vector3 lines[24] = {
+		// 前面
+		v0, v1, v1, v2, v2, v3, v3, v0,
+		// 背面
+		v4, v5, v5, v6, v6, v7, v7, v4,
+		// 左側面
+		v0, v4, v3, v7,
+		// 右側面
+		v1, v5, v2, v6
+	};
+
+	// ライン描画
+	Vector4 color = { 1, 1, 1, 1 }; // 白色
+	for (size_t i = 0; i < 24; i += 2) {
+		lineDraw_.emplace_back(std::make_unique<LineDraw>());
+		lineDraw_[i]->Draw3D(lines[i], lines[i + 1], color);
+	}
 }
 
 void ParticleManager::CreateRootSignature()
