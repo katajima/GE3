@@ -18,7 +18,9 @@ using namespace Microsoft::WRL;
 #include"SrvManager.h"
 #include<random>
 #include<numbers>
-
+#include "DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/3d/Object3dCommon.h"
+#include "DirectXGame/engine/3d/Model.h"
 
 struct ParticleForGPU
 {
@@ -71,13 +73,18 @@ public:
 	};
 	struct ParticleGroup
 	{
+
 		MaterialData materialData;
 		std::list<Particle> particle;
 		uint32_t srvIndex;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+		Microsoft::WRL::ComPtr<ID3D12Resource> materialResource;
 		uint32_t instanceCount; // インスタンス数
 		ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
 		D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
+		D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
+		Model* model;
+
 	};
 
 public:
@@ -93,7 +100,7 @@ public:
 	// 終了
 	void Finalize();
 
-	
+	void DrawCommonSetting();
 
 	// パーティクルの発生
 	void Emit(const std::string name, const Vector3& position, uint32_t count);
@@ -103,11 +110,9 @@ public:
 		return particleGroups;
 	}
 
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model);
 
-	//Particle MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate);
-	
-	//Vector3 GetPoa() { return poa; }
+	void SetCamera(Camera* camera) { this->camera = camera; }
 
 private:
 	// ルートシグネチャの作成
@@ -126,25 +131,25 @@ private:
 
 
 	//// 平行高原
-	//struct DirectionalLight {
-	//	Vector4 color; //!< ライトの色
-	//	Vector3 direction; //!< ライトの向き
-	//	float intensity; //!< 輝度
-	//};	
-	////マテリアルデータ
-	//struct Material {
-	//	Vector4 color;
-	//	int32_t enableLighting;
-	//	float padding[3];
-	//	Matrix4x4 uvTransform;
-	//};
-	//Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
-	//DirectionalLight* directionalLightData = nullptr;
-	////マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
-	//Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
+	struct DirectionalLight {
+		Vector4 color; //!< ライトの色
+		Vector3 direction; //!< ライトの向き
+		float intensity; //!< 輝度
+	};	
+	//マテリアルデータ
+	struct Material {
+		Vector4 color;
+		int32_t enableLighting;
+		float padding[3];
+		Matrix4x4 uvTransform;
+	};
+	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
+	DirectionalLight* directionalLightData = nullptr;
+	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
+	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 
 	//// Lightingを有効にする
-	//Material* materialData = nullptr;
+	Material* materialData = nullptr;
 
 	std::mt19937 randomEngine_;
 
@@ -152,7 +157,7 @@ private:
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 
-	const uint32_t kNumMaxInstance = 100;
+	const uint32_t kNumMaxInstance = 10;
 	const float kDeltaTime = 1.0f / 60.0f;
 	bool usebillboard = true;
 	bool upData = true;
@@ -161,30 +166,25 @@ private:
 
 	AcceleraionField acceleraionField;
 	
-	Vector3 poa;
-	
+	Camera* camera = nullptr;
 
 	
 	//// バッファリソース
-	//Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
+	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
 	//// バッファリソース内のデータを指すポインタ
-	//VertexData* vertexData = nullptr;
-
+	VertexData* vertexData = nullptr;
 	////バッファリソースの使い道を補足するバッファビュー
-	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 	
-
-
 	Transform transform;
 
 	////ルートシグネチャデスク
-	//D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
+	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
 	////ルートシグネチャ
-	//Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
+	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
 	//// グラフィックスパイプラインステート
-	//Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
+	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
 
-	//D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
-	//D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
+	Model* model_;
 };
 

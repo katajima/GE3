@@ -46,6 +46,10 @@ void SceneManager::Draw3D()
 
 	scene_->Draw3D();
 }
+void SceneManager::DrawP3D()
+{
+	scene_->DrawP3D();
+}
 void SceneManager::Draw2D()
 {
 	scene_->Draw2D();

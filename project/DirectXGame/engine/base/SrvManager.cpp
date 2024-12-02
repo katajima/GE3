@@ -26,6 +26,7 @@ void SrvManager::Initialize(DirectXCommon* dxCommon)
 
 void SrvManager::Finalize()
 {
+	descriptorHeap.Reset();
 	delete instance;
 	instance = nullptr;
 }

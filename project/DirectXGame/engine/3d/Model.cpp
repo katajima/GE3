@@ -12,7 +12,7 @@ bool operator==(const Model::VertexData& v1, const Model::VertexData& v2) {
 
 void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
 {
-	modelCommon_ = modelCommon;
+	modelCommon_ = ModelCommon::GetInstance();;
 
 	modelData = LoadOdjFile(directorypath, filename);
 

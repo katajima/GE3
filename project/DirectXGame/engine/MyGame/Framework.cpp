@@ -31,21 +31,22 @@ void Framework::Initialize()
 	object3dCommon = Object3dCommon::GetInstance();
 	object3dCommon->Initialize(dxCommon.get());
 	
-
+	// モデルコモン
 	modelCommon = std::make_unique<ModelCommon>();
 	modelCommon->Initialize(dxCommon.get());
 
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Initialize(dxCommon.get());
 
+	// テクスチャマネージャ
 	TextureManager::GetInstance()->Initialize(dxCommon.get());
+	
+	// モデルマネージャ
 	ModelManager::GetInstance()->Initialize(dxCommon.get());
 
 	// グローバル変数の読み込み
 	GlobalVariables::GetInstance()->LoadFiles();
 
-
-	emitter = new ParticleEmitter("aa", { {1,1,1},{0,0,0},{0,0,0} }, 5, 0.5f, 0.0f);
 }
 
 void Framework::Finalize()
@@ -55,9 +56,11 @@ void Framework::Finalize()
 	
 	dxCommon->Finalize();
 	// パーティクルマネージャーの終了
-	particleManager_->Finalize();
+	//ParticleManager::GetInstance()->Finalize();
 	// ImGuiマネージャーの終了
 	imguiManager->Finalize();
+
+	particleManager_->Finalize();
 }
 
 void Framework::Update()

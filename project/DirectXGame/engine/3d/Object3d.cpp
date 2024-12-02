@@ -21,7 +21,7 @@ void Object3d::Initialize()
 
 	// 引数で受け取ってメンバ変数に記録する
 	//this->object3dCommon_ = Object3dCommon::GetInstance();
-	this->camera = Object3dCommon::GetInstance()->GetInstance()->GetDefaltCamera();
+	this->camera = Object3dCommon::GetInstance()->GetDefaltCamera();
 	//トランスフォーム
 	transformationMatrixResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
 

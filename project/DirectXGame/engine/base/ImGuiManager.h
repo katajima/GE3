@@ -5,6 +5,7 @@
 #include<dxgi1_6.h>
 #include<dxcapi.h>
 #include<wrl.h>
+#include "SrvManager.h"
 
 // 前方宣言
 class WinApp;

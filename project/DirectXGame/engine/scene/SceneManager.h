@@ -16,6 +16,8 @@ public:
 	void Draw2D();
 	
 	void Draw3D();
+	
+	void DrawP3D();
 
 	~SceneManager();
 

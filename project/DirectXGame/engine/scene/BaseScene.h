@@ -20,6 +20,8 @@ public:
 
 	// 描画
 	virtual void Draw3D() = 0;
+	
+	virtual void DrawP3D() = 0;
 
 	virtual void Draw2D() = 0;
 

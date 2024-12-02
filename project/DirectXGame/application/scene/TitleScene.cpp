@@ -12,6 +12,21 @@ void TitleScene::Initialize()
 	InitializeCamera();
 	// リソース
 	InitializeResources();
+
+
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png", ModelManager::GetInstance()->FindModel("axis.obj"));
+	particleManager_->SetCamera(camera.get());
+	
+	emitter_ = new ParticleEmitter("aa", Transform{ (1.0f, 1.0f, 1.0f),(0.0f, 0.0f, 0.0f),(0.0f, 0.0f, 0.0f) }, 10, 1, 1);
+	emitter_->Emit();
+
+	// 列車オブジェクトを unique_ptr で作成
+	mm.Initialize();
+	mm.SetModel("building.obj");
+	mm.transform.translate = {30,1,1};
+	mm.SetCamera(camera.get());
+
 }
 
 void TitleScene::Finalize()
@@ -43,11 +58,21 @@ void TitleScene::Update()
 	
 	// 列車
 	title->Update();
+
+	mm.Update();
+
+	emitter_->Update();
 }
 
 void TitleScene::Draw3D()
 {
+	mm.Draw();
 	title->Draw();
+}
+
+void TitleScene::DrawP3D()
+{
+	particleManager_->GetInstance()->Draw();
 }
 
 void TitleScene::Draw2D()

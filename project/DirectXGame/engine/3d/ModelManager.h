@@ -34,6 +34,10 @@ public:
 
 	Model* FindModel(const std::string& filePath);
 
+	// 
+
+	const std::map<std::string, std::unique_ptr<Model>>& GetModel() const { return models; }
+
 private:
 	static ModelManager* instance;
 
@@ -42,7 +46,7 @@ private:
 	ModelManager(ModelManager&) = delete;
 	ModelManager& operator=(ModelManager&) = delete;
 
-	std::map<std::string,std::unique_ptr<Model>> models;
+	std::map<std::string, std::unique_ptr<Model>> models;
 
 	ModelCommon* modelCommon = nullptr;
 };

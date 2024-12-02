@@ -51,8 +51,9 @@ void MyGame::Update()
 
 	SceneManager::GetInstance()->Update();
 	
-	emitter->Update();
+	
 	particleManager_->Update();
+	//ParticleManager::GetInstance()->Update();
 
 	// ImGuiの受付終了
 	imguiManager->End();
@@ -66,18 +67,21 @@ void MyGame::Draw()
 
 	//////////////---------3Dモデル-------------///////////////
 
+	
+	ParticleManager::GetInstance()->DrawCommonSetting();
+
+	SceneManager::GetInstance()->DrawP3D();
+
 	//// 3Dオブジェクトの描画準備
 	Object3dCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->Draw3D();
 
-	//particleManager_->Draw();
-
 	// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->Draw2D();
-	
+
 	// ImGuiの描画
 	imguiManager->Draw();
 
@@ -100,18 +104,20 @@ void MyGame::InitializeResource()
 		TextureManager::GetInstance()->LoadTexture(label);
 	}
 
-	//ModelManager::GetInstance()->LoadModel("plane.obj");
-	//ModelManager::GetInstance()->LoadModel("axis.obj");
-	//ModelManager::GetInstance()->LoadModel("axis2.obj");
-	//ModelManager::GetInstance()->LoadModel("train.obj");
-	//ModelManager::GetInstance()->LoadModel("rail.obj");
-	//ModelManager::GetInstance()->LoadModel("building.obj");
-	//ModelManager::GetInstance()->LoadModel("Sphere.obj");
-	//ModelManager::GetInstance()->LoadModel("long.obj");
-	//ModelManager::GetInstance()->LoadModel("skydome.obj");
-	//ModelManager::GetInstance()->LoadModel("enemy.obj");
-	//ModelManager::GetInstance()->LoadModel("title.obj");
+	ModelManager::GetInstance()->LoadModel("rail.obj");
+	ModelManager::GetInstance()->LoadModel("plane.obj");
+	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("axis2.obj");
+	ModelManager::GetInstance()->LoadModel("train.obj");
+	
+	ModelManager::GetInstance()->LoadModel("building.obj");
+	ModelManager::GetInstance()->LoadModel("Sphere.obj");
+	ModelManager::GetInstance()->LoadModel("long.obj");
+	ModelManager::GetInstance()->LoadModel("skydome.obj");
+	ModelManager::GetInstance()->LoadModel("enemy.obj");
+	ModelManager::GetInstance()->LoadModel("title.obj");
 
 
-	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png");
+	//ParticleManager::GetInstance()->CreateParticleGroup("aa", "resources/uvChecker.png");
+	
 }

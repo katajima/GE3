@@ -19,6 +19,8 @@
 #include"DirectXGame/application/base/Enemy.h"
 #include"DirectXGame/application/GlobalVariables/GlobalVariables.h"
 
+#include"DirectXGame/engine/3d/LevelData.h"
+
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
 {
@@ -35,10 +37,15 @@ public:
 	// 描画
 	void Draw3D() override;
 
+	void DrawP3D() override;
+
+
 	void Draw2D() override;
 
 	void UpdateImGui();
 
+	// レベルデータ
+	void LoadLevelData();
 
 	void ApplyGlobalVariables();
 
@@ -171,6 +178,13 @@ private:
 
 	//
 	std::unique_ptr <Sprite> spriteEnter_;
+
+
+//	std::map<std::string, std::unique_ptr <Model>> models;
+
+	
+
+	std::vector <Object3d*> objects;
 
 private:
 	const int MaxSprite = 1;

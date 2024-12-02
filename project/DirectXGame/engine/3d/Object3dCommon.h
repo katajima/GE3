@@ -21,7 +21,9 @@ public:
 
 	void SetDefaltCamera(Camera* camera) { this->defaultCamera = camera; }
 
-	Camera* GetDefaltCamera() const { return defaultCamera; }
+	Camera* GetDefaltCamera() const { 
+		defaultCamera;
+		return defaultCamera; }
 
 private:
 	// ルートシグネチャの作成

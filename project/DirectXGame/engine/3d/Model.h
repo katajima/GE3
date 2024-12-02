@@ -75,6 +75,8 @@ public:
 	void MoveVertices(const Vector3& offset);
 
 	
+	// Objファイルのデータ
+	ModelData modelData;
 private:
 	ModelCommon* modelCommon_ = nullptr;
 	Transform transform;
@@ -88,8 +90,7 @@ private:
 		Matrix4x4 uvTransform;
 	};
 	
-	// Objファイルのデータ
-	ModelData modelData;
+	
 
 	// バッファリソース
 	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;

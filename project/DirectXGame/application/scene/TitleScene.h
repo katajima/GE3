@@ -10,6 +10,9 @@
 #include"DirectXGame/engine/3d/Object3dCommon.h"
 #include"DirectXGame/engine/2d/SpriteCommon.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
+#include "DirectXGame/engine/base/ParticleManager.h"
+#include "DirectXGame/engine/base/ParticleEmitter.h"
+
 
 class TitleScene : public BaseScene
 {
@@ -26,6 +29,8 @@ public:
 
 	// 描画
 	void Draw3D() override;
+	
+	void DrawP3D() override;
 
 	void Draw2D() override;
 
@@ -51,6 +56,14 @@ private:
 
 	// 列車のオブジェクト
 	std::unique_ptr<Object3d> title;
+
+	ParticleManager* particleManager_;// ->CreateParticleGroup("aa", "resources/uvChecker.png");
+
+	ParticleEmitter* emitter_;
+
+	ModelManager* modelm_;
+
+	Object3d mm;
 };
 
 
