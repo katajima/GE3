@@ -35,6 +35,9 @@ void Framework::Initialize()
 	modelCommon = std::make_unique<ModelCommon>();
 	modelCommon->Initialize(dxCommon.get());
 
+	lineCommon = LineCommon::GetInstance();
+	lineCommon->Initialize(dxCommon.get());
+
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Initialize(dxCommon.get());
 
@@ -61,6 +64,8 @@ void Framework::Finalize()
 	imguiManager->Finalize();
 
 	particleManager_->Finalize();
+
+	lineCommon->Finalize();
 }
 
 void Framework::Update()

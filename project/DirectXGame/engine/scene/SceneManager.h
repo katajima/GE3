@@ -18,6 +18,8 @@ public:
 	void Draw3D();
 	
 	void DrawP3D();
+	
+	void DrawLine3D();
 
 	~SceneManager();
 

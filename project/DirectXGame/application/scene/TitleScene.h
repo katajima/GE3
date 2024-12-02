@@ -12,7 +12,7 @@
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include "DirectXGame/engine/base/ParticleManager.h"
 #include "DirectXGame/engine/base/ParticleEmitter.h"
-
+#include"DirectXGame/engine/3d/Line.h"
 
 class TitleScene : public BaseScene
 {
@@ -31,6 +31,8 @@ public:
 	void Draw3D() override;
 	
 	void DrawP3D() override;
+
+	void DrawLine3D() override;
 
 	void Draw2D() override;
 
@@ -64,6 +66,13 @@ private:
 	ModelManager* modelm_;
 
 	Object3d mm;
+
+	
+	LineDraw lineDraw_;
+	LineDraw lineDraw2_;
+
+	Vector3 str;
+	Vector3 end;
 };
 
 

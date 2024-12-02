@@ -77,6 +77,12 @@ void MyGame::Draw()
 
 	SceneManager::GetInstance()->Draw3D();
 
+	LineCommon::GetInstance()->DrawCommonSetting();
+
+	SceneManager::GetInstance()->DrawLine3D();
+
+	//SceneManager::GetInstance()
+
 	// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 

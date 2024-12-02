@@ -22,6 +22,8 @@ public:
 	virtual void Draw3D() = 0;
 	
 	virtual void DrawP3D() = 0;
+	
+	virtual void DrawLine3D() = 0;
 
 	virtual void Draw2D() = 0;
 

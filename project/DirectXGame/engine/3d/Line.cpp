@@ -5,7 +5,7 @@ void LineDraw::Initialize(LineCommon *lineCommon)
 {
 	// 引数で受け取ってメンバ変数に記録する
 	this->lineCommon_ = lineCommon;
-	this->camera = lineCommon_->GetDefaltCamera();
+	//this->camera = lineCommon_->GetDefaltCamera();
 
 
 
@@ -22,7 +22,7 @@ void LineDraw::Initialize(LineCommon *lineCommon)
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
 	vertexData[0] = { 0,0,0,0 };
-	vertexData[1] = { 1,0,0,0 };
+	vertexData[1] = { 0,0,0,0 };
 
 	//std::memcpy(vertexData, vertexData,sizeof(VertexData)*2);
 
@@ -51,11 +51,6 @@ void LineDraw::Initialize(LineCommon *lineCommon)
 	//今回は赤を書き込んで見る //白
 	*materialData = Material({ 1.0f, 0.0f, 0.0f, 1.0f }); //RGBA
 	
-
-
-
-
-
 	//トランスフォーム
 	transformationMatrixResource = lineCommon->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
 
@@ -73,6 +68,8 @@ void LineDraw::Initialize(LineCommon *lineCommon)
 
 void LineDraw::Update()
 {
+
+
 	// ワールド行列を作成（線の位置、スケール、回転を表す）
 	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
 
@@ -96,8 +93,16 @@ void LineDraw::Update()
 	}
 }
 
-void LineDraw::Draw()
+void LineDraw::Draw3D(const Vector3& p1, const Vector3& p2, const Vector4& color)
 {
+	// 頂点データの設定
+	vertexData[0].position = { p1.x, p1.y, p1.z, 1.0f }; // w = 1.0f (位置ベクトル)
+	vertexData[1].position = { p2.x, p2.y, p2.z, 1.0f };
+
+	// マテリアルの色を設定
+	materialData->color = color;
+
+
 	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
 	// マテリアルのバインド
 	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());

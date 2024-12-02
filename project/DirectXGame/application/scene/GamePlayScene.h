@@ -39,6 +39,8 @@ public:
 
 	void DrawP3D() override;
 
+	void DrawLine3D() override;
+
 
 	void Draw2D() override;
 

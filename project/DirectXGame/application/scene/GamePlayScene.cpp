@@ -953,6 +953,9 @@ void GamePlayScene::DrawP3D()
 {
 
 }
+void GamePlayScene::DrawLine3D()
+{
+}
 // 2D描画
 void GamePlayScene::Draw2D()
 {

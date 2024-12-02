@@ -74,7 +74,7 @@ protected:
 	// モデルコモン
 	std::unique_ptr <ModelCommon> modelCommon;
 	// ラインコモン
-	//LineCommon* lineCommon = nullptr;
+	LineCommon* lineCommon = nullptr;
 
 	ParticleManager* particleManager_ = nullptr;
 	
