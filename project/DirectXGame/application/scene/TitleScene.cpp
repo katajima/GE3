@@ -15,15 +15,15 @@ void TitleScene::Initialize()
 
 
 	particleManager_ = ParticleManager::GetInstance();
-	particleManager_->emitAABB.center = Vector3{ 0,0,0 };
+	/*particleManager_->emitAABB.center = Vector3{ 0,0,0 };
 	particleManager_->emitAABB.max = Vector3{ 1.0f,1.0f,1.0f };
-	particleManager_->emitAABB.min = Vector3{ -100.0f,-1.0f,-1.0f };
+	particleManager_->emitAABB.min = Vector3{ -10.0f,-1.0f,-1.0f };*/
 
 	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"));
 	particleManager_->SetCamera(camera.get());
 
 	//particleManager_->Emit("aa", Vector3(100.0f, 10.0f, 0.0f) , 100);
-	emitter_ =   new ParticleEmitter("aa", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), particleManager_->emitAABB.center }, 100, 2.0f, 1.0f);
+	emitter_ =   new ParticleEmitter("aa", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0)}, 100, 1.0f, 5.0f);
 	emitter_->Emit();
 
 	// 列車オブジェクトを unique_ptr で作成
@@ -91,11 +91,13 @@ void TitleScene::Update()
 		line_[i]->Update();
 	}
 
+
+#ifdef _DEBUG
 	ImGui::Begin("line");
 	ImGui::DragFloat3("str", &str.x, 0.1f);
 	ImGui::DragFloat3("end", &end.x, 0.1f);
 	ImGui::End();
-
+#endif
 }
 
 void TitleScene::Draw3D()
@@ -140,7 +142,7 @@ void TitleScene::InitializeCamera()
 {
 	camera = std::make_unique <Camera>();
 	camera->transform_.rotate = { 0.0f,0,0 };
-	camera->transform_.translate = { 0,0,-30.0f };
+	camera->transform_.translate = { -10,0,-130.0f };
 
 	/*cameraDebugT = camera->transform_.translate;
 	cameraDebugR = camera->transform_.rotate;*/

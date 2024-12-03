@@ -62,6 +62,42 @@ struct ModelData
 class ParticleManager
 {
 public:
+
+#pragma region structs
+
+	//Emitの発生位置
+	struct EmiterAABB
+	{
+		Vector3 center;
+		Vector3 min;
+		Vector3 max;
+	};
+
+	// その他の物
+	struct EmiterOthers
+	{
+		Vector4 colorMin; // 色()
+		Vector4 colorMax; // 色()
+
+		Vector3 sizeMin; // 大きさ()
+		Vector3 sizeMax; // 大きさ()
+
+		Vector3 rotateMin; // 回転()
+		Vector3 rotateMax; // 回転()
+
+		float lifeTimeMin; // 生存時間()
+		float lifeTimeMax; // 生存時間()
+
+	};
+
+	// エミッター構造体
+	struct Emiter
+	{
+		EmiterAABB AABB; // 発生場所
+
+		EmiterOthers other; // その他設定
+	};
+
 	struct Particle
 	{
 		Transform transform;
@@ -76,7 +112,7 @@ public:
 	};
 	struct ParticleGroup
 	{
-
+		std::string name; // 名前
 		MaterialData materialData;
 		std::list<Particle> particle;
 		uint32_t srvIndex;
@@ -87,17 +123,13 @@ public:
 		D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
 		D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
 		Model* model;
-
+		Emiter emiter;
 	};
 
-	//Emit
-	struct EmiterAABB
-	{
-		Vector3 center;
-		Vector3 min;
-		Vector3 max;
-	};
-	EmiterAABB emitAABB;
+	
+	
+#pragma endregion // 構造体
+
 public:
 	// シングルトンインスタンス
 	static ParticleManager* GetInstance();

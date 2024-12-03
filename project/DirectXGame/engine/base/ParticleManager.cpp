@@ -19,12 +19,12 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon/*, SrvManager* srvManag
 	this->camera = Object3dCommon::GetInstance()->GetDefaltCamera();
 
 	dxCommon_ = dxCommon;
-	
+
 
 	CreateGraphicsPipeline();
 
-	
-	
+
+
 
 }
 
@@ -69,14 +69,32 @@ void ParticleManager::Update()
 		billboardMatrix.m[3][1] = 0.0f;
 		billboardMatrix.m[3][2] = 0.0f;
 
-		
+
 		// 全パーティクルグループに対する処理
 		for (auto& pair : particleGroups) // 各パーティクルグループに対して
 		{
 			ParticleGroup& group = pair.second;
 			group.instanceCount = 0; // 描画すべきインスタンスのカウント
 
-			ImGui::Begin("particle");
+
+#ifdef _DEBUG
+			ImGui::Begin("engine");
+			if (ImGui::BeginTabBar("Particles"))
+			{
+				if (ImGui::BeginTabItem(group.name.c_str()))
+				{
+					ImGui::DragFloat3("center", &group.emiter.AABB.center.x, 0.1f);
+					ImGui::DragFloat3("max", &group.emiter.AABB.max.x, 0.1f);
+					ImGui::DragFloat3("min", &group.emiter.AABB.min.x, 0.1f);
+					ImGui::DragFloat3("s", &group.emiter.AABB.center.x, 0.1f);
+
+
+					ImGui::EndTabItem();
+				}
+				ImGui::EndTabBar();
+			}
+			ImGui::End();
+#endif
 
 			for (auto particleIterator = group.particle.begin(); particleIterator != group.particle.end(); )
 			{
@@ -122,9 +140,9 @@ void ParticleManager::Update()
 
 
 
-					ImGui::InputFloat3("translate", &particleIterator->transform.translate.x);
+					/*ImGui::InputFloat3("translate", &particleIterator->transform.translate.x);
 					ImGui::InputFloat3("velocity", &particleIterator->velocity.x);
-					ImGui::InputFloat4("color", &group.instanceData[group.instanceCount].color.x);
+					ImGui::InputFloat4("color", &group.instanceData[group.instanceCount].color.x);*/
 					// インスタンス数をカウント
 					++group.instanceCount;
 				}
@@ -132,7 +150,7 @@ void ParticleManager::Update()
 				++particleIterator;
 			}
 
-			ImGui::End();
+
 		}
 	}
 
@@ -157,10 +175,10 @@ void ParticleManager::Draw()
 
 	//commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
-	
+
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
-		
+
 		//commandList->SetGraphicsRootConstantBufferView(3, group.resource->GetGPUVirtualAddress());
 
 		// テクスチャのSRVのDescriptorTableを設定
@@ -184,38 +202,42 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 	ParticleGroup& particleGroup = particleGroups[name];
 
 
-	//emitAABB.min = { -1.0f,-1.0f,-1.0f};
-	//emitAABB.max = { 1.0f,1.0f,1.0f };
-	emitAABB.center = position;
+	// 出る位置
+	std::uniform_real_distribution<float> distributionX(particleGroup.emiter.AABB.min.x, particleGroup.emiter.AABB.max.x);
+	std::uniform_real_distribution<float> distributionY(particleGroup.emiter.AABB.min.y, particleGroup.emiter.AABB.max.y);
+	std::uniform_real_distribution<float> distributionZ(particleGroup.emiter.AABB.min.z, particleGroup.emiter.AABB.max.z);
 
-	std::uniform_real_distribution<float> distributionX(emitAABB.min.x, emitAABB.max.x);
-	std::uniform_real_distribution<float> distributionY(emitAABB.min.y, emitAABB.max.y);
-	std::uniform_real_distribution<float> distributionZ(emitAABB.min.z, emitAABB.max.z);
+	// 方向
 	std::uniform_real_distribution<float> distributionVelo(-1.0f, 1.0f);
-	std::uniform_real_distribution<float> distColor(0.0f, 1.0f);
+
+	// 色RGBA
+	std::uniform_real_distribution<float> distColorR(0.0f, 1.0f);
+	std::uniform_real_distribution<float> distColorG(0.0f, 1.0f);
+	std::uniform_real_distribution<float> distColorB(0.0f, 1.0f);
+	std::uniform_real_distribution<float> distColorA(0.0f, 1.0f);
+
+	// 時間
 	std::uniform_real_distribution<float> distTime(1.0f, 3.0f);
+
+	// パーティクル
 	for (uint32_t t = 0; t < count; ++t) {
 		Particle newParticle;
 		// パーティクルの初期化 (必要に応じて詳細を設定)
 		newParticle.transform.scale = { 1.0f,1.0f,1.0f };
 		newParticle.transform.rotate = { 0.0f,0.0f,0.0f };
-		newParticle.transform.translate = 
-		{ 
-			emitAABB.center.x + distributionX(randomEngine_),
-			emitAABB.center.y + distributionY(randomEngine_),
-			emitAABB.center.z + distributionZ(randomEngine_) 
+		newParticle.transform.translate =
+		{
+			particleGroup.emiter.AABB.center.x + distributionX(randomEngine_),
+			particleGroup.emiter.AABB.center.y + distributionY(randomEngine_),
+			particleGroup.emiter.AABB.center.z + distributionZ(randomEngine_)
 		};
-		newParticle.color = { 1,1,1,1 };// { distColor(randomEngine_), distColor(randomEngine_), distColor(randomEngine_), 1.0f };
+		newParticle.color = /*{ 1,1,1,1 };*/ { distColorR(randomEngine_), distColorG(randomEngine_), distColorB(randomEngine_), 1.0f };
 		newParticle.lifeTime = distTime(randomEngine_);
 		newParticle.currentTime = 0;
 
 
-		//Vector3 randomTranslate{ distributionX(randomEngine_),distributionY(randomEngine_),distributionZ(randomEngine_) };
-		//newParticle.transform.translate = Add(emitAABB.center, randomTranslate);
-
 		//速度
 		newParticle.velocity = { distributionVelo(randomEngine_),distributionVelo(randomEngine_),distributionVelo(randomEngine_) };
-		//newParticle.velocity = { 1,0,0 };
 		// パーティクルをグループに追加
 		particleGroup.particle.push_back(newParticle);
 	}
@@ -279,6 +301,24 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	ParticleGroup& particleGroup = particleGroups[name];
 
+
+	particleGroup.emiter.AABB.center = Vector3{ 0,0,0 };
+	particleGroup.emiter.AABB.max = Vector3{ 1.0f,1.0f,1.0f };
+	particleGroup.emiter.AABB.min = Vector3{ -1.0f,-1.0f,-1.0f };
+	particleGroup.emiter.other.colorMax = Vector4{ 1,1,1,1 };
+	particleGroup.emiter.other.colorMin = Vector4{ 0,0,0,0 };
+	particleGroup.emiter.other.rotateMin = Vector3{ 0,0,0 };
+	particleGroup.emiter.other.rotateMax = Vector3{ 0,0,0 };
+	particleGroup.emiter.other.sizeMin = Vector3{ 1.0f,1.0f,1.0f };
+	particleGroup.emiter.other.sizeMax = Vector3{ 1.0f,1.0f,1.0f };
+	particleGroup.emiter.other.lifeTimeMin = 1.0f;
+	particleGroup.emiter.other.lifeTimeMax = 3.0f;
+
+
+	// 名前
+	particleGroup.name = name;
+
+	// モデル
 	particleGroup.model = model_;
 
 	//particleGroup.materialData //= materialData;
@@ -322,40 +362,44 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.instancingSrvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(particleGroup.srvIndex);
 	dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, particleGroup.instancingSrvHandleCPU);
 
-	
+
 
 }
 
 void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, */std::vector<std::unique_ptr<LineDraw>>& lineDraw_)
 {
-	// 各頂点を計算
-	Vector3 v0 = { emitAABB.min.x, emitAABB.min.y, emitAABB.min.z }; // 左下前
-	Vector3 v1 = { emitAABB.max.x, emitAABB.min.y, emitAABB.min.z }; // 右下前
-	Vector3 v2 = { emitAABB.max.x, emitAABB.max.y, emitAABB.min.z }; // 右上前
-	Vector3 v3 = { emitAABB.min.x, emitAABB.max.y, emitAABB.min.z }; // 左上前
 
-	Vector3 v4 = { emitAABB.min.x, emitAABB.min.y, emitAABB.max.z }; // 左下後
-	Vector3 v5 = { emitAABB.max.x, emitAABB.min.y, emitAABB.max.z }; // 右下後
-	Vector3 v6 = { emitAABB.max.x, emitAABB.max.y, emitAABB.max.z }; // 右上後
-	Vector3 v7 = { emitAABB.min.x, emitAABB.max.y, emitAABB.max.z }; // 左上後
+	for (auto& pair : particleGroups) {
+		ParticleGroup& group = pair.second;
+		// 各頂点を計算
+		Vector3 v0 = { group.emiter.AABB.min.x, group.emiter.AABB.min.y, group.emiter.AABB.min.z }; // 左下前
+		Vector3 v1 = { group.emiter.AABB.max.x, group.emiter.AABB.min.y, group.emiter.AABB.min.z }; // 右下前
+		Vector3 v2 = { group.emiter.AABB.max.x, group.emiter.AABB.max.y, group.emiter.AABB.min.z }; // 右上前
+		Vector3 v3 = { group.emiter.AABB.min.x, group.emiter.AABB.max.y, group.emiter.AABB.min.z }; // 左上前
 
-	// ライン描画用の配列
-	Vector3 lines[24] = {
-		// 前面
-		v0, v1, v1, v2, v2, v3, v3, v0,
-		// 背面
-		v4, v5, v5, v6, v6, v7, v7, v4,
-		// 左側面
-		v0, v4, v3, v7,
-		// 右側面
-		v1, v5, v2, v6
-	};
+		Vector3 v4 = { group.emiter.AABB.min.x, group.emiter.AABB.min.y, group.emiter.AABB.max.z }; // 左下後
+		Vector3 v5 = { group.emiter.AABB.max.x, group.emiter.AABB.min.y, group.emiter.AABB.max.z }; // 右下後
+		Vector3 v6 = { group.emiter.AABB.max.x, group.emiter.AABB.max.y, group.emiter.AABB.max.z }; // 右上後
+		Vector3 v7 = { group.emiter.AABB.min.x, group.emiter.AABB.max.y, group.emiter.AABB.max.z }; // 左上後
 
-	// ライン描画
-	Vector4 color = { 1, 1, 1, 1 }; // 白色
-	for (size_t i = 0; i < 24; i += 2) {
-		lineDraw_.emplace_back(std::make_unique<LineDraw>());
-		lineDraw_[i]->Draw3D(lines[i], lines[i + 1], color);
+		// ライン描画用の配列
+		Vector3 lines[24] = {
+			// 前面
+			v0, v1, v1, v2, v2, v3, v3, v0,
+			// 背面
+			v4, v5, v5, v6, v6, v7, v7, v4,
+			// 左側面
+			v0, v4, v3, v7,
+			// 右側面
+			v1, v5, v2, v6
+		};
+
+		// ライン描画
+		Vector4 color = { 1, 1, 1, 1 }; // 白色
+		for (size_t i = 0; i < 24; i += 2) {
+			lineDraw_.emplace_back(std::make_unique<LineDraw>());
+			lineDraw_[i]->Draw3D(Add(lines[i], group.emiter.AABB.center), Add(lines[i + 1], group.emiter.AABB.center), color);
+		}
 	}
 }
 
