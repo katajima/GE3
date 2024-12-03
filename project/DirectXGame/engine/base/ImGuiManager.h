@@ -11,6 +11,8 @@
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include "DirectXGame/engine/input/Input.h"
 #include "DirectXGame/engine/3d/Object3d.h"
+#include "DirectXGame/engine/base/Camera.h"
+
 // 前方宣言
 class WinApp;
 class DirectXCommon;
@@ -49,6 +51,8 @@ public:
 
 	// ギズモの使用例
 	void RenderGizmo(Object3d& obj, const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix);
+
+	void RenderGizmo2(Object3d& obj, const Camera& camera/*,const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix*/);
 
 private:
 

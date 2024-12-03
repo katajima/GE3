@@ -124,6 +124,7 @@ public:
 		D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
 		Model* model;
 		Emiter emiter;
+		std::vector < std::unique_ptr <LineDraw>> line_;
 	};
 
 	
@@ -153,11 +154,11 @@ public:
 		return particleGroups;
 	}
 
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model);
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera);
 
 	void SetCamera(Camera* camera) { this->camera = camera; }
 
-	void DrawAABB(/*const EmiterAABB& emitAABB, */std::vector<std::unique_ptr<LineDraw>>& lineDraw_);
+	void DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std::unique_ptr<LineDraw>>& lineDraw_*/);
 
 private:
 	// ルートシグネチャの作成
@@ -233,7 +234,7 @@ private:
 	Model* model_;
 
 	
-	//std::vector < std::unique_ptr <LineDraw>> line_;
+	//
 
 };
 

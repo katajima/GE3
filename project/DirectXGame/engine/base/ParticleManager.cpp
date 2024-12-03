@@ -76,7 +76,9 @@ void ParticleManager::Update()
 			ParticleGroup& group = pair.second;
 			group.instanceCount = 0; // 描画すべきインスタンスのカウント
 
-
+			for (size_t i = 0; i < 24; i += 2) {
+				group.line_[i]->Update();
+			}
 #ifdef _DEBUG
 			ImGui::Begin("engine");
 			if (ImGui::BeginTabBar("Particles"))
@@ -87,7 +89,12 @@ void ParticleManager::Update()
 					ImGui::DragFloat3("max", &group.emiter.AABB.max.x, 0.1f);
 					ImGui::DragFloat3("min", &group.emiter.AABB.min.x, 0.1f);
 					ImGui::DragFloat3("s", &group.emiter.AABB.center.x, 0.1f);
-
+					group.emiter.AABB.min.x = (std::min)(group.emiter.AABB.min.x, group.emiter.AABB.max.x);
+					group.emiter.AABB.max.x = (std::max)(group.emiter.AABB.min.x, group.emiter.AABB.max.x);
+					group.emiter.AABB.min.y = (std::min)(group.emiter.AABB.min.y, group.emiter.AABB.max.y);
+					group.emiter.AABB.max.y = (std::max)(group.emiter.AABB.min.y, group.emiter.AABB.max.y);
+					group.emiter.AABB.min.z = (std::min)(group.emiter.AABB.min.z, group.emiter.AABB.max.z);
+					group.emiter.AABB.max.z = (std::max)(group.emiter.AABB.min.z, group.emiter.AABB.max.z);
 
 					ImGui::EndTabItem();
 				}
@@ -140,9 +147,6 @@ void ParticleManager::Update()
 
 
 
-					/*ImGui::InputFloat3("translate", &particleIterator->transform.translate.x);
-					ImGui::InputFloat3("velocity", &particleIterator->velocity.x);
-					ImGui::InputFloat4("color", &group.instanceData[group.instanceCount].color.x);*/
 					// インスタンス数をカウント
 					++group.instanceCount;
 				}
@@ -243,7 +247,7 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 	}
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model)
+void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera)
 {
 	model_ = model;
 
@@ -314,6 +318,12 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.emiter.other.lifeTimeMin = 1.0f;
 	particleGroup.emiter.other.lifeTimeMax = 3.0f;
 
+	for (int i = 0; i < 24; i++) {
+		auto line = std::make_unique<LineDraw>();
+		line->Initialize(LineCommon::GetInstance());
+		line->SetCamera(camera);
+		particleGroup.line_.push_back(std::move(line));
+	}
 
 	// 名前
 	particleGroup.name = name;
@@ -366,7 +376,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 }
 
-void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, */std::vector<std::unique_ptr<LineDraw>>& lineDraw_)
+void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std::unique_ptr<LineDraw>>& lineDraw_*/)
 {
 
 	for (auto& pair : particleGroups) {
@@ -397,8 +407,8 @@ void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, */std::vector<std::
 		// ライン描画
 		Vector4 color = { 1, 1, 1, 1 }; // 白色
 		for (size_t i = 0; i < 24; i += 2) {
-			lineDraw_.emplace_back(std::make_unique<LineDraw>());
-			lineDraw_[i]->Draw3D(Add(lines[i], group.emiter.AABB.center), Add(lines[i + 1], group.emiter.AABB.center), color);
+			group.line_.emplace_back(std::make_unique<LineDraw>());
+			group.line_[i]->Draw3D(Add(lines[i], group.emiter.AABB.center), Add(lines[i + 1], group.emiter.AABB.center), color);
 		}
 	}
 }

@@ -75,9 +75,9 @@ void Object3d::Update()
 	transfomationMatrixData->World = mat_;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
 
-	if (parent_) {
+	/*if (parent_) {
 		mat_ = Multiply(mat_, parent_->mat_);
-	}
+	}*/
 
 	
 }

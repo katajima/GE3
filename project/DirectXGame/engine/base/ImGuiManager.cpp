@@ -1,9 +1,10 @@
 #include"ImGuiManager.h"
 #include "DirectXCommon.h"
 #include "WinApp.h"
+#include <iostream>//用いるヘッダファイルが変わります。
 
-
-
+// ギズモの操作モード
+static ImGuizmo::OPERATION currentOperation = ImGuizmo::TRANSLATE; // 初期値は移動
 
 
 ImGuiManager* ImGuiManager::GetInstance() {
@@ -64,6 +65,8 @@ void ImGuiManager::Begin()
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+
+	ImGuizmo::BeginFrame();
 #endif // _DEBUG
 }
 
@@ -88,8 +91,7 @@ void ImGuiManager::Draw()
 #endif // _DEBUG
 }
 
-// ギズモの操作モード
-static ImGuizmo::OPERATION currentOperation = ImGuizmo::TRANSLATE; // 初期値は移動
+
 
 void ImGuiManager::RenderGizmo(Object3d& obj/*Matrix4x4& objectMatrix*/, const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix)
 {
@@ -139,15 +141,8 @@ void ImGuiManager::RenderGizmo(Object3d& obj/*Matrix4x4& objectMatrix*/, const M
 	// ビューポートの設定（必要に応じて調整）
 	ImGuizmo::SetRect(0, 0, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
 
-	// ギズモを操作
-	bool isManipulated = ImGuizmo::Manipulate(
-		GetMatrixPointer(viewMatrix),        // カメラのビュー行列
-		GetMatrixPointer(projectionMatrix),  // カメラのプロジェクション行列
-		mCurrentGizmoOperation,              // 操作タイプ（移動、回転、スケール）
-		mCurrentGizmoMode,                   // 座標系（ローカル、ワールド）
-		GetMatrix(obj.mat_)       // 操作対象のオブジェクトの行列
-	);
 
+#pragma region 操作
 
 	// 動かす軸を出す
 	if (Input::GetInstance()->PushKey(DIK_X)) {
@@ -166,13 +161,9 @@ void ImGuiManager::RenderGizmo(Object3d& obj/*Matrix4x4& objectMatrix*/, const M
 		flag.y = false;
 	}
 
-	// ギズモ操作後にオブジェクトの行列が更新される
-	//if (isManipulated) {
-		// 操作が行われた場合、objectMatrixが更新されています
-		// 必要に応じて、objectMatrixを使って描画などを行うことができます
 
 
-		// 操作が行われた場合、objectMatrixが更新されます 
+	// 操作が行われた場合、objectMatrixが更新されます 
 	Vector3 translation(0.0f, 0.0f, 0.0f); // 移動ベクトルの例 
 	Vector3 scale(1.0f, 1.0f, 1.0f); // スケールベクトルの例 
 	Vector3 rotate(0.0f, 0.0f, 0.0f); // スケールベクトルの例 
@@ -239,5 +230,106 @@ void ImGuiManager::RenderGizmo(Object3d& obj/*Matrix4x4& objectMatrix*/, const M
 		obj.transform.scale = Add(obj.transform.scale, scale);
 		break;
 	}
-	//}
+
+#pragma endregion
+
+
+	// ギズモを操作
+	bool isManipulated = ImGuizmo::Manipulate(
+		GetMatrixPointer(viewMatrix),        // カメラのビュー行列
+		GetMatrixPointer(projectionMatrix),  // カメラのプロジェクション行列
+		mCurrentGizmoOperation,              // 操作タイプ（移動、回転、スケール）
+		mCurrentGizmoMode,                   // 座標系（ローカル、ワールド）
+		GetMatrix(obj.mat_)       // 操作対象のオブジェクトの行列
+	);
+
 }
+
+
+void ImGuiManager::RenderGizmo2(Object3d& obj, const Camera& camera) {
+	ImGui::Begin("Gizmo");
+
+	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
+	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+
+	// ギズモを操作
+	bool isManipulated = ImGuizmo::Manipulate( 
+		&camera.GetViewMatrix().m[0][0], 
+		&camera.GetProjectionMatrix().m[0][0], 
+		mCurrentGizmoOperation, 
+		mCurrentGizmoMode, 
+		&obj.mat_.m[0][0] );
+
+
+	if (isManipulated) {
+		std::cout << "Manipulate succeeded" << std::endl; // オブジェクトの行列を取得 
+		float translation[3], rotation[3], scale[3]; 
+		ImGuizmo::DecomposeMatrixToComponents(&obj.mat_.m[0][0], translation, rotation, scale); 
+		obj.transform.translate = Vector3(translation[0], translation[1], translation[2]);
+		obj.transform.rotate = Vector3(DegreesToRadians(rotation[0]), DegreesToRadians(rotation[1]), DegreesToRadians(rotation[2]));
+		obj.transform.scale = Vector3(scale[0], scale[1], scale[2]); 
+		std::cout << "Translation: " << translation[0] << ", " << translation[1] << ", " << translation[2] << std::endl;
+		std::cout << "Rotation: " << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << std::endl; 
+		std::cout << "Scale: " << scale[0] << ", " << scale[1] << ", " << scale[2] << std::endl; 
+	} else { 
+		std::cout << "Manipulate failed" << std::endl; 
+	}
+	if (ImGuizmo::IsUsing()) { 
+		std::cout << "ImGuizmo is using" << std::endl; 
+	} else { 
+		std::cout << "ImGuizmo is not using" << std::endl; 
+	}
+
+	if (ImGui::Button("TRANSLATE")) mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+	if (ImGui::Button("ROTATE")) mCurrentGizmoOperation = ImGuizmo::ROTATE;
+	if (ImGui::Button("SCALE")) mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+	if (mCurrentGizmoOperation != ImGuizmo::SCALE) {
+		if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+			mCurrentGizmoMode = ImGuizmo::LOCAL;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+			mCurrentGizmoMode = ImGuizmo::WORLD;
+	}
+
+	ImGuizmo::SetOrthographic(false);
+	ImGuizmo::SetDrawlist();
+	ImGuizmo::SetRect(0, 0, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
+	ImGuizmo::Enable(true);
+	
+
+	
+
+	bool over = ImGuizmo::IsOver();
+	ImGui::Checkbox("IsOver", &over);
+	bool isUse = ImGuizmo::IsUsing();
+	ImGui::Checkbox("IsUsing", &isUse);
+
+	if (ImGuizmo::IsUsing()) {
+		std::cout << "ImGuizmo is using" << std::endl;
+		// オブジェクトの行列を取得
+		float translation[3], rotation[3], scale[3];
+		ImGuizmo::DecomposeMatrixToComponents(&obj.mat_.m[0][0], translation, rotation, scale);
+		Vector3 matrixTranslation = { translation[0], translation[1], translation[2] };
+		Vector3 matrixRotation = { rotation[0], rotation[1], rotation[2] };
+		Vector3 matrixScale = { scale[0], scale[1], scale[2] };
+		ImGui::InputFloat3("Tr", &matrixTranslation.x);
+		ImGui::InputFloat3("Rt", &matrixRotation.x);
+		ImGui::InputFloat3("Sc", &matrixScale.x);
+		ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, &obj.mat_.m[0][0]);
+	}
+	else {
+		std::cout << "ImGuizmo is not using" << std::endl;
+	}
+
+	ImGuiIO& io = ImGui::GetIO();
+	//ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	ImGuizmo::Manipulate(&camera.GetViewMatrix().m[3][3], &camera.GetProjectionMatrix().m[3][3], mCurrentGizmoOperation, mCurrentGizmoMode, &obj.mat_.m[3][3], NULL,NULL);
+
+	ImGui::End();
+}
+
+
+
+
+
