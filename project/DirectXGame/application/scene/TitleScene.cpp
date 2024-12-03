@@ -92,7 +92,12 @@ void TitleScene::Update()
 	}
 
 
+	
+
 #ifdef _DEBUG
+	
+	ImGuiManager::GetInstance()->RenderGizmo(mm, camera->GetViewMatrix(), camera->GetProjectionMatrix());
+
 	ImGui::Begin("line");
 	ImGui::DragFloat3("str", &str.x, 0.1f);
 	ImGui::DragFloat3("end", &end.x, 0.1f);

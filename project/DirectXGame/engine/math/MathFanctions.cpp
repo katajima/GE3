@@ -1168,5 +1168,38 @@ std::vector<float> AdaptiveSampling(const std::vector<Vector3>& controlPoints, i
 	return samplePoints;
 }
 
+const float* GetMatrixPointer(const Matrix4x4& mat)
+{
+	return &mat.m[0][0]; // 行列データの先頭要素のアドレスを返す
+}
+
+float* GetMatrix(Matrix4x4 mat) {
+	return &mat.m[0][0];  // 行列の最初の要素のポインタを返す
+}
+
+
+float DegreesToRadians(float degrees) { return float(degrees * ((float)M_PI / 180.0)); }
+
+Vector3 DegreesToRadians(Vector3 degrees) {
+	Vector3 resurt;
+
+	resurt.x = float(degrees.x * ((float)M_PI / 180.0));
+	resurt.y = float(degrees.y * ((float)M_PI / 180.0));
+	resurt.z = float(degrees.z * ((float)M_PI / 180.0));
+
+	return resurt;
+}
+
+float RadiansToDegrees(float radians) { return float(radians * (180.0 / (float)M_PI)); }
+
+Vector3 RadiansToDegrees(Vector3 radians) {
+	Vector3 resurt;
+
+	resurt.x = float(radians.x * (180.0 / (float)M_PI));
+	resurt.y = float(radians.y * (180.0 / (float)M_PI));
+	resurt.z = float(radians.z * (180.0 / (float)M_PI));
+
+	return resurt;
+}
 
 #pragma endregion //数学関数

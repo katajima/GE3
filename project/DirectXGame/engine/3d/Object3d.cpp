@@ -13,7 +13,13 @@
 #include<wrl.h>
 #include"DirectXGame/engine/base/TextureManager.h"
 #include"DirectXGame/engine/struct/Structs.h"
+#include"DirectXGame/engine/math/MathFanctions.h"
+
 #include <iostream>
+
+#include"DirectXGame/engine/base/ImGuiManager.h"
+
+
 
 void Object3d::Initialize()
 {
@@ -57,6 +63,8 @@ void Object3d::Update()
 		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
 		worldViewProjectionMatrix = Multiply(mat_, viewMatrix);
 		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, projectionMatrix);
+	
+		
 	}
 	else {
 		worldViewProjectionMatrix = mat_;

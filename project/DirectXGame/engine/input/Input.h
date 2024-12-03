@@ -15,6 +15,13 @@ class Input
 public:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+	struct FlagXYZ
+	{
+		bool x;
+		bool y;
+		bool z;
+	};
+
 public: //メンバ関数
 	static Input* GetInstance();
 
@@ -42,4 +49,7 @@ private: //メンバ変数
 	ComPtr<IDirectInput8> directInput = nullptr;
 	BYTE key[256] = {};
 	BYTE keyPre[256] = {};
+
+
+
 };

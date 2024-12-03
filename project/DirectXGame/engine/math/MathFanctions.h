@@ -1,7 +1,9 @@
 #pragma once
 #include"DirectXGame/engine/struct/Structs.h"
 #include<vector>
-#include <cmath> // sin, cos
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <math.h>
 #include<assert.h>
 
 
@@ -133,4 +135,17 @@ float Curvature(const Vector3& p0, const Vector3& p1, const Vector3& p2);
 std::vector<float> AdaptiveSampling(const std::vector<Vector3>& controlPoints, int baseSamples);
 
 
+// 行列のポインタを取得する関数
+const float* GetMatrixPointer(const Matrix4x4& mat);
+
+float* GetMatrix(Matrix4x4 mat);
+
 #pragma endregion //数学関数
+
+float DegreesToRadians(float degrees);
+
+Vector3 DegreesToRadians(Vector3 degrees);
+
+float RadiansToDegrees(float radians);
+
+Vector3 RadiansToDegrees(Vector3 degrees);
