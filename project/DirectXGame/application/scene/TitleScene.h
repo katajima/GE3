@@ -57,25 +57,27 @@ private:
 	bool flag = false;
 
 	// 列車のオブジェクト
-	std::unique_ptr<Object3d> title;
+	
+	ParticleManager* particleManager_;
+	ParticleManager* particleManager2_;
 
-	ParticleManager* particleManager_;// ->CreateParticleGroup("aa", "resources/uvChecker.png");
 
 	ParticleEmitter* emitter_;
 
 	ModelManager* modelm_;
 
 	Object3d mm;
+	Object3d mm2;
 
 	
+
 	LineDraw lineDraw_;
 	LineDraw lineDraw2_;
 
 	Vector3 str;
 	Vector3 end;
 
-
-	std::vector < std::unique_ptr <LineDraw>> line_;
+	ImGuiManager* imgM_;
 
 };
 

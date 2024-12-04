@@ -54,6 +54,68 @@ void ParticleManager::Update()
 		{0.0f, 23.0f, 10.0f}
 	};
 
+#ifdef _DEBUG
+	ImGui::Begin("engine");
+	
+	if (ImGui::CollapsingHeader("Particle")) {
+		// 全パーティクルグループに対する処理
+		for (auto& pair : particleGroups) // 各パーティクルグループに対して
+		{
+			ParticleGroup& group = pair.second;
+			group.instanceCount = 0; // 描画すべきインスタンスのカウント
+
+			for (size_t i = 0; i < 24; i += 2) {
+				group.line_[i]->Update();
+			}
+
+			if (ImGui::BeginTabBar("Particles"))
+			{
+				if (ImGui::BeginTabItem(group.name.c_str()))
+				{
+					ImGui::Checkbox("usebillboard", &group.usebillboard);
+					ImGui::Checkbox("isAlpha", &group.isAlpha);
+					ImGui::Separator(); // 水平線を引く
+					ImGui::DragFloat3("center", &group.emiter.center.x, 0.1f);
+					ImGui::DragFloat3("renge.max", &group.emiter.renge.max.x, 0.1f);
+					ImGui::DragFloat3("renge.min", &group.emiter.renge.min.x, 0.1f);
+					ImGui::Separator(); // 水平線を引く
+					ImGui::DragFloat3("rotate.max", &group.emiter.rotate.max.x, 0.1f);
+					ImGui::DragFloat3("rotate.min", &group.emiter.rotate.min.x, 0.1f);
+					ImGui::DragFloat3("size.max", &group.emiter.size.max.x, 0.1f);
+					ImGui::DragFloat3("size.min", &group.emiter.size.min.x, 0.1f);
+					ImGui::DragFloat3("velocity.max", &group.emiter.velocity.max.x, 0.1f);
+					ImGui::DragFloat3("velocity.min", &group.emiter.velocity.min.x, 0.1f);
+					ImGui::DragFloat("lifeTime.max", &group.emiter.lifeTime.max, 0.1f);
+					ImGui::DragFloat("lifeTime.min", &group.emiter.lifeTime.min, 0.1f);
+					
+					ImGui::DragFloat("frequency", &group.emiter.frequency_, 0.01f);
+					ImGui::DragFloat("frequencyTime", &group.emiter.frequencyTime_, 0.01f);
+					ImGui::DragFloat("count", &group.emiter.count, 1.0f);
+
+					ImGui::Separator(); // 水平線を引く
+					ImGui::ColorEdit4("colorMax", &group.emiter.color.max.x);
+					ImGui::ColorEdit4("colorMin", &group.emiter.color.min.x);
+
+
+					
+
+
+					group.emiter.renge.min.x = (std::min)(group.emiter.renge.min.x, group.emiter.renge.max.x);
+					group.emiter.renge.max.x = (std::max)(group.emiter.renge.min.x, group.emiter.renge.max.x);
+					group.emiter.renge.min.y = (std::min)(group.emiter.renge.min.y, group.emiter.renge.max.y);
+					group.emiter.renge.max.y = (std::max)(group.emiter.renge.min.y, group.emiter.renge.max.y);
+					group.emiter.renge.min.z = (std::min)(group.emiter.renge.min.z, group.emiter.renge.max.z);
+					group.emiter.renge.max.z = (std::max)(group.emiter.renge.min.z, group.emiter.renge.max.z);
+
+					ImGui::EndTabItem();
+				}
+				
+			}
+			ImGui::EndTabBar();
+		}
+	}
+	ImGui::End();
+#endif
 
 
 	// ビルボード用行列
@@ -70,6 +132,7 @@ void ParticleManager::Update()
 		billboardMatrix.m[3][2] = 0.0f;
 
 
+
 		// 全パーティクルグループに対する処理
 		for (auto& pair : particleGroups) // 各パーティクルグループに対して
 		{
@@ -79,29 +142,7 @@ void ParticleManager::Update()
 			for (size_t i = 0; i < 24; i += 2) {
 				group.line_[i]->Update();
 			}
-#ifdef _DEBUG
-			ImGui::Begin("engine");
-			if (ImGui::BeginTabBar("Particles"))
-			{
-				if (ImGui::BeginTabItem(group.name.c_str()))
-				{
-					ImGui::DragFloat3("center", &group.emiter.AABB.center.x, 0.1f);
-					ImGui::DragFloat3("max", &group.emiter.AABB.max.x, 0.1f);
-					ImGui::DragFloat3("min", &group.emiter.AABB.min.x, 0.1f);
-					ImGui::DragFloat3("s", &group.emiter.AABB.center.x, 0.1f);
-					group.emiter.AABB.min.x = (std::min)(group.emiter.AABB.min.x, group.emiter.AABB.max.x);
-					group.emiter.AABB.max.x = (std::max)(group.emiter.AABB.min.x, group.emiter.AABB.max.x);
-					group.emiter.AABB.min.y = (std::min)(group.emiter.AABB.min.y, group.emiter.AABB.max.y);
-					group.emiter.AABB.max.y = (std::max)(group.emiter.AABB.min.y, group.emiter.AABB.max.y);
-					group.emiter.AABB.min.z = (std::min)(group.emiter.AABB.min.z, group.emiter.AABB.max.z);
-					group.emiter.AABB.max.z = (std::max)(group.emiter.AABB.min.z, group.emiter.AABB.max.z);
 
-					ImGui::EndTabItem();
-				}
-				ImGui::EndTabBar();
-			}
-			ImGui::End();
-#endif
 
 			for (auto particleIterator = group.particle.begin(); particleIterator != group.particle.end(); )
 			{
@@ -128,9 +169,9 @@ void ParticleManager::Update()
 
 					// ワールド行列を計算
 					Matrix4x4 worldMatrix;
-					if (usebillboard) {
+					if (group.usebillboard) {
 						worldMatrix = Multiply(Multiply(MakeScaleMatrix((*particleIterator).transform.scale), billboardMatrix), MakeTranslateMatrix((*particleIterator).transform.translate));
-						//worldMatrix = Multiply(MakeScaleMatrix(particleIterator->transform.scale), billboardMatrix);
+						
 					}
 					else {
 						worldMatrix = MakeAffineMatrixMatrix(particleIterator->transform.scale, particleIterator->transform.rotate, particleIterator->transform.translate);
@@ -143,7 +184,10 @@ void ParticleManager::Update()
 					group.instanceData[group.instanceCount].World = worldMatrix;
 					group.instanceData[group.instanceCount].WVP = worldViewProjectionMatrix;
 					group.instanceData[group.instanceCount].color = particleIterator->color;
-					group.instanceData[group.instanceCount].color.w = alpha;
+					if (group.isAlpha) {
+						group.instanceData[group.instanceCount].color.w = alpha;
+					}
+					
 
 
 
@@ -200,48 +244,85 @@ void ParticleManager::Draw()
 
 void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
 {
+
 	// パーティクルグループが登録済みであることを確認
 	assert(particleGroups.contains(name) && "Error: Particle group with this name is not registered.");
 
 	ParticleGroup& particleGroup = particleGroups[name];
 
 
+
 	// 出る位置
-	std::uniform_real_distribution<float> distributionX(particleGroup.emiter.AABB.min.x, particleGroup.emiter.AABB.max.x);
-	std::uniform_real_distribution<float> distributionY(particleGroup.emiter.AABB.min.y, particleGroup.emiter.AABB.max.y);
-	std::uniform_real_distribution<float> distributionZ(particleGroup.emiter.AABB.min.z, particleGroup.emiter.AABB.max.z);
+	std::uniform_real_distribution<float> distributionX(particleGroup.emiter.renge.min.x, particleGroup.emiter.renge.max.x);
+	std::uniform_real_distribution<float> distributionY(particleGroup.emiter.renge.min.y, particleGroup.emiter.renge.max.y);
+	std::uniform_real_distribution<float> distributionZ(particleGroup.emiter.renge.min.z, particleGroup.emiter.renge.max.z);
 
 	// 方向
-	std::uniform_real_distribution<float> distributionVelo(-1.0f, 1.0f);
+	std::uniform_real_distribution<float> distributionVeloX(particleGroup.emiter.velocity.min.x, particleGroup.emiter.velocity.max.x);
+	std::uniform_real_distribution<float> distributionVeloY(particleGroup.emiter.velocity.min.y, particleGroup.emiter.velocity.max.y);
+	std::uniform_real_distribution<float> distributionVeloZ(particleGroup.emiter.velocity.min.z, particleGroup.emiter.velocity.max.z);
 
 	// 色RGBA
-	std::uniform_real_distribution<float> distColorR(0.0f, 1.0f);
-	std::uniform_real_distribution<float> distColorG(0.0f, 1.0f);
-	std::uniform_real_distribution<float> distColorB(0.0f, 1.0f);
-	std::uniform_real_distribution<float> distColorA(0.0f, 1.0f);
+	std::uniform_real_distribution<float> distColorR(particleGroup.emiter.color.min.x, particleGroup.emiter.color.max.x);
+	std::uniform_real_distribution<float> distColorG(particleGroup.emiter.color.min.y, particleGroup.emiter.color.max.y);
+	std::uniform_real_distribution<float> distColorB(particleGroup.emiter.color.min.z, particleGroup.emiter.color.max.z);
+	std::uniform_real_distribution<float> distColorA(particleGroup.emiter.color.min.w, particleGroup.emiter.color.max.w);
 
 	// 時間
-	std::uniform_real_distribution<float> distTime(1.0f, 3.0f);
+	std::uniform_real_distribution<float> distTime(particleGroup.emiter.lifeTime.min, particleGroup.emiter.lifeTime.max);
 
+	// 回転
+	std::uniform_real_distribution<float> distributionRotateX(particleGroup.emiter.rotate.min.x, particleGroup.emiter.rotate.max.x);
+	std::uniform_real_distribution<float> distributionRotateY(particleGroup.emiter.rotate.min.y, particleGroup.emiter.rotate.max.y);
+	std::uniform_real_distribution<float> distributionRotateZ(particleGroup.emiter.rotate.min.z, particleGroup.emiter.rotate.max.z);
+
+	// スケール
+	std::uniform_real_distribution<float> distributionSizeX(particleGroup.emiter.size.min.x, particleGroup.emiter.size.max.x);
+	std::uniform_real_distribution<float> distributionSizeY(particleGroup.emiter.size.min.y, particleGroup.emiter.size.max.y);
+	std::uniform_real_distribution<float> distributionSizeZ(particleGroup.emiter.size.min.z, particleGroup.emiter.size.max.z);
+
+	
 	// パーティクル
-	for (uint32_t t = 0; t < count; ++t) {
+	for (uint32_t t = 0; t < particleGroup.emiter.count; ++t) {
 		Particle newParticle;
 		// パーティクルの初期化 (必要に応じて詳細を設定)
-		newParticle.transform.scale = { 1.0f,1.0f,1.0f };
-		newParticle.transform.rotate = { 0.0f,0.0f,0.0f };
+		newParticle.transform.scale =
+		{
+			distributionSizeX(randomEngine_),
+			distributionSizeY(randomEngine_),
+			distributionSizeZ(randomEngine_)
+		};
+		newParticle.transform.rotate =
+		{
+			distributionRotateX(randomEngine_),
+			distributionRotateY(randomEngine_),
+			distributionRotateZ(randomEngine_)
+		};
 		newParticle.transform.translate =
 		{
-			particleGroup.emiter.AABB.center.x + distributionX(randomEngine_),
-			particleGroup.emiter.AABB.center.y + distributionY(randomEngine_),
-			particleGroup.emiter.AABB.center.z + distributionZ(randomEngine_)
+			particleGroup.emiter.center.x + distributionX(randomEngine_),
+			particleGroup.emiter.center.y + distributionY(randomEngine_),
+			particleGroup.emiter.center.z + distributionZ(randomEngine_)
 		};
-		newParticle.color = /*{ 1,1,1,1 };*/ { distColorR(randomEngine_), distColorG(randomEngine_), distColorB(randomEngine_), 1.0f };
+		newParticle.color =
+		{
+			distColorR(randomEngine_),
+			distColorG(randomEngine_),
+			distColorB(randomEngine_),
+			1.0f
+		};
+
 		newParticle.lifeTime = distTime(randomEngine_);
 		newParticle.currentTime = 0;
 
 
 		//速度
-		newParticle.velocity = { distributionVelo(randomEngine_),distributionVelo(randomEngine_),distributionVelo(randomEngine_) };
+		newParticle.velocity =
+		{
+			distributionVeloX(randomEngine_),
+			distributionVeloY(randomEngine_),
+			distributionVeloZ(randomEngine_)
+		};
 		// パーティクルをグループに追加
 		particleGroup.particle.push_back(newParticle);
 	}
@@ -306,17 +387,23 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	ParticleGroup& particleGroup = particleGroups[name];
 
 
-	particleGroup.emiter.AABB.center = Vector3{ 0,0,0 };
-	particleGroup.emiter.AABB.max = Vector3{ 1.0f,1.0f,1.0f };
-	particleGroup.emiter.AABB.min = Vector3{ -1.0f,-1.0f,-1.0f };
-	particleGroup.emiter.other.colorMax = Vector4{ 1,1,1,1 };
-	particleGroup.emiter.other.colorMin = Vector4{ 0,0,0,0 };
-	particleGroup.emiter.other.rotateMin = Vector3{ 0,0,0 };
-	particleGroup.emiter.other.rotateMax = Vector3{ 0,0,0 };
-	particleGroup.emiter.other.sizeMin = Vector3{ 1.0f,1.0f,1.0f };
-	particleGroup.emiter.other.sizeMax = Vector3{ 1.0f,1.0f,1.0f };
-	particleGroup.emiter.other.lifeTimeMin = 1.0f;
-	particleGroup.emiter.other.lifeTimeMax = 3.0f;
+	particleGroup.emiter.center = Vector3{ 0,0,0 };
+	particleGroup.emiter.renge.max = Vector3{ 1.0f,1.0f,1.0f };
+	particleGroup.emiter.renge.min = Vector3{ -1.0f,-1.0f,-1.0f };
+	particleGroup.emiter.color.max = Vector4{ 1,1,1,1 };
+	particleGroup.emiter.color.min = Vector4{ 0,0,0,0 };
+	particleGroup.emiter.rotate.min = Vector3{ 0,0,0 };
+	particleGroup.emiter.rotate.max = Vector3{ 0,0,0 };
+	particleGroup.emiter.size.min = Vector3{ 1.0f,1.0f,1.0f };
+	particleGroup.emiter.size.max = Vector3{ 1.0f,1.0f,1.0f };
+	particleGroup.emiter.lifeTime.min = 1.0f;
+	particleGroup.emiter.lifeTime.max = 3.0f;
+	particleGroup.emiter.velocity.min = Vector3{ -1.0f,-1.0f,-1.0f };
+	particleGroup.emiter.velocity.max = Vector3{ 1.0f,1.0f,1.0f };
+	particleGroup.emiter.frequency_ = 0.1f;
+	particleGroup.emiter.frequencyTime_ = 0.0f;
+	particleGroup.emiter.count = 10;
+
 
 	for (int i = 0; i < 24; i++) {
 		auto line = std::make_unique<LineDraw>();
@@ -331,8 +418,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	// モデル
 	particleGroup.model = model_;
 
-	//particleGroup.materialData //= materialData;
-
+	
 	// テクスチャのロードと設定
 	TextureManager::GetInstance()->LoadTexture(textureFilePath);
 	particleGroup.materialData.textuerFilePath = textureFilePath;
@@ -382,15 +468,15 @@ void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
 		// 各頂点を計算
-		Vector3 v0 = { group.emiter.AABB.min.x, group.emiter.AABB.min.y, group.emiter.AABB.min.z }; // 左下前
-		Vector3 v1 = { group.emiter.AABB.max.x, group.emiter.AABB.min.y, group.emiter.AABB.min.z }; // 右下前
-		Vector3 v2 = { group.emiter.AABB.max.x, group.emiter.AABB.max.y, group.emiter.AABB.min.z }; // 右上前
-		Vector3 v3 = { group.emiter.AABB.min.x, group.emiter.AABB.max.y, group.emiter.AABB.min.z }; // 左上前
+		Vector3 v0 = { group.emiter.renge.min.x, group.emiter.renge.min.y, group.emiter.renge.min.z }; // 左下前
+		Vector3 v1 = { group.emiter.renge.max.x, group.emiter.renge.min.y, group.emiter.renge.min.z }; // 右下前
+		Vector3 v2 = { group.emiter.renge.max.x, group.emiter.renge.max.y, group.emiter.renge.min.z }; // 右上前
+		Vector3 v3 = { group.emiter.renge.min.x, group.emiter.renge.max.y, group.emiter.renge.min.z }; // 左上前
 
-		Vector3 v4 = { group.emiter.AABB.min.x, group.emiter.AABB.min.y, group.emiter.AABB.max.z }; // 左下後
-		Vector3 v5 = { group.emiter.AABB.max.x, group.emiter.AABB.min.y, group.emiter.AABB.max.z }; // 右下後
-		Vector3 v6 = { group.emiter.AABB.max.x, group.emiter.AABB.max.y, group.emiter.AABB.max.z }; // 右上後
-		Vector3 v7 = { group.emiter.AABB.min.x, group.emiter.AABB.max.y, group.emiter.AABB.max.z }; // 左上後
+		Vector3 v4 = { group.emiter.renge.min.x, group.emiter.renge.min.y, group.emiter.renge.max.z }; // 左下後
+		Vector3 v5 = { group.emiter.renge.max.x, group.emiter.renge.min.y, group.emiter.renge.max.z }; // 右下後
+		Vector3 v6 = { group.emiter.renge.max.x, group.emiter.renge.max.y, group.emiter.renge.max.z }; // 右上後
+		Vector3 v7 = { group.emiter.renge.min.x, group.emiter.renge.max.y, group.emiter.renge.max.z }; // 左上後
 
 		// ライン描画用の配列
 		Vector3 lines[24] = {
@@ -408,7 +494,7 @@ void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std
 		Vector4 color = { 1, 1, 1, 1 }; // 白色
 		for (size_t i = 0; i < 24; i += 2) {
 			group.line_.emplace_back(std::make_unique<LineDraw>());
-			group.line_[i]->Draw3D(Add(lines[i], group.emiter.AABB.center), Add(lines[i + 1], group.emiter.AABB.center), color);
+			group.line_[i]->Draw3D(Add(lines[i], group.emiter.center), Add(lines[i + 1], group.emiter.center), color);
 		}
 	}
 }

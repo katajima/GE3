@@ -53,8 +53,7 @@ void MyGame::Update()
 	
 	
 	particleManager_->Update();
-	//ParticleManager::GetInstance()->Update();
-
+	
 	// ImGuiの受付終了
 	imguiManager->End();
 }

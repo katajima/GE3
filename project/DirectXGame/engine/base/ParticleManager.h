@@ -59,43 +59,35 @@ struct ModelData
 };
 
 
+
+
 class ParticleManager
 {
 public:
 
 #pragma region structs
-
-	//Emitの発生位置
-	struct EmiterAABB
+	template<typename T>
+	struct MaxMin
 	{
-		Vector3 center;
-		Vector3 min;
-		Vector3 max;
-	};
-
-	// その他の物
-	struct EmiterOthers
-	{
-		Vector4 colorMin; // 色()
-		Vector4 colorMax; // 色()
-
-		Vector3 sizeMin; // 大きさ()
-		Vector3 sizeMax; // 大きさ()
-
-		Vector3 rotateMin; // 回転()
-		Vector3 rotateMax; // 回転()
-
-		float lifeTimeMin; // 生存時間()
-		float lifeTimeMax; // 生存時間()
-
+		T min;
+		T max;
 	};
 
 	// エミッター構造体
 	struct Emiter
 	{
-		EmiterAABB AABB; // 発生場所
+		Vector3 center;
 
-		EmiterOthers other; // その他設定
+		MaxMin<Vector3> renge;     //出現位置 (Vector3の範囲)
+		MaxMin<Vector4> color;     // 色 (Vector3の範囲)
+		MaxMin<Vector3> size;        // 大きさ (floatの範囲)
+		MaxMin<Vector3> rotate;      // 回転 (floatの範囲)
+		MaxMin<float> lifeTime;    // 生存時間 (floatの範囲)
+		MaxMin<Vector3> velocity;  // 速度 (Vector3の範囲)
+
+		float frequency_;		// < 発生頻度
+		float frequencyTime_;	// < 頻度用時刻
+		float count;
 	};
 
 	struct Particle
@@ -125,6 +117,8 @@ public:
 		Model* model;
 		Emiter emiter;
 		std::vector < std::unique_ptr <LineDraw>> line_;
+		bool usebillboard = true;
+		bool isAlpha = false;
 	};
 
 	
@@ -160,6 +154,7 @@ public:
 
 	void DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std::unique_ptr<LineDraw>>& lineDraw_*/);
 
+	
 private:
 	// ルートシグネチャの作成
 	void CreateRootSignature();
@@ -203,7 +198,7 @@ private:
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 
-	const uint32_t kNumMaxInstance = 10;
+	const uint32_t kNumMaxInstance = 1000;
 	const float kDeltaTime = 1.0f / 60.0f;
 	bool usebillboard = true;
 	bool upData = true;
@@ -237,4 +232,6 @@ private:
 	//
 
 };
+
+
 

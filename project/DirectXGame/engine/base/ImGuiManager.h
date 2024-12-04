@@ -50,9 +50,9 @@ public:
 	void Draw();
 
 	// ギズモの使用例
-	void RenderGizmo(Object3d& obj, const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix);
+	void RenderGizmo2(Object3d& obj, const Camera& camera, const char* name);
 
-	void RenderGizmo2(Object3d& obj, const Camera& camera/*,const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix*/);
+	void SetCustomColorScheme();
 
 private:
 
@@ -64,7 +64,6 @@ private:
 	Input::FlagXYZ flag;
 
 };
-
 
 
 

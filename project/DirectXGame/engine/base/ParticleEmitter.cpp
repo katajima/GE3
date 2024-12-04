@@ -21,15 +21,21 @@ void ParticleEmitter::Update()
 	// 発射間隔の更新処理。
 	// frequencyTime_に経過時間(kDeltaTime)を加算し、frequency_を超えた場合にEmit()で発射を行う。
 	// 発射後、余剰時間はfrequencyTime_から差し引き、次の発射間隔に対応します。
-	frequencyTime_ += kDeltaTime;
+	/*frequencyTime_ += kDeltaTime;
 	if (frequency_ <= frequencyTime_) {
 		Emit();
 		frequencyTime_ -= frequency_;
-	}
+	}*/
 
 	// 全パーティクルグループ内の全パーティクルを処理する
 	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
 		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
+
+		particleGroup.emiter.frequencyTime_ += kDeltaTime;
+		if (particleGroup.emiter.frequency_ <= particleGroup.emiter.frequencyTime_) {
+			ParticleManager::GetInstance()->Emit(particleGroup.name, particleGroup.emiter.center, count_);
+			particleGroup.emiter.frequencyTime_ -= particleGroup.emiter.frequency_;
+		}
 
 		// 各パーティクルの更新
 		for (auto& particle : particleGroup.particle) {
@@ -48,5 +54,11 @@ void ParticleEmitter::Update()
 
 void ParticleEmitter::Emit()
 {
-	ParticleManager::GetInstance()->Emit(name_, transform_.translate, count_);
+
+	// 全パーティクルグループ内の全パーティクルを処理する
+	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
+		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
+
+		ParticleManager::GetInstance()->Emit(particleGroup.name, particleGroup.emiter.center, count_);
+	}
 }

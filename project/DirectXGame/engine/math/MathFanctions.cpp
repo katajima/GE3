@@ -1202,4 +1202,12 @@ Vector3 RadiansToDegrees(Vector3 radians) {
 	return resurt;
 }
 
+
+Vector3 GenerateRandomPosition(const Vector3& min, const Vector3& max, std::mt19937& randomEngine) {
+	std::uniform_real_distribution<float> distX(min.x, max.x);
+	std::uniform_real_distribution<float> distY(min.y, max.y);
+	std::uniform_real_distribution<float> distZ(min.z, max.z);
+	return { distX(randomEngine), distY(randomEngine), distZ(randomEngine) };
+}
+
 #pragma endregion //数学関数
