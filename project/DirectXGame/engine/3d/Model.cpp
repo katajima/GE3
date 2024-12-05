@@ -54,6 +54,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableLighting = true;
+	materialData->shininess = 40.0f;
 }
 
 void Model::Draw()
@@ -106,7 +107,7 @@ void Model::DrawInstance(size_t instanceCount) {
 
 
 
-Model::MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename)
+MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename)
 {
 
 	MaterialData materialData; // 構築するMaterialData

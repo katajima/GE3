@@ -18,7 +18,7 @@
 #include <iostream>
 
 #include"DirectXGame/engine/base/ImGuiManager.h"
-
+#include"LightCommon.h"
 
 
 void Object3d::Initialize()
@@ -39,22 +39,27 @@ void Object3d::Initialize()
 	transfomationMatrixData->World = MakeIdentity4x4();
 
 
-	//平行光源用のリソースを作る
-	directionalLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(DirectionalLight));
-	directionalLightData = nullptr;
-	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-	//今回は赤を書き込んで見る //白
-	*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
 
 
+	cameraResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(CameraGPU));
+	//書き込むためのアドレスを取得
+	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
+
+
+
+	cameraData->worldPosition = Vector3{ 1.0f,1.0f,1.0f };
 
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-	
+
+
 }
 
 void Object3d::Update()
 {
+
+
+
 	//assert(model);
 	mat_ = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix;
@@ -64,30 +69,34 @@ void Object3d::Update()
 		worldViewProjectionMatrix = Multiply(mat_, viewMatrix);
 		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, projectionMatrix);
 	
-		
+		cameraData->worldPosition = camera->transform_.translate;
 	}
 	else {
 		worldViewProjectionMatrix = mat_;
 	}
 
 	
+	//cameraData->worldPosition = camera->transform_.translate;
 
 	transfomationMatrixData->World = mat_;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
+	transfomationMatrixData->worldInverseTranspose = Transpose(Inverse(mat_));
 
-	/*if (parent_) {
-		mat_ = Multiply(mat_, parent_->mat_);
-	}*/
 
-	
 }
 
 void Object3d::Draw()
 {
-	////------平行光源用------////
-	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+	
+	Object3dCommon::GetInstance()->DrawCommonSetting();
+
+	LightCommon::GetInstance()->DrawLight();
 
 	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
+	
+	// Cameraのバインド
+	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
+
 	
 	// 3Dモデルが割り当てれていれば描画する
 	if (model) {

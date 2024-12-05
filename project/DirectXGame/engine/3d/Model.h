@@ -1,5 +1,6 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
+#include"DirectXGame/engine/struct/Material.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>
@@ -21,12 +22,6 @@ public:
 		Vector3 normal;
 	};
 
-	//マテリアルデータ
-	struct MaterialData {
-		std::string textuerFilePath;
-		//テクスチャ番号
-		uint32_t textureIndex = 0;
-	};
 	//モデルデータ
 	struct ModelData
 	{
@@ -82,13 +77,6 @@ private:
 	Transform transform;
 	
 	
-	//マテリアルデータ
-	struct Material {
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-	};
 	
 	
 

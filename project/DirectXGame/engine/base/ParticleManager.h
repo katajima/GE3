@@ -14,6 +14,7 @@ using namespace Microsoft::WRL;
 #include"externals/DirectXTex/d3dx12.h"
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include"DirectXGame/engine/struct/Structs.h"
+#include"DirectXGame/engine/struct/Material.h"
 #include"DirectXCommon.h"
 #include"SrvManager.h"
 #include<random>
@@ -23,6 +24,8 @@ using namespace Microsoft::WRL;
 #include "DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/3d/Line.h"
 #include"DirectXGame/engine/3d/LineCommon.h"
+
+
 
 
 struct ParticleForGPU
@@ -38,12 +41,7 @@ struct VertexData {
 	Vector2 texcoord;
 	Vector3 normal;
 };
-//マテリアルデータ
-struct MaterialData {
-	std::string textuerFilePath;
-	//テクスチャ番号
-	uint32_t textureIndex = 0;
-};
+
 struct  Node
 {
 	Matrix4x4 localMatrix;
@@ -171,21 +169,10 @@ private:
 	SrvManager* srvManager_ = nullptr;
 
 
-	//// 平行高原
-	struct DirectionalLight {
-		Vector4 color; //!< ライトの色
-		Vector3 direction; //!< ライトの向き
-		float intensity; //!< 輝度
-	};	
-	//マテリアルデータ
-	struct Material {
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-	};
+	
+
 	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
-	DirectionalLight* directionalLightData = nullptr;
+	//DirectionalLight* directionalLightData = nullptr;
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 

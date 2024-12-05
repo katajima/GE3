@@ -206,7 +206,7 @@ void ParticleManager::Update()
 
 void ParticleManager::Draw()
 {
-
+	ParticleManager::GetInstance()->DrawCommonSetting();
 
 
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
@@ -368,12 +368,12 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	materialData->uvTransform = MakeIdentity4x4();
 
 
-	//平行光源用のリソースを作る
-	directionalLightResource = dxCommon_->CreateBufferResource(sizeof(DirectionalLight));
-	directionalLightData = nullptr;
-	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-	//今回は赤を書き込んで見る //白
-	*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
+	////平行光源用のリソースを作る
+	//directionalLightResource = dxCommon_->CreateBufferResource(sizeof(DirectionalLight));
+	//directionalLightData = nullptr;
+	//directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
+	////今回は赤を書き込んで見る //白
+	//*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
 
 	// 加速度場の設定
 	acceleraionField.acceleration = { 15.0f, 0.0f, 0.0f };

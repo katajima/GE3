@@ -38,11 +38,11 @@ void TitleScene::Initialize()
 	mm2.transform.translate = {-30,1,1};
 	mm2.SetCamera(camera.get());
 
+	
+	
 	LineCommon::GetInstance()->SetDefaltCamera(camera.get());
-	/*lineDraw_.Initialize(LineCommon::GetInstance());
-	lineDraw_.SetCamera(camera.get());
-	lineDraw2_.Initialize(LineCommon::GetInstance());
-	lineDraw2_.SetCamera(camera.get());*/
+	
+
 	
 	str = { 0,0,0 };
 	end = { 10,0,10 };
@@ -59,6 +59,7 @@ void TitleScene::Update()
 {
 	
 	camera->UpdateMatrix();
+	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
 #ifdef _DEBUG
 	ImGui::Begin("sfaf");
@@ -120,6 +121,8 @@ void TitleScene::DrawLine3D()
 	particleManager_->GetInstance()->DrawAABB();
 	particleManager2_->GetInstance()->DrawAABB();
 	
+	LightCommon::GetInstance()->DrawLightLine();
+
 }
 
 void TitleScene::Draw2D()

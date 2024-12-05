@@ -51,6 +51,7 @@ void MyGame::Update()
 
 	SceneManager::GetInstance()->Update();
 	
+	lightCommon->Update();
 	
 	particleManager_->Update();
 	
@@ -67,16 +68,16 @@ void MyGame::Draw()
 	//////////////---------3Dモデル-------------///////////////
 
 	
-	ParticleManager::GetInstance()->DrawCommonSetting();
+	//ParticleManager::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->DrawP3D();
 
 	//// 3Dオブジェクトの描画準備
-	Object3dCommon::GetInstance()->DrawCommonSetting();
+	//Object3dCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->Draw3D();
 
-	LineCommon::GetInstance()->DrawCommonSetting();
+	//LineCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->DrawLine3D();
 

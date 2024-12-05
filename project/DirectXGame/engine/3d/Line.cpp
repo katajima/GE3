@@ -95,6 +95,8 @@ void LineDraw::Update()
 
 void LineDraw::Draw3D(const Vector3& p1, const Vector3& p2, const Vector4& color)
 {
+	LineCommon::GetInstance()->DrawCommonSetting();
+
 	// 頂点データの設定
 	vertexData[0].position = { p1.x, p1.y, p1.z, 1.0f }; // w = 1.0f (位置ベクトル)
 	vertexData[1].position = { p2.x, p2.y, p2.z, 1.0f };
