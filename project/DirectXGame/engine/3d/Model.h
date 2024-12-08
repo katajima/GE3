@@ -49,6 +49,8 @@ public:
 			std::hash<float>()(vertex.texcoord.x);
 	}
 
+
+	Material* materialData;
 public:
 
 
@@ -90,7 +92,7 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
-	Material* materialData;
+	
 
 
 	VertexData instanceData_;

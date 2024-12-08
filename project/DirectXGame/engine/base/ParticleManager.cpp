@@ -23,9 +23,6 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon/*, SrvManager* srvManag
 
 	CreateGraphicsPipeline();
 
-
-
-
 }
 
 void ParticleManager::Finalize()
@@ -335,7 +332,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	// ランダムエンジンの初期化
 	std::random_device seedGenerator;
 	randomEngine_.seed(seedGenerator()); // randomEngine_ にシードを設定
-	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+	//std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 
 
 	// 頂点リソースを作成
@@ -361,19 +358,9 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	//今回は赤を書き込んで見る //白
 	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
-
 	//スプライトはLightingしないのでfalseにする
 	materialData->enableLighting = false;
-
 	materialData->uvTransform = MakeIdentity4x4();
-
-
-	////平行光源用のリソースを作る
-	//directionalLightResource = dxCommon_->CreateBufferResource(sizeof(DirectionalLight));
-	//directionalLightData = nullptr;
-	//directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-	////今回は赤を書き込んで見る //白
-	//*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
 
 	// 加速度場の設定
 	acceleraionField.acceleration = { 15.0f, 0.0f, 0.0f };
@@ -462,7 +449,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 }
 
-void ParticleManager::DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std::unique_ptr<LineDraw>>& lineDraw_*/)
+void ParticleManager::DrawAABB()
 {
 
 	for (auto& pair : particleGroups) {

@@ -52,7 +52,7 @@ void Object3d::Initialize()
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
-
+	
 }
 
 void Object3d::Update()
@@ -88,10 +88,7 @@ void Object3d::Update()
 void Object3d::Draw()
 {
 	
-	Object3dCommon::GetInstance()->DrawCommonSetting();
-
-	LightCommon::GetInstance()->DrawLight();
-
+	
 	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
 	
 	// Cameraのバインド

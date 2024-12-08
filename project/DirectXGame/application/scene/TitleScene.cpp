@@ -38,9 +38,11 @@ void TitleScene::Initialize()
 	mm2.transform.translate = {-30,1,1};
 	mm2.SetCamera(camera.get());
 
-	
-	
-	LineCommon::GetInstance()->SetDefaltCamera(camera.get());
+	tail.Initialize();
+	tail.SetModel("plane.obj");
+	tail.SetCamera(camera.get());
+	tail.transform.rotate.x = DegreesToRadians(-90);
+	tail.transform.scale = { 100,100,100 };
 	
 
 	
@@ -68,9 +70,17 @@ void TitleScene::Update()
 
 	ImGui::Begin("engine");
 	
+	if (ImGui::CollapsingHeader("Matelial")) {
+		bool is = mm.model->materialData->enableLighting;
+		ImGui::Checkbox("is",&is);
+		mm.model->materialData->enableLighting = is;
+		mm2.model->materialData->enableLighting = is;
+		tail.model->materialData->enableLighting = is;
+	}
 	if (ImGui::CollapsingHeader("Gizmos")) {
 		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
 		ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
+		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
 
 	}
 	if (ImGui::CollapsingHeader("Camera")) {
@@ -102,13 +112,17 @@ void TitleScene::Update()
 	mm.Update();
 	mm2.Update();
 
+	tail.Update();
+
 	emitter_->Update();
 }
 
 void TitleScene::Draw3D()
 {
-	mm.Draw();
-	mm2.Draw();
+	//tail.Draw();
+
+	//mm.Draw();
+	//mm2.Draw();
 }
 
 void TitleScene::DrawP3D()
@@ -121,7 +135,7 @@ void TitleScene::DrawLine3D()
 	particleManager_->GetInstance()->DrawAABB();
 	particleManager2_->GetInstance()->DrawAABB();
 	
-	LightCommon::GetInstance()->DrawLightLine();
+	//LightCommon::GetInstance()->DrawLightLine();
 
 }
 

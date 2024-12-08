@@ -53,8 +53,7 @@ public:
 private:
 	Camera* camera = nullptr;
 
-	Model* model = nullptr;
-
+	
 	//Object3dCommon* object3dCommon_ = nullptr;
 
 	// 頂点データ
@@ -98,15 +97,19 @@ private:
 	CameraGPU* cameraData = nullptr;
 
 	size_t size_;
+
+	std::vector<Transform> transforms;
 public:
 	Transform transform;
+
+	Model* model = nullptr;
 
 	Matrix4x4 mat_;
 
 	// 親となるワールド変換へのポインタ
 	const Object3d* parent_ = nullptr;
 
-	std::vector<Transform> transforms;
+	//std::vector<Transform> transforms;
 };
 
 

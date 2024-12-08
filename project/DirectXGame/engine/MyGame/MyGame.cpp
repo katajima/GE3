@@ -46,12 +46,30 @@ void MyGame::Update()
 
 	Framework::Update();
 
+#ifdef _DEBUG
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
+	lastTime = currentTime;
+
+	if (deltaTime > 0) {
+		fps = 1.0f / deltaTime;
+	}
+
+	// FPS表示用ウィジェット
+	ImGui::Begin("engine");
+	ImGui::Text("FPS: %.2f", fps);
+	ImGui::End();
+
+#endif // _DEBUG
+
 	// グローバル変数の更新
 	GlobalVariables::GetInstance()->Update();
 
+	lightCommon->Update();
+
+
 	SceneManager::GetInstance()->Update();
 	
-	lightCommon->Update();
 	
 	particleManager_->Update();
 	
@@ -73,7 +91,9 @@ void MyGame::Draw()
 	SceneManager::GetInstance()->DrawP3D();
 
 	//// 3Dオブジェクトの描画準備
-	//Object3dCommon::GetInstance()->DrawCommonSetting();
+	Object3dCommon::GetInstance()->DrawCommonSetting();
+	
+	LightCommon::GetInstance()->DrawLight();
 
 	SceneManager::GetInstance()->Draw3D();
 

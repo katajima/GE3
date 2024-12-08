@@ -44,11 +44,7 @@ void SpriteCommon::CreateRootSignature()
 	descriptorRange[0].NumDescriptors = 1; // 数は1つ
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
-	//descriptorRange[1].BaseShaderRegister = 0; // 0から始まる
-	//descriptorRange[1].NumDescriptors = 3; // 数は1つ
-	//descriptorRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV; // CBVを使う
-	//descriptorRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
-
+	
 	// Roosignature(ルートシグネチャ)作成
 	//ShaderとResorceをどのように関連付けるかを示したオブジェクト
 

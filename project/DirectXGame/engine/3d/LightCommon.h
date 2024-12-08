@@ -35,6 +35,9 @@ private:
 		std::vector<std::unique_ptr<LineDraw>>& lines);
 
 private:
+	const uint32_t kNumMaxInstance = 1000;
+
+
 	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
 	DirectionalLight* directionalLightData = nullptr;
 
@@ -45,11 +48,16 @@ private:
 	};
 	std::vector < std::unique_ptr<PointLights>> pointLights;*/
 
+
 	Microsoft::WRL::ComPtr < ID3D12Resource> pointLightResource;
 	PointLight* pointLightData = nullptr;
+	//std::vector<PointLight> pointLightData;
+	const int pointMax = 3;
+
 
 	Microsoft::WRL::ComPtr < ID3D12Resource> spotLightResource;
 	SpotLight* spotLightData = nullptr;
+	const int spotMax = 3;
 
 
 	std::vector<std::unique_ptr<LineDraw>> pointLightLines_;

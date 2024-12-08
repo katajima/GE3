@@ -15,6 +15,7 @@ struct PointLight {
 	float radius;    // ライトの届く距離
 	float decay;     // 減衰率
 	float padding[2];
+	int32_t isLight;
 };
 
 struct SpotLight
@@ -28,4 +29,5 @@ struct SpotLight
 	float cosAngle; //!< スポットライトの余弦
 	float cosFalloffStart;
 	float padding[2];
+	int32_t isLight;
 };

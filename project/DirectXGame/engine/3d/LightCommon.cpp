@@ -21,26 +21,40 @@ void LightCommon::Initialize()
 	*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
 
 
-	pointLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(PointLight));
-	pointLightData = nullptr;
+
+
+
+
+
+	pointLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource((sizeof(PointLight) * kNumMaxInstance));
+	//pointLightData;// = nullptr;
 	pointLightResource->Map(0, nullptr, reinterpret_cast<void**>(&pointLightData));
 
 
 	//今回は赤を書き込んで見る //白
-	*pointLightData = PointLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,-10.0f }, 100.0f);
-	pointLightData->radius = 10.0f;
-	pointLightData->intensity = 1.0f;
-
+	pointLightData[0] = PointLight({1.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,-10.0f}, 100.0f);
+	pointLightData[0].radius = 10.0f;
+	pointLightData[0].intensity = 1.0f;
+	pointLightData[0].isLight = true;
+	pointLightData[1] = PointLight({0.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,10.0f}, 100.0f);
+	pointLightData[1].radius = 10.0f;
+	pointLightData[1].intensity = 1.0f;
+	pointLightData[1].isLight = true;
 
 
 	//平行光源用のリソースを作る
-	spotLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(SpotLight));
+	spotLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(SpotLight) * kNumMaxInstance);
 	spotLightResource->Map(0, nullptr, reinterpret_cast<void**>(&spotLightData));
 	//今回は赤を書き込んで見る //白
-	*spotLightData = SpotLight({ 1.0f,1.0f,1.0f,1.0f }, { 2.0f,1.25f,0.0f }, 700.0f, Normalize({ -1.0f,-1.0f,0.0f }), 4.0f, 2.0f, std::cos(std::numbers::pi_v<float> / 3.0f), 1.0f);
-	spotLightData->position = Vector3(10,10,10);
+
+	for (int i = 0; i < spotMax; i++) {
+		spotLightData[i] = SpotLight({1.0f,1.0f,1.0f,1.0f}, {2.0f,1.25f,0.0f}, 10.0f, Normalize({-1.0f,-1.0f,0.0f}), 4.0f, 2.0f, std::cos(std::numbers::pi_v<float> / 3.0f), 1.0f);
+		spotLightData[i].position = Vector3(10, 10, 10);
+		spotLightData[i].isLight = false;
+	}
 
 	
+
 }
 
 void LightCommon::Finalize()
@@ -65,7 +79,7 @@ void LightCommon::DrawLight()
 void LightCommon::SetLineCamera(Camera* camera)
 {
 	for (int i = 0; i < pointLightLines_.size(); i++) {
-		pointLightLines_[i]->SetCamera(camera);
+		//pointLightLines_[i]->SetCamera(camera);
 	}
 	for (int i = 0; i < spotLightLines_.size(); i++) {
 		spotLightLines_[i]->SetCamera(camera);
@@ -79,7 +93,7 @@ void LightCommon::Update()
 
 	if (ImGui::CollapsingHeader("Light")) {
 
-		if (ImGui::BeginTabBar("Light"))
+		if (ImGui::BeginTabBar("directionalLightData"))
 		{
 			if (ImGui::BeginTabItem("directionalLightData"))
 			{
@@ -91,31 +105,55 @@ void LightCommon::Update()
 				ImGui::ColorEdit4("color", &directionalLightData->color.x);
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("pointLightData")) {
-				ImGui::DragFloat3("position", &pointLightData->position.x, 0.1f);
-				ImGui::DragFloat("intensity", &pointLightData->intensity, 0.1f);
-				if (0 >= pointLightData->intensity)
-					pointLightData->intensity = 0;
-				ImGui::DragFloat("direction", &pointLightData->decay, 0.1f);
-				ImGui::DragFloat("radius", &pointLightData->radius, 0.1f);
+		}
+		ImGui::EndTabBar();
+		if (ImGui::BeginTabBar("pointLightData"))
+		{
+			for (int i = 0; i < 2; i++) {
+				std::string str = "light" + std::to_string(i);
+				if (ImGui::BeginTabItem(str.c_str())) {
+					bool is = pointLightData[i].isLight;
+					ImGui::Checkbox("isLighting", &is);
+					pointLightData[i].isLight = is;
+					ImGui::DragFloat3("position", &pointLightData[i].position.x, 0.1f);
+					ImGui::DragFloat("intensity", &pointLightData[i].intensity, 0.1f);
+					if (0 >= pointLightData[i].intensity)
+						pointLightData[i].intensity = 0;
+					ImGui::DragFloat("decay", &pointLightData[i].decay, 0.1f);
+					ImGui::DragFloat("radius", &pointLightData[i].radius, 0.1f);
 
-				ImGui::ColorEdit4("color", &pointLightData->color.x);
-				ImGui::EndTabItem();
+					ImGui::ColorEdit4("color", &pointLightData[i].color.x);
+					ImGui::EndTabItem();
+				}
 			}
-			if (ImGui::BeginTabItem("spotLightData")) {
-				ImGui::DragFloat3("position", &spotLightData->position.x, 0.1f);
-				ImGui::DragFloat3("direction", &spotLightData->direction.x, 0.1f);
-				spotLightData->direction = Normalize(spotLightData->direction);
-				ImGui::DragFloat("intensity", &spotLightData->intensity, 0.1f);
-				if (0 >= spotLightData->intensity)
-					spotLightData->intensity = 0;
-				ImGui::DragFloat("distance", &spotLightData->distance, 0.1f);
-				ImGui::DragFloat("decay", &spotLightData->decay, 0.1f);
-				ImGui::DragFloat("cosFalloffStart", &spotLightData->cosFalloffStart, 0.1f);
-				ImGui::DragFloat("cosAngle", &spotLightData->cosAngle, 0.1f);
-				
-				ImGui::ColorEdit4("color", &spotLightData->color.x);
-				ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+		if (ImGui::BeginTabBar("spotLightData"))
+		{
+			for (int i = 0; i < spotMax; i++) {
+				std::string str = "light" + std::to_string(i);
+				if (ImGui::BeginTabItem(str.c_str())) {
+					bool is = spotLightData[i].isLight;
+					ImGui::Checkbox("isLighting", &is);
+					spotLightData[i].isLight = is;
+
+					ImGui::DragFloat3("position", &spotLightData[i].position.x, 0.1f);
+					
+					ImGui::DragFloat3("direction", &spotLightData[i].direction.x, 0.1f);
+					spotLightData[i].direction = Normalize(spotLightData[i].direction);
+					
+					ImGui::DragFloat("intensity", &spotLightData[i].intensity, 0.1f);
+					if (0 >= spotLightData[i].intensity)
+						spotLightData[i].intensity = 0;
+					ImGui::DragFloat("distance", &spotLightData[i].distance, 0.1f);
+					
+					ImGui::DragFloat("decay", &spotLightData[i].decay, 0.1f);
+					ImGui::DragFloat("cosFalloffStart", &spotLightData[i].cosFalloffStart, 0.1f);
+					ImGui::DragFloat("cosAngle", &spotLightData[i].cosAngle, 0.01f);
+
+					ImGui::ColorEdit4("color", &spotLightData[i].color.x);
+					ImGui::EndTabItem();
+				}
 			}
 		}
 		ImGui::EndTabBar();
@@ -126,7 +164,7 @@ void LightCommon::Update()
 		spotLightLines_[i]->Update();
 	}
 	for (int i = 0; i < pointLightLines_.size(); i++) {
-		pointLightLines_[i]->Update();
+		//pointLightLines_[i]->Update();
 	}
 #endif
 }
@@ -134,7 +172,7 @@ void LightCommon::Update()
 
 void LightCommon::DrawLightLine() {
 	// PointLight のライン描画
-	DrawLineWithLines(pointLightData->position, Vector3{ 1, 1, 1 }, pointLightLines_);
+	//DrawLineWithLines(pointLightData->position, Vector3{ 1, 1, 1 }, pointLightLines_);
 
 	// SpotLight のライン描画
 	DrawLineWithLines(spotLightData->position, Vector3{ 1, 1, 1 }, spotLightLines_);
