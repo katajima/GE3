@@ -10,6 +10,7 @@
 class ParticleEmitter
 {
 public:
+	// count: パーティクルの最大生成数を指定する値。frequency: パーティクルの発射間隔を秒単位で指定する値。frequencyTime: 現在の発射間隔の経過時間を追跡する値。
 	ParticleEmitter(std::string name,Transform transform, uint32_t count, float frequency, float frequencyTime);
 
 

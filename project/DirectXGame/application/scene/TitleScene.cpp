@@ -1,6 +1,7 @@
 #include"TitleScene.h"
 
 
+
 void TitleScene::Initialize()
 {
 	//オーディオの初期化
@@ -15,39 +16,40 @@ void TitleScene::Initialize()
 
 
 	particleManager_ = ParticleManager::GetInstance();
-	particleManager_->emitAABB.center = Vector3{ 0,0,0 };
-	particleManager_->emitAABB.max = Vector3{ 1.0f,1.0f,1.0f };
-	particleManager_->emitAABB.min = Vector3{ -100.0f,-1.0f,-1.0f };
 
-	particleManager_->CreateParticleGroup("aa", "resources/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"));
-	particleManager_->SetCamera(camera.get());
+	ParticleManager::GetInstance()->CreateParticleGroup("aa", "resources/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
+	ParticleManager::GetInstance()->SetCamera(camera.get());
+
+	particleManager2_ = ParticleManager::GetInstance();
+	ParticleManager::GetInstance()->CreateParticleGroup("bb", "resources/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
+	ParticleManager::GetInstance()->SetCamera(camera.get());
+
+	ParticleManager::GetInstance()->SetPos("aa",{0,0,0});
+	ParticleManager::GetInstance()->SetPos("bb",{10,0,0});
+
 
 	//particleManager_->Emit("aa", Vector3(100.0f, 10.0f, 0.0f) , 100);
-	emitter_ =   new ParticleEmitter("aa", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), particleManager_->emitAABB.center }, 100, 2.0f, 1.0f);
-	emitter_->Emit();
+	emitter_ = new ParticleEmitter("aa", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
 
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
 	mm.SetModel("building.obj");
-	mm.transform.translate = {30,1,1};
+	mm.transform.translate = { 30,1,1 };
 	mm.SetCamera(camera.get());
 
-	LineCommon::GetInstance()->SetDefaltCamera(camera.get());
-	lineDraw_.Initialize(LineCommon::GetInstance());
-	lineDraw_.SetCamera(camera.get());
-	lineDraw2_.Initialize(LineCommon::GetInstance());
-	lineDraw2_.SetCamera(camera.get());
-	
-	str = { 0,0,0 };
-	end = { 10,0,10 };
+	mm2.Initialize();
+	mm2.SetModel("teapot.obj");
+	mm2.transform.translate = { -30,10,1 };
+	mm2.transform.scale = { 10,10,10 };
+	mm2.SetCamera(camera.get());
 
-	for (int i = 0; i < 24; i++) {
-		auto line = std::make_unique<LineDraw>();
-		line->Initialize(LineCommon::GetInstance());
-		line->SetCamera(camera.get());
+	tail.Initialize();
+	tail.SetModel("plane.obj");
+	tail.SetCamera(camera.get());
+	tail.transform.rotate.x = DegreesToRadians(-90);
+	tail.transform.scale = { 100,100,100 };
 
-		line_.push_back(std::move(line));
-	}
+
 }
 
 void TitleScene::Finalize()
@@ -56,67 +58,103 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
+
 	camera->UpdateMatrix();
+	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
 #ifdef _DEBUG
-	ImGui::Begin("Camera");
-	//ImGui::DragFloat3("cameraDebugT", &cameraDebugT.x, 0.1f);
-	//ImGui::DragFloat3("cameraDebugR", &cameraDebugR.x, 0.01f);
-	ImGui::DragFloat3("Translate", &camera->transform_.translate.x,0.1f);
-	//ImGui::DragFloat3("cameraT", &cameraT.x, 0.1f);
-	ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x,0.01f);
-	//ImGui::DragFloat3("CameraR", &cameraR.x, 0.01f);
-	ImGui::Checkbox("flag", &flag);
+	
+
+	ImGui::Begin("engine");
+
+	if (ImGui::CollapsingHeader("Matelial")) {
+		bool is = mm.model->materialData->enableLighting;
+		ImGui::Checkbox("is", &is);
+		mm.model->materialData->enableLighting = is;
+		mm2.model->materialData->enableLighting = is;
+		tail.model->materialData->enableLighting = is;
+
+		bool is2 = mm.model->materialData->useLig;
+		ImGui::Checkbox("useLig", &is2);
+		mm.model->materialData->useLig = is2;
+		mm2.model->materialData->useLig = is2;
+		tail.model->materialData->useLig = is2;
+
+		bool is3 = mm.model->materialData->useHim;
+		ImGui::Checkbox("useHim", &is3);
+		mm.model->materialData->useHim = is3;
+		mm2.model->materialData->useHim = is3;
+		tail.model->materialData->useHim = is3;
+	}
+
+	if (ImGui::CollapsingHeader("Gizmos")) {
+		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
+		ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
+		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
+
+	}
+	if (ImGui::CollapsingHeader("Camera")) {
+		ImGui::DragFloat3("Translate", &camera->transform_.translate.x, 0.1f);
+		ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x, 0.01f);
+		ImGui::Checkbox("flag", &flag);
+		if (ImGui::Button("cameraPos")) {
+			camera->transform_.translate = { 0,20,-175 };
+			camera->transform_.rotate = { 0,0,0 };
+		}
+		if (ImGui::Button("cameraPos2")) {
+			camera->transform_.translate = { -30,10,-140 };
+			camera->transform_.rotate = { 0,0,0 };
+		}
+
+	}
+
+	if (ImGui::TreeNode("Test")) {
+		ImGui::Text("Camera1");
+		ImGui::SliderFloat("値", &camera->transform_.rotate.x, 0.0f, 1.0f);
+		//ImGui::TreePop();
+		ImGui::Text("Camera2");
+		ImGui::SliderFloat("値", &camera->transform_.rotate.x, 0.0f, 1.0f);
+		ImGui::TreePop();
+	}
+
+	
 	ImGui::End();
 #endif
-	//camera->transform_.rotate = cameraDebugR;
-	//camera->transform_.translate = cameraDebugT;
 
-	if (Input::GetInstance()->TriggerKey(DIK_RETURN)) {
+	if (Input::GetInstance()->IsTriggerKey(DIK_RETURN)) {
 		// シーン切り替え
-		SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+		//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	}
-	
-	// 列車
-	title->Update();
+
 
 	mm.Update();
+	mm2.Update();
+
+	tail.Update();
 
 	emitter_->Update();
-
-	lineDraw_.Update();
-	lineDraw2_.Update();
-
-	for (size_t i = 0; i < 24; i += 2) {
-		line_[i]->Update();
-	}
-
-	ImGui::Begin("line");
-	ImGui::DragFloat3("str", &str.x, 0.1f);
-	ImGui::DragFloat3("end", &end.x, 0.1f);
-	ImGui::End();
-
 }
 
 void TitleScene::Draw3D()
 {
-	mm.Draw();
-	title->Draw();
+	tail.Draw();
 
-	
+	mm.Draw();
+	mm2.Draw();
 }
 
 void TitleScene::DrawP3D()
 {
-	particleManager_->GetInstance()->Draw();
+	ParticleManager::GetInstance()->GetInstance()->Draw();
 }
 
 void TitleScene::DrawLine3D()
 {
-	particleManager_->GetInstance()->DrawAABB(line_);
+	ParticleManager::GetInstance()->GetInstance()->DrawAABB();
+	//particleManager2_->GetInstance()->DrawAABB();
 
-	lineDraw_.Draw3D(str, end, Vector4{ 1,1,1,1 });
-	lineDraw2_.Draw3D(str, Vector3(-10,10,0), Vector4{1,1,0,1});
+	//LightCommon::GetInstance()->DrawLightLine();
+
 }
 
 void TitleScene::Draw2D()
@@ -128,19 +166,13 @@ void TitleScene::InitializeResources()
 	// オブジェクト3D
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
-	// 列車オブジェクトを unique_ptr で作成
-	title = std::make_unique<Object3d>();
-	title->Initialize();
-	//title->SetModel("title.obj");
-	title->SetCamera(camera.get());
-	title->transform.translate = { 0,0,20 };
 }
 
 void TitleScene::InitializeCamera()
 {
 	camera = std::make_unique <Camera>();
-	camera->transform_.rotate = { 0.0f,0,0 };
-	camera->transform_.translate = { 0,0,-30.0f };
+	camera->transform_.rotate = { 1.0f,0,0 };
+	camera->transform_.translate = { 0,100,-60.0f };
 
 	/*cameraDebugT = camera->transform_.translate;
 	cameraDebugR = camera->transform_.rotate;*/

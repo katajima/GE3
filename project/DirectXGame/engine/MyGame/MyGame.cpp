@@ -46,15 +46,33 @@ void MyGame::Update()
 
 	Framework::Update();
 
+#ifdef _DEBUG
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
+	lastTime = currentTime;
+
+	if (deltaTime > 0) {
+		fps = 1.0f / deltaTime;
+	}
+
+	// FPS表示用ウィジェット
+	ImGui::Begin("engine");
+	ImGui::Text("FPS: %.2f", fps);
+	ImGui::End();
+
+#endif // _DEBUG
+
 	// グローバル変数の更新
 	GlobalVariables::GetInstance()->Update();
+
+	lightCommon->Update();
+
 
 	SceneManager::GetInstance()->Update();
 	
 	
 	particleManager_->Update();
-	//ParticleManager::GetInstance()->Update();
-
+	
 	// ImGuiの受付終了
 	imguiManager->End();
 }
@@ -68,16 +86,18 @@ void MyGame::Draw()
 	//////////////---------3Dモデル-------------///////////////
 
 	
-	ParticleManager::GetInstance()->DrawCommonSetting();
+	//ParticleManager::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->DrawP3D();
 
 	//// 3Dオブジェクトの描画準備
 	Object3dCommon::GetInstance()->DrawCommonSetting();
+	
+	LightCommon::GetInstance()->DrawLight();
 
 	SceneManager::GetInstance()->Draw3D();
 
-	LineCommon::GetInstance()->DrawCommonSetting();
+	//LineCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->DrawLine3D();
 
@@ -115,6 +135,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("axis2.obj");
 	ModelManager::GetInstance()->LoadModel("train.obj");
+	ModelManager::GetInstance()->LoadModel("teapot.obj");
 	
 	ModelManager::GetInstance()->LoadModel("building.obj");
 	ModelManager::GetInstance()->LoadModel("Sphere.obj");

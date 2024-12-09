@@ -1,5 +1,7 @@
 #pragma once
 #include"DirectXGame/engine/struct/Structs.h"
+#include"DirectXGame/engine/struct/Material.h"
+
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
@@ -71,19 +73,8 @@ private:
 		Vector2 texcoord;
 		Vector3 normal;
 	};
-	//マテリアルデータ
-	struct Material {
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-	};
-	// 座標変換行列データ
-	struct TransfomationMatrix
-	{
-		Matrix4x4 WVP;
-		Matrix4x4 World;
-	};
+	
+	
 	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
 	Vector2 size = { 640.0f,360.0f };

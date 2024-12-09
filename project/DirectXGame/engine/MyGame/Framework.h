@@ -13,6 +13,7 @@
 #include"DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
+#include"DirectXGame/engine/3d/LightCommon.h"
 #include"DirectXGame/engine/base/Camera.h"
 #include"DirectXGame/engine/base/SrvManager.h"
 #include"DirectXGame/engine/base/ParticleManager.h"
@@ -79,6 +80,8 @@ protected:
 	ParticleManager* particleManager_ = nullptr;
 	
 	ParticleEmitter* emitter = nullptr;
+
+	LightCommon* lightCommon = nullptr;
 
 	// シーンファクトリー
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_;

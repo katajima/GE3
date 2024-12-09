@@ -63,7 +63,7 @@ void WinApp::Initialize()
 	hwnd = CreateWindow(
 
 		wc.lpszClassName,      // 利用するクラス
-		L"GE3",				   // タイトルバーの文字 (何でもいい)
+		L"LE2A_09_カタジマ_ロウノシン",	// タイトルバーの文字 (何でもいい)
 		WS_OVERLAPPEDWINDOW,   // よく見るウィンドウスタイル
 		CW_USEDEFAULT,		   // 表示X座標 (windousに任せる)
 		CW_USEDEFAULT,		   // 表示Y座標 (WindowsOSに任せる)

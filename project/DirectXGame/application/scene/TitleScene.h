@@ -8,6 +8,7 @@
 #include "DirectXGame/engine/input/Input.h"
 #include "DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/3d/Object3dCommon.h"
+#include"DirectXGame/engine/3d/LightCommon.h"
 #include"DirectXGame/engine/2d/SpriteCommon.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include "DirectXGame/engine/base/ParticleManager.h"
@@ -57,25 +58,28 @@ private:
 	bool flag = false;
 
 	// 列車のオブジェクト
-	std::unique_ptr<Object3d> title;
+	
+	ParticleManager* particleManager_;
+	ParticleManager* particleManager2_;
 
-	ParticleManager* particleManager_;// ->CreateParticleGroup("aa", "resources/uvChecker.png");
 
 	ParticleEmitter* emitter_;
 
 	ModelManager* modelm_;
 
 	Object3d mm;
+	Object3d mm2;
+	Object3d tail;
 
 	
+
 	LineDraw lineDraw_;
 	LineDraw lineDraw2_;
 
 	Vector3 str;
 	Vector3 end;
 
-
-	std::vector < std::unique_ptr <LineDraw>> line_;
+	ImGuiManager* imgM_;
 
 };
 

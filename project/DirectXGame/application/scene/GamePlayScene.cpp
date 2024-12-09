@@ -330,16 +330,16 @@ void GamePlayScene::UpdateImGui()
 
 
 
-	if (Input::GetInstance()->PushKey(DIK_UP)) {
+	if (Input::GetInstance()->IsPushKey(DIK_UP)) {
 		cameraDebugT.z += 0.5f;
 	}
-	else if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+	else if (Input::GetInstance()->IsPushKey(DIK_DOWN)) {
 		cameraDebugT.z -= 0.5f;
 	}
-	if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+	if (Input::GetInstance()->IsPushKey(DIK_RIGHT)) {
 		cameraDebugT.x += 0.5f;
 	}
-	else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+	else if (Input::GetInstance()->IsPushKey(DIK_LEFT)) {
 		cameraDebugT.x -= 0.5f;
 	}
 
@@ -494,16 +494,16 @@ void GamePlayScene::UpdateReticle()
 {
 
 	// 押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_A)) {
+	if (input_->IsPushKey(DIK_A)) {
 		reticlePos_.x -= 0.01f;
 	}
-	else if (input_->PushKey(DIK_D)) {
+	else if (input_->IsPushKey(DIK_D)) {
 		reticlePos_.x += 0.01f;
 	}
-	if (input_->PushKey(DIK_W)) {
+	if (input_->IsPushKey(DIK_W)) {
 		reticlePos_.y -= 0.01f;
 	}
-	else if (input_->PushKey(DIK_S)) {
+	else if (input_->IsPushKey(DIK_S)) {
 		reticlePos_.y += 0.01f;
 	}
 
@@ -550,7 +550,7 @@ void GamePlayScene::UpdateLaser()
 
 
 	// エネルギー
-	if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+	if (Input::GetInstance()->IsPushKey(DIK_RETURN)) {
 		energy_ -= 0.5f;
 	}
 	else {
@@ -606,22 +606,22 @@ void GamePlayScene::Update()
 	else {
 #ifdef _DEBUG
 
-		if (Input::GetInstance()->PushKey(DIK_UP)) {
+		if (Input::GetInstance()->IsPushKey(DIK_UP)) {
 			cameraDebugT.z += 0.5f;
 		}
-		else if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+		else if (Input::GetInstance()->IsPushKey(DIK_DOWN)) {
 			cameraDebugT.z -= 0.5f;
 		}
-		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+		if (Input::GetInstance()->IsPushKey(DIK_RIGHT)) {
 			cameraDebugT.x += 0.5f;
 		}
-		else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+		else if (Input::GetInstance()->IsPushKey(DIK_LEFT)) {
 			cameraDebugT.x -= 0.5f;
 		}
-		if (Input::GetInstance()->PushKey(DIK_O)) {
+		if (Input::GetInstance()->IsPushKey(DIK_O)) {
 			cameraDebugT.y += 0.5f;
 		}
-		else if (Input::GetInstance()->PushKey(DIK_L)) {
+		else if (Input::GetInstance()->IsPushKey(DIK_L)) {
 			cameraDebugT.y -= 0.5f;
 		}
 #endif // _DEBUG
@@ -740,7 +740,7 @@ void GamePlayScene::ChekAllCollisions()
 
 		Segment segment = { origin, diff };
 
-		if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+		if (Input::GetInstance()->IsPushKey(DIK_RETURN)) {
 			if (enemy->GetAlive() && IsCollision(sphere, segment)) {
 				// 衝突が検出されたらフラグを立てる
 
@@ -759,7 +759,7 @@ void GamePlayScene::ChekAllCollisions()
 
 	// 衝突した場合は黒に、していない場合は元の色に戻す
 	if (isCollisionDetected) {
-		if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+		if (Input::GetInstance()->IsPushKey(DIK_RETURN)) {
 			sprite2DReticle_->SetColor(Vector4(0, 0, 0, 1)); // 黒
 		}
 	}
@@ -941,7 +941,7 @@ void GamePlayScene::Draw3D()
 	// レチクル
 	//object3DReticle_.Draw();
 
-	if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+	if (Input::GetInstance()->IsPushKey(DIK_RETURN)) {
 		// レーザー
 		//laser.Draw();
 	}

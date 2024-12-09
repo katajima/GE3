@@ -41,6 +41,10 @@ void Framework::Initialize()
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Initialize(dxCommon.get());
 
+	//ライト
+	lightCommon = LightCommon::GetInstance();
+	lightCommon->Initialize();
+
 	// テクスチャマネージャ
 	TextureManager::GetInstance()->Initialize(dxCommon.get());
 	
@@ -66,6 +70,8 @@ void Framework::Finalize()
 	particleManager_->Finalize();
 
 	lineCommon->Finalize();
+
+	lightCommon->Finalize();
 }
 
 void Framework::Update()

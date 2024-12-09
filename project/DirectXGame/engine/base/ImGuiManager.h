@@ -6,6 +6,12 @@
 #include<dxcapi.h>
 #include<wrl.h>
 #include "SrvManager.h"
+#include "ImGuizmo.h"
+#include"DirectXGame/engine/struct/Structs.h"
+#include"DirectXGame/engine/math/MathFanctions.h"
+#include "DirectXGame/engine/input/Input.h"
+#include "DirectXGame/engine/3d/Object3d.h"
+#include "DirectXGame/engine/base/Camera.h"
 
 // 前方宣言
 class WinApp;
@@ -43,6 +49,11 @@ public:
 	/// </summary>
 	void Draw();
 
+	// ギズモの使用例
+	void RenderGizmo2(Object3d& obj, const Camera& camera, const char* name);
+
+	void SetCustomColorScheme();
+
 private:
 
 	// DirectX基盤インスタンス（借りてくる）
@@ -50,6 +61,9 @@ private:
 	// SRV用ヒープ
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_;
 
+	Input::FlagXYZ flag;
+
 };
+
 
 

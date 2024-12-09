@@ -1,6 +1,7 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include "DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/struct/Light.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>
@@ -52,8 +53,7 @@ public:
 private:
 	Camera* camera = nullptr;
 
-	Model* model = nullptr;
-
+	
 	//Object3dCommon* object3dCommon_ = nullptr;
 
 	// 頂点データ
@@ -63,12 +63,7 @@ private:
 		Vector2 texcoord;
 		Vector3 normal;
 	};
-	//マテリアルデータ
-	struct MaterialData {
-		std::string textuerFilePath;
-		//テクスチャ番号
-		uint32_t textureIndex = 0;
-	};
+	
 	//モデルデータ
 	struct ModelData
 	{
@@ -77,25 +72,8 @@ private:
 		std::vector<VertexData> indicesPos;
 		MaterialData material;
 	};
-	//マテリアルデータ
-	struct Material {
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-	};
-	// 座標変換行列データ
-	struct TransfomationMatrix
-	{
-		Matrix4x4 WVP;
-		Matrix4x4 World;
-	};
-	// 平行高原
-	struct DirectionalLight {
-		Vector4 color; //!< ライトの色
-		Vector3 direction; //!< ライトの向き
-		float intensity; //!< 輝度
-	};
+	
+	
 	
 
 	TransfomationMatrix* transfomationMatrixData;
@@ -106,20 +84,32 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
 	DirectionalLight* directionalLightData = nullptr;
 
+	Microsoft::WRL::ComPtr < ID3D12Resource> pointLightResource;
+	PointLight* pointLightData = nullptr;
+
+	Microsoft::WRL::ComPtr < ID3D12Resource> spotLightResource;
+	SpotLight* spotLightData = nullptr;
 	
 	std::vector<TransfomationMatrix*> InstanseTransfomationMatrixData;
 	std::vector<Microsoft::WRL::ComPtr < ID3D12Resource>> InstanseTransformationMatrixResource;
 
+	Microsoft::WRL::ComPtr < ID3D12Resource> cameraResource;
+	CameraGPU* cameraData = nullptr;
+
 	size_t size_;
+
+	std::vector<Transform> transforms;
 public:
 	Transform transform;
+
+	Model* model = nullptr;
 
 	Matrix4x4 mat_;
 
 	// 親となるワールド変換へのポインタ
 	const Object3d* parent_ = nullptr;
 
-	std::vector<Transform> transforms;
+	//std::vector<Transform> transforms;
 };
 
 

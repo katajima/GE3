@@ -13,7 +13,13 @@
 #include<wrl.h>
 #include"DirectXGame/engine/base/TextureManager.h"
 #include"DirectXGame/engine/struct/Structs.h"
+#include"DirectXGame/engine/math/MathFanctions.h"
+
 #include <iostream>
+
+#include"DirectXGame/engine/base/ImGuiManager.h"
+#include"LightCommon.h"
+
 
 void Object3d::Initialize()
 {
@@ -33,22 +39,26 @@ void Object3d::Initialize()
 	transfomationMatrixData->World = MakeIdentity4x4();
 
 
-	//平行光源用のリソースを作る
-	directionalLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(DirectionalLight));
-	directionalLightData = nullptr;
-	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-	//今回は赤を書き込んで見る //白
-	*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
 
 
+	cameraResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(CameraGPU));
+	//書き込むためのアドレスを取得
+	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
+
+
+
+	cameraData->worldPosition = Vector3{ 1.0f,1.0f,1.0f };
+	cameraData->normal = { 0,0,0 };
 
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-	
+
+
 }
 
 void Object3d::Update()
 {
+	
 	//assert(model);
 	mat_ = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix;
@@ -57,30 +67,38 @@ void Object3d::Update()
 		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
 		worldViewProjectionMatrix = Multiply(mat_, viewMatrix);
 		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, projectionMatrix);
+
+		// カメラの法線方向
+		Vector3 cameraFront = Vector3(viewMatrix.m[0][2], viewMatrix.m[1][2], viewMatrix.m[2][2]); // 法線ベクトルを正規化
+		cameraFront = Normalize(cameraFront);
+		
+		cameraData->normal = cameraFront;
+		cameraData->worldPosition = camera->transform_.translate;
 	}
 	else {
 		worldViewProjectionMatrix = mat_;
 	}
 
-	
+
+	//cameraData->worldPosition = camera->transform_.translate;
 
 	transfomationMatrixData->World = mat_;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;
+	transfomationMatrixData->worldInverseTranspose = Transpose(Inverse(mat_));
 
-	if (parent_) {
-		mat_ = Multiply(mat_, parent_->mat_);
-	}
 
-	
 }
 
 void Object3d::Draw()
 {
-	////------平行光源用------////
-	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+
 
 	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
-	
+
+	// Cameraのバインド
+	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
+
+
 	// 3Dモデルが割り当てれていれば描画する
 	if (model) {
 		model->Draw();
@@ -150,7 +168,7 @@ void Object3d::DrawInstance()
 {
 	////------平行光源用------////
 	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
-	
+
 	// 3Dモデルが割り当てられている場合のみ描画
 	if (model) {
 		for (size_t i = 0; i < size_; i++) {

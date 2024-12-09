@@ -14,6 +14,7 @@ using namespace Microsoft::WRL;
 #include"externals/DirectXTex/d3dx12.h"
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include"DirectXGame/engine/struct/Structs.h"
+#include"DirectXGame/engine/struct/Material.h"
 #include"DirectXCommon.h"
 #include"SrvManager.h"
 #include<random>
@@ -23,6 +24,8 @@ using namespace Microsoft::WRL;
 #include "DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/3d/Line.h"
 #include"DirectXGame/engine/3d/LineCommon.h"
+
+
 
 
 struct ParticleForGPU
@@ -38,12 +41,7 @@ struct VertexData {
 	Vector2 texcoord;
 	Vector3 normal;
 };
-//マテリアルデータ
-struct MaterialData {
-	std::string textuerFilePath;
-	//テクスチャ番号
-	uint32_t textureIndex = 0;
-};
+
 struct  Node
 {
 	Matrix4x4 localMatrix;
@@ -59,9 +57,59 @@ struct ModelData
 };
 
 
+
+
 class ParticleManager
 {
 public:
+
+	// 
+	enum class EmitType
+	{
+		kRandom,   // ランダム
+		kConstant, // 定数
+	};
+
+#pragma region structs
+	template<typename T>
+	struct MaxMin
+	{
+		T min;
+		T max;
+	};
+	struct Constant {
+		Vector3 centar;
+		Vector4 color;
+		Vector3 size;
+		Vector3 rotate;
+		float lifeTime;
+		Vector3 velocity;
+	};
+
+
+	// エミッター構造体
+	struct Emiter
+	{
+		Vector3 center;
+
+		// ランダム用
+		MaxMin<Vector3> renge;     //出現位置 (Vector3の範囲)
+		MaxMin<Vector4> color;     // 色 (Vector3の範囲)
+		MaxMin<Vector3> size;        // 大きさ (floatの範囲)
+		MaxMin<Vector3> rotate;      // 回転 (floatの範囲)
+		MaxMin<float> lifeTime;    // 生存時間 (floatの範囲)
+		MaxMin<Vector3> velocity;  // 速度 (Vector3の範囲)
+
+		// 定数用
+		Constant cons;
+
+
+
+		float frequency_;		// < 発生頻度
+		float frequencyTime_;	// < 頻度用時刻
+		float count;
+	};
+
 	struct Particle
 	{
 		Transform transform;
@@ -74,9 +122,10 @@ public:
 		Vector3 acceleration;
 		AABB area;
 	};
+
 	struct ParticleGroup
 	{
-
+		std::string name; // 名前
 		MaterialData materialData;
 		std::list<Particle> particle;
 		uint32_t srvIndex;
@@ -87,17 +136,18 @@ public:
 		D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
 		D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
 		Model* model;
-
+		Emiter emiter;
+		std::vector < std::unique_ptr <LineDraw>> line_;
+		bool usebillboard = true;
+		bool isAlpha = false;
+		bool isLine = true;
+		EmitType emitType = EmitType::kRandom; // 
 	};
 
-	//Emit
-	struct EmiterAABB
-	{
-		Vector3 center;
-		Vector3 min;
-		Vector3 max;
-	};
-	EmiterAABB emitAABB;
+	
+	
+#pragma endregion // 構造体
+
 public:
 	// シングルトンインスタンス
 	static ParticleManager* GetInstance();
@@ -121,17 +171,29 @@ public:
 		return particleGroups;
 	}
 
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model);
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera);
 
 	void SetCamera(Camera* camera) { this->camera = camera; }
 
-	void DrawAABB(/*const EmiterAABB& emitAABB, */std::vector<std::unique_ptr<LineDraw>>& lineDraw_);
+	void DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std::unique_ptr<LineDraw>>& lineDraw_*/);
 
+	void SetPos(const std::string name,const Vector3& position);
+	
 private:
 	// ルートシグネチャの作成
 	void CreateRootSignature();
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
+
+	// minmax
+	void LimitMaxMin();
+
+	// ランダム
+	void RandParticle(const std::string name, const Vector3& position);
+
+	// 定数
+	void ConstantParticle(const std::string name, const Vector3& position);
+
 private:
 	static ParticleManager* instance;
 	ParticleManager() = default;
@@ -143,21 +205,10 @@ private:
 	SrvManager* srvManager_ = nullptr;
 
 
-	//// 平行高原
-	struct DirectionalLight {
-		Vector4 color; //!< ライトの色
-		Vector3 direction; //!< ライトの向き
-		float intensity; //!< 輝度
-	};	
-	//マテリアルデータ
-	struct Material {
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-	};
+	
+
 	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
-	DirectionalLight* directionalLightData = nullptr;
+	//DirectionalLight* directionalLightData = nullptr;
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 
@@ -170,7 +221,7 @@ private:
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 
-	const uint32_t kNumMaxInstance = 10;
+	const uint32_t kNumMaxInstance = 1000;
 	const float kDeltaTime = 1.0f / 60.0f;
 	bool usebillboard = true;
 	bool upData = true;
@@ -201,7 +252,9 @@ private:
 	Model* model_;
 
 	
-	//std::vector < std::unique_ptr <LineDraw>> line_;
+	//
 
 };
+
+
 

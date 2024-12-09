@@ -1,8 +1,12 @@
 #pragma once
 #include"DirectXGame/engine/struct/Structs.h"
 #include<vector>
-#include <cmath> // sin, cos
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <math.h>
 #include<assert.h>
+#include<random>
+#include<numbers>
 
 
 #pragma region Math
@@ -133,4 +137,40 @@ float Curvature(const Vector3& p0, const Vector3& p1, const Vector3& p2);
 std::vector<float> AdaptiveSampling(const std::vector<Vector3>& controlPoints, int baseSamples);
 
 
+// 行列のポインタを取得する関数
+const float* GetMatrixPointer(const Matrix4x4& mat);
+
+float* GetMatrix(Matrix4x4 mat);
+
 #pragma endregion //数学関数
+
+float DegreesToRadians(float degrees);
+
+Vector3 DegreesToRadians(Vector3 degrees);
+
+float RadiansToDegrees(float radians);
+
+Vector3 RadiansToDegrees(Vector3 degrees);
+
+// ランダム
+//template <typename T>
+static Vector3 RandomMinMax(Vector3& min,Vector3& max, std::mt19937& randomEngine) {
+    // 範囲の確認と修正
+    if (min.x > max.x) std::swap(min.x, max.x);
+    if (min.y > max.y) std::swap(min.y, max.y);
+    if (min.z > max.z) std::swap(min.z, max.z);
+
+    // 各軸の乱数生成
+    std::uniform_real_distribution<float> distX(min.x, max.x);
+    std::uniform_real_distribution<float> distY(min.y, max.y);
+    std::uniform_real_distribution<float> distZ(min.z, max.z);
+
+    return Vector3{
+        distX(randomEngine),
+        distY(randomEngine),
+        distZ(randomEngine)
+    };
+}
+
+// ランダムな位置を生成する関数
+Vector3 GenerateRandomPosition(const Vector3& min, const Vector3& max, std::mt19937& randomEngine);
