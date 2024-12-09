@@ -86,6 +86,9 @@ ConstantBuffer<SpotLights> gSpotLight : register(b4);
 
 
 
+// ノーマルマップ
+
+
 
 ////------PixelShader------////
 struct PixelShaderOutput
@@ -111,7 +114,7 @@ float SpecularPow(float32_t3 dire, float32_t3 toEye, float32_t3 normal)
 
 float SpecularPow2(float32_t3 dire, float32_t3 toEye, float32_t3 normal)
 {
-    float32_t3 reflectLight = reflect(-normalize(dire), normalize(normal)); // 反射ベクトル
+    float32_t3 reflectLight = reflect(normalize(dire), normalize(normal)); // 反射ベクトル
     float32_t RdotE = dot(reflectLight, normalize(toEye)); // 視線ベクトルと反射ベクトルのドット積
 
     return pow(saturate(RdotE), gMaterial.shininess);
@@ -125,7 +128,6 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t4 transformedUV = mul(float32_t4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(sSampler, transformedUV.xy);
     
-       
     
     if (gMaterial.enableLighting != 0) // Lightingする場合
     {
@@ -137,21 +139,21 @@ PixelShaderOutput main(VertexShaderOutput input)
         float32_t3 directionalLig = { 0, 0, 0 }; // 環境光
         if (gDirectionalLight.enableLighting)
         {
-    // 平行光源の処理
-    // 拡散反射
+              // 平行光源の処理
+              // 拡散反射
             float32_t cos = Cos(gDirectionalLight.direction, toEye, input.normal);
 
-    // 鏡面反射
+              // 鏡面反射
             float32_t specularPow = SpecularPow2(gDirectionalLight.direction, toEye, input.normal);
 
-    // リムライト
-            float power1 = 1.0f - max(0.0f, dot(gDirectionalLight.direction, normalize(input.normal)));
-            float power2 = 1.0f - max(0.0f, normalize(input.normal).z * -1.0f);
+               // リムライト
+            float power1 = 1.0f - max(0.0f, dot(gDirectionalLight.direction, input.normal));
+            float power2 = 1.0f - max(0.0f, input.normal.z * -1.0f);
             float limPower = power1 * power2;
             limPower = pow(limPower, 1.3f);
             float3 limColor = limPower * gDirectionalLight.color.rgb;
 
-    // 半球ライト
+               // 半球ライト
             float3 hemiLight = { 0, 0, 0 };
             if (gMaterial.useHem != 0)
             {
@@ -160,13 +162,13 @@ PixelShaderOutput main(VertexShaderOutput input)
                 hemiLight = lerp(gDirectionalLight.groundColor, gDirectionalLight.skyColor, t);
             }
 
-    // 拡散反射
+               // 拡散反射
             diffuseDirectionalLight = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
 
-    // 鏡面反射
+               // 鏡面反射
             specularDirectionalLight = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
 
-    // 環境光
+               // 環境光
             directionalLig = diffuseDirectionalLight + specularDirectionalLight + limColor;
             directionalLig.x += gDirectionalLight.ilg;
             directionalLig.y += gDirectionalLight.ilg;
@@ -269,7 +271,7 @@ PixelShaderOutput main(VertexShaderOutput input)
           
             if (gDirectionalLight.enableLighting)
             {
-                allDire += directionalLig;
+                allDire *= directionalLig;
                
             }
         }
