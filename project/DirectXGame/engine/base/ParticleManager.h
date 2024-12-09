@@ -63,6 +63,13 @@ class ParticleManager
 {
 public:
 
+	// 
+	enum class EmitType
+	{
+		kRandom,   // ランダム
+		kConstant, // 定数
+	};
+
 #pragma region structs
 	template<typename T>
 	struct MaxMin
@@ -70,18 +77,33 @@ public:
 		T min;
 		T max;
 	};
+	struct Constant {
+		Vector3 centar;
+		Vector4 color;
+		Vector3 size;
+		Vector3 rotate;
+		float lifeTime;
+		Vector3 velocity;
+	};
+
 
 	// エミッター構造体
 	struct Emiter
 	{
 		Vector3 center;
 
+		// ランダム用
 		MaxMin<Vector3> renge;     //出現位置 (Vector3の範囲)
 		MaxMin<Vector4> color;     // 色 (Vector3の範囲)
 		MaxMin<Vector3> size;        // 大きさ (floatの範囲)
 		MaxMin<Vector3> rotate;      // 回転 (floatの範囲)
 		MaxMin<float> lifeTime;    // 生存時間 (floatの範囲)
 		MaxMin<Vector3> velocity;  // 速度 (Vector3の範囲)
+
+		// 定数用
+		Constant cons;
+
+
 
 		float frequency_;		// < 発生頻度
 		float frequencyTime_;	// < 頻度用時刻
@@ -100,6 +122,7 @@ public:
 		Vector3 acceleration;
 		AABB area;
 	};
+
 	struct ParticleGroup
 	{
 		std::string name; // 名前
@@ -117,6 +140,8 @@ public:
 		std::vector < std::unique_ptr <LineDraw>> line_;
 		bool usebillboard = true;
 		bool isAlpha = false;
+		bool isLine = true;
+		EmitType emitType = EmitType::kRandom; // 
 	};
 
 	
@@ -152,12 +177,23 @@ public:
 
 	void DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std::unique_ptr<LineDraw>>& lineDraw_*/);
 
+	void SetPos(const std::string name,const Vector3& position);
 	
 private:
 	// ルートシグネチャの作成
 	void CreateRootSignature();
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
+
+	// minmax
+	void LimitMaxMin();
+
+	// ランダム
+	void RandParticle(const std::string name, const Vector3& position);
+
+	// 定数
+	void ConstantParticle(const std::string name, const Vector3& position);
+
 private:
 	static ParticleManager* instance;
 	ParticleManager() = default;

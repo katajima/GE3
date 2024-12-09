@@ -20,6 +20,10 @@ Camera::Camera()
 {}
 
 void Camera::UpdateMatrix() {
+
+
+
+
 	// カメラのワールド行列を計算
 	worldMatrix_ = MakeAffineMatrixMatrix(transform_.scale, transform_.rotate, transform_.translate);
 

@@ -135,6 +135,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("axis2.obj");
 	ModelManager::GetInstance()->LoadModel("train.obj");
+	ModelManager::GetInstance()->LoadModel("teapot.obj");
 	
 	ModelManager::GetInstance()->LoadModel("building.obj");
 	ModelManager::GetInstance()->LoadModel("Sphere.obj");

@@ -19,7 +19,13 @@ void LightCommon::Initialize()
 	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
 	//今回は赤を書き込んで見る //白
 	*directionalLightData = DirectionalLight({ 1.0f,1.0f,1.0f,1.0f }, { 0.0f,-1.0f,0.0f }, 1.0f);
+	directionalLightData->lig = 0.2f;
+	directionalLightData->isLight = true;
 
+	// 半球ライト
+	directionalLightData->groundColor = { 0.7f,0.5f,0.3f };
+	directionalLightData->skyColor = { 0.15f,0.7f,0.95f };
+	directionalLightData->groundNormal = { 0.0f,1.0f,0.0f };
 
 
 
@@ -27,20 +33,20 @@ void LightCommon::Initialize()
 
 
 	pointLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource((sizeof(PointLight) * kNumMaxInstance));
-	//pointLightData;// = nullptr;
 	pointLightResource->Map(0, nullptr, reinterpret_cast<void**>(&pointLightData));
 
 
 	//今回は赤を書き込んで見る //白
-	pointLightData[0] = PointLight({1.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,-10.0f}, 100.0f);
+	pointLightData[0] = PointLight({1.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,-10.0f});
 	pointLightData[0].radius = 10.0f;
 	pointLightData[0].intensity = 1.0f;
+	pointLightData[0].lig = 0.2f;
 	pointLightData[0].isLight = true;
-	pointLightData[1] = PointLight({0.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,10.0f}, 100.0f);
+	pointLightData[1] = PointLight({0.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,10.0f});
 	pointLightData[1].radius = 10.0f;
-	pointLightData[1].intensity = 1.0f;
+	pointLightData[1].intensity = 100.0f;
 	pointLightData[1].isLight = true;
-
+	pointLightData[1].lig = 0.2f;
 
 	//平行光源用のリソースを作る
 	spotLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(SpotLight) * kNumMaxInstance);
@@ -93,19 +99,29 @@ void LightCommon::Update()
 
 	if (ImGui::CollapsingHeader("Light")) {
 
-		if (ImGui::BeginTabBar("directionalLightData"))
-		{
-			if (ImGui::BeginTabItem("directionalLightData"))
+		//if (ImGui::CollapsingHeader("DirectionalLight")) {
+			if (ImGui::BeginTabBar("directionalLightData"))
 			{
-				ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.1f);
-				directionalLightData->direction = Normalize(directionalLightData->direction);
-				ImGui::DragFloat("intensity", &directionalLightData->intensity, 0.1f);
-				if (0 >= directionalLightData->intensity)
-					directionalLightData->intensity = 0;
-				ImGui::ColorEdit4("color", &directionalLightData->color.x);
-				ImGui::EndTabItem();
+				if (ImGui::BeginTabItem("directionalLightData"))
+				{
+						bool is = directionalLightData->isLight;
+						ImGui::Checkbox("isLighting", &is);
+						directionalLightData->isLight = is;
+						ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.1f);
+						directionalLightData->direction = Normalize(directionalLightData->direction);
+						ImGui::DragFloat("intensity", &directionalLightData->intensity, 0.1f);
+						if (0 >= directionalLightData->intensity)
+							directionalLightData->intensity = 0;
+						ImGui::DragFloat("lig", &directionalLightData->lig, 0.1f);
+						ImGui::ColorEdit3("groundColor", &directionalLightData->groundColor.x);
+						ImGui::ColorEdit3("skyColor", &directionalLightData->skyColor.x);
+
+						ImGui::ColorEdit4("color", &directionalLightData->color.x);
+						ImGui::EndTabItem();
+					
+				}
 			}
-		}
+		//}
 		ImGui::EndTabBar();
 		if (ImGui::BeginTabBar("pointLightData"))
 		{
@@ -121,6 +137,7 @@ void LightCommon::Update()
 						pointLightData[i].intensity = 0;
 					ImGui::DragFloat("decay", &pointLightData[i].decay, 0.1f);
 					ImGui::DragFloat("radius", &pointLightData[i].radius, 0.1f);
+					ImGui::DragFloat("lig", &pointLightData[i].lig, 0.1f);
 
 					ImGui::ColorEdit4("color", &pointLightData[i].color.x);
 					ImGui::EndTabItem();

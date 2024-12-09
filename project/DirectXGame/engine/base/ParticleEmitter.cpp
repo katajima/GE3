@@ -9,11 +9,13 @@ ParticleEmitter::ParticleEmitter(std::string name, Transform transform, uint32_t
 	// frequency: パーティクルの発射間隔を秒単位で指定する値。
 	// frequencyTime: 現在の発射間隔の経過時間を追跡する値。
 
-	name_ = name;
-	count_ = count;
-	frequency_ = frequency;
-	frequencyTime_ = frequencyTime;
-	transform_ = transform;
+
+
+	//name_ = name;
+	//count_ = count;
+	//frequency_ = frequency;
+	//frequencyTime_ = frequencyTime;
+	//transform_ = transform;
 }
 
 void ParticleEmitter::Update()

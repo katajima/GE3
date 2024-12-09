@@ -54,7 +54,9 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableLighting = true;
-	materialData->shininess = 40.0f;
+	materialData->shininess = 40.0f; 
+	materialData->useLig = false;
+
 }
 
 void Model::Draw()

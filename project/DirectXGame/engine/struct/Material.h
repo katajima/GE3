@@ -10,6 +10,8 @@ struct Material {
 	float padding[3];
 	Matrix4x4 uvTransform;
 	float shininess;
+	int32_t useLig;
+	int32_t useHim;
 };
 
 //マテリアルデータ
@@ -21,6 +23,8 @@ struct MaterialData {
 
 struct CameraGPU {
 	Vector3 worldPosition;
+	float padding[1];
+	Vector3 normal;
 };
 
 // 座標変換行列データ
