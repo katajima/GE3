@@ -9,6 +9,10 @@
 #include<vector>
 #include<format>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 class ModelCommon;
 
 
@@ -16,6 +20,13 @@ class ModelCommon;
 class Model
 {
 public:
+	struct  Node
+	{
+		Matrix4x4 localMatrix;
+		std::string name;
+		std::vector<Node> children;
+	};
+
 	struct VertexData {
 		Vector4 position;
 		Vector2 texcoord;
@@ -30,6 +41,7 @@ public:
 		std::vector<VertexData> indicesPos;
 		MaterialData material;
 		bool isNormalmap;
+		Node rootNode;
 	};
 	// カスタムハッシュ関数
 	struct VertexHash {
@@ -72,6 +84,7 @@ public:
 
 	void MoveVertices(const Vector3& offset);
 
+	static Node ReadNode(aiNode* node);
 	
 	// Objファイルのデータ
 	ModelData modelData;
