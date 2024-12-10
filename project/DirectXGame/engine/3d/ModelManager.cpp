@@ -24,7 +24,7 @@ void ModelManager::Initialize(DirectXCommon* dxCommon)
 	modelCommon->Initialize(dxCommon);
 }
 
-void ModelManager::LoadModel(const std::string& filePath)
+void ModelManager::LoadModel(const std::string& filePath, const std::string& normalMapTex,const std::string& specularMapTex)
 {
 	// 読み込み済みモデルを検索
 	if (models.contains(filePath)) {
@@ -32,11 +32,12 @@ void ModelManager::LoadModel(const std::string& filePath)
 	}
 	//モデルの生成とファイル読み込み、初期化
 	std::unique_ptr<Model> model = std::make_unique<Model>();
-	model->Initialize(modelCommon, "resources", filePath);
+	model->Initialize(modelCommon, "resources", filePath, normalMapTex,specularMapTex);
 
 	// モデルをmapコンテナに格納
 	models.insert(std::make_pair(filePath, std::move(model)));
 }
+
 
 Model* ModelManager::FindModel(const std::string& filePath)
 {

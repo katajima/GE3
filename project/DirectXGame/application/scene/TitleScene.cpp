@@ -44,9 +44,8 @@ void TitleScene::Initialize()
 	mm2.SetCamera(camera.get());
 
 	tail.Initialize();
-	tail.SetModel("plane.obj");
+	tail.SetModel("grass.obj");
 	tail.SetCamera(camera.get());
-	tail.transform.rotate.x = DegreesToRadians(-90);
 	tail.transform.scale = { 100,100,100 };
 
 
@@ -85,6 +84,9 @@ void TitleScene::Update()
 		mm.model->materialData->useHim = is3;
 		mm2.model->materialData->useHim = is3;
 		tail.model->materialData->useHim = is3;
+
+		ImGui::SliderFloat("shininess", &tail.model->materialData->shininess, 0.1f, 100.0f);
+		
 	}
 
 	if (ImGui::CollapsingHeader("Gizmos")) {
@@ -109,6 +111,11 @@ void TitleScene::Update()
 			camera->transform_.translate = { 0,500,0};
 			camera->transform_.rotate = { DegreesToRadians(90),0,0};
 		}
+		if (ImGui::Button("cameraPos4")) {
+			camera->transform_.translate = { 0,60,-220};
+			camera->transform_.rotate = { DegreesToRadians(10),0,0};
+		}
+
 
 	}
 
@@ -143,7 +150,7 @@ void TitleScene::Draw3D()
 {
 	tail.Draw();
 
-	//mm.Draw();
+	mm.Draw();
 	//mm2.Draw();
 }
 

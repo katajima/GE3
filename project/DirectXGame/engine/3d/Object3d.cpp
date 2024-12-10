@@ -142,43 +142,6 @@ void Object3d::InitializeInstance(size_t size)
 	*directionalLightData = DirectionalLight({ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, 1.0f);
 }
 
-void Object3d::UpdateInstance() {
-	for (size_t i = 0; i < size_; i++) {
-		// 各インスタンスの行列を計算
-		Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transforms[i].scale, transforms[i].rotate, transforms[i].translate);
-		Matrix4x4 worldViewProjectionMatrix;
-
-		if (camera) {
-			const Matrix4x4& viewMatrix = camera->GetViewMatrix();
-			const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
-			worldViewProjectionMatrix = Multiply(worldMatrix, viewMatrix);
-			worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, projectionMatrix);
-		}
-		else {
-			worldViewProjectionMatrix = worldMatrix;
-		}
-
-		// 行列をバッファに書き込む
-		InstanseTransfomationMatrixData[i]->World = worldMatrix;
-		InstanseTransfomationMatrixData[i]->WVP = worldViewProjectionMatrix;
-	}
-}
-
-void Object3d::DrawInstance()
-{
-	////------平行光源用------////
-	Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
-
-	// 3Dモデルが割り当てられている場合のみ描画
-	if (model) {
-		for (size_t i = 0; i < size_; i++) {
-			// インスタンスごとの定数バッファを設定
-			Object3dCommon::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, InstanseTransformationMatrixResource[i]->GetGPUVirtualAddress());
-		}
-		model->DrawInstance(size_);
-	}
-}
-
 void Object3d::SetModel(const std::string& filePath)
 {
 	//モデルを検索してセット

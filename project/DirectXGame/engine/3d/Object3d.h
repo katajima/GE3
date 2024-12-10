@@ -30,7 +30,7 @@ public:
 	// 更新
 	void UpdateInstance();
 
-	void DrawInstance();
+	
 
 	// setter
 	 void SetModel(Model* model) { this->model = model; }

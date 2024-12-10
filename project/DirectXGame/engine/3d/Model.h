@@ -29,7 +29,7 @@ public:
 		std::vector<uint32_t> indices; // 追加：インデックスデータ
 		std::vector<VertexData> indicesPos;
 		MaterialData material;
-		MaterialData materialNormal;
+		bool isNormalmap;
 	};
 	// カスタムハッシュ関数
 	struct VertexHash {
@@ -56,7 +56,7 @@ public:
 
 
 
-	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename);
+	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename, const std::string& normalMap = "", const std::string& specularMapTex = "");
 
 	void Draw();
 
@@ -97,6 +97,10 @@ private:
 
 
 	VertexData instanceData_;
+
+
+	bool useNormalMap = false;
+	bool useSpecularMap = false;
 public:
 	//マテリアルデータを読み込む
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);

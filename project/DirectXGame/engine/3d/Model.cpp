@@ -10,13 +10,13 @@ bool operator==(const Model::VertexData& v1, const Model::VertexData& v2) {
 		v1.texcoord == v2.texcoord;
 }
 
-void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
+void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename, const std::string& normalMap, const std::string& specularMap)
 {
 	modelCommon_ = ModelCommon::GetInstance();;
 
 	modelData = LoadOdjFile(directorypath, filename);
 
-	
+
 
 
 	// .objの参照しているテクスチャファイル読み込み
@@ -24,14 +24,43 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	// 読み込んだテクスチャの番号を取得
 	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerFilePath);
 
+	if (modelData.material.textuerNormalFilePath == "") {
+		useNormalMap = false;
+	}
+	else {
+		useNormalMap = true;
 
-	modelData.materialNormal.textuerFilePath = "resources/NormalMap.png";
+	}
 
-	TextureManager::GetInstance()->LoadTexture(modelData.materialNormal.textuerFilePath);
+	if (useNormalMap) {
+		TextureManager::GetInstance()->LoadTexture(modelData.material.textuerNormalFilePath);
 
-	modelData.materialNormal.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.materialNormal.textuerFilePath);
+		modelData.material.textureNormalIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerNormalFilePath);
+	}
+
 	
-	
+	if (modelData.material.textuerSpeculerFilePath == "") {
+		useSpecularMap = false;
+	}
+	else {
+		useSpecularMap = true;
+	}
+	if (useSpecularMap) {
+		
+		TextureManager::GetInstance()->LoadTexture(modelData.material.textuerSpeculerFilePath);
+
+		modelData.material.textuerSpeculerIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerSpeculerFilePath);
+	}
+
+
+
+
+
+
+
+
+
+
 	vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
 
 	// リソースの先頭のアドレスを作成する
@@ -64,9 +93,15 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableLighting = true;
-	materialData->shininess = 40.0f; 
+	materialData->shininess = 20.0f;
 	materialData->useLig = false;
 
+	if (useNormalMap) {
+		materialData->useNormalMap = true;
+	}
+	if (useSpecularMap) {
+		materialData->useSpeculerMap = true;
+	}
 }
 
 void Model::Draw()
@@ -76,13 +111,16 @@ void Model::Draw()
 
 	// テクスチャのバインド
 	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
+	if (useNormalMap) {
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
 
-	//modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
+	}
+	if (useSpecularMap) {
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerSpeculerFilePath));
+	}
 
-	
+
 	// 頂点バッファの設定
 	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 	// インデックスバッファの設定
@@ -93,32 +131,6 @@ void Model::Draw()
 	// 描画
 	//modelCommon_->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 }
-
-void Model::DrawInstance(size_t instanceCount) {
-	// マテリアルのバインド
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
-
-	// テクスチャのバインド
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
-
-	// 頂点バッファの設定
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
-	// インデックスバッファの設定
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
-
-	// 描画コマンドの確認
-	if (instanceCount > 0 && !modelData.indices.empty()) {
-		// インデックス数とインスタンス数を正しく指定して描画
-		modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(
-			static_cast<UINT>(modelData.indices.size()), // インデックス数
-			static_cast<UINT>(instanceCount),           // インスタンス数
-			0,                                          // 最初のインデックス
-			0,                                          // 最初の頂点
-			0                                           // 最初の引数
-		);
-	}
-}
-
 
 
 
@@ -144,6 +156,27 @@ MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, c
 			s >> textureFilename;
 			// 連結してファイルパスにする
 			materialData.textuerFilePath = directoryPath + "/" + textureFilename;
+		}
+		else if (identifier == "map_Bump") {
+
+			std::string bumpMapFilename;
+			float bmValue; // -bm パラメータの値を取得する変数 
+			s >> identifier; // -bm を読み飛ばす 
+			if (identifier == "-bm") {
+				s >> bmValue >> bumpMapFilename; // -bm の値とファイル名を取得 
+
+			}
+			else { // -bm がない場合は、読み取ったものをファイル名として扱う 
+				bumpMapFilename = identifier;
+			}
+			// バンプマップのファイルパスを連結して設定 
+			materialData.textuerNormalFilePath = directoryPath + "/" + bumpMapFilename;
+		}
+		else if (identifier == "map_Ks") {
+			std::string textureFilename;
+			s >> textureFilename;
+			// 連結してファイルパスにする
+			materialData.textuerSpeculerFilePath = directoryPath + "/" + textureFilename;
 		}
 	}
 

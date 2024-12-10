@@ -30,7 +30,7 @@ public:
 	/// モデルファイルの読み込み
 	/// </summary>
 	/// <param name="filePath"></param>
-	void LoadModel(const std::string& filePath);
+	void LoadModel(const std::string& filePath, const std::string& normalMapTex = "", const std::string& specularMapTex = "");
 
 	Model* FindModel(const std::string& filePath);
 

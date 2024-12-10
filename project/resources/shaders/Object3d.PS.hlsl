@@ -12,6 +12,8 @@ struct Material
     float32_t shininess;
     int32_t useLig;
     int32_t useHem;
+    int32_t useNormalMap;
+    int32_t useSpeculerMap;
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 Texture2D<float4> gTexture : register(t0);
@@ -114,77 +116,86 @@ PixelShaderOutput main(PixelShaderInput input)
     float4 transformedUV = mul(float4(input.texcoord.xy, 0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(sSampler, transformedUV.xy);
     
-   
     
-    float3 tangent = normalize(mul((float3) input.worldPosition, (float3) input.tangent));
-    float3 biNormal = normalize(mul((float3) input.worldPosition, (float3) input.biNormal));
-    float3 normal = normalize(mul((float3) input.worldPosition, (float3) input.normal));
-
+    float3 normal = input.normal;
+    float3 tangent =float3(0, 0, 0);
+    float3 biNormal = float3(0, 0, 0);
+    if (gMaterial.useNormalMap)
+    {
+        tangent = normalize(mul((float3) input.worldPosition, (float3) input.tangent));
+        biNormal = normalize(mul((float3) input.worldPosition, (float3) input.biNormal));
+        normal = normalize(mul((float3) input.worldPosition, (float3) input.normal));
+    }
     
     if (gMaterial.enableLighting != 0) // Lightingする場合
     {
        // サンプリング
-        float3 localNormal = g_Normalmap.Sample(sSampler, input.texcoord).xyz;
+        float amdientPower = 0;
+        if (gMaterial.useNormalMap)
+        {
+            float3 localNormal = g_Normalmap.Sample(sSampler, input.texcoord).xyz;
         // タンジェントスペース
-        localNormal = (localNormal - 0.5f) * 2.0f; 
-        normal = input.tangent * localNormal.x + input.biNormal * localNormal.y + input.transformedNormal * localNormal.z;
+            localNormal = (localNormal - 0.5f) * 2.0f;
+            normal = input.tangent * localNormal.x + input.biNormal * localNormal.y + input.transformedNormal * localNormal.z;
     
+           
+        }
         
-        
-        
-        
-        
+            
         float32_t3 toEye = normalize(gCamera.worldPosition - input.worldPosition);
         
         
+        // 平行光原
         float32_t3 diffuseDirectionalLight = { 0, 0, 0 }; // 拡散反射
         float32_t3 specularDirectionalLight = { 0, 0, 0 }; // 鏡面反射
         float32_t3 directionalLig = { 0, 0, 0 }; // 環境光
-        
-        float amdientPower = g_aoMap.Sample(sSampler, input.texcoord).r;
-    
-        
         if (gDirectionalLight.enableLighting)
         {
               // 平行光源の処理
               // 拡散反射
             float32_t cos = Cos(gDirectionalLight.direction, toEye, normal);
 
-            
-            
               // 鏡面反射
-            float32_t specularPow = SpecularPow2(gDirectionalLight.direction, toEye, normal,gMaterial.shininess);
+            float32_t specularPow = SpecularPow2(gDirectionalLight.direction, toEye, normal, gMaterial.shininess);
+        
+            if (gMaterial.useSpeculerMap)
+            {
+                float specPower = g_Specularmap.Sample(sSampler, input.texcoord).r;
+            
+                specularPow *= specPower * 10.0f;
+                
+                amdientPower = g_aoMap.Sample(sSampler, input.texcoord).r;
+            }
+            
 
-            
-            float specPower = g_Specularmap.Sample(sSampler, input.texcoord).r;
-            
-            specularPow *= specPower * 10.0f;
+
+
             
             
             // リムライト
             float3 limColor = { 0, 0, 0 };
-            float power1 = 1.0f - max(0.0f, dot(gDirectionalLight.direction, input.normal));
-            float power2 = 1.0f - max(0.0f, input.normal.z * -1.0f);
-            float limPower = power1 * power2;
-            limPower = pow(limPower, 1.3f);
+            //float power1 = 1.0f - max(0.0f, dot(gDirectionalLight.direction, input.normal));
+            //float power2 = 1.0f - max(0.0f, input.normal.z * -1.0f);
+            //float limPower = power1 * power2;
+            //limPower = pow(limPower, 1.3f);
             
-            limColor = limPower * gDirectionalLight.color.rgb;
+            //limColor = limPower * gDirectionalLight.color.rgb;
             
             
             
             //   // 半球ライト
             float3 hemiLight = { 0, 0, 0 };
-            if (gMaterial.useHem != 0)
-            {
-                float t = dot(normalize(input.normal), normalize(gDirectionalLight.groundNormal));
-                t = (t + 1.0f) / 2.0f;
-                hemiLight = lerp(gDirectionalLight.groundColor, gDirectionalLight.skyColor, t);
-            }
+            //if (gMaterial.useHem != 0)
+            //{
+            //    float t = dot(normalize(input.normal), normalize(gDirectionalLight.groundNormal));
+            //    t = (t + 1.0f) / 2.0f;
+            //    hemiLight = lerp(gDirectionalLight.groundColor, gDirectionalLight.skyColor, t);
+            //}
 
                // 拡散反射
             diffuseDirectionalLight = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
 
-            diffuseDirectionalLight /= 3.1415926f;
+           // diffuseDirectionalLight /= 3.1415926f;
             
                // 鏡面反射
             specularDirectionalLight = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
@@ -193,15 +204,17 @@ PixelShaderOutput main(PixelShaderInput input)
             
             
              // 環境光
-            directionalLig = diffuseDirectionalLight + specularDirectionalLight + limColor;
+            //directionalLig = diffuseDirectionalLight + specularDirectionalLight + limColor;
             
-            directionalLig *= float3(amdientPower, amdientPower, amdientPower);
-           
-            directionalLig.x += gDirectionalLight.ilg;
-            directionalLig.y += gDirectionalLight.ilg;
-            directionalLig.z += gDirectionalLight.ilg;
+            if (gMaterial.useNormalMap)
+            {
+               // directionalLig *= float3(amdientPower, amdientPower, amdientPower);
+            }
+            //directionalLig.x += gDirectionalLight.ilg;
+            //directionalLig.y += gDirectionalLight.ilg;
+            //directionalLig.z += gDirectionalLight.ilg;
     
-            directionalLig += hemiLight;
+            //directionalLig += hemiLight;
         }
         
         
@@ -290,7 +303,7 @@ PixelShaderOutput main(PixelShaderInput input)
         
         
          // リグを使うか
-        float3 allDire = (diffuseDirectionalLight + specularDirectionalLight); 
+        float3 allDire = (diffuseDirectionalLight + specularDirectionalLight);
         float3 allPoint = (diffusePointLight + specularPointLight);
         float3 allSpot = (diffuseSpotLight + specularSpotLight);
         if (gMaterial.useLig != 0)
@@ -304,7 +317,7 @@ PixelShaderOutput main(PixelShaderInput input)
         }
         
         
-        output.color.rgb =allDire + allPoint + allSpot;
+        output.color.rgb = allDire + allPoint + allSpot;
         
         
         output.color.a = gMaterial.color.a * textureColor.a;

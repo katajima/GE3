@@ -25,6 +25,8 @@ void LightCommon::Initialize()
 	// 半球ライト
 	directionalLightData->groundColor = { 0.7f,0.5f,0.3f };
 	directionalLightData->skyColor = { 0.15f,0.7f,0.95f };
+	directionalLightData->groundColor = { 1.0f,1.0f,1.0f };
+	directionalLightData->skyColor = { 1.0f,1.0f,1.0f };
 	directionalLightData->groundNormal = { 0.0f,1.0f,0.0f };
 
 
@@ -54,8 +56,8 @@ void LightCommon::Initialize()
 	//今回は赤を書き込んで見る //白
 
 	for (int i = 0; i < spotMax; i++) {
-		spotLightData[i] = SpotLight({1.0f,1.0f,1.0f,1.0f}, {2.0f,1.25f,0.0f}, 10.0f, Normalize({-1.0f,-1.0f,0.0f}), 4.0f, 2.0f, std::cos(std::numbers::pi_v<float> / 3.0f), 1.0f);
-		spotLightData[i].position = Vector3(10, 10, 10);
+		spotLightData[i] = SpotLight({1.0f,1.0f,1.0f,1.0f}, {2.0f,1.25f,0.0f}, 10.0f, Normalize({-1.0f,-1.0f,0.0f}), 10.0f, 2.0f, std::cos(std::numbers::pi_v<float> / 3.0f), 1.0f);
+		spotLightData[i].position = Vector3(10 * float(i), 0, 10);
 		spotLightData[i].isLight = false;
 	}
 

@@ -12,13 +12,24 @@ struct Material {
 	float shininess;
 	int32_t useLig;
 	int32_t useHim;
+	int32_t useNormalMap;
+	int32_t useSpeculerMap;
 };
 
 //マテリアルデータ
 struct MaterialData {
 	std::string textuerFilePath;
+	std::string textuerNormalFilePath;
+	std::string textuerSpeculerFilePath;
+
 	//テクスチャ番号
 	uint32_t textureIndex = 0;
+	uint32_t textureNormalIndex = 0;
+	uint32_t textuerSpeculerIndex = 0;
+
+	//
+	float shininess;
+
 };
 
 struct CameraGPU {

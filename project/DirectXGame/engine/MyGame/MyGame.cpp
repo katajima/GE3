@@ -132,7 +132,11 @@ void MyGame::InitializeResource()
 	}
 
 	ModelManager::GetInstance()->LoadModel("rail.obj");
-	ModelManager::GetInstance()->LoadModel("plane.obj");
+	ModelManager::GetInstance()->LoadModel("plane.obj","NormalMap.png");
+	ModelManager::GetInstance()->LoadModel("planeNormalMap.obj");
+	ModelManager::GetInstance()->LoadModel("planeNormalMap2.obj");
+	ModelManager::GetInstance()->LoadModel("grass.obj");
+	ModelManager::GetInstance()->LoadModel("plane2.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("axis2.obj");
 	ModelManager::GetInstance()->LoadModel("train.obj");
