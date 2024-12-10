@@ -47,6 +47,28 @@ void Object3dCommon::CreateRootSignature()
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
 	
+	D3D12_DESCRIPTOR_RANGE descriptorRangeNormalmap[1] = {};
+	descriptorRangeNormalmap[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeNormalmap[0].NumDescriptors = 1;
+	descriptorRangeNormalmap[0].BaseShaderRegister = 1;
+	descriptorRangeNormalmap[0].RegisterSpace = 0;
+	descriptorRangeNormalmap[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE descriptorRangeSpecualrmap[1] = {}; // スペキュラマップ (t2) をピクセルシェーダで使用するための設定 
+	descriptorRangeSpecualrmap[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRV (Shader Resource View) を使用する 
+	descriptorRangeSpecualrmap[0].NumDescriptors = 1; // 使用するデスクリプタの数 
+	descriptorRangeSpecualrmap[0].BaseShaderRegister = 2; // t1 レジスタにバインド 
+	descriptorRangeSpecualrmap[0].RegisterSpace = 0; // レジスタスペース (通常は0) 
+	descriptorRangeSpecualrmap[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	
+	D3D12_DESCRIPTOR_RANGE descriptorRangeAoMap[1] = {}; // スペキュラマップ (t2) をピクセルシェーダで使用するための設定 
+	descriptorRangeAoMap[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRV (Shader Resource View) を使用する 
+	descriptorRangeAoMap[0].NumDescriptors = 1; // 使用するデスクリプタの数 
+	descriptorRangeAoMap[0].BaseShaderRegister = 3; // t1 レジスタにバインド 
+	descriptorRangeAoMap[0].RegisterSpace = 0; // レジスタスペース (通常は0) 
+	descriptorRangeAoMap[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	
 	// Roosignature(ルートシグネチャ)作成
 	//ShaderとResorceをどのように関連付けるかを示したオブジェクト
 
@@ -57,36 +79,62 @@ void Object3dCommon::CreateRootSignature()
 
 	// RootParameter作成。複数指定できるのではい
 	// RootParameter作成。複数指定できるのではい
-	D3D12_ROOT_PARAMETER rootParameters[7] = {};
+	D3D12_ROOT_PARAMETER rootParameters[10] = {};
 
+	// マテリアルデータ (b0) をピクセルシェーダで使用する
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   // CBVを使う　// b0のbと一致する
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //PixelShaderで使う
 	rootParameters[0].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド　　// b0の0と一致する。もしb11と紐づけたいなら11となる
 
+	// マテリアルデータ (b0) を頂点シェーダで使用する
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   // CBVを使う　// b0のbと一致する
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //VertexShaderで使う
 	rootParameters[1].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド　　// b0の0と一致する。もしb11と紐づけたいなら11となる
 
+	// テクスチャデータ (t0) をピクセルシェーダで使用する
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う           
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数 
 
+	// 方向性ライトデータ (b1) をピクセルシェーダで使用する
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[3].Descriptor.ShaderRegister = 1;
 
+	// カメラデータ (b2) をピクセルシェーダで使用する
 	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[4].Descriptor.ShaderRegister = 2;
 
+	// ポイントライトデータ (b3) をピクセルシェーダで使用する
 	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[5].Descriptor.ShaderRegister = 3;
 
+	// スポットライトデータ (b4) をピクセルシェーダで使用する
 	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[6].Descriptor.ShaderRegister = 4;
+
+	// 法線マップデータ (t1) をピクセルシェーダで使用する 
+	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[7].DescriptorTable.pDescriptorRanges = descriptorRangeNormalmap;
+	rootParameters[7].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeNormalmap);
+
+	// 法線マップデータ (t2) をピクセルシェーダで使用する 
+	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[8].DescriptorTable.pDescriptorRanges = descriptorRangeSpecualrmap;
+	rootParameters[8].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeSpecualrmap);
+
+	// 法線マップデータ (t2) をピクセルシェーダで使用する 
+	rootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[9].DescriptorTable.pDescriptorRanges = descriptorRangeAoMap;
+	rootParameters[9].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeAoMap);
+
 
 	descriptionSignature.pParameters = rootParameters;
 	descriptionSignature.NumParameters = _countof(rootParameters);
@@ -140,7 +188,7 @@ void Object3dCommon::CreateGraphicsPipeline()
 #pragma region InputLayout
 
 
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[5] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
 	inputElementDescs[0].SemanticIndex = 0;
 	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -153,7 +201,15 @@ void Object3dCommon::CreateGraphicsPipeline()
 	inputElementDescs[2].SemanticIndex = 0;
 	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-
+	
+	inputElementDescs[3].SemanticName = "TANGENT"; 
+	inputElementDescs[3].SemanticIndex = 0;
+	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT; 
+	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT; 
+	inputElementDescs[4].SemanticName = "BINORMAL"; 
+	inputElementDescs[4].SemanticIndex = 0; 
+	inputElementDescs[4].Format = DXGI_FORMAT_R32G32B32_FLOAT; 
+	inputElementDescs[4].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};

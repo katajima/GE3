@@ -105,6 +105,10 @@ void TitleScene::Update()
 			camera->transform_.translate = { -30,10,-140 };
 			camera->transform_.rotate = { 0,0,0 };
 		}
+		if (ImGui::Button("cameraPos3")) {
+			camera->transform_.translate = { 0,500,0};
+			camera->transform_.rotate = { DegreesToRadians(90),0,0};
+		}
 
 	}
 
@@ -139,8 +143,8 @@ void TitleScene::Draw3D()
 {
 	tail.Draw();
 
-	mm.Draw();
-	mm2.Draw();
+	//mm.Draw();
+	//mm2.Draw();
 }
 
 void TitleScene::DrawP3D()

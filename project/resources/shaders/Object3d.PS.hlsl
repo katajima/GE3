@@ -1,5 +1,7 @@
 #include"Object3d.hlsli"
 
+
+
 //色など三角形の表面の材質を決定するものMaterial
 struct Material
 {
@@ -13,6 +15,9 @@ struct Material
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 Texture2D<float4> gTexture : register(t0);
+Texture2D<float4> g_Normalmap : register(t1); // t1レジスタにバインドされる法線マップデータ
+Texture2D<float4> g_Specularmap : register(t2); // t2レジスタにバインドされるスペキュラーマップデータ
+Texture2D<float4> g_aoMap : register(t3); // t3レジスタにバインドされるスペキュラーマップデータ
 SamplerState sSampler : register(s0);
 
 static const int kMaxLight = 3;
@@ -86,6 +91,7 @@ ConstantBuffer<SpotLights> gSpotLight : register(b4);
 
 
 
+
 // ノーマルマップ
 
 
@@ -94,66 +100,79 @@ ConstantBuffer<SpotLights> gSpotLight : register(b4);
 struct PixelShaderOutput
 {
     float32_t4 color : SV_TARGET0;
+    
 };
 
-float Cos(float32_t3 dire, float32_t3 toEye, float32_t3 normal)
-{
-    float32_t3 halfVectorv = normalize((-dire) + toEye);
-    float32_t NdotL = dot(normalize(normal), halfVectorv);
-
-    return pow(NdotL * 0.5f + 0.5f, 2.0f);
-}
-
-float SpecularPow(float32_t3 dire, float32_t3 toEye, float32_t3 normal)
-{
-    float32_t3 reflectLight = reflect(dire, normalize(normal));
-    float32_t RdotE = dot(reflectLight, toEye);
-   
-    return pow(saturate(RdotE), gMaterial.shininess);
-}
-
-float SpecularPow2(float32_t3 dire, float32_t3 toEye, float32_t3 normal)
-{
-    float32_t3 reflectLight = reflect(normalize(dire), normalize(normal)); // 反射ベクトル
-    float32_t RdotE = dot(reflectLight, normalize(toEye)); // 視線ベクトルと反射ベクトルのドット積
-
-    return pow(saturate(RdotE), gMaterial.shininess);
-}
 
 
-PixelShaderOutput main(VertexShaderOutput input)
+
+
+PixelShaderOutput main(PixelShaderInput input)
 {
     PixelShaderOutput output;
     
-    float32_t4 transformedUV = mul(float32_t4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
+    float4 transformedUV = mul(float4(input.texcoord.xy, 0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(sSampler, transformedUV.xy);
     
+   
+    
+    float3 tangent = normalize(mul((float3) input.worldPosition, (float3) input.tangent));
+    float3 biNormal = normalize(mul((float3) input.worldPosition, (float3) input.biNormal));
+    float3 normal = normalize(mul((float3) input.worldPosition, (float3) input.normal));
+
     
     if (gMaterial.enableLighting != 0) // Lightingする場合
     {
+       // サンプリング
+        float3 localNormal = g_Normalmap.Sample(sSampler, input.texcoord).xyz;
+        // タンジェントスペース
+        localNormal = (localNormal - 0.5f) * 2.0f; 
+        normal = input.tangent * localNormal.x + input.biNormal * localNormal.y + input.transformedNormal * localNormal.z;
+    
+        
+        
+        
+        
+        
         float32_t3 toEye = normalize(gCamera.worldPosition - input.worldPosition);
         
         
         float32_t3 diffuseDirectionalLight = { 0, 0, 0 }; // 拡散反射
         float32_t3 specularDirectionalLight = { 0, 0, 0 }; // 鏡面反射
         float32_t3 directionalLig = { 0, 0, 0 }; // 環境光
+        
+        float amdientPower = g_aoMap.Sample(sSampler, input.texcoord).r;
+    
+        
         if (gDirectionalLight.enableLighting)
         {
               // 平行光源の処理
               // 拡散反射
-            float32_t cos = Cos(gDirectionalLight.direction, toEye, input.normal);
+            float32_t cos = Cos(gDirectionalLight.direction, toEye, normal);
 
+            
+            
               // 鏡面反射
-            float32_t specularPow = SpecularPow2(gDirectionalLight.direction, toEye, input.normal);
+            float32_t specularPow = SpecularPow2(gDirectionalLight.direction, toEye, normal,gMaterial.shininess);
 
-               // リムライト
+            
+            float specPower = g_Specularmap.Sample(sSampler, input.texcoord).r;
+            
+            specularPow *= specPower * 10.0f;
+            
+            
+            // リムライト
+            float3 limColor = { 0, 0, 0 };
             float power1 = 1.0f - max(0.0f, dot(gDirectionalLight.direction, input.normal));
             float power2 = 1.0f - max(0.0f, input.normal.z * -1.0f);
             float limPower = power1 * power2;
             limPower = pow(limPower, 1.3f);
-            float3 limColor = limPower * gDirectionalLight.color.rgb;
-
-               // 半球ライト
+            
+            limColor = limPower * gDirectionalLight.color.rgb;
+            
+            
+            
+            //   // 半球ライト
             float3 hemiLight = { 0, 0, 0 };
             if (gMaterial.useHem != 0)
             {
@@ -165,11 +184,19 @@ PixelShaderOutput main(VertexShaderOutput input)
                // 拡散反射
             diffuseDirectionalLight = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
 
+            diffuseDirectionalLight /= 3.1415926f;
+            
                // 鏡面反射
             specularDirectionalLight = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
 
-               // 環境光
+            
+            
+            
+             // 環境光
             directionalLig = diffuseDirectionalLight + specularDirectionalLight + limColor;
+            
+            directionalLig *= float3(amdientPower, amdientPower, amdientPower);
+           
             directionalLig.x += gDirectionalLight.ilg;
             directionalLig.y += gDirectionalLight.ilg;
             directionalLig.z += gDirectionalLight.ilg;
@@ -197,9 +224,9 @@ PixelShaderOutput main(VertexShaderOutput input)
             float32_t3 pointLightDirection = normalize(input.worldPosition - gPointLight.pointLights[point_i].position);
     
             
-            float32_t cosP = Cos(pointLightDirection, toEye, input.normal);
+            float32_t cosP = Cos(pointLightDirection, toEye, normal);
             //鏡面反射
-            float32_t specularPowP = SpecularPow(pointLightDirection, toEye, input.normal);
+            float32_t specularPowP = SpecularPow2(pointLightDirection, toEye, normal, gMaterial.shininess);
         
             
             float32_t distanceP = length(gPointLight.pointLights[point_i].position - input.worldPosition);
@@ -249,8 +276,8 @@ PixelShaderOutput main(VertexShaderOutput input)
        
             
             
-            float cosS = Cos(spotLightDirectionOnSurface, toEye, input.normal);
-            float specularPowS = SpecularPow(spotLightDirectionOnSurface, toEye, input.normal);
+            float cosS = Cos(spotLightDirectionOnSurface, toEye, normal);
+            float specularPowS = SpecularPow2(spotLightDirectionOnSurface, toEye, normal, gMaterial.shininess);
             
              // スポットライトの拡散反射と鏡面反射の計算
             diffuseSpotLight += gSpotLight.spotLights[spot_i].color.rgb * cosS * gSpotLight.spotLights[spot_i].intensity * attenuationFactorS * falloffFactor;
@@ -296,6 +323,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     {
         output.color = gMaterial.color * textureColor;
     }
+    
     
     
     output.color = pow(output.color, 2.2f);

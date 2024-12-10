@@ -125,6 +125,7 @@ void MyGame::InitializeResource()
 	TextureManager::GetInstance()->LoadTexture("resources/enemy.png");
 	TextureManager::GetInstance()->LoadTexture("resources/sky.png");
 	TextureManager::GetInstance()->LoadTexture("resources/enter.png");
+	TextureManager::GetInstance()->LoadTexture("resources/NormalMap.png");
 	for (int i = 0; i < 10; i++) {
 		std::string label = "resources/num/" + std::to_string(i) + ".png";
 		TextureManager::GetInstance()->LoadTexture(label);

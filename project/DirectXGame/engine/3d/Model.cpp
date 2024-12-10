@@ -16,12 +16,22 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 
 	modelData = LoadOdjFile(directorypath, filename);
 
+	
+
 
 	// .objの参照しているテクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textuerFilePath);
 	// 読み込んだテクスチャの番号を取得
 	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerFilePath);
 
+
+	modelData.materialNormal.textuerFilePath = "resources/NormalMap.png";
+
+	TextureManager::GetInstance()->LoadTexture(modelData.materialNormal.textuerFilePath);
+
+	modelData.materialNormal.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.materialNormal.textuerFilePath);
+	
+	
 	vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
 
 	// リソースの先頭のアドレスを作成する
@@ -66,7 +76,13 @@ void Model::Draw()
 
 	// テクスチャのバインド
 	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
+	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
+	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
+	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
 
+	//modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.materialNormal.textuerFilePath));
+
+	
 	// 頂点バッファの設定
 	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 	// インデックスバッファの設定

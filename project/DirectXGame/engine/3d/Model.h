@@ -29,6 +29,7 @@ public:
 		std::vector<uint32_t> indices; // 追加：インデックスデータ
 		std::vector<VertexData> indicesPos;
 		MaterialData material;
+		MaterialData materialNormal;
 	};
 	// カスタムハッシュ関数
 	struct VertexHash {
