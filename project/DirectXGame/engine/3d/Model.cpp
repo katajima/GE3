@@ -3,6 +3,10 @@
 #include"Object3d.h"
 #include"DirectXGame/engine/base/TextureManager.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 // 頂点を比較するためのオペレーター
 bool operator==(const Model::VertexData& v1, const Model::VertexData& v2) {
 	return v1.position == v2.position &&
@@ -14,7 +18,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 {
 	modelCommon_ = ModelCommon::GetInstance();;
 
-	modelData = LoadOdjFile(directorypath, filename);
+	modelData = LoadOdjFileAssimp(directorypath, filename);
 
 
 
@@ -264,6 +268,79 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 
 	return modelData;
 };
+
+Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, const std::string& filename) {
+	ModelData modelData; // 構築するModelData
+	std::vector<Vector4> positions; // 位置
+	std::vector<Vector3> normals; // 法線
+	std::vector<Vector2> texcoords; // テクスチャ座標
+
+	Assimp::Importer importer;
+	std::string filePath = directoryPath + "/" + filename;
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+
+	if (!scene) {
+		//std::cerr << "Error: " << importer.GetErrorString() << std::endl;
+		return modelData;
+	}
+
+	assert(scene->HasMeshes()); // メッシュがないのは対応しない
+
+	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		aiMesh* mesh = scene->mMeshes[meshIndex];
+		assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
+		assert(mesh->HasTextureCoords(0)); //TexcoordがないMeshは今回は非対応
+		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+			aiFace& face = mesh->mFaces[faceIndex];
+			assert(face.mNumIndices == 3); // 三角形のみサポート
+			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
+				uint32_t vertexIndex = face.mIndices[element];
+				aiVector3D& position = mesh->mVertices[vertexIndex];
+				aiVector3D& normal = mesh->mNormals[vertexIndex];
+				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+				VertexData vertex;
+				vertex.position = { position.x,position.y,position.z,1.0f };
+				vertex.normal = { normal.x,normal.y,normal.z };
+				vertex.texcoord = { texcoord.x,texcoord.y };
+
+				// aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対応
+				vertex.position.x *= -1.0f;
+				vertex.normal.x *= -1.0f;
+				modelData.vertices.push_back(vertex);
+				//modelData.indices.push_back(modelData.vertices.size() - 1); // インデックスを追加
+			}
+		}
+	}
+
+	// インデックスを生成
+	GenerateIndices2(modelData); // thisは省略可能
+
+	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+		aiMaterial* material = scene->mMaterials[materialIndex];
+		aiString textureFilePath;
+
+		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
+			modelData.material.textuerFilePath = directoryPath + "/" + textureFilePath.C_Str();
+		}
+		if (material->GetTextureCount(aiTextureType_SPECULAR) != 0) {
+			material->GetTexture(aiTextureType_SPECULAR, 0, &textureFilePath);
+			modelData.material.textuerSpeculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
+		}
+		if (material->GetTextureCount(aiTextureType_HEIGHT) != 0 || material->GetTextureCount(aiTextureType_NORMALS) != 0) {
+			if (material->GetTextureCount(aiTextureType_HEIGHT) != 0) {
+				material->GetTexture(aiTextureType_HEIGHT, 0, &textureFilePath);
+			}
+			else {
+				material->GetTexture(aiTextureType_NORMALS, 0, &textureFilePath);
+			}
+			modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
+		}
+	}
+
+	return modelData;
+}
+
 
 void Model::GenerateIndices(ModelData& modelData) {
 	modelData.indices.clear(); // インデックスをクリア

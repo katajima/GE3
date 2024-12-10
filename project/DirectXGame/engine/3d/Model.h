@@ -107,6 +107,8 @@ public:
 
 	//モデルデータ読み込み
 	static ModelData LoadOdjFile(const std::string& directoryPath, const std::string& filename);
+	
+	static ModelData LoadOdjFileAssimp(const std::string& directoryPath, const std::string& filename);
 
 	static void GenerateIndices(ModelData& modelData);
 
