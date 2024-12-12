@@ -41,8 +41,8 @@ float SpecularPow(float32_t3 dire, float32_t3 toEye, float32_t3 normal, float32_
 
 float SpecularPow2(float32_t3 dire, float32_t3 toEye, float32_t3 normal, float32_t shininess)
 {
-    float32_t3 reflectLight = reflect(normalize(dire), normalize(normal)); // 反射ベクトル
-    float32_t RdotE = dot(reflectLight, normalize(toEye)); // 視線ベクトルと反射ベクトルのドット積
+    float32_t3 reflectLight = reflect(dire, normalize(normal)); // 反射ベクトル
+    float32_t RdotE = dot(reflectLight, toEye); // 視線ベクトルと反射ベクトルのドット積
 
     return pow(saturate(RdotE), shininess);
 }

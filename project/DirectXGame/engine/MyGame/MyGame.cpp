@@ -117,36 +117,34 @@ void MyGame::Draw()
 
 void MyGame::InitializeResource()
 {
-	TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
-	TextureManager::GetInstance()->LoadTexture("resources/train.png");
-	TextureManager::GetInstance()->LoadTexture("resources/rail.png");
-	TextureManager::GetInstance()->LoadTexture("resources/reticle.png");
-	TextureManager::GetInstance()->LoadTexture("resources/white.png");
-	TextureManager::GetInstance()->LoadTexture("resources/enemy.png");
-	TextureManager::GetInstance()->LoadTexture("resources/sky.png");
-	TextureManager::GetInstance()->LoadTexture("resources/enter.png");
-	TextureManager::GetInstance()->LoadTexture("resources/NormalMap.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/train.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/rail.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/reticle.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/white.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/enemy.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/sky.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/enter.png");
+	//TextureManager::GetInstance()->LoadTexture("resources/NormalMap.png");
 	for (int i = 0; i < 10; i++) {
 		std::string label = "resources/num/" + std::to_string(i) + ".png";
-		TextureManager::GetInstance()->LoadTexture(label);
+	//	TextureManager::GetInstance()->LoadTexture(label);
 	}
 
-	ModelManager::GetInstance()->LoadModel("rail.obj");
-	ModelManager::GetInstance()->LoadModel("plane.obj","NormalMap.png");
-	ModelManager::GetInstance()->LoadModel("planeNormalMap.obj");
-	ModelManager::GetInstance()->LoadModel("planeNormalMap2.obj");
-	ModelManager::GetInstance()->LoadModel("grass.obj");
-	ModelManager::GetInstance()->LoadModel("plane2.obj");
-	ModelManager::GetInstance()->LoadModel("axis.obj");
-	ModelManager::GetInstance()->LoadModel("axis2.obj");
-	ModelManager::GetInstance()->LoadModel("train.obj");
-	ModelManager::GetInstance()->LoadModel("teapot.obj");
+	ModelManager::GetInstance()->LoadModel("plane.gltf");
+	ModelManager::GetInstance()->LoadModel("rail.obj","rail");
 	
-	ModelManager::GetInstance()->LoadModel("building.obj");
-	ModelManager::GetInstance()->LoadModel("Sphere.obj");
-	ModelManager::GetInstance()->LoadModel("long.obj");
-	ModelManager::GetInstance()->LoadModel("skydome.obj");
-	ModelManager::GetInstance()->LoadModel("enemy.obj");
+	ModelManager::GetInstance()->LoadModel("grass.obj", "grass");
+	ModelManager::GetInstance()->LoadModel("grass.gltf", "grass2");
+	ModelManager::GetInstance()->LoadModel("walk.gltf", "walk");
+	ModelManager::GetInstance()->LoadModel("plane.obj");
+	ModelManager::GetInstance()->LoadModel("axis.obj","axis");
+	ModelManager::GetInstance()->LoadModel("teapot.obj","teapot");
+	
+	ModelManager::GetInstance()->LoadModel("building.obj","building");
+	ModelManager::GetInstance()->LoadModel("Sphere.obj","sphere");
+	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
+	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
 	ModelManager::GetInstance()->LoadModel("title.obj");
 
 

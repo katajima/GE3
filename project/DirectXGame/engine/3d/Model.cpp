@@ -2,11 +2,13 @@
 #include"ModelCommon.h"
 #include"Object3d.h"
 #include"DirectXGame/engine/base/TextureManager.h"
+#include <iostream>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
+std::string getLastPartOfPath(const std::string& path) { 
+	size_t pos = path.find_last_of("/\\"); if (pos == std::string::npos) { 
+		return path; 
+	} return path.substr(pos + 1); 
+}
 // 頂点を比較するためのオペレーター
 bool operator==(const Model::VertexData& v1, const Model::VertexData& v2) {
 	return v1.position == v2.position &&
@@ -14,11 +16,18 @@ bool operator==(const Model::VertexData& v1, const Model::VertexData& v2) {
 		v1.texcoord == v2.texcoord;
 }
 
-void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename, const std::string& normalMap, const std::string& specularMap)
+void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename, const std::string& file)
 {
 	modelCommon_ = ModelCommon::GetInstance();;
 
-	modelData = LoadOdjFileAssimp(directorypath, filename);
+	std::string dire = directorypath;
+
+	if (file != "") {
+		dire = directorypath + "/" + file;
+	}
+
+
+	modelData = LoadOdjFileAssimp(dire, filename);
 
 
 
@@ -55,12 +64,6 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 
 		modelData.material.textuerSpeculerIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerSpeculerFilePath);
 	}
-
-
-
-
-
-
 
 
 
@@ -270,21 +273,17 @@ Model::ModelData Model::LoadOdjFile(const std::string& directoryPath, const std:
 };
 
 Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, const std::string& filename) {
-	ModelData modelData; // 構築するModelData
-	std::vector<Vector4> positions; // 位置
-	std::vector<Vector3> normals; // 法線
-	std::vector<Vector2> texcoords; // テクスチャ座標
+	//必要な変数の宣言とファイルを開く
+	ModelData modelData;//構築するModelData
+
 
 	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/" + filename;
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	std::string filePach = directoryPath + "/" + filename;
 
-	if (!scene) {
-		//std::cerr << "Error: " << importer.GetErrorString() << std::endl;
-		return modelData;
-	}
+	
 
-	assert(scene->HasMeshes()); // メッシュがないのは対応しない
+	const aiScene* scene = importer.ReadFile(filePach.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	assert(scene->HasMeshes()); //メッシュがないのは対応しない
 
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
@@ -307,9 +306,9 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 				vertex.position.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
 				modelData.vertices.push_back(vertex);
-				//modelData.indices.push_back(modelData.vertices.size() - 1); // インデックスを追加
 			}
 		}
+
 	}
 
 	// インデックスを生成
@@ -320,27 +319,53 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 		aiString textureFilePath;
 
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			modelData.material.textuerFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			aiString textureFilePaths;
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePaths);
+			std::cout << "Diffuse Texture File Path: " << textureFilePaths.C_Str() << std::endl;
+			modelData.material.textuerFilePath = directoryPath + "/" + textureFilePaths.C_Str();
 		}
 		if (material->GetTextureCount(aiTextureType_SPECULAR) != 0) {
+			aiString textureFilePath;
 			material->GetTexture(aiTextureType_SPECULAR, 0, &textureFilePath);
+			std::cout << "Specular Texture File Path: " << textureFilePath.C_Str() << std::endl;
 			modelData.material.textuerSpeculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
 		}
 		if (material->GetTextureCount(aiTextureType_HEIGHT) != 0 || material->GetTextureCount(aiTextureType_NORMALS) != 0) {
+			aiString textureFilePath;
 			if (material->GetTextureCount(aiTextureType_HEIGHT) != 0) {
 				material->GetTexture(aiTextureType_HEIGHT, 0, &textureFilePath);
 			}
 			else {
 				material->GetTexture(aiTextureType_NORMALS, 0, &textureFilePath);
 			}
+			std::cout << "Normal/Height Texture File Path: " << textureFilePath.C_Str() << std::endl;
 			modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
 		}
 	}
 
+
+	modelData.rootNode = ReadNode(scene->mRootNode);
+
 	return modelData;
 }
 
+Model::Node Model::ReadNode(aiNode* node) {
+	Node result;
+	aiMatrix4x4 aiLocalMatrix = node->mTransformation; // nodeのlocalMatrixを取得
+	aiLocalMatrix.Transpose(); // 列ベクトル形式を行ベクトル形式に転置
+	for (uint32_t i = 0; i < 4; i++) {
+		for (uint32_t j = 0; j < 4; j++) {
+			result.localMatrix.m[i][j] = aiLocalMatrix[i][j]; // 他の要素も
+		}
+	}
+	result.name = node->mName.C_Str(); // Node名を格納
+	result.children.resize(node->mNumChildren); // 子供の数だけ確保
+	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex) {
+		// 再帰的に読んで階層構造を作っていく
+		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+	}
+	return result;
+}
 
 void Model::GenerateIndices(ModelData& modelData) {
 	modelData.indices.clear(); // インデックスをクリア

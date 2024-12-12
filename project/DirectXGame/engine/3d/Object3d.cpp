@@ -23,11 +23,10 @@
 
 void Object3d::Initialize()
 {
-	Object3dCommon::GetInstance();
-
+	
 	// 引数で受け取ってメンバ変数に記録する
 	//this->object3dCommon_ = Object3dCommon::GetInstance();
-	this->camera = Object3dCommon::GetInstance()->GetDefaltCamera();
+	//this->camera = Object3dCommon::GetInstance()->GetDefaltCamera();
 	//トランスフォーム
 	transformationMatrixResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
 
@@ -74,6 +73,10 @@ void Object3d::Update()
 		
 		cameraData->normal = cameraFront;
 		cameraData->worldPosition = camera->transform_.translate;
+
+
+		transfomationMatrixData->WVP = Multiply(Multiply(model->modelData.rootNode.localMatrix , mat_) , worldViewProjectionMatrix);
+		transfomationMatrixData->World = Multiply(model->modelData.rootNode.localMatrix, mat_);
 	}
 	else {
 		worldViewProjectionMatrix = mat_;

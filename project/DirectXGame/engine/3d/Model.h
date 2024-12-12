@@ -68,7 +68,7 @@ public:
 
 
 
-	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename, const std::string& normalMap = "", const std::string& specularMapTex = "");
+	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename,const std::string& file = "");
 
 	void Draw();
 

@@ -46,7 +46,7 @@ void LightCommon::Initialize()
 	pointLightData[0].isLight = true;
 	pointLightData[1] = PointLight({0.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,10.0f});
 	pointLightData[1].radius = 10.0f;
-	pointLightData[1].intensity = 100.0f;
+	pointLightData[1].intensity = 5.0f;
 	pointLightData[1].isLight = true;
 	pointLightData[1].lig = 0.2f;
 

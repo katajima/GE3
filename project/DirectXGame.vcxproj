@@ -91,7 +91,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)DirectXGame\application\base;$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)DirectXGame\application\base;$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Line;$(ProjectDir)engine\effect</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,23 +107,26 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DirectXGame\application\base\Enemy.cpp" />
-    <ClCompile Include="DirectXGame\application\base\RailCamera.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Attack\AttackManeger.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Enemy\Enemy.cpp" />
+    <ClCompile Include="DirectXGame\application\base\FollowCamera\FollowCamera.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Player\BasePlayerState.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Player\Player.cpp" />
     <ClCompile Include="DirectXGame\application\GlobalVariables\GlobalVariables.cpp" />
     <ClCompile Include="DirectXGame\application\scene\SceneFactory.cpp" />
     <ClCompile Include="DirectXGame\engine\3d\LightCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\scene\BaseScene.cpp" />
     <ClCompile Include="DirectXGame\application\scene\GamePlayScene.cpp" />
     <ClCompile Include="DirectXGame\application\scene\TitleScene.cpp" />
-    <ClCompile Include="DirectXGame\engine\3d\Line.cpp" />
-    <ClCompile Include="DirectXGame\engine\3d\LineCommon.cpp" />
+    <ClCompile Include="DirectXGame\engine\Line\Line.cpp" />
+    <ClCompile Include="DirectXGame\engine\Line\LineCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\audio\Audio.cpp" />
     <ClCompile Include="DirectXGame\engine\base\Camera.cpp" />
     <ClCompile Include="DirectXGame\engine\base\D3DResourceLeakchecker.cpp" />
     <ClCompile Include="DirectXGame\engine\base\DirectXCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\base\ImGuiManager.cpp" />
-    <ClCompile Include="DirectXGame\engine\base\ParticleEmitter.cpp" />
-    <ClCompile Include="DirectXGame\engine\base\ParticleManager.cpp" />
+    <ClCompile Include="DirectXGame\engine\effect\ParticleEmitter.cpp" />
+    <ClCompile Include="DirectXGame\engine\effect\ParticleManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\SrvManager.cpp" />
     <ClCompile Include="DirectXGame\engine\MyGame\Framework.cpp" />
     <ClCompile Include="DirectXGame\engine\MyGame\MyGame.cpp" />
@@ -204,25 +207,28 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DirectXGame\application\base\Enemy.h" />
-    <ClInclude Include="DirectXGame\application\base\RailCamera.h" />
+    <ClInclude Include="DirectXGame\application\base\Attack\AttackManeger.h" />
+    <ClInclude Include="DirectXGame\application\base\Enemy\Enemy.h" />
+    <ClInclude Include="DirectXGame\application\base\FollowCamera\FollowCamera.h" />
+    <ClInclude Include="DirectXGame\application\base\Player\BasePlayerState.h" />
+    <ClInclude Include="DirectXGame\application\base\Player\Player.h" />
     <ClInclude Include="DirectXGame\application\GlobalVariables\GlobalVariables.h" />
     <ClInclude Include="DirectXGame\application\scene\SceneFactory.h" />
-    <ClInclude Include="DirectXGame\engine\3d\LevelData.h" />
+    <ClInclude Include="DirectXGame\engine\base\LevelData.h" />
     <ClInclude Include="DirectXGame\engine\3d\LightCommon.h" />
     <ClInclude Include="DirectXGame\engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="DirectXGame\engine\scene\BaseScene.h" />
     <ClInclude Include="DirectXGame\application\scene\GamePlayScene.h" />
     <ClInclude Include="DirectXGame\application\scene\TitleScene.h" />
-    <ClInclude Include="DirectXGame\engine\3d\Line.h" />
-    <ClInclude Include="DirectXGame\engine\3d\LineCommon.h" />
+    <ClInclude Include="DirectXGame\engine\Line\Line.h" />
+    <ClInclude Include="DirectXGame\engine\Line\LineCommon.h" />
     <ClInclude Include="DirectXGame\engine\audio\Audio.h" />
     <ClInclude Include="DirectXGame\engine\base\Camera.h" />
     <ClInclude Include="DirectXGame\engine\base\D3DResourceLeakchecker.h" />
     <ClInclude Include="DirectXGame\engine\base\DirectXCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\ImGuiManager.h" />
-    <ClInclude Include="DirectXGame\engine\base\ParticleEmitter.h" />
-    <ClInclude Include="DirectXGame\engine\base\ParticleManager.h" />
+    <ClInclude Include="DirectXGame\engine\effect\ParticleEmitter.h" />
+    <ClInclude Include="DirectXGame\engine\effect\ParticleManager.h" />
     <ClInclude Include="DirectXGame\engine\base\SrvManager.h" />
     <ClInclude Include="DirectXGame\engine\MyGame\Framework.h" />
     <ClInclude Include="DirectXGame\engine\MyGame\MyGame.h" />

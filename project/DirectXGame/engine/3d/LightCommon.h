@@ -8,8 +8,8 @@
 #include<vector>
 #include<format>
 #include"Object3dCommon.h"
-#include"DirectXGame/engine/3d/Line.h"
-#include"DirectXGame/engine/3d/LineCommon.h"
+#include"DirectXGame/engine/Line/Line.h"
+#include"DirectXGame/engine/Line/LineCommon.h"
 
 class LightCommon
 {

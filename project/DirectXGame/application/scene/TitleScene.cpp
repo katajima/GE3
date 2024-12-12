@@ -17,11 +17,11 @@ void TitleScene::Initialize()
 
 	particleManager_ = ParticleManager::GetInstance();
 
-	ParticleManager::GetInstance()->CreateParticleGroup("aa", "resources/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
+	ParticleManager::GetInstance()->CreateParticleGroup("aa", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
 	ParticleManager::GetInstance()->SetCamera(camera.get());
 
 	particleManager2_ = ParticleManager::GetInstance();
-	ParticleManager::GetInstance()->CreateParticleGroup("bb", "resources/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
+	ParticleManager::GetInstance()->CreateParticleGroup("bb", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
 	ParticleManager::GetInstance()->SetCamera(camera.get());
 
 	ParticleManager::GetInstance()->SetPos("aa",{0,0,0});
@@ -38,13 +38,13 @@ void TitleScene::Initialize()
 	mm.SetCamera(camera.get());
 
 	mm2.Initialize();
-	mm2.SetModel("teapot.obj");
+	mm2.SetModel("walk.gltf");
 	mm2.transform.translate = { -30,10,1 };
 	mm2.transform.scale = { 10,10,10 };
 	mm2.SetCamera(camera.get());
 
 	tail.Initialize();
-	tail.SetModel("grass.obj");
+	tail.SetModel("plane.gltf");
 	tail.SetCamera(camera.get());
 	tail.transform.scale = { 100,100,100 };
 
@@ -132,9 +132,9 @@ void TitleScene::Update()
 	ImGui::End();
 #endif
 
-	if (Input::GetInstance()->IsTriggerKey(DIK_RETURN)) {
+	if (Input::GetInstance()->IsTriggerKey(DIK_P)) {
 		// シーン切り替え
-		//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+		SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	}
 
 
@@ -151,7 +151,7 @@ void TitleScene::Draw3D()
 	tail.Draw();
 
 	mm.Draw();
-	//mm2.Draw();
+	mm2.Draw();
 }
 
 void TitleScene::DrawP3D()

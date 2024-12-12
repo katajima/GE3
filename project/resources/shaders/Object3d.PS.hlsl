@@ -129,6 +129,9 @@ PixelShaderOutput main(PixelShaderInput input)
     
     if (gMaterial.enableLighting != 0) // Lighting‚·‚éê‡
     {
+       
+        
+        
        // ƒTƒ“ƒvƒŠƒ“ƒO
         float amdientPower = 0;
         if (gMaterial.useNormalMap)
@@ -155,9 +158,13 @@ PixelShaderOutput main(PixelShaderInput input)
               // ŠgŽU”½ŽË
             float32_t cos = Cos(gDirectionalLight.direction, toEye, normal);
 
+            
               // ‹¾–Ê”½ŽË
-            float32_t specularPow = SpecularPow2(gDirectionalLight.direction, toEye, normal, gMaterial.shininess);
-        
+            float32_t specularPow = 0.0f;
+            if (gMaterial.shininess >= 1.0f)
+            {
+                specularPow = SpecularPow2(gDirectionalLight.direction, toEye, normal, gMaterial.shininess);
+            }
             if (gMaterial.useSpeculerMap)
             {
                 float specPower = g_Specularmap.Sample(sSampler, input.texcoord).r;

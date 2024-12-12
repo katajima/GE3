@@ -29,8 +29,8 @@
 
 #include"DirectXGame/engine/base/Camera.h"
 #include"DirectXGame/engine/base/SrvManager.h"
-#include"DirectXGame/engine/base/ParticleManager.h"
-#include"DirectXGame/engine/base/ParticleEmitter.h"
+#include"DirectXGame/engine/effect/ParticleManager.h"
+#include"DirectXGame/engine/effect/ParticleEmitter.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/base/StringUtility.h"
