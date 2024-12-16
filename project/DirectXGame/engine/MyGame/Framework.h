@@ -26,6 +26,7 @@
 #include"DirectXGame/engine/Line/Line.h"
 #include"DirectXGame/engine/scene/SceneManager.h"
 #include"DirectXGame/engine/scene/AbstractSceneFactory.h"
+#include "DirectXGame/engine/base/RenderingCommon.h"
 #include"DirectXGame/application/GlobalVariables/GlobalVariables.h"
 #include"memory"
 
@@ -82,6 +83,8 @@ protected:
 	ParticleEmitter* emitter = nullptr;
 
 	LightCommon* lightCommon = nullptr;
+
+	RenderingCommon* renderingCommon = nullptr;
 
 	// シーンファクトリー
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_;

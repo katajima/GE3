@@ -38,7 +38,7 @@ void TitleScene::Initialize()
 	mm.SetCamera(camera.get());
 
 	mm2.Initialize();
-	mm2.SetModel("walk.gltf");
+	mm2.SetModel("AnimatedCube.gltf");
 	mm2.transform.translate = { -30,10,1 };
 	mm2.transform.scale = { 10,10,10 };
 	mm2.SetCamera(camera.get());
@@ -47,7 +47,6 @@ void TitleScene::Initialize()
 	tail.SetModel("plane.gltf");
 	tail.SetCamera(camera.get());
 	tail.transform.scale = { 100,100,100 };
-
 
 }
 

@@ -17,20 +17,14 @@
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
 
+#include"DirectXGame/engine/struct/Structs.h"
+
+class RenderingCommon;
+
 class DirectXCommon
 {
 public: // メンバ関数
-	// インスタンス
-	//static DirectXCommon* GetInstance();
-	// シングルトンインスタンス
-	//static DirectXCommon* GetInstance();
-	//static DirectXCommon* instance;
-	// CPUHandle
-	//D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
-
-	// GPUHandle
-	//D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
-
+	
 	// CPUHandle
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUDescriptorHandle(uint32_t index);
 
@@ -47,14 +41,29 @@ public: // メンバ関数
 	void Intialize(/*WinApp* winApp*/);
 
 	// 描画前処理
-	void PreDraw();
+	void PreDrawOffscreen();
 	// 描画後処理
-	void PostDraw();
+	void PostDrawOffscreen();
+
+
+	// 描画前処理
+	void PreDrawSwap();
+	// 描画後処理
+	void PostDrawSwap();
 
 	//終了処理
 	void Finalize();
 
 private:
+	D3D12_RESOURCE_STATES swapChainState_; // スワップチェインの状態
+	D3D12_RESOURCE_STATES renderTextureState_; // rendertextureの状態
+
+	D3D12_RESOURCE_BARRIER barrier1;
+
+	void TransitionResourceState(ID3D12Resource* resource,
+		D3D12_RESOURCE_STATES beforeState,
+		D3D12_RESOURCE_STATES afterState);
+
 	/// <summary>
 	/// DXGIデバイス初期化
 	/// </summary>
@@ -146,6 +155,19 @@ public:
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetRtvDescriptorHeap() { return rtvDescriptorHeap; }
 
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> GetDsvDescriptorHeap() { return dsvDescriptorHeap; }
+
+
+	Microsoft::WRL::ComPtr < ID3D12Resource> CreateRenderTextureResource(DXGI_FORMAT format, const Vector4& color);
+
+	void CreateRenderTexture();
+
+	Microsoft::WRL::ComPtr < ID3D12Resource> GetRenderTextureResource() const { return renderTextureResource_; }
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> renderTextureResource_;
+	//Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> rtvTexDescriptorHeap;
+
+	uint32_t index;
+	
 private:
 	// WindowsAPI
 	//WinApp* winApp_ = nullptr;
@@ -161,9 +183,14 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> depthStencilResource;
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> swapChainResources;
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvTexHandle;
+
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> rtvDescriptorHeap;
-	//Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> srvDescriptorHeap;
+	
+	D3D12_RENDER_TARGET_VIEW_DESC rtvTexDesc;
+	
+	
 	Microsoft::WRL::ComPtr < ID3D12DescriptorHeap> dsvDescriptorHeap;
 	Microsoft::WRL::ComPtr < ID3D12Fence> fence;
 	HANDLE fenceEvent;
@@ -174,7 +201,6 @@ private:
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT scissorRect;
 	D3D12_RESOURCE_BARRIER barrier;
-	//uint32_t desriptorSizeSRV;
 	uint32_t desriptorSizeRTV;
 	uint32_t desriptorSizeDSV;
 

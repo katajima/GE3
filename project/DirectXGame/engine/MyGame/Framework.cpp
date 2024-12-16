@@ -11,6 +11,9 @@ void Framework::Initialize()
 	dxCommon = std::make_unique<DirectXCommon>();
 	dxCommon->Intialize();
 
+	renderingCommon = RenderingCommon::GetInstance();
+	renderingCommon->Initialize(dxCommon.get());
+
 	Input::GetInstance()->Intialize(winApp.get());
 	
 	// SRVマネージャの初期化
@@ -18,7 +21,6 @@ void Framework::Initialize()
 	srvManager->Initialize(dxCommon.get());
 
 	
-
 	// ImGuiマネージャー
 	imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Initialize(dxCommon.get());
@@ -72,6 +74,8 @@ void Framework::Finalize()
 	lineCommon->Finalize();
 
 	lightCommon->Finalize();
+
+	renderingCommon->Finalize();
 }
 
 void Framework::Update()

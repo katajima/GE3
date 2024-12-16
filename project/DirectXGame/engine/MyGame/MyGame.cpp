@@ -6,6 +6,7 @@ void MyGame::Initialize()
 {
 	Framework::Initialize();
 
+
 	// 最初のシーン
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	// シーンマネージャーに最初のシーンをセット
@@ -16,6 +17,9 @@ void MyGame::Initialize()
 	//Camera::GetInstance();
 	// リソース初期化
 	InitializeResource();
+
+
+	dxCommon->CreateRenderTexture();
 
 }
 
@@ -81,38 +85,41 @@ void MyGame::Draw()
 {
 	// 描画前処理
 	SrvManager::GetInstance()->PreDraw();
-	dxCommon->PreDraw();
+
+	//dxCommon->PreDrawOffscreen();
+
+	dxCommon->PreDrawSwap();
 
 	//////////////---------3Dモデル-------------///////////////
 
-	
-	//ParticleManager::GetInstance()->DrawCommonSetting();
-
 	SceneManager::GetInstance()->DrawP3D();
 
-	//// 3Dオブジェクトの描画準備
+	// 3Dオブジェクトの描画準備
 	Object3dCommon::GetInstance()->DrawCommonSetting();
-	
+
 	LightCommon::GetInstance()->DrawLight();
 
 	SceneManager::GetInstance()->Draw3D();
 
-	//LineCommon::GetInstance()->DrawCommonSetting();
-
 	SceneManager::GetInstance()->DrawLine3D();
-
-	//SceneManager::GetInstance()
 
 	// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->Draw2D();
+	
+	///
+	//RenderingCommon::GetInstance()->DrawCommonSetting();
+	
+
+	//描画後処理
+	//dxCommon->PostDrawOffscreen();
 
 	// ImGuiの描画
 	imguiManager->Draw();
 
 	//描画後処理
-	dxCommon->PostDraw();
+	dxCommon->PostDrawSwap();
 }
 
 void MyGame::InitializeResource()
@@ -137,6 +144,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("grass.obj", "grass");
 	ModelManager::GetInstance()->LoadModel("grass.gltf", "grass2");
 	ModelManager::GetInstance()->LoadModel("walk.gltf", "walk");
+	ModelManager::GetInstance()->LoadModel("AnimatedCube.gltf", "AnimatedCube");
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj","axis");
 	ModelManager::GetInstance()->LoadModel("teapot.obj","teapot");
