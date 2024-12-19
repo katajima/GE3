@@ -114,10 +114,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\base\Player\Player.cpp" />
     <ClCompile Include="DirectXGame\application\GlobalVariables\GlobalVariables.cpp" />
     <ClCompile Include="DirectXGame\application\scene\SceneFactory.cpp" />
+    <ClCompile Include="DirectXGame\application\scene\TestScene.cpp" />
     <ClCompile Include="DirectXGame\engine\3d\LightCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\base\RenderingCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\base\RtvManeger.cpp" />
-    <ClCompile Include="DirectXGame\engine\scene\BaseScene.cpp" />
     <ClCompile Include="DirectXGame\application\scene\GamePlayScene.cpp" />
     <ClCompile Include="DirectXGame\application\scene\TitleScene.cpp" />
     <ClCompile Include="DirectXGame\engine\Line\Line.cpp" />
@@ -133,6 +133,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\MyGame\Framework.cpp" />
     <ClCompile Include="DirectXGame\engine\MyGame\MyGame.cpp" />
     <ClCompile Include="DirectXGame\engine\scene\SceneManager.cpp" />
+    <ClCompile Include="DirectXGame\engine\struct\Quaternion.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\ImGuizmo.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
@@ -228,10 +229,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\base\Player\Player.h" />
     <ClInclude Include="DirectXGame\application\GlobalVariables\GlobalVariables.h" />
     <ClInclude Include="DirectXGame\application\scene\SceneFactory.h" />
+    <ClInclude Include="DirectXGame\application\scene\TestScene.h" />
     <ClInclude Include="DirectXGame\engine\base\LevelData.h" />
     <ClInclude Include="DirectXGame\engine\3d\LightCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\RenderingCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\RtvManeger.h" />
+    <ClInclude Include="DirectXGame\engine\math\ProbabilityUtils.h" />
     <ClInclude Include="DirectXGame\engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="DirectXGame\engine\scene\BaseScene.h" />
     <ClInclude Include="DirectXGame\application\scene\GamePlayScene.h" />
@@ -251,6 +254,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\scene\SceneManager.h" />
     <ClInclude Include="DirectXGame\engine\struct\Light.h" />
     <ClInclude Include="DirectXGame\engine\struct\Material.h" />
+    <ClInclude Include="DirectXGame\engine\struct\Matrix4x4.h" />
+    <ClInclude Include="DirectXGame\engine\struct\Quaternion.h" />
+    <ClInclude Include="DirectXGame\engine\struct\Vector2.h" />
+    <ClInclude Include="DirectXGame\engine\struct\Vector3.h" />
+    <ClInclude Include="DirectXGame\engine\struct\Vector4.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\ImGuizmo.h" />

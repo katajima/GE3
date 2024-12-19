@@ -1,49 +1,24 @@
 #pragma once
+#include "DirectXGame/engine/struct/Vector4.h"
+#include "DirectXGame/engine/struct/Vector3.h"
+#include "DirectXGame/engine/struct/Vector2.h"
+#include "DirectXGame/engine/struct/Quaternion.h"
+#include "DirectXGame/engine/struct/Matrix4x4.h"
 
-//行列
-struct Matrix4x4
-{
-	float m[4][4];
-	// 行列のポインタを取得する関数
-	const float* GetMatrixPointer() const {
-		return &m[0][0];  // 行列データの最初の要素のポインタを返す
-	}
-};
+
 //行列
 struct Matrix3x3
 {
 	float m[3][3];
 };
 
-struct Vector4 final {
-	float x;
-	float y;
-	float z;
-	float w;
 
-	// == 演算子のオーバーロード
-	bool operator==(const Vector4& other) const {
-		return x == other.x && y == other.y && z == other.z && w == other.w;
-	}
-};
 
-struct Vector3 final {
-	float x, y, z;
 
-	// == 演算子のオーバーロード
-	bool operator==(const Vector3& other) const {
-		return x == other.x && y == other.y && z == other.z;
-	}
-};
 
-struct Vector2 final {
-	float x, y;
 
-	// == 演算子のオーバーロード
-	bool operator==(const Vector2& other) const {
-		return x == other.x && y == other.y;
-	}
-};
+
+
 //Transform
 struct Transform {
 	Vector3 scale;
@@ -57,12 +32,6 @@ struct AABB {
 	Vector3 max; //!< 最大点
 };
 
-struct Quaternion {
-	float x;
-	float y;
-	float z;
-	float w;
-};
 
 // 円
 struct Sphere {

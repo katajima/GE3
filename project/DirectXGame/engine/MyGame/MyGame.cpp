@@ -12,14 +12,14 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	SceneManager::GetInstance()->ChangeScene("TITLE");
+	SceneManager::GetInstance()->ChangeScene("TEST");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
 	InitializeResource();
 
 
-	dxCommon->CreateRenderTexture();
+	//
 
 }
 
@@ -94,7 +94,7 @@ void MyGame::Draw()
 
 	SceneManager::GetInstance()->DrawP3D();
 
-	// 3Dオブジェクトの描画準備
+	//// 3Dオブジェクトの描画準備
 	Object3dCommon::GetInstance()->DrawCommonSetting();
 
 	LightCommon::GetInstance()->DrawLight();
@@ -103,14 +103,15 @@ void MyGame::Draw()
 
 	SceneManager::GetInstance()->DrawLine3D();
 
-	// 2Dオブジェクトの描画準備
+	//// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 
 	SceneManager::GetInstance()->Draw2D();
 	
 	///
+	//dxCommon->CreateRenderTexture();
 	//RenderingCommon::GetInstance()->DrawCommonSetting();
-	
+
 
 	//描画後処理
 	//dxCommon->PostDrawOffscreen();

@@ -33,20 +33,19 @@ void DirectXCommon::Intialize(/*WinApp* winApp*/) {
 
 #pragma region Draw
 
-// RenderTexture
-void DirectXCommon::PreDrawOffscreen()
-{
+void DirectXCommon::PreDrawOffscreen() {
 	// レンダーテクスチャの状態遷移: PixelShaderResource -> RenderTarget
 	TransitionResourceState(renderTextureResource_.Get(),
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,  // 現在の状態
 		D3D12_RESOURCE_STATE_RENDER_TARGET);  // 遷移後の状態
+
+	
 
 	// 描画先の設定
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	commandList->OMSetRenderTargets(1, &rtvTexHandle, false, &dsvHandle);
 
 	// レンダーターゲットと深度バッファをクリア
-	///float clearColor[] = { 0.1f, 0.1f, 0.3f, 1.0f }; // 青っぽい色
 	float clearColor[] = { 1.0f, 0.0f, 0.0f, 1.0f }; // 青っぽい色
 	commandList->ClearRenderTargetView(rtvTexHandle, clearColor, 0, nullptr);
 	commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
@@ -56,21 +55,23 @@ void DirectXCommon::PreDrawOffscreen()
 	commandList->RSSetScissorRects(1, &scissorRect); // Scissorを設定
 }
 
-// RenderTexture
-void DirectXCommon::PostDrawOffscreen()
-{
+void DirectXCommon::PostDrawOffscreen() {
 	TransitionResourceState(renderTextureResource_.Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET,  // 現在の状態
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);  // 次の状態 (ピクセルシェーダー用)
+
+
 }
 
-// Swapchain
-void DirectXCommon::PreDrawSwap()
-{
+
+void DirectXCommon::PreDrawSwap() {
 	UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
 	TransitionResourceState(swapChainResources[backBufferIndex].Get(),
 		D3D12_RESOURCE_STATE_PRESENT,  // 現在の状態
 		D3D12_RESOURCE_STATE_RENDER_TARGET);  // 遷移後の状態
+
+	//TransitionResourceStateTracked(commandList.Get(), swapChainResources[backBufferIndex].Get(),
+	//	D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// ディスクリプタハンドルの初期化
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -89,14 +90,15 @@ void DirectXCommon::PreDrawSwap()
 	commandList->RSSetScissorRects(1, &scissorRect); // Scissorを設定
 }
 
-// Swapchain
-void DirectXCommon::PostDrawSwap()
-{
+void DirectXCommon::PostDrawSwap() {
 	HRESULT hr;
 	UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
 	TransitionResourceState(swapChainResources[backBufferIndex].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET,  // 現在の状態
 		D3D12_RESOURCE_STATE_PRESENT);  // 遷移後の状態
+
+	//TransitionResourceStateTracked(commandList.Get(), swapChainResources[backBufferIndex].Get(),
+	//	D3D12_RESOURCE_STATE_PRESENT);
 
 	// コマンドリストを確定させる
 	hr = commandList->Close();
@@ -114,8 +116,7 @@ void DirectXCommon::PostDrawSwap()
 	commandQueue->Signal(fence.Get(), fenceValue);
 
 	// GPUの処理が完了するまで待機
-	if (fence->GetCompletedValue() < fenceValue)
-	{
+	if (fence->GetCompletedValue() < fenceValue) {
 		fence->SetEventOnCompletion(fenceValue, fenceEvent);
 		WaitForSingleObject(fenceEvent, INFINITE);
 	}
@@ -130,6 +131,7 @@ void DirectXCommon::PostDrawSwap()
 	hr = commandList->Reset(commandAllocator.Get(), nullptr);
 	assert(SUCCEEDED(hr));
 }
+
 
 #pragma endregion // 描画処理
 
@@ -352,64 +354,48 @@ void DirectXCommon::CreateRenderTargets()
 {
 	HRESULT hr;
 
-	// SwapChainからResourceを引っ張てくる
-
+	// SwapChainからResourceを取得
 	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&swapChainResources[0]));
-
-	//うまく取得できなければ起動できない
-	assert(SUCCEEDED(hr));
+	assert(SUCCEEDED(hr)); // 成功を確認
 
 	hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
 	assert(SUCCEEDED(hr));
-
 
 	DXGI_SWAP_CHAIN_DESC swcDesc = {};
 	hr = swapChain->GetDesc(&swcDesc);
 	assert(SUCCEEDED(hr));
 
-	// 裏表の２つ分について
+	// バックバッファの数に応じてサイズを調整
 	backBuffers_.resize(swcDesc.BufferCount);
 
 	////------RTV------////
+	// RTVの設定
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 出力結果をSRGBに変換して書き込む
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D; // 2Dテクスチャとして書き込む
 
-	//RTVの設定
+	D3D12_RENDER_TARGET_VIEW_DESC rtvTexDesc = {};
+	rtvTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 出力結果をSRGBに変換して書き込む
+	rtvTexDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D; // 2Dテクスチャとして書き込む
 
-
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; //出力結果をSRGBに変換して書き込む
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D; //2dテクスチャとして書き込む
-	
-	rtvTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; //出力結果をSRGBに変換して書き込む
-	rtvTexDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D; //2dテクスチャとして書き込む
-
-	//ディスクリプタの先頭を取得する
+	// ディスクリプタの先頭を取得
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-	//RTVを2つ作るのでディスクリプタを2つ用意
-
-
-	//まず1つ目を作る。1つ目は最初のところに作る、作る場所をこちらで指定してあげる必要がある
+	// RTVを2つ作るためのディスクリプタを用意
 	rtvHandles[0] = rtvStartHandle;
-
 	device->CreateRenderTargetView(swapChainResources[0].Get(), &rtvDesc, rtvHandles[0]);
 
-	//2つ目のディスクリプタハンドルを得る(自力で)
 	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-
-	//rtvHandles[1] = GetCPUDescriptorHandle(rtvDescriptorHeap, desriptorSizeRTV, 0);
-
-	//2つ目を作る
 	device->CreateRenderTargetView(swapChainResources[1].Get(), &rtvDesc, rtvHandles[1]);
 
-
+	// レンダーテクスチャ用のRTVハンドルを計算
 	rtvTexHandle.ptr = rtvHandles[1].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	
+
 	const Vector4 kRenderTargetClearValue{ 1.0f, 0.0f, 0.0f, 1.0f };
 	renderTextureResource_ = CreateRenderTextureResource(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
 	device->CreateRenderTargetView(renderTextureResource_.Get(), &rtvTexDesc, rtvTexHandle);
-
-
 }
+
 
 void DirectXCommon::CreateDescriptorHeap()
 {
@@ -744,16 +730,16 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXCommon::CreateRenderTextureResourc
 }
 
 void DirectXCommon::CreateRenderTexture() {
-	/*const Vector4 kRenderTargetClearValue{ 1.0f, 0.0f, 0.0f, 1.0f };
-	renderTextureResource_ = CreateRenderTextureResource(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
-	device->CreateRenderTargetView(renderTextureResource_.Get(), &rtvTexDesc, rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-	*/
+	//const Vector4 kRenderTargetClearValue{ 1.0f, 0.0f, 0.0f, 1.0f };
+	//renderTextureResource_ = CreateRenderTextureResource(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
+	//device->CreateRenderTargetView(renderTextureResource_.Get(), &rtvTexDesc, rtvTexHandle);
+	
 	D3D12_SHADER_RESOURCE_VIEW_DESC renderTextureSrvDesc{};
 	renderTextureSrvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	renderTextureSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	renderTextureSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	renderTextureSrvDesc.Texture2D.MipLevels = 1;
-	index = SrvManager::GetInstance()->Allocate();
+	//index = SrvManager::GetInstance()->Allocate();
 
 	device->CreateShaderResourceView(
 		renderTextureResource_.Get(), &renderTextureSrvDesc, SrvManager::GetInstance()->GetCPUDescriptorHandle(index));

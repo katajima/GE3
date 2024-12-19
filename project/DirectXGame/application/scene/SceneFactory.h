@@ -2,6 +2,7 @@
 #include "DirectXGame/engine/scene/AbstractSceneFactory.h"
 #include"TitleScene.h"
 #include"GamePlayScene.h"
+#include"TestScene.h"
 
 
 // このゲーム用のシーン工場

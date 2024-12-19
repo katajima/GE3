@@ -19,12 +19,51 @@
 
 #include"DirectXGame/engine/struct/Structs.h"
 
+
+struct ResourceStateTracker {
+	std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> resourceStates;
+
+	void SetState(ID3D12Resource* resource, D3D12_RESOURCE_STATES newState) {
+		resourceStates[resource] = newState;
+	}
+
+	D3D12_RESOURCE_STATES GetState(ID3D12Resource* resource) const {
+		auto it = resourceStates.find(resource);
+		if (it != resourceStates.end()) {
+			return it->second;
+		}
+		// デフォルトの状態を返す (必要に応じて変更)
+		return D3D12_RESOURCE_STATE_COMMON;
+	}
+};
+
+
 class RenderingCommon;
 
 class DirectXCommon
 {
 public: // メンバ関数
-	
+	ResourceStateTracker stateTracker;
+	// 状態を遷移させる関数
+	void TransitionResourceStateTracked(ID3D12GraphicsCommandList* commandList,
+		ID3D12Resource* resource,
+		D3D12_RESOURCE_STATES newState) {
+		auto beforeState = stateTracker.GetState(resource);
+		if (beforeState != newState) {
+			D3D12_RESOURCE_BARRIER barrier = {};
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Transition.pResource = resource;
+			barrier.Transition.StateBefore = beforeState;
+			barrier.Transition.StateAfter = newState;
+			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+			commandList->ResourceBarrier(1, &barrier);
+
+			stateTracker.SetState(resource, newState);
+		}
+	}
+
+
 	// CPUHandle
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUDescriptorHandle(uint32_t index);
 

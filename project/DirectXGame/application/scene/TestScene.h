@@ -15,10 +15,10 @@
 #include "DirectXGame/engine/effect/ParticleEmitter.h"
 #include"DirectXGame/engine/Line/Line.h"
 
-class TitleScene : public BaseScene
+class TestScene : public BaseScene
 {
 public:
-	
+
 	// 初期化
 	void Initialize() override;
 
@@ -30,7 +30,7 @@ public:
 
 	// 描画
 	void Draw3D() override;
-	
+
 	void DrawP3D() override;
 
 	void DrawLine3D() override;
@@ -57,7 +57,34 @@ private:
 	Vector3 cameraDebugR;
 	bool flag = false;
 
+	// 列車のオブジェクト
+
+	ParticleManager* particleManager_;
+	ParticleManager* particleManager2_;
+
+
+	ParticleEmitter* emitter_;
+
+	ModelManager* modelm_;
+
+	Object3d mm;
+	Object3d mm2;
+	Object3d tail;
+
+
+
+	LineDraw lineDraw_;
+	LineDraw lineDraw2_;
+
+	Vector3 str;
+	Vector3 end;
+	//確認用
+	Quaternion a = {2.0f,3.0f,4.0f,1.0f};
+	Quaternion b = {1.0f,3.0f,5.0f,2.0f};
+	
+	Quaternion test{};
 
 };
+
 
 
