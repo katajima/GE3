@@ -18,12 +18,13 @@
 #include <iostream>
 
 #include"DirectXGame/engine/base/ImGuiManager.h"
+#include"DirectXGame/engine/Animation/Animation.h"
 #include"LightCommon.h"
 
 
 void Object3d::Initialize()
 {
-	
+
 	// 引数で受け取ってメンバ変数に記録する
 	//this->object3dCommon_ = Object3dCommon::GetInstance();
 	//this->camera = Object3dCommon::GetInstance()->GetDefaltCamera();
@@ -57,62 +58,75 @@ void Object3d::Initialize()
 
 void Object3d::Update()
 {
-	Matrix4x4 localMatrix{};
-	localMatrix.Identity();
-	if (model != nullptr) {
-		//model->Update();
+	Matrix4x4 localMatrix = MakeIdentity4x4();
 
+	// モデルが存在する場合
+	if (model) {
+		// アニメーションの更新
 		if (model->animation.flag) {
-			model->animationTime += 1.0f / 60.0f; // 時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応するほうが望ましい
-			model->animationTime = std::fmod(model->animationTime, model->animation.duration); // 最後までいったら最初からリピート再生。リピートしなくても別に良い
-			NodeAnimation& rootNodeAnimation = model->animation.nodeAnimations[model->modelData.rootNode.name]; // rootNodeのAnimationを取得
-			Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, model->animationTime); // 指定時刻の値を取得。関数の詳細は次ページ
-			Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, model->animationTime);
-			Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, model->animationTime);
-			localMatrix = MakeAffineMatrix(scale, rotate, translate);
+			model->animationTime += 1.0f / 60.0f; // フレームごとの時間経過を反映
+			model->animationTime = std::fmod(model->animationTime, model->animation.duration);
+
+			if (model->skeleton.joints.size() > 1) {
+				// スケルトンの更新
+				ApplyAnimation(model->skeleton, model->animation, model->animationTime);
+				//UpdateSkeleton(model->skeleton);
+				localMatrix = model->skeleton.joints[0].skeletonSpaceMatrix;
+
+			}
+			else {
+				// 単一のジョイントの場合
+				const NodeAnimation& rootNodeAnimation = model->animation.nodeAnimations[model->modelData.rootNode.name];
+				Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, model->animationTime);
+				Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, model->animationTime);
+				Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, model->animationTime);
+				localMatrix = MakeAffineMatrix(scale, rotate, translate);
+			}
+		}
+		else {
+			localMatrix = model->modelData.rootNode.localMatrix;
 		}
 	}
 
-
+	// ワールド行列の計算
 	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix;
+
 	if (camera) {
-
-
 
 		const Matrix4x4& viewMatrix = camera->GetViewMatrix();
 		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
-		worldViewProjectionMatrix = Multiply(mat_, viewMatrix);
-		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, projectionMatrix);
 
-		// カメラの法線方向
-		Vector3 cameraFront = Vector3(viewMatrix.m[0][2], viewMatrix.m[1][2], viewMatrix.m[2][2]); // 法線ベクトルを正規化
-		cameraFront = Normalize(cameraFront);
-		
-		cameraData->normal = cameraFront;
+
+		// WVP計算
+		Matrix4x4 worldViewProjectionMatrix = Multiply(localMatrix, mat_); // ワールド変換
+		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, camera->GetViewMatrix()); // ビュー変換
+		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, camera->GetProjectionMatrix()); // 射影変換
+
+
+		// カメラデータの更新
+		Vector3 cameraFront(viewMatrix.m[0][2], viewMatrix.m[1][2], viewMatrix.m[2][2]);
+		cameraData->normal = Normalize(cameraFront); // 必要なら正規化
 		cameraData->worldPosition = camera->transform_.translate;
 
-		if(model){
-			if (model->animation.flag) {
-				transfomationMatrixData->WVP = Multiply(localMatrix,worldViewProjectionMatrix);
-				transfomationMatrixData->World = Multiply(localMatrix, mat_);
-			}
-			else {
-				transfomationMatrixData->WVP = worldViewProjectionMatrix;
-				transfomationMatrixData->World = Multiply(model->modelData.rootNode.localMatrix, mat_);
-			}
+		if (model) {
+			transfomationMatrixData->WVP = worldViewProjectionMatrix;
+			transfomationMatrixData->World = Multiply(localMatrix, mat_);
 		}
 		else {
 			transfomationMatrixData->WVP = worldViewProjectionMatrix;
 			transfomationMatrixData->World = mat_;
 		}
-		transfomationMatrixData->worldInverseTranspose = Transpose(Inverse(mat_));
 	}
 	else {
 		worldViewProjectionMatrix = mat_;
+		transfomationMatrixData->WVP = worldViewProjectionMatrix;
+		transfomationMatrixData->World = mat_;
 	}
 
+	transfomationMatrixData->worldInverseTranspose = Transpose(Inverse(mat_));
 }
+
 
 void Object3d::Draw()
 {

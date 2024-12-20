@@ -1,6 +1,7 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include"map"
+#include"optional"
 
 
 template <typename tValue>
@@ -37,43 +38,53 @@ struct Animation
 	bool flag = false; // アニメーションがあるかないか
 };
 
+struct EulerTransform {
+	Vector3 scale;
+	Vector3 ratate; // Eulerでの回転
+	Vector3 translate;
+};
+
+struct QuaternionTransform
+{
+	Vector3 scale;
+	Quaternion rotate;
+	Vector3 tarnslate;
+};
+
+struct Joint {
+	QuaternionTransform transform; // Transform情報
+	Matrix4x4 localMatrix; // localMatrix
+	Matrix4x4 skeletonSpaceMatrix; // skeletonSpaceでの変換行列
+	std::string name; // 名前
+	std::vector<int32_t> children; // 子JointのIndexのリスト。いなければ空
+	int32_t index; // 自身のIndex
+	std::optional<int32_t> parent; // 親JointのIndex。いなければnull
+};
+
+struct  Node
+{
+	QuaternionTransform transform;
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<Node> children;
+};
+
+struct Skeleton {
+	int32_t root; // RootJointのIndex
+	std::map<std::string, int32_t> jointMap; // Joint名とIndexとの辞書
+	std::vector<Joint> joints; // 所属しているジョイント
+};
+
+Skeleton CreateSkeleton(const Node& rootNode);
+
+int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
 
 
-static Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) {
-	assert(!keyframes.empty()); // キーがないものは返す値がわからないのでダメ
-	if (keyframes.size() == 1 || time <= keyframes[0].time) { // キーが一つか、時刻がキーフレーム前なら最初の値を返す
-		return keyframes[0].value;
-	}
+void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
 
-	for (size_t index = 0; index < keyframes.size() - 1; ++index) {
-		size_t nextIndex = index + 1;
-		// indexとnextIndexの2つのkeyframeを取得して範囲内に時刻があるかを判断
-		if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
-			// 範囲内を補間する
-			float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
-			return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
-		}
-	}
-	// ここまで来た場合は一番最後の時刻よりも後ろなので最後の値を返すことにする
-	return (*keyframes.rbegin()).value;
-}
 
-static Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time) {
-	assert(!keyframes.empty()); // キーがないものは返す値がわからないのでダメ
-	if (keyframes.size() == 1 || time <= keyframes[0].time) { // キーが一つか、時刻がキーフレーム前なら最初の値を返す
-		return keyframes[0].value;
-	}
+Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time);
 
-	for (size_t index = 0; index < keyframes.size() - 1; ++index) {
-		size_t nextIndex = index + 1;
-		// indexとnextIndexの2つのkeyframeを取得して範囲内に時刻があるかを判断
-		if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
-			// 範囲内を補間する
-			float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
-			return Slerp(keyframes[index].value, keyframes[nextIndex].value, t);
-		}
-	}
-	// ここまで来た場合は一番最後の時刻よりも後ろなので最後の値を返すことにする
-	return (*keyframes.rbegin()).value;
-}
+Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time);
 
+void UpdateSkeleton(Skeleton& skeleton);

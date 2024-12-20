@@ -139,6 +139,8 @@ void MyGame::InitializeResource()
 	//	TextureManager::GetInstance()->LoadTexture(label);
 	}
 
+	ModelManager::GetInstance()->LoadModel("walk.gltf", "human");
+
 	ModelManager::GetInstance()->LoadModel("plane.gltf");
 	ModelManager::GetInstance()->LoadModel("rail.obj","rail");
 	
@@ -155,7 +157,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
 	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
 	ModelManager::GetInstance()->LoadModel("title.obj");
-
+	
 
 	//ParticleManager::GetInstance()->CreateParticleGroup("aa", "resources/uvChecker.png");
 	

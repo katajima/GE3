@@ -42,12 +42,7 @@ struct VertexData {
 	Vector3 normal;
 };
 
-struct  Node
-{
-	Matrix4x4 localMatrix;
-	std::string name;
-	std::vector<Node> children;
-};
+
 //モデルデータ
 struct ModelData
 {

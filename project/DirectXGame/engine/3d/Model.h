@@ -22,12 +22,7 @@ class ModelCommon;
 class Model
 {
 public:
-	struct  Node
-	{
-		Matrix4x4 localMatrix;
-		std::string name;
-		std::vector<Node> children;
-	};
+
 
 	struct VertexData {
 		Vector4 position;
@@ -49,7 +44,7 @@ public:
 	// アニメーション
 	Animation animation;
 	float animationTime = 0.0f;
-
+	Skeleton skeleton;
 	
 
 	// カスタムハッシュ関数
@@ -79,8 +74,8 @@ public:
 
 	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename,const std::string& file = "");
 
-	void Update();
-
+	
+	
 	void Draw();
 
 	ModelData& GetModelData(){ return modelData; }

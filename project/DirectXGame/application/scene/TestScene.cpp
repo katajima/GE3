@@ -46,6 +46,15 @@ void TestScene::Initialize()
 	tail.SetModel("plane.gltf");
 	tail.SetCamera(camera.get());
 	tail.transform.scale = { 100,100,100 };
+	
+	walk.Initialize();
+	walk.SetModel("walk.gltf");
+	walk.SetCamera(camera.get());
+	walk.transform.translate = { 0,10,0 };
+	//walk.transform.rotate.x = DegreesToRadians(-90);
+	//walk.transform.rotate.y = DegreesToRadians(180);
+	//walk.transform.scale = { 1000,1000,1000 };
+	walk.transform.scale = { 10,10,10 };
 
 	test = a.Conjugate();
 
@@ -110,6 +119,7 @@ void TestScene::Update()
 		mm.model->materialData->enableLighting = is;
 		mm2.model->materialData->enableLighting = is;
 		tail.model->materialData->enableLighting = is;
+		walk.model->materialData->enableLighting = is;
 
 		bool is2 = mm.model->materialData->useLig;
 		ImGui::Checkbox("useLig", &is2);
@@ -131,6 +141,7 @@ void TestScene::Update()
 		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
 		ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
 		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
+		ImGuiManager::GetInstance()->RenderGizmo2(walk, *camera.get(), "walk");
 
 	}
 	if (ImGui::CollapsingHeader("Camera")) {
@@ -176,9 +187,11 @@ void TestScene::Update()
 	}
 
 
+
+
+	walk.Update();
 	mm.Update();
 	mm2.Update();
-
 	tail.Update();
 
 	emitter_->Update();
@@ -186,6 +199,7 @@ void TestScene::Update()
 
 void TestScene::Draw3D()
 {
+	walk.Draw();
 	tail.Draw();
 
 	mm.Draw();

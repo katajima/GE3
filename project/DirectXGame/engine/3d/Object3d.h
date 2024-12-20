@@ -27,9 +27,7 @@ public:
 
 	// 初期化
 	void InitializeInstance(size_t size);
-	// 更新
-	void UpdateInstance();
-
+	
 	
 
 	// setter
