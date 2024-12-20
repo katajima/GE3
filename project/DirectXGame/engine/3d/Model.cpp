@@ -30,6 +30,8 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	modelData = LoadOdjFileAssimp(dire, filename);
 
 
+	animation = LoadAnimationFile(dire, filename);
+
 
 
 	// .objの参照しているテクスチャファイル読み込み
@@ -109,6 +111,11 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	if (useSpecularMap) {
 		materialData->useSpeculerMap = true;
 	}
+}
+
+void Model::Update()
+{
+
 }
 
 void Model::Draw()
@@ -311,6 +318,9 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 
 	}
 
+//	modelData.isAssimp = true;
+
+
 	// インデックスを生成
 	GenerateIndices2(modelData); // thisは省略可能
 
@@ -342,7 +352,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 			modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
 		}
 	}
-
+//	modelData.isAssimp = true;
 
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
@@ -365,6 +375,63 @@ Model::Node Model::ReadNode(aiNode* node) {
 		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
 	}
 	return result;
+}
+
+Animation Model::LoadAnimationFile(const std::string& directoryPath, const std::string& filename)
+{
+	Animation animation; // 今回作るアニメーション
+	Assimp::Importer importer;
+	std::string filePath = directoryPath + "/" + filename;
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
+
+	if (scene->mAnimations == 0) {
+		animation.flag = false;
+		return animation;
+	}
+	else {
+		animation.flag = true;
+	}
+
+	assert(scene->mAnimations != 0); // アニメーションがない
+	aiAnimation* animationAssimp = scene->mAnimations[0]; // 最初のアニメーションだけ採用。もちろん作数対応するに越したことはない
+	animation.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);// 時間の単位を秒に変換
+
+	// assimpでは個々のNodeのAnimationをchannelと呼んでいるのでchannelを回してNodeAnimationの情報をとってくる
+	// assimpでは個々のNodeのAnimationをchannelと呼んでいるのでchannelを回してNodeAnimationの情報をとってくる
+	for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
+		aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
+		NodeAnimation& nodeAnimation = animation.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+
+		// Position Keysの処理
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
+			KeyframeVector3 keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond); // ここも秒に変換
+			keyframe.value = { -keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z }; // 右手->左手
+			nodeAnimation.translate.keyframes.push_back(keyframe);
+		}
+
+		// Rotate Keysの処理
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex) {
+			aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
+			KeyframeQuaternion keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond); // ここも秒に変換
+			keyframe.value = { keyAssimp.mValue.x, -keyAssimp.mValue.y, -keyAssimp.mValue.z, keyAssimp.mValue.w }; // 右手->左手
+			nodeAnimation.rotate.keyframes.push_back(keyframe);
+		}
+
+		// Scale Keysの処理
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
+			KeyframeVector3 keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond); // ここも秒に変換
+			keyframe.value = { keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z }; // Scaleはそのまま
+			nodeAnimation.scale.keyframes.push_back(keyframe);
+		}
+	}
+
+	// 解析完了
+	return animation;
 }
 
 void Model::GenerateIndices(ModelData& modelData) {
@@ -445,6 +512,7 @@ void Model::UpdateIndexBuffer() {
 	memcpy(pData, modelData.indices.data(), bufferSize);
 	indexResource->Unmap(0, nullptr);
 }
+
 
 void Model::MoveVertices(const Vector3& offset) {
 	for (const auto& index : modelData.indices) {

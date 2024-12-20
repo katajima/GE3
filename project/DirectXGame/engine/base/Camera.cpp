@@ -13,7 +13,7 @@ Camera::Camera()
 	, aspect_(float(1280) / float(720))
 	, nearClip_(0.1f)
 	, farClip_(1000.0f)
-	, worldMatrix_(MakeAffineMatrixMatrix(transform_.scale, transform_.rotate, transform_.translate))
+	, worldMatrix_(MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate))
 	, viewMatrix_(Inverse(worldMatrix_))
 	, projectionMatrix_(MakePerspectiveFovMatrix(fovY_, aspect_, nearClip_, farClip_))
 	, viewProjectionMatrix_(Multiply(viewMatrix_, projectionMatrix_))
@@ -25,7 +25,7 @@ void Camera::UpdateMatrix() {
 
 
 	// カメラのワールド行列を計算
-	worldMatrix_ = MakeAffineMatrixMatrix(transform_.scale, transform_.rotate, transform_.translate);
+	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 
 	// ビュー行列をカメラのワールド行列の逆行列として計算
 	viewMatrix_ = Inverse(worldMatrix_);
@@ -47,7 +47,7 @@ void Camera::UpdateMatrix(const Vector3& targetPosition)
 	// カメラの位置をターゲットから一定距離後ろに配置
 	transform_.translate = Subtract(targetPosition, Multiply(directionToTarget, distanceFromTarget));
 
-	worldMatrix_ = MakeAffineMatrixMatrix(transform_.scale, transform_.rotate, transform_.translate);
+	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 
 
 
@@ -80,7 +80,7 @@ void Camera::LookAt(const Vector3& cameraPosition, const Vector3& targetPosition
 	transform_.rotate.y = std::atan2(forward.x, forward.z);
 
 	// ワールド行列の更新
-	worldMatrix_ = MakeAffineMatrixMatrix(transform_.scale, transform_.rotate, cameraPosition);
+	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, cameraPosition);
 
 	// ビュー行列を更新
 	viewMatrix_ = Inverse(worldMatrix_);

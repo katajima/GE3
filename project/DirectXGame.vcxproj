@@ -116,6 +116,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\scene\SceneFactory.cpp" />
     <ClCompile Include="DirectXGame\application\scene\TestScene.cpp" />
     <ClCompile Include="DirectXGame\engine\3d\LightCommon.cpp" />
+    <ClCompile Include="DirectXGame\engine\Animation\Animation.cpp" />
     <ClCompile Include="DirectXGame\engine\base\RenderingCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\base\RtvManeger.cpp" />
     <ClCompile Include="DirectXGame\application\scene\GamePlayScene.cpp" />
@@ -133,6 +134,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\MyGame\Framework.cpp" />
     <ClCompile Include="DirectXGame\engine\MyGame\MyGame.cpp" />
     <ClCompile Include="DirectXGame\engine\scene\SceneManager.cpp" />
+    <ClCompile Include="DirectXGame\engine\struct\Matrix4x4.cpp" />
     <ClCompile Include="DirectXGame\engine\struct\Quaternion.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\ImGuizmo.cpp" />
@@ -230,6 +232,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\GlobalVariables\GlobalVariables.h" />
     <ClInclude Include="DirectXGame\application\scene\SceneFactory.h" />
     <ClInclude Include="DirectXGame\application\scene\TestScene.h" />
+    <ClInclude Include="DirectXGame\engine\Animation\Animation.h" />
     <ClInclude Include="DirectXGame\engine\base\LevelData.h" />
     <ClInclude Include="DirectXGame\engine\3d\LightCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\RenderingCommon.h" />

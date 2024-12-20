@@ -71,7 +71,7 @@ void LineDraw::Update()
 
 
 	// ワールド行列を作成（線の位置、スケール、回転を表す）
-	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 	// カメラがある場合はビュー行列とプロジェクション行列を適用
 	if (camera) {

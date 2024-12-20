@@ -1,6 +1,8 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include"DirectXGame/engine/struct/Material.h"
+#include "DirectXGame/engine/Animation/Animation.h"
+
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>
@@ -42,7 +44,14 @@ public:
 		MaterialData material;
 		bool isNormalmap;
 		Node rootNode;
+		bool isAssimp;
 	};
+	// アニメーション
+	Animation animation;
+	float animationTime = 0.0f;
+
+	
+
 	// カスタムハッシュ関数
 	struct VertexHash {
 		size_t operator()(const VertexData& vertex) const {
@@ -70,9 +79,9 @@ public:
 
 	void Initialize(ModelCommon* modelCommon,const std::string& directorypath,const std::string& filename,const std::string& file = "");
 
-	void Draw();
+	void Update();
 
-	void DrawInstance(size_t instanceCount);
+	void Draw();
 
 	ModelData& GetModelData(){ return modelData; }
 
@@ -122,6 +131,8 @@ public:
 	static ModelData LoadOdjFile(const std::string& directoryPath, const std::string& filename);
 	
 	static ModelData LoadOdjFileAssimp(const std::string& directoryPath, const std::string& filename);
+
+	static Animation LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
 
 	static void GenerateIndices(ModelData& modelData);
 

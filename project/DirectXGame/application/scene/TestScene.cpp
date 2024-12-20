@@ -66,7 +66,7 @@ void TestScene::Update()
 
 #ifdef _DEBUG
 
-	ImGui::Begin("Qua");
+	ImGui::Begin("Quaternion");
 	test = a.IdentityQuaternion();
 	ImGui::InputFloat4("Identity", &test.x);
 	test = a.Conjugate();
@@ -77,13 +77,29 @@ void TestScene::Update()
 	ImGui::InputFloat4("Normalize", &test.x,"%.2f");
 	test = Inverse(a);
 	ImGui::InputFloat4("Inverse", &test.x,"%.2f");
-	test = test.MakeQuaternion(Normalize(Vector3{ 1.0f,0.4f,-0.2f }), 0.45f);
+	test.MakeQuaternion(Normalize(Vector3{ 1.0f,0.4f,-0.2f }), 0.45f);
 	ImGui::InputFloat4("MakeQuaternion", &test.x,"%.2f");
 	Matrix4x4 mat4x4 = test.MakeRotateMatrix();
 	ImGui::InputFloat4("mat[0][~]", &mat4x4.m[0][0], "%.3f");
 	ImGui::InputFloat4("mat[1][~]", &mat4x4.m[1][0], "%.3f");
 	ImGui::InputFloat4("mat[2][~]", &mat4x4.m[2][0], "%.3f");
 	ImGui::InputFloat4("mat[3][~]", &mat4x4.m[3][0], "%.3f");
+	Vector3 vec = test.RotateVector(Vector3{2.1f,-0.9f,1.3f});
+	ImGui::InputFloat3("rotateByQuaternion", &vec.x, "%.2f");
+	vec = Transforms(Vector3{ 2.1f,-0.9f,1.3f }, mat4x4);
+	ImGui::InputFloat3("rotateByMatrix", &vec.x, "%.2f");
+	ImGui::End();
+
+	ImGui::Begin("Matrix4x4");
+	Matrix4x4 oo{};
+	Matrix4x4 oo2{};
+	Matrix4x4 oo3{};
+
+	ImGui::InputFloat4("mat[0][~]", &oo3.m[0][0], "%.3f");
+	ImGui::InputFloat4("mat[1][~]", &oo3.m[1][0], "%.3f");
+	ImGui::InputFloat4("mat[2][~]", &oo3.m[2][0], "%.3f");
+	ImGui::InputFloat4("mat[3][~]", &oo3.m[3][0], "%.3f");
+
 	ImGui::End();
 
 	ImGui::Begin("engine");

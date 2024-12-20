@@ -59,7 +59,8 @@ Matrix4x4 Inverse(const Matrix4x4& m);
 //転置行列
 Matrix4x4 Transpose(const Matrix4x4& m);
 //アフィン変換;
-Matrix4x4 MakeAffineMatrixMatrix(const  Vector3& scale, const  Vector3& rotate, const  Vector3& translate);
+Matrix4x4 MakeAffineMatrix(const  Vector3& scale, const  Vector3& rotate, const  Vector3& translate);
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const Vector3& translate);
 //正射影行列
 Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 //透視射影行列

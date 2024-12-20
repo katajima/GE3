@@ -122,7 +122,7 @@ void Sprite::Update()
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	////透視射影行列
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::GetClientWidth()), float(WinApp::GetClientHeight()), 0.0f, 100.0f);
-	Matrix4x4 worldMatrix = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 	transfomationMatrixData->World = worldViewProjectionMatrix;
 	transfomationMatrixData->WVP = worldViewProjectionMatrix;

@@ -57,11 +57,29 @@ void Object3d::Initialize()
 
 void Object3d::Update()
 {
-	
-	//assert(model);
-	mat_ = MakeAffineMatrixMatrix(transform.scale, transform.rotate, transform.translate);
+	Matrix4x4 localMatrix{};
+	localMatrix.Identity();
+	if (model != nullptr) {
+		//model->Update();
+
+		if (model->animation.flag) {
+			model->animationTime += 1.0f / 60.0f; // 時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応するほうが望ましい
+			model->animationTime = std::fmod(model->animationTime, model->animation.duration); // 最後までいったら最初からリピート再生。リピートしなくても別に良い
+			NodeAnimation& rootNodeAnimation = model->animation.nodeAnimations[model->modelData.rootNode.name]; // rootNodeのAnimationを取得
+			Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, model->animationTime); // 指定時刻の値を取得。関数の詳細は次ページ
+			Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, model->animationTime);
+			Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, model->animationTime);
+			localMatrix = MakeAffineMatrix(scale, rotate, translate);
+		}
+	}
+
+
+	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix;
 	if (camera) {
+
+
+
 		const Matrix4x4& viewMatrix = camera->GetViewMatrix();
 		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
 		worldViewProjectionMatrix = Multiply(mat_, viewMatrix);
@@ -74,21 +92,25 @@ void Object3d::Update()
 		cameraData->normal = cameraFront;
 		cameraData->worldPosition = camera->transform_.translate;
 
-
-		transfomationMatrixData->WVP = Multiply(Multiply(model->modelData.rootNode.localMatrix , mat_) , worldViewProjectionMatrix);
-		transfomationMatrixData->World = Multiply(model->modelData.rootNode.localMatrix, mat_);
+		if(model){
+			if (model->animation.flag) {
+				transfomationMatrixData->WVP = Multiply(localMatrix,worldViewProjectionMatrix);
+				transfomationMatrixData->World = Multiply(localMatrix, mat_);
+			}
+			else {
+				transfomationMatrixData->WVP = worldViewProjectionMatrix;
+				transfomationMatrixData->World = Multiply(model->modelData.rootNode.localMatrix, mat_);
+			}
+		}
+		else {
+			transfomationMatrixData->WVP = worldViewProjectionMatrix;
+			transfomationMatrixData->World = mat_;
+		}
+		transfomationMatrixData->worldInverseTranspose = Transpose(Inverse(mat_));
 	}
 	else {
 		worldViewProjectionMatrix = mat_;
 	}
-
-
-	//cameraData->worldPosition = camera->transform_.translate;
-
-	transfomationMatrixData->World = mat_;
-	transfomationMatrixData->WVP = worldViewProjectionMatrix;
-	transfomationMatrixData->worldInverseTranspose = Transpose(Inverse(mat_));
-
 
 }
 

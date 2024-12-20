@@ -459,7 +459,7 @@ Matrix4x4 Transpose(const Matrix4x4& m) {
 	return result;
 }
 //アフィン変換
-Matrix4x4 MakeAffineMatrixMatrix(const  Vector3& scale, const  Vector3& rotate, const  Vector3& translate) {
+Matrix4x4 MakeAffineMatrix(const  Vector3& scale, const  Vector3& rotate, const  Vector3& translate) {
 	Matrix4x4 result{};
 
 	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
@@ -489,6 +489,37 @@ Matrix4x4 MakeAffineMatrixMatrix(const  Vector3& scale, const  Vector3& rotate, 
 
 	return result;
 };
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const Vector3& translate) {
+	Matrix4x4 result{};
+	Quaternion r = rotate;
+	// 回転行列をクォータニオンから生成
+	Matrix4x4 rotationMatrix = r.MakeRotateMatrix();
+
+	// スケールを適用
+	result.m[0][0] = scale.x * rotationMatrix.m[0][0];
+	result.m[0][1] = scale.x * rotationMatrix.m[0][1];
+	result.m[0][2] = scale.x * rotationMatrix.m[0][2];
+	result.m[0][3] = 0;
+	result.m[1][0] = scale.y * rotationMatrix.m[1][0];
+	result.m[1][1] = scale.y * rotationMatrix.m[1][1];
+	result.m[1][2] = scale.y * rotationMatrix.m[1][2];
+	result.m[1][3] = 0;
+	result.m[2][0] = scale.z * rotationMatrix.m[2][0];
+	result.m[2][1] = scale.z * rotationMatrix.m[2][1];
+	result.m[2][2] = scale.z * rotationMatrix.m[2][2];
+	result.m[2][3] = 0;
+
+	// 平行移動を適用
+	result.m[3][0] = translate.x;
+	result.m[3][1] = translate.y;
+	result.m[3][2] = translate.z;
+	result.m[3][3] = 1;
+
+	return result;
+}
+
+
+
 //正射影行列
 Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip) {
 	Matrix4x4 result{};

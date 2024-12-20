@@ -45,8 +45,28 @@ struct Quaternion final {
 
         return m;
     }
-    
 
+    // クォータニオンを使用してベクトルを回転させる関数
+    Vector3 RotateVector(const Vector3& v) const {
+        Quaternion qv = {v.x, v.y, v.z ,0};
+        Quaternion qConjugate = {-x, -y, -z ,w};
+
+        Quaternion temp;
+        temp.w = w * qv.w - x * qv.x - y * qv.y - z * qv.z;
+        temp.x = w * qv.x + x * qv.w + y * qv.z - z * qv.y;
+        temp.y = w * qv.y - x * qv.z + y * qv.w + z * qv.x;
+        temp.z = w * qv.z + x * qv.y - y * qv.x + z * qv.w;
+
+        Quaternion result;
+        result.w = temp.w * qConjugate.w - temp.x * qConjugate.x - temp.y * qConjugate.y - temp.z * qConjugate.z;
+        result.x = temp.w * qConjugate.x + temp.x * qConjugate.w + temp.y * qConjugate.z - temp.z * qConjugate.y;
+        result.y = temp.w * qConjugate.y - temp.x * qConjugate.z + temp.y * qConjugate.w + temp.z * qConjugate.x;
+        result.z = temp.w * qConjugate.z + temp.x * qConjugate.y - temp.y * qConjugate.x + temp.z * qConjugate.w;
+
+        return { result.x, result.y, result.z };
+    }
+
+   
     // + 演算子のオーバーロード
     Quaternion operator+(const Quaternion& other) const;
 
@@ -56,9 +76,16 @@ struct Quaternion final {
     // * 演算子のオーバーロード
     Quaternion operator*(const Quaternion& other) const;
 
+    Quaternion operator*(const float& other) const;
+
 
 
 };
+
+// 内積の計算
+static float Dot(const Quaternion& q1, const Quaternion& q2) {
+    return q1.w * q2.w + q1.x * q2.x + q1.y * q2.y + q1.z * q2.z;
+}
 
 static Quaternion Inverse(Quaternion& qua)
 {
@@ -66,6 +93,29 @@ static Quaternion Inverse(Quaternion& qua)
     float normSquared = norm * norm; // ノルムの二乗を計算
     Quaternion conjugate = qua.Conjugate();
     return Quaternion(conjugate.x / normSquared, conjugate.y / normSquared, conjugate.z / normSquared, conjugate.w / normSquared);
+}
+
+static Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
+    Quaternion q0_t = q0, q1_t = q1;
+
+    float dot = Dot(q0_t, q1_t); // 内積
+    if (dot < 0) {
+        q0_t.Conjugate(); // もう片方の回転を利用する
+        dot = -dot;
+    }
+
+
+    // なす角を求める
+    float theta = std::acos(dot);
+
+    // ... thetaとsinを使って補間関数scale0,scale1を求める
+    float scale0 = std::sin((1 - t) * theta) / std::sin(theta); 
+    float scale1 = std::sin(t * theta) / std::sin(theta);
+
+   
+    // それぞれの補間関数を利用して補間後のQuaternionを求める
+    return Quaternion{ ((scale0 * q0_t.x) + (scale1 * q1_t.x)),((scale0 * q0_t.y) + (scale1 * q1_t.y)),
+    ((scale0 * q0_t.z) + (scale1 * q1_t.z)), ((scale0 * q0_t.w) + (scale1 * q1_t.w)) };
 }
 
 

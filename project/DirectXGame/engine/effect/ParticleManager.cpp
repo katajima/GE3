@@ -172,7 +172,7 @@ void ParticleManager::Update()
 						
 					}
 					else {
-						worldMatrix = MakeAffineMatrixMatrix(particleIterator->transform.scale, particleIterator->transform.rotate, particleIterator->transform.translate);
+						worldMatrix = MakeAffineMatrix(particleIterator->transform.scale, particleIterator->transform.rotate, particleIterator->transform.translate);
 					}
 
 					// ワールドビュー射影行列を合成
