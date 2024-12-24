@@ -125,7 +125,8 @@ void MyGame::Draw()
 
 void MyGame::InitializeResource()
 {
-	//TextureManager::GetInstance()->LoadTexture("resources/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
 	//TextureManager::GetInstance()->LoadTexture("resources/train.png");
 	//TextureManager::GetInstance()->LoadTexture("resources/rail.png");
 	//TextureManager::GetInstance()->LoadTexture("resources/reticle.png");

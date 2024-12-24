@@ -14,6 +14,7 @@
 #include "DirectXGame/engine/effect/ParticleManager.h"
 #include "DirectXGame/engine/effect/ParticleEmitter.h"
 #include"DirectXGame/engine/Line/Line.h"
+#include"DirectXGame/engine/effect/Ocean.h"
 
 class TestScene : public BaseScene
 {
@@ -76,6 +77,8 @@ private:
 
 	LineDraw lineDraw_;
 	LineDraw lineDraw2_;
+
+	Ocean ocean_;
 
 	Vector3 str;
 	Vector3 end;

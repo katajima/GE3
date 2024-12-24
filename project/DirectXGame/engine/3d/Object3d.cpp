@@ -145,42 +145,6 @@ void Object3d::Draw()
 
 }
 
-void Object3d::InitializeInstance(size_t size)
-{
-	size_ = size;
-
-	// Object3dCommon への参照を取得
-	//this->object3dCommon_ = Object3dCommon::GetInstance();
-	this->camera = Object3dCommon::GetInstance()->GetDefaltCamera();
-
-	// transformationMatrixResource および transfomationMatrixData の配列を確保
-	InstanseTransformationMatrixResource.resize(size_);
-	InstanseTransfomationMatrixData.resize(size_);
-
-	for (size_t i = 0; i < size_; i++) {
-		// インスタンスごとのバッファを作成
-		InstanseTransformationMatrixResource[i] = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
-
-		// バッファに書き込むためのアドレスを取得
-		InstanseTransformationMatrixResource[i]->Map(0, nullptr, reinterpret_cast<void**>(&InstanseTransfomationMatrixData[i]));
-
-		// 単位行列を書き込んでおく
-		InstanseTransfomationMatrixData[i]->WVP = MakeIdentity4x4();
-		InstanseTransfomationMatrixData[i]->World = MakeIdentity4x4();
-
-		// 各インスタンスの transform を設定
-		transforms.push_back({ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
-	}
-
-	// 平行光源用のリソースを作成
-	directionalLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(DirectionalLight));
-	directionalLightData = nullptr;
-	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-
-	// 平行光源データの初期化（白色光）
-	*directionalLightData = DirectionalLight({ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, 1.0f);
-}
-
 void Object3d::SetModel(const std::string& filePath)
 {
 	//モデルを検索してセット

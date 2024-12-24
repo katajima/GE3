@@ -18,6 +18,8 @@
 #include"DirectXGame/engine/base/SrvManager.h"
 #include"DirectXGame/engine/effect/ParticleManager.h"
 #include"DirectXGame/engine/effect/ParticleEmitter.h"
+#include"DirectXGame/engine/effect/OceanManager.h"
+
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/base/StringUtility.h"
@@ -77,6 +79,8 @@ protected:
 	std::unique_ptr <ModelCommon> modelCommon;
 	// ラインコモン
 	LineCommon* lineCommon = nullptr;
+	// 
+	OceanManager* oceanManager_ = nullptr;
 
 	ParticleManager* particleManager_ = nullptr;
 	

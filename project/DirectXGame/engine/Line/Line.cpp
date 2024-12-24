@@ -24,8 +24,7 @@ void LineDraw::Initialize(LineCommon *lineCommon)
 	vertexData[0] = { 0,0,0,0 };
 	vertexData[1] = { 0,0,0,0 };
 
-	//std::memcpy(vertexData, vertexData,sizeof(VertexData)*2);
-
+	
 
 // インデクスリソース
 	indexResource = lineCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 2); // 2つのインデックス
@@ -91,6 +90,8 @@ void LineDraw::Update()
 		transfomationMatrixData->World = worldMatrix;
 		transfomationMatrixData->WVP = worldMatrix;  // WVP行列はワールド行列と同じ
 	}
+
+
 }
 
 void LineDraw::Draw3D(const Vector3& p1, const Vector3& p2, const Vector4& color)

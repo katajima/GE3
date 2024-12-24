@@ -219,23 +219,37 @@
     <ClCompile Include="DirectXGame\engine\Animation\Animation.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="DirectXGame\engine\effect\Ocean.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXGame\engine\effect\OceanManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
-    <None Include="resources\shaders\Particle.hlsli" />
-    <None Include="resources\shaders\Line.hlsli" />
-    <None Include="resources\shaders\Object2D.hlsli" />
+    <None Include="resources\shaders\Particle\Particle.hlsli" />
+    <None Include="resources\shaders\Line\Line.hlsli" />
+    <None Include="resources\shaders\Object2D\Object2D.hlsli" />
     <None Include="resources\shaders\CopyImage\CopyImage.hlsli" />
+    <None Include="resources\shaders\Octagrams\Octagrams.hlsli" />
+    <None Include="resources\shaders\Ocean\Ocean.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="resources\shaders\Particle.PS.hlsl" />
-    <FxCompile Include="resources\shaders\Particle.VS.hlsl" />
-    <FxCompile Include="resources\shaders\Line.PS.hlsl" />
-    <FxCompile Include="resources\shaders\Line.VS.hlsl" />
-    <FxCompile Include="resources\shaders\Object2D.PS.hlsl" />
-    <FxCompile Include="resources\shaders\Object2D.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Particle\Particle.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Line\Line.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Line\Line.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Object2D\Object2D.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Object2D\Object2D.VS.hlsl" />
     <FxCompile Include="resources\shaders\CopyImage\CopyImage.PS.hlsl" />
     <FxCompile Include="resources\shaders\CopyImage\CopyImage.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Octagrams\Octagrams.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Octagrams\Octagrams.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Ocean\Ocean.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Ocean\Ocean.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Ocean\Ocean.HS.hlsl" />
+    <FxCompile Include="resources\shaders\Ocean\Ocean.DS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imgui.h">
@@ -419,6 +433,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DirectXGame\engine\Animation\Animation.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXGame\engine\effect\Ocean.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXGame\engine\effect\OceanManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

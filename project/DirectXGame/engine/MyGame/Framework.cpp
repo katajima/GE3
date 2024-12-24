@@ -43,6 +43,9 @@ void Framework::Initialize()
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Initialize(dxCommon.get());
 
+	oceanManager_ = OceanManager::GetInstance();
+	oceanManager_->Initialize(dxCommon.get());
+
 	//ライト
 	lightCommon = LightCommon::GetInstance();
 	lightCommon->Initialize();
@@ -70,6 +73,8 @@ void Framework::Finalize()
 	imguiManager->Finalize();
 
 	particleManager_->Finalize();
+
+	oceanManager_->Finalize();
 
 	lineCommon->Finalize();
 

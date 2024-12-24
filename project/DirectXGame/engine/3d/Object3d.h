@@ -77,19 +77,7 @@ private:
 	TransfomationMatrix* transfomationMatrixData;
 	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource;
 
-	//平行光源用のリソースを作る
-
-	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
-	DirectionalLight* directionalLightData = nullptr;
-
-	Microsoft::WRL::ComPtr < ID3D12Resource> pointLightResource;
-	PointLight* pointLightData = nullptr;
-
-	Microsoft::WRL::ComPtr < ID3D12Resource> spotLightResource;
-	SpotLight* spotLightData = nullptr;
 	
-	std::vector<TransfomationMatrix*> InstanseTransfomationMatrixData;
-	std::vector<Microsoft::WRL::ComPtr < ID3D12Resource>> InstanseTransformationMatrixResource;
 
 	Microsoft::WRL::ComPtr < ID3D12Resource> cameraResource;
 	CameraGPU* cameraData = nullptr;

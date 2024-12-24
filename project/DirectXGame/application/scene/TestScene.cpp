@@ -59,8 +59,10 @@ void TestScene::Initialize()
 	test = a.Conjugate();
 
 	
-
-
+	ocean_.Initialize(Vector2{30,30});
+	ocean_.SetCamera(camera.get());
+	ocean_.transform.rotate.x = DegreesToRadians(-90);
+	
 }
 
 void TestScene::Finalize()
@@ -69,6 +71,21 @@ void TestScene::Finalize()
 
 void TestScene::Update()
 {
+	if (Input::GetInstance()->IsPushKey(DIK_A)) {
+		camera->transform_.translate.x -= 0.3f;
+	}
+	if (Input::GetInstance()->IsPushKey(DIK_D)) {
+		camera->transform_.translate.x += 0.3f;
+	}
+	if (Input::GetInstance()->IsPushKey(DIK_W)) {
+		camera->transform_.translate.z += 0.3f;
+	}
+	if (Input::GetInstance()->IsPushKey(DIK_S)) {
+		camera->transform_.translate.z -= 0.3f;
+	}
+
+	
+
 
 	camera->UpdateMatrix();
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
@@ -195,6 +212,8 @@ void TestScene::Update()
 	tail.Update();
 
 	emitter_->Update();
+
+	ocean_.Update();
 }
 
 void TestScene::Draw3D()
@@ -209,6 +228,9 @@ void TestScene::Draw3D()
 void TestScene::DrawP3D()
 {
 	ParticleManager::GetInstance()->GetInstance()->Draw();
+
+	ocean_.Draw();
+
 }
 
 void TestScene::DrawLine3D()

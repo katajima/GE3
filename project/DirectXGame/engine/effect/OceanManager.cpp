@@ -1,29 +1,22 @@
-#include"SpriteCommon.h"
+#include "OceanManager.h"
+#include "DirectXGame/engine/base/TextureManager.h"
+#include "imgui.h"
 
-SpriteCommon* SpriteCommon::instance = nullptr;
-
-SpriteCommon* SpriteCommon::GetInstance()
+OceanManager* OceanManager::instance = nullptr;
+OceanManager* OceanManager::GetInstance()
 {
 	if (instance == nullptr) {
-		instance = new SpriteCommon;
+		instance = new OceanManager;
 	}
 	return instance;
 }
-
-void SpriteCommon::Initialize(DirectXCommon* dxCommon)
+void OceanManager::Initialize(DirectXCommon* dxCommon)
 {
 	dxCommon_ = dxCommon;
 
 	CreateGraphicsPipeline();
 }
-
-void SpriteCommon::Finalize()
-{
-	delete instance;
-	instance = nullptr;
-}
-
-void SpriteCommon::DrawCommonSetting()
+void OceanManager::DrawCommonSetting()
 {
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
@@ -31,11 +24,16 @@ void SpriteCommon::DrawCommonSetting()
 	dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get()); //PSOを設定
 
 	//形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
-	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+	
+}
+void OceanManager::Finalize()
+{
+	delete instance;
+	instance = nullptr;
 }
 
-void SpriteCommon::CreateRootSignature()
+void OceanManager::CreateRootSignature()
 {
 	HRESULT hr;
 
@@ -44,6 +42,7 @@ void SpriteCommon::CreateRootSignature()
 	descriptorRange[0].NumDescriptors = 1; // 数は1つ
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
+
 	
 
 	// Roosignature(ルートシグネチャ)作成
@@ -56,7 +55,7 @@ void SpriteCommon::CreateRootSignature()
 
 	// RootParameter作成。複数指定できるのではい
 	// RootParameter作成。複数指定できるのではい
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	D3D12_ROOT_PARAMETER rootParameters[9] = {};
 
 	// マテリアルデータ (b0) をピクセルシェーダで使用する
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   // CBVを使う　// b0のbと一致する
@@ -64,9 +63,9 @@ void SpriteCommon::CreateRootSignature()
 	rootParameters[0].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド　　// b0の0と一致する。もしb11と紐づけたいなら11となる
 
 	// マテリアルデータ (b0) を頂点シェーダで使用する
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   // CBVを使う　// b0のbと一致する
-	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //VertexShaderで使う
-	rootParameters[1].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド　　// b0の0と一致する。もしb11と紐づけたいなら11となる
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // 両方で使う
+	rootParameters[1].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド
 
 	// テクスチャデータ (t0) をピクセルシェーダで使用する
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う           
@@ -74,10 +73,40 @@ void SpriteCommon::CreateRootSignature()
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数 
 
-	
+	// 方向性ライトデータ (b1) をピクセルシェーダで使用する
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[3].Descriptor.ShaderRegister = 1;
+
+	// カメラデータ (b2) をピクセルシェーダで使用する
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[4].Descriptor.ShaderRegister = 2;
+
+	// ポイントライトデータ (b3) をピクセルシェーダで使用する
+	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[5].Descriptor.ShaderRegister = 3;
+
+	// スポットライトデータ (b4) をピクセルシェーダで使用する
+	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[6].Descriptor.ShaderRegister = 4;
+
+	// スポットライトデータ (b5) をバーテックスシェーダで使用する
+	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_DOMAIN;
+	rootParameters[7].Descriptor.ShaderRegister = 5;
+
+	// マテリアルデータ (b0) を頂点シェーダで使用する
+	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_DOMAIN; // 両方で使う
+	rootParameters[8].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド
+
+
+
 	descriptionSignature.pParameters = rootParameters;
 	descriptionSignature.NumParameters = _countof(rootParameters);
-
 
 
 	///Samplerの設定
@@ -108,14 +137,15 @@ void SpriteCommon::CreateRootSignature()
 	}
 
 	//バイナリを元に生成
-	
+
 	hr = dxCommon_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(),
 		signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
 	assert(SUCCEEDED(hr));
+
 }
 
-void SpriteCommon::CreateGraphicsPipeline()
+void OceanManager::CreateGraphicsPipeline()
 {
 	HRESULT hr;
 	CreateRootSignature();
@@ -128,17 +158,24 @@ void SpriteCommon::CreateGraphicsPipeline()
 #pragma region InputLayout
 
 
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[2] = {};
-	inputElementDescs[0].SemanticName = "POSITION";
-	inputElementDescs[0].SemanticIndex = 0;
-	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[1].SemanticName = "TEXCOORD";
-	inputElementDescs[1].SemanticIndex = 0;
-	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
+	inputElementDescs[0].SemanticName = "POSITION";  // 位置
+	inputElementDescs[0].SemanticIndex = 0;  // セマンティックインデックス0
+	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;  // 位置のフォーマット
+	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;  // 次の要素へのオフセット
 
+	inputElementDescs[1].SemanticName = "TEXCOORD";  // テクスチャ座標
+	inputElementDescs[1].SemanticIndex = 0;  // セマンティックインデックス0
+	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;  // テクスチャ座標のフォーマット
+	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;  // 次の要素へのオフセット
+
+	inputElementDescs[2].SemanticName = "NORMAL";  // 法線
+	inputElementDescs[2].SemanticIndex = 0;  // セマンティックインデックス0
+	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;  // 法線のフォーマット
+	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;  // 次の要素へのオフセット
+
+
+	
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
@@ -176,20 +213,34 @@ void SpriteCommon::CreateGraphicsPipeline()
 
 	//裏面(時計回り)を表示しない
 	// カリングしない(裏面も表示させる)
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 
 	//三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
+	//rasterizerDesc.DepthBias = 1; 
+	//rasterizerDesc.DepthBiasClamp = 0.0f; 
+	//rasterizerDesc.SlopeScaledDepthBias = 1.0f;
 
 	// Shaderをコンパイルする
-	Microsoft::WRL::ComPtr < IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Object2D/Object2D.VS.hlsl",
+	Microsoft::WRL::ComPtr < IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Ocean/Ocean.VS.hlsl",
 		L"vs_6_0");
 
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr < IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Object2D/Object2D.PS.hlsl",
+	Microsoft::WRL::ComPtr < IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Ocean/Ocean.PS.hlsl",
 		L"ps_6_0");
+
+	assert(pixelShaderBlob != nullptr);
+
+	// Shaderをコンパイルする
+	Microsoft::WRL::ComPtr < IDxcBlob> DSBlob = dxCommon_->CompileShader(L"resources/shaders/Ocean/Ocean.DS.hlsl",
+		L"ds_6_0");
+
+	assert(vertexShaderBlob != nullptr);
+
+	Microsoft::WRL::ComPtr < IDxcBlob> HSBlob = dxCommon_->CompileShader(L"resources/shaders/Ocean/Ocean.HS.hlsl",
+		L"hs_6_0");
 
 	assert(pixelShaderBlob != nullptr);
 
@@ -208,6 +259,14 @@ void SpriteCommon::CreateGraphicsPipeline()
 	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),
 	pixelShaderBlob->GetBufferSize() }; // PixelShader
 
+	graphicsPipelineStateDesc.DS = { DSBlob->GetBufferPointer(),
+	DSBlob->GetBufferSize() }; // VertexShader
+
+	graphicsPipelineStateDesc.HS = { HSBlob->GetBufferPointer(),
+	HSBlob->GetBufferSize() }; // PixelShader
+
+
+
 	graphicsPipelineStateDesc.BlendState = blendDesc; //BlendState
 
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;// RasterizerState
@@ -220,11 +279,14 @@ void SpriteCommon::CreateGraphicsPipeline()
 	graphicsPipelineStateDesc.PrimitiveTopologyType =
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
+	// 修正後
+	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+
 	//どのように画面に色を打ち込むかの設定(気にしなくて良い)
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 
-	
+
 
 	//DepthStencilStateの設定を行う
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
@@ -245,6 +307,4 @@ void SpriteCommon::CreateGraphicsPipeline()
 		IID_PPV_ARGS(&graphicsPipelineState));
 
 	assert(SUCCEEDED(hr));
-
-
 }
