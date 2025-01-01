@@ -38,10 +38,6 @@ struct MaterialData
 	uint32_t textureNormalIndex = 0;
 	uint32_t textuerSpeculerIndex = 0;
 
-	
-	/*Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
-	Material* materialData;
-	size_t startIndex;*/
 };
 
 struct CameraGPU {

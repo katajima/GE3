@@ -3,6 +3,7 @@
 #include"DirectXGame/engine/struct/Material.h"
 #include "DirectXGame/engine/Animation/Animation.h"
 #include"DirectXGame/engine/Line/Line.h"
+#include"DirectXGame/engine/Mesh/Mesh.h"
 
 #include<d3d12.h>
 #include<dxgi1_6.h>
@@ -13,6 +14,7 @@
 #include<format>
 #include<span>
 #include <iostream>
+#include <memory>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -27,25 +29,17 @@ class ModelCommon;
 class Model
 {
 public:
-	struct VertexData {
-		Vector4 position;
-		Vector2 texcoord;
-		Vector3 normal;
-	};
-
 	//モデルデータ
 	struct ModelData
 	{
 		std::map<std::string, JointWeightData> skinClusterData;
-		std::vector<VertexData> vertices;
-		std::vector<uint32_t> indices; // 追加：インデックスデータ
-		std::vector<VertexData> indicesPos;
 		MaterialData material;
 		bool isNormalmap;
 		Node rootNode;
 		bool isAssimp;
 		uint32_t skinningSrvindex;
-		
+		std::vector <std::unique_ptr<Mesh>> mesh;
+
 	};
 	std::vector<std::unique_ptr <LineDraw>> line_;
 
@@ -55,24 +49,10 @@ public:
 	Skeleton skeleton;
 	SkinCluster skinCluster;
 
-	// カスタムハッシュ関数
-	struct VertexHash {
-		size_t operator()(const VertexData& vertex) const {
-			// 簡単なハッシュ関数（例として位置のみを使用）
-			return std::hash<float>()(vertex.position.x) ^
-				std::hash<float>()(vertex.position.y) ^
-				std::hash<float>()(vertex.position.z);
-		}
-	};
+	
 
 	
-	size_t operator()(const VertexData& vertex) const {
-		return std::hash<float>()(vertex.position.x) ^
-			std::hash<float>()(vertex.position.y) ^
-			std::hash<float>()(vertex.position.z) ^
-			std::hash<float>()(vertex.normal.x) ^
-			std::hash<float>()(vertex.texcoord.x);
-	}
+
 
 
 	Material* materialData;
@@ -92,12 +72,10 @@ public:
 	
 	void DrawSkinning();
 
-	//void DrawJoint();
-
 	ModelData& GetModelData(){ return modelData; }
 
 	void SetModelData(const ModelData& model) {
-		modelData = model;
+		//modelData = model;
 		//UpdateVertexBuffer();
 		//UpdateIndexBuffer();
 	}
@@ -110,27 +88,9 @@ public:
 	ModelData modelData;
 private:
 	ModelCommon* modelCommon_ = nullptr;
-	Transform transform;
 	
 	
 	
-	
-
-	// バッファリソース
-	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
-	Microsoft::WRL::ComPtr < ID3D12Resource> indexResource;
-	// バッファリソース内のデータを指すポインタ
-	VertexData* vertexData = nullptr;
-
-	//バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-	D3D12_INDEX_BUFFER_VIEW indexBufferView;
-	
-
-
-	VertexData instanceData_;
-
-
 	bool useNormalMap = false;
 	bool useSpecularMap = false;
 public:
@@ -146,15 +106,9 @@ public:
 
 	static Animation LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
 
-	static void GenerateIndices(ModelData& modelData);
-
-	static void GenerateIndices2(ModelData& modelData);
-	//	
-
-	void UpdateVertexBuffer();
-
-	void UpdateIndexBuffer();
-
+	
+	
+	//
 	static SkinCluster CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData);
 
 };

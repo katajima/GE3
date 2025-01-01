@@ -14,12 +14,7 @@ std::string getLastPartOfPath(const std::string& path) {
 		return path; 
 	} return path.substr(pos + 1); 
 }
-// 頂点を比較するためのオペレーター
-bool operator==(const Model::VertexData& v1, const Model::VertexData& v2) {
-	return v1.position == v2.position &&
-		v1.normal == v2.normal &&
-		v1.texcoord == v2.texcoord;
-}
+
 
 
 #pragma region Initialize
@@ -47,7 +42,6 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	}
 	else {
 		useNormalMap = true;
-
 	}
 
 	if (useNormalMap) {
@@ -71,28 +65,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	}
 
 
-	vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
-
-	// リソースの先頭のアドレスを作成する
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
-
-
-	// インデクスリソース
-	indexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * modelData.indices.size());
-
-	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
-	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
-
-	uint32_t* indexData = nullptr;
-	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
-
+	
 
 	// マテリアル
 	materialResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(Material));
@@ -174,27 +147,27 @@ void Model::InitializeAnime(ModelCommon* modelCommon, const std::string& directo
 	}
 
 
-	vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
+	//vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
 
-	// リソースの先頭のアドレスを作成する
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
+	//// リソースの先頭のアドレスを作成する
+	//vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	//vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
+	//vertexBufferView.StrideInBytes = sizeof(VertexData);
 
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+	//vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	//std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
 
 
 	// インデクスリソース
-	indexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * modelData.indices.size());
+	//indexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * modelData.indices.size());
 
-	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
-	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
+	//indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
+	//indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
+	//indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
 
-	uint32_t* indexData = nullptr;
-	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
+	//uint32_t* indexData = nullptr;
+	//indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	//std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
 
 
 	// マテリアル
@@ -223,63 +196,55 @@ void Model::InitializeAnime(ModelCommon* modelCommon, const std::string& directo
 
 void Model::Draw()
 {
-	// マテリアルのバインド
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+	for (auto& mesh : modelData.mesh)
+	{
+		// マテリアルのバインド
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-	// テクスチャのバインド
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
-	if (useNormalMap) {
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
+		// テクスチャのバインド
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
+		if (useNormalMap) {
+			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
+			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
 
+		}
+		if (useSpecularMap) {
+			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerSpeculerFilePath));
+		}
+
+		mesh->GetCommandList();
+
+		// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
+		modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
 	}
-	if (useSpecularMap) {
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerSpeculerFilePath));
-	}
-
-
-	// 頂点バッファの設定
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
-	// インデックスバッファの設定
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
-
-	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
-	modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
-
 }
 
 void Model::DrawSkinning()
 {
-	// マテリアルのバインド
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+	for (auto& mesh : modelData.mesh)
+	{
+		// マテリアルのバインド
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-	// テクスチャのバインド
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
-	if (useNormalMap) {
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
+		// テクスチャのバインド
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
+		if (useNormalMap) {
+			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
+			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
 
+		}
+		if (useSpecularMap) {
+			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerSpeculerFilePath));
+		}
+
+		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(10, SrvManager::GetInstance()->GetGPUDescriptorHandle(modelData.skinningSrvindex));
+
+		mesh->GetCommandList(skinCluster.influenceBufferView);
+
+		// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
+		modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
+		
 	}
-	if (useSpecularMap) {
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerSpeculerFilePath));
-	}
-
-	modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(10, SrvManager::GetInstance()->GetGPUDescriptorHandle(modelData.skinningSrvindex));
-
-	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
-		vertexBufferView,
-		skinCluster.influenceBufferView
-	};
-
-	// 頂点バッファの設定
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 2, vbvs);
-	// インデックスバッファの設定
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
-
-	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
-	modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
-	// 描画
-	//modelCommon_->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 }
 
 #pragma endregion // 描画
@@ -300,10 +265,16 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 	assert(scene->HasMeshes()); //メッシュがないのは対応しない
 
 
+	
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0)); //TexcoordがないMeshは今回は非対応
+
+		std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
+		//modelData.mesh = std::make_unique<Mesh>();
+
+
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3); // 三角形のみサポート
@@ -312,7 +283,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 				aiVector3D& position = mesh->mVertices[vertexIndex];
 				aiVector3D& normal = mesh->mNormals[vertexIndex];
 				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
-				VertexData vertex;
+				Mesh::VertexData vertex;
 				
 				vertex.position = { position.x,position.y,position.z,1.0f };
 				vertex.normal = { normal.x,normal.y,normal.z };
@@ -321,17 +292,21 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 				// aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対応
 				vertex.position.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
-				modelData.vertices.push_back(vertex);
+				pMesh->vertices.push_back(vertex);
 			}
 		}
+		// インデックスを生成
+		pMesh->GenerateIndices2(); // thisは省略可能
 
+		pMesh->Initialize(ModelCommon::GetInstance()->GetDxCommon());
+
+
+		modelData.mesh.push_back(std::move(pMesh));
 	}
 
-	//	modelData.isAssimp = true;
+	
 
-
-		// インデックスを生成
-	GenerateIndices2(modelData); // thisは省略可能
+	
 
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
@@ -361,8 +336,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 			modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
 		}
 	}
-	//	modelData.isAssimp = true;
-
+	
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
 	return modelData;
@@ -377,7 +351,8 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 	std::string filePach = directoryPath + "/" + filename;
 
 	
-
+	//modelData.mesh = std::make_unique<Mesh>();
+	
 	const aiScene* scene = importer.ReadFile(filePach.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); //メッシュがないのは対応しない
 
@@ -385,15 +360,17 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0)); //TexcoordがないMeshは今回は非対応
-		modelData.vertices.resize(mesh->mNumVertices);
+		std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
+
+		pMesh->vertices.resize(mesh->mNumVertices);
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& position = mesh->mVertices[vertexIndex];
 			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 
-			modelData.vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
-			modelData.vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
-			modelData.vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
+			pMesh->vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
+			pMesh->vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
+			pMesh->vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
 		}
 
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
@@ -402,7 +379,7 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
 				uint32_t vertexIndex = face.mIndices[element];
 			
-				modelData.indices.push_back(vertexIndex);
+				pMesh->indices.push_back(vertexIndex);
 			}
 		}
 		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
@@ -423,15 +400,15 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 
 		}
 		
-		
+		pMesh->Initialize(ModelCommon::GetInstance()->GetDxCommon());
 
+		modelData.mesh.push_back(std::move(pMesh));
 	}
-	//SrvIndex
+	
+
 	modelData.skinningSrvindex = SrvManager::GetInstance()->Allocate();
 
-	// インデックスを生成
-	//GenerateIndices2(modelData); // thisは省略可能
-
+	
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
 		aiString textureFilePath;
@@ -550,96 +527,16 @@ Animation Model::LoadAnimationFile(const std::string& directoryPath, const std::
 
 #pragma region MyRegion
 
-void Model::GenerateIndices(ModelData& modelData) {
-	modelData.indices.clear(); // インデックスをクリア
-
-	// インデックス作成のために、すでに存在する頂点のリスト
-	std::vector<uint32_t> uniqueIndices;
-
-	// すべての頂点をチェック
-	for (size_t i = 0; i < modelData.vertices.size(); ++i) {
-		const VertexData& vertex = modelData.vertices[i];
-		bool found = false; // 一致する頂点が見つかったかどうかのフラグ
-
-		// すでに追加されている頂点と比較
-		for (size_t j = 0; j < uniqueIndices.size(); ++j) {
-			const VertexData& existingVertex = modelData.vertices[uniqueIndices[j]];
-
-			// 頂点の位置、法線、テクスチャ座標が一致しているか確認
-			if (vertex.position == existingVertex.position &&
-				vertex.normal == existingVertex.normal &&
-				vertex.texcoord == existingVertex.texcoord) {
-				// 一致したら既存のインデックスを使用
-				modelData.indices.push_back(uniqueIndices[j]);
-				found = true;
-				break;
-			}
-		}
-
-		// 一致する頂点が見つからなければ、新しいインデックスを追加
-		if (!found) {
-			uniqueIndices.push_back(static_cast<uint32_t>(i));
-			modelData.indices.push_back(static_cast<uint32_t>(i));
-		}
-	}
-}
-
-void Model::GenerateIndices2(ModelData& modelData) {
-	modelData.indices.clear();
-
-	// ハッシュマップで頂点の重複を管理
-	std::unordered_map<VertexData, uint32_t, VertexHash> vertexMap;
-
-	for (size_t i = 0; i < modelData.vertices.size(); ++i) {
-		const VertexData& vertex = modelData.vertices[i];
-
-		// 既に同じ頂点が登録されているかチェック
-		auto it = vertexMap.find(vertex);
-		if (it != vertexMap.end()) {
-			// 既存のインデックスを使用
-			modelData.indices.push_back(it->second);
-		}
-		else {
-			// 新しいインデックスを追加
-			vertexMap[vertex] = static_cast<uint32_t>(i);
-			modelData.indices.push_back(static_cast<uint32_t>(i));
-		}
-	}
-}
-
-void Model::UpdateVertexBuffer() {
-	// 頂点データのサイズを計算
-	size_t bufferSize = sizeof(VertexData) * modelData.vertices.size();
-
-	// バッファを更新するためにマッピング
-	void* pData;
-	vertexResource->Map(0, nullptr, &pData);
-	memcpy(pData, modelData.vertices.data(), bufferSize);
-	vertexResource->Unmap(0, nullptr);
-}
-
-void Model::UpdateIndexBuffer() {
-	// インデックスデータのサイズを計算
-	size_t bufferSize = sizeof(uint32_t) * modelData.indices.size();
-
-	// バッファを更新するためにマッピング
-	void* pData;
-	indexResource->Map(0, nullptr, &pData);
-	memcpy(pData, modelData.indices.data(), bufferSize);
-	indexResource->Unmap(0, nullptr);
-}
-
-
 
 
 void Model::MoveVertices(const Vector3& offset) {
-	for (const auto& index : modelData.indices) {
-		modelData.vertices[index].position.x += offset.x;
-		modelData.vertices[index].position.y += offset.y;
-		modelData.vertices[index].position.z += offset.z;
+	//for (const auto& index : modelData.indices) {
+	//	modelData.vertices[index].position.x += offset.x;
+	//	modelData.vertices[index].position.y += offset.y;
+	//	modelData.vertices[index].position.z += offset.z;
 
-	}
-	UpdateVertexBuffer(); // バッファを更新
+	//}
+	//UpdateVertexBuffer(); // バッファを更新
 }
 
 
@@ -675,16 +572,16 @@ SkinCluster Model::CreateSkinCluster(const Skeleton& skeleton, const ModelData& 
 
 
 	// influence用のResourceを確保。頂点ごとにinfluence情報を追加できるようにする
-	skinCluster.influenceResource = ModelCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexInfluence) * modelData.vertices.size());
+	skinCluster.influenceResource = ModelCommon::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexInfluence) * modelData.mesh[0]->vertices.size());
 	VertexInfluence* mappedInfluence = nullptr;
 	skinCluster.influenceResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedInfluence));
-	std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * modelData.vertices.size()); // 仮埋め。weightを0にしておく。
-	skinCluster.mappedInfluence = { mappedInfluence, modelData.vertices.size() };
+	std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * modelData.mesh[0]->vertices.size()); // 仮埋め。weightを0にしておく。
+	skinCluster.mappedInfluence = { mappedInfluence, modelData.mesh[0]->vertices.size() };
 	//skinCluster.influenceResource->Unmap(0, nullptr);
 
 	// Influence用のVB作成
 	skinCluster.influenceBufferView.BufferLocation = skinCluster.influenceResource->GetGPUVirtualAddress();
-	skinCluster.influenceBufferView.SizeInBytes = UINT(sizeof(VertexInfluence) * modelData.vertices.size());
+	skinCluster.influenceBufferView.SizeInBytes = UINT(sizeof(VertexInfluence) * modelData.mesh[0]->vertices.size());
 	skinCluster.influenceBufferView.StrideInBytes = sizeof(VertexInfluence);
 
 	// InverseBindPoseMatrixを格納する場所を作成して、単位行列で埋める

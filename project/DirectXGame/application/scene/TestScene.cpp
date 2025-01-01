@@ -160,22 +160,31 @@ void TestScene::Update()
 
 	ImGui::End();*/
 	ImGui::Begin("ObjectSize");
-	int i = (int)mm.model->modelData.indices.size();
+	int i = (int)mm.model->modelData.mesh[0]->indices.size();
 	ImGui::InputInt("Index size",&i);
-	i = (int)mm.model->modelData.vertices.size();
+	i = (int)mm.model->modelData.mesh[0]->vertices.size();
 	ImGui::InputInt("Vertex size",&i);
-	i = (int)mm2.model->modelData.indices.size();
+	i = (int)mm2.model->modelData.mesh[0]->indices.size();
 	ImGui::InputInt("Index size",&i);
-	i = (int)mm2.model->modelData.vertices.size();
+	i = (int)mm2.model->modelData.mesh[0]->vertices.size();
 	ImGui::InputInt("Vertex size",&i);
-	i = (int)tail.model->modelData.indices.size();
+	i = (int)tail.model->modelData.mesh[0]->indices.size();
 	ImGui::InputInt("Index size",&i);
-	i = (int)tail.model->modelData.vertices.size();
+	i = (int)tail.model->modelData.mesh[0]->vertices.size();
 	ImGui::InputInt("Vertex size",&i);
-	i = (int)walk.model->modelData.indices.size();
+	i = (int)walk.model->modelData.mesh[0]->indices.size();
 	ImGui::InputInt("Index size",&i);
-	i = (int)walk.model->modelData.vertices.size();
+	i = (int)walk.model->modelData.mesh[0]->vertices.size();
 	ImGui::InputInt("Vertex size",&i);
+	
+	i = (int)multiMesh.model->modelData.mesh[0]->indices.size();
+	ImGui::InputInt("multiMesh.Index size",&i);
+	i = (int)multiMesh.model->modelData.mesh[0]->vertices.size();
+	ImGui::InputInt("multiMesh.Vertex size",&i);
+	i = (int)multiMesh.model->modelData.mesh[1]->indices.size();
+	ImGui::InputInt("multiMesh.Index2 size",&i);
+	i = (int)multiMesh.model->modelData.mesh[1]->vertices.size();
+	ImGui::InputInt("multiMesh.Vertex2 size",&i);
 
 	ImGui::End();
 

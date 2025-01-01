@@ -64,7 +64,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning;$(ProjectDir)engine\Mesh;$(ProjectDir)engine\Material</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -91,7 +91,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Line;$(ProjectDir)engine\effect;$(ProjectDir)engine\Animation;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Line;$(ProjectDir)engine\effect;$(ProjectDir)engine\Animation;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning;$(ProjectDir)engine\Mesh;$(ProjectDir)engine\Material</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -138,6 +138,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\effect\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="DirectXGame\engine\effect\Particle\ParticleManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\SrvManager.cpp" />
+    <ClCompile Include="DirectXGame\engine\Material\Material.cpp" />
     <ClCompile Include="DirectXGame\engine\MyGame\Framework.cpp" />
     <ClCompile Include="DirectXGame\engine\MyGame\MyGame.cpp" />
     <ClCompile Include="DirectXGame\engine\scene\SceneManager.cpp" />
@@ -166,6 +167,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\base\StringUtility.cpp" />
     <ClCompile Include="DirectXGame\engine\base\TextureManager.cpp" />
     <ClCompile Include="DirectXGame\engine\base\WinApp.cpp" />
+    <ClCompile Include="DirectXGame\engine\Mesh\Mesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -333,7 +335,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\effect\Ocean\OceanManager.h" />
     <ClInclude Include="DirectXGame\engine\effect\Thunder\Thunder.h" />
     <ClInclude Include="DirectXGame\engine\effect\Thunder\ThunderManager.h" />
+    <ClInclude Include="DirectXGame\engine\Material\Material.h" />
     <ClInclude Include="DirectXGame\engine\math\ProbabilityUtils.h" />
+    <ClInclude Include="DirectXGame\engine\Mesh\Mesh.h" />
     <ClInclude Include="DirectXGame\engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="DirectXGame\engine\scene\BaseScene.h" />
     <ClInclude Include="DirectXGame\application\scene\GamePlayScene.h" />

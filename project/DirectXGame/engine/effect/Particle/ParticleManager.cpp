@@ -312,7 +312,7 @@ void ParticleManager::Draw()
 		// インスタンシングの描画コール
 		// インスタンシング描画
 		uint32_t instanceCount = (std::min)(group.instanceCount, kNumMaxInstance);
-		commandList->DrawInstanced(static_cast<UINT>(group.model->modelData.indices.size()), instanceCount, 0, 0);
+		commandList->DrawInstanced(static_cast<UINT>(group.model->modelData.mesh[0]->indices.size()), instanceCount, 0, 0);
 	}
 }
 
@@ -338,18 +338,18 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 
 	// 頂点リソースを作成
-	vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * model_->modelData.vertices.size());
+	vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * model_->modelData.mesh[0]->vertices.size());
 
 	// 頂点バッファビューを設定
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.SizeInBytes = sizeof(VertexData) * static_cast<UINT>(model_->modelData.vertices.size());
+	vertexBufferView.SizeInBytes = sizeof(VertexData) * static_cast<UINT>(model_->modelData.mesh[0]->vertices.size());
 	vertexBufferView.StrideInBytes = sizeof(VertexData);
 
 	// 頂点データを書き込む
 	void* vertexData = nullptr;
 	vertexResource->Map(0, nullptr, &vertexData);
-	std::memcpy(vertexData, model_->modelData.vertices.data(), sizeof(VertexData) * model_->modelData.vertices.size());
-	auto test = model_->modelData.vertices.data();
+	std::memcpy(vertexData, model_->modelData.mesh[0]->vertices.data(), sizeof(VertexData) * model_->modelData.mesh[0]->vertices.size());
+	auto test = model_->modelData.mesh[0]->vertices.data();
 	vertexResource->Unmap(0, nullptr); // マッピングを解除
 
 
