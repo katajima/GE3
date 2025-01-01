@@ -37,14 +37,21 @@ void Framework::Initialize()
 	modelCommon = std::make_unique<ModelCommon>();
 	modelCommon->Initialize(dxCommon.get());
 
+	skinningCommon = SkinningConmmon::GetInstance();
+	skinningCommon->Initialize(dxCommon.get());
+
+
 	lineCommon = LineCommon::GetInstance();
 	lineCommon->Initialize(dxCommon.get());
 
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Initialize(dxCommon.get());
-
+	//
 	oceanManager_ = OceanManager::GetInstance();
 	oceanManager_->Initialize(dxCommon.get());
+	//
+	//thunderManager = ThunderManager::GetInstance();
+	//thunderManager->Initialize(dxCommon.get());
 
 	//ライト
 	lightCommon = LightCommon::GetInstance();
@@ -75,6 +82,8 @@ void Framework::Finalize()
 	particleManager_->Finalize();
 
 	oceanManager_->Finalize();
+
+	//thunderManager->Finalize();
 
 	lineCommon->Finalize();
 

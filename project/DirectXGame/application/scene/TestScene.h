@@ -11,10 +11,10 @@
 #include"DirectXGame/engine/3d/LightCommon.h"
 #include"DirectXGame/engine/2d/SpriteCommon.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
-#include "DirectXGame/engine/effect/ParticleManager.h"
-#include "DirectXGame/engine/effect/ParticleEmitter.h"
+#include "DirectXGame/engine/effect/Particle/ParticleManager.h"
+#include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
 #include"DirectXGame/engine/Line/Line.h"
-#include"DirectXGame/engine/effect/Ocean.h"
+#include"DirectXGame/engine/effect/Ocean/Ocean.h"
 
 class TestScene : public BaseScene
 {
@@ -72,6 +72,7 @@ private:
 	Object3d mm2;
 	Object3d tail;
 	Object3d walk;
+	Object3d multiMesh;
 
 
 
@@ -87,6 +88,8 @@ private:
 	Quaternion b = {1.0f,3.0f,5.0f,2.0f};
 	
 	Quaternion test{};
+
+
 
 };
 

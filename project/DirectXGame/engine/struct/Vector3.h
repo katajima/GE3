@@ -1,5 +1,8 @@
 #pragma once
 #include <cmath>
+#include <iostream>
+#include <algorithm>
+#include <limits>
 
 struct Vector3 final {
 	float x, y, z;
@@ -34,7 +37,7 @@ struct Vector3 final {
 	}
 
 	// 正規化
-	Vector3 Normalize() {
+	Vector3 Normalize() const{
 		Vector3 result{};
 		float length;
 
@@ -66,4 +69,26 @@ struct Vector3 final {
 		return result;
 	};
 
+
+	//Vector3 SafeVector3() {
+	//	const float epsilon = 1e-6f; // 非常に小さな値
+	//	return {
+	//		x != 0.0f ? x : epsilon,
+	//		y != 0.0f ? y : epsilon,
+	//		z != 0.0f ? z : epsilon
+	//	};
+	//}
 };
+
+static Vector3 Lerp(const Vector3& a, const Vector3& b, float t) {
+	Vector3 temp;
+	t = std::clamp(t, 0.0f, 1.0f);
+	temp.x = a.x * (1.0f - t) + b.x * t;
+	temp.y = a.y * (1.0f - t) + b.y * t;
+	temp.z = a.z * (1.0f - t) + b.z * t;
+
+	return temp;
+}
+
+
+

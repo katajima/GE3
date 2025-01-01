@@ -2,6 +2,12 @@
 #include<cstdint>
 #include "Structs.h"
 #include "string"
+#include "vector"
+#include<wrl.h>
+#include<d3d12.h>
+#include<dxgi1_6.h>
+#include<dxcapi.h>
+using namespace Microsoft::WRL;
 
 //マテリアルデータ
 struct Material {
@@ -17,7 +23,12 @@ struct Material {
 };
 
 //マテリアルデータ
-struct MaterialData {
+struct MaterialData 
+{
+	// テクスチャ数
+	uint32_t texDiffuseNum = 0;
+
+
 	std::string textuerFilePath;
 	std::string textuerNormalFilePath;
 	std::string textuerSpeculerFilePath;
@@ -27,9 +38,10 @@ struct MaterialData {
 	uint32_t textureNormalIndex = 0;
 	uint32_t textuerSpeculerIndex = 0;
 
-	//
-	float shininess;
-
+	
+	/*Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
+	Material* materialData;
+	size_t startIndex;*/
 };
 
 struct CameraGPU {

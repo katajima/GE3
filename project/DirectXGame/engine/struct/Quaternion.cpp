@@ -24,4 +24,8 @@ Quaternion Quaternion::operator*(const float& other) const {
     return Quaternion(w * other, x * other, y * other, z * other); 
 }
 
+Quaternion Quaternion::operator-() const
+{
+    return Quaternion(-x, -y, -z, -w);
+}
 

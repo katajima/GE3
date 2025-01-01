@@ -18,26 +18,37 @@ public:
 	Matrix4x4 operator*(const Matrix4x4& mat);
 
 
-	Matrix4x4 MakeRotateAxisAngle(const Vector3& axis,float angle) {
+	Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle) {
 
 	};
 
+	Vector3 GetWorldPosition() const {
+		// ワールド座標を入れる
+		Vector3 worldPos{};
+		worldPos.x = m[3][0];
+		worldPos.y = m[3][1];
+		worldPos.z = m[3][2];
+		return worldPos;
+	};
+
+
+
 private:
-	
+
 };
 
-
-//行列の積
-//static Matrix4x4 Multiply(const Matrix4x4& v1, const Matrix4x4& v2) {
-//	Matrix4x4 result{};
+//static Matrix4x4 SafeMatrix(const Matrix4x4& matrix) {
+//	Matrix4x4 safeMatrix = matrix;
+//	float epsilon = 1e-6f; // 非常に小さな値
 //
-//	for (int x = 0; x < 4; x++) {
-//		for (int y = 0; y < 4; y++) {
-//			for (int z = 0; z < 4; z++) {
-//				result.m[y][x] += v1.m[y][z] * v2.m[z][x];
+//	for (int i = 0; i < 4; ++i) {
+//		for (int j = 0; j < 4; ++j) {
+//			if (safeMatrix.m[i][j] == 0.0f) {
+//				safeMatrix.m[i][j] = epsilon;
 //			}
 //		}
 //	}
 //
-//	return result;
-//};
+//	return safeMatrix;
+//}
+

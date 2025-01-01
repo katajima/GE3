@@ -11,8 +11,8 @@
 #include"DirectXGame/engine/3d/LightCommon.h"
 #include"DirectXGame/engine/2d/SpriteCommon.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
-#include "DirectXGame/engine/effect/ParticleManager.h"
-#include "DirectXGame/engine/effect/ParticleEmitter.h"
+#include "DirectXGame/engine/effect/Particle/ParticleManager.h"
+#include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
 #include"DirectXGame/engine/Line/Line.h"
 
 class TitleScene : public BaseScene

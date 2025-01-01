@@ -20,16 +20,20 @@ class Object3d
 public:
 	// 初期化
 	void Initialize(/*Object3dCommon* object3dCommon*/);
-	// 更新
+	// 更新(アニメーション無し)
 	void Update();
+	// 更新(スキニング有り)
+	void UpdateSkinning();
+	// 更新(アニメーション有り)
+	void UpdateAnimation();
+	
 	// 描画
 	void Draw();
+	// 描画
+	void DrawSkinning();
 
-	// 初期化
-	void InitializeInstance(size_t size);
+	void DrawLine();
 	
-	
-
 	// setter
 	 void SetModel(Model* model) { this->model = model; }
 	Model* GetModel() { return model; }
@@ -39,7 +43,7 @@ public:
 	
 	void SetCamera(Camera* camera) { this->camera = camera; }
 
-	Vector3 GetWorldPosition() {
+	Vector3 GetWorldPosition() const {
 		// ワールド座標を入れる
 		Vector3 worldPos;
 		worldPos.x = mat_.m[3][0];
@@ -51,9 +55,7 @@ public:
 private:
 	Camera* camera = nullptr;
 
-	
-	//Object3dCommon* object3dCommon_ = nullptr;
-
+	bool flag = true;
 	// 頂点データ
 	struct VertexData {
 

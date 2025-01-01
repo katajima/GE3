@@ -19,7 +19,7 @@ Vector2 Add(const Vector2& v1, const Vector2& v2) {
 
 	result.x = v1.x + v2.x;
 	result.y = v1.y + v2.y;
-	
+
 	return result;
 };
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2)
@@ -132,16 +132,7 @@ Vector3 Normalize(const Vector3& v) {
 	return result;
 };
 
-Vector3 Lerp(const Vector3& a, const Vector3& b, float t) {
-	Vector3 temp{};
 
-	temp.x = t * a.x + (1.0f - t) * b.x;
-	temp.y = t * a.y + (1.0f - t) * b.y;
-	temp.z = t * a.z + (1.0f - t) * b.z;
-
-	return  temp;
-
-}
 
 Vector3 Bezier(const Vector3& p0, const Vector3& p1, const Vector3& p2, float t) {
 
@@ -178,11 +169,18 @@ Matrix4x4 Multiply(const Matrix4x4& v1, const Matrix4x4& v2) {
 	for (int x = 0; x < 4; x++) {
 		for (int y = 0; y < 4; y++) {
 			for (int z = 0; z < 4; z++) {
-				result.m[y][x] += v1.m[y][z] * v2.m[z][x];
+				float value1 = v1.m[y][z];
+				float value2 = v2.m[z][x];
+
+				if (value1 == 0.0f || value2 == 0.0f) {
+					result.m[y][x] += 0.0f; // ゼロを掛け算した結果はゼロ
+				}
+				else {
+					result.m[y][x] += value1 * value2;
+				}
 			}
 		}
 	}
-
 	return result;
 };
 // Vector3同士
@@ -485,38 +483,43 @@ Matrix4x4 MakeAffineMatrix(const  Vector3& scale, const  Vector3& rotate, const 
 	result.m[3][2] = translate.z;
 	result.m[3][3] = 1;
 
-
+	//SafeMatrix(result);
 
 	return result;
 };
+
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const Vector3& translate) {
+	// 結果行列の初期化
 	Matrix4x4 result{};
-	Quaternion r = rotate;
-	// 回転行列をクォータニオンから生成
-	Matrix4x4 rotationMatrix = r.MakeRotateMatrix();
+	result.Identity();
+	// 回転行列を生成（回転が正規化済みであることを想定）
+	Matrix4x4 rotationMatrix = rotate.MakeRotateMatrix();
 
 	// スケールを適用
 	result.m[0][0] = scale.x * rotationMatrix.m[0][0];
 	result.m[0][1] = scale.x * rotationMatrix.m[0][1];
 	result.m[0][2] = scale.x * rotationMatrix.m[0][2];
-	result.m[0][3] = 0;
+	result.m[0][3] = 0.0f;
+
 	result.m[1][0] = scale.y * rotationMatrix.m[1][0];
 	result.m[1][1] = scale.y * rotationMatrix.m[1][1];
 	result.m[1][2] = scale.y * rotationMatrix.m[1][2];
-	result.m[1][3] = 0;
+	result.m[1][3] = 0.0f;
+
 	result.m[2][0] = scale.z * rotationMatrix.m[2][0];
 	result.m[2][1] = scale.z * rotationMatrix.m[2][1];
 	result.m[2][2] = scale.z * rotationMatrix.m[2][2];
-	result.m[2][3] = 0;
+	result.m[2][3] = 0.0f;
 
 	// 平行移動を適用
 	result.m[3][0] = translate.x;
 	result.m[3][1] = translate.y;
 	result.m[3][2] = translate.z;
-	result.m[3][3] = 1;
+	result.m[3][3] = 1.0f;
 
 	return result;
 }
+
 
 
 

@@ -14,11 +14,13 @@
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
 #include"DirectXGame/engine/3d/LightCommon.h"
+#include"DirectXGame/engine/Skinning/Skinning.h"
 #include"DirectXGame/engine/base/Camera.h"
 #include"DirectXGame/engine/base/SrvManager.h"
-#include"DirectXGame/engine/effect/ParticleManager.h"
-#include"DirectXGame/engine/effect/ParticleEmitter.h"
-#include"DirectXGame/engine/effect/OceanManager.h"
+#include"DirectXGame/engine/effect/Particle/ParticleManager.h"
+#include"DirectXGame/engine/effect/Particle/ParticleEmitter.h"
+#include"DirectXGame/engine/effect/Ocean/OceanManager.h"
+#include"DirectXGame/engine/effect/Thunder/ThunderManager.h"
 
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/audio/Audio.h"
@@ -81,6 +83,8 @@ protected:
 	LineCommon* lineCommon = nullptr;
 	// 
 	OceanManager* oceanManager_ = nullptr;
+	//
+	ThunderManager* thunderManager = nullptr;
 
 	ParticleManager* particleManager_ = nullptr;
 	
@@ -89,6 +93,8 @@ protected:
 	LightCommon* lightCommon = nullptr;
 
 	RenderingCommon* renderingCommon = nullptr;
+
+	SkinningConmmon* skinningCommon = nullptr;
 
 	// シーンファクトリー
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_;

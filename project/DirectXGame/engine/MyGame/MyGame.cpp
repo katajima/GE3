@@ -28,6 +28,8 @@ void MyGame::Finalize()
 	//
 	Object3dCommon::GetInstance()->Finalize();
 	//
+	SkinningConmmon::GetInstance()->Finalize();
+	//
 	SpriteCommon::GetInstance()->Finalize();
 	// srv
 	SrvManager::GetInstance()->Finalize();
@@ -95,9 +97,8 @@ void MyGame::Draw()
 	SceneManager::GetInstance()->DrawP3D();
 
 	//// 3Dオブジェクトの描画準備
-	Object3dCommon::GetInstance()->DrawCommonSetting();
-
-	LightCommon::GetInstance()->DrawLight();
+	
+	//LightCommon::GetInstance()->DrawLight();
 
 	SceneManager::GetInstance()->Draw3D();
 
@@ -140,26 +141,29 @@ void MyGame::InitializeResource()
 	//	TextureManager::GetInstance()->LoadTexture(label);
 	}
 
-	ModelManager::GetInstance()->LoadModel("walk.gltf", "human");
+	ModelManager::GetInstance()->LoadModelAmime("walk.gltf", "human");
+	ModelManager::GetInstance()->LoadModelAmime("sneakWalk.gltf", "human");
+	ModelManager::GetInstance()->LoadModelAmime("AnimatedCube.gltf", "AnimatedCube");
 
-	ModelManager::GetInstance()->LoadModel("plane.gltf");
-	ModelManager::GetInstance()->LoadModel("rail.obj","rail");
-	
 	ModelManager::GetInstance()->LoadModel("grass.obj", "grass");
 	ModelManager::GetInstance()->LoadModel("grass.gltf", "grass2");
-	ModelManager::GetInstance()->LoadModel("walk.gltf", "walk");
-	ModelManager::GetInstance()->LoadModel("AnimatedCube.gltf", "AnimatedCube");
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	ModelManager::GetInstance()->LoadModel("axis.obj","axis");
-	ModelManager::GetInstance()->LoadModel("teapot.obj","teapot");
-	
+	ModelManager::GetInstance()->LoadModel("renga.gltf", "renga",{10,10});
+	ModelManager::GetInstance()->LoadModel("Ground.obj", "Ground");
+
+
+
+	ModelManager::GetInstance()->LoadModel("plane.obj", "plane");
+	ModelManager::GetInstance()->LoadModel("axis.obj", "axis");
+	ModelManager::GetInstance()->LoadModel("multiMesh.obj", "multiMesh");
+	ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
+	ModelManager::GetInstance()->LoadModel("teapot.obj", "teapot");
+
+
+
+	ModelManager::GetInstance()->LoadModel("rail.obj","rail");
 	ModelManager::GetInstance()->LoadModel("building.obj","building");
 	ModelManager::GetInstance()->LoadModel("Sphere.obj","sphere");
 	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
 	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
-	ModelManager::GetInstance()->LoadModel("title.obj");
-	
-
-	//ParticleManager::GetInstance()->CreateParticleGroup("aa", "resources/uvChecker.png");
 	
 }

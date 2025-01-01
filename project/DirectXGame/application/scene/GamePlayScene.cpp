@@ -46,9 +46,9 @@ void GamePlayScene::Initialize()
 
 
 	tail.Initialize();
-	tail.SetModel("grass.obj");
+	tail.SetModel("renga.gltf");
 	tail.SetCamera(camera.get());
-	tail.transform.scale = { 100,100,100 };
+	tail.transform.scale = { 1,1,1 };
 
 	
 
@@ -92,7 +92,6 @@ void GamePlayScene::InitializeResources()
 
 }
 // 
-
 void GamePlayScene::LoadLevelData()
 {
 	const std::string kDefaultBaseDirectory = "resources/";
@@ -174,7 +173,6 @@ void GamePlayScene::LoadLevelData()
 		}
 	}
 }
-
 // 調整項目
 void GamePlayScene::ApplyGlobalVariables()
 {
