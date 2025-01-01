@@ -33,14 +33,14 @@ void Sprite::Initialize(/*SpriteCommon* spriteCommon,*/ std::string textureFileP
 
 	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
 	
-	materialResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(Material));
+	materialResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(Materials));
 	
 	//書き込むためのアドレスを取得
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 	
 
 	//今回は赤を書き込んで見る //白
-	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
+	*materialData = Materials({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableLighting = false;
 

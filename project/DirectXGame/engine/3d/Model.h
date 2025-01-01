@@ -4,6 +4,7 @@
 #include "DirectXGame/engine/Animation/Animation.h"
 #include"DirectXGame/engine/Line/Line.h"
 #include"DirectXGame/engine/Mesh/Mesh.h"
+#include"DirectXGame/engine/Material/Material.h"
 
 #include<d3d12.h>
 #include<dxgi1_6.h>
@@ -33,13 +34,13 @@ public:
 	struct ModelData
 	{
 		std::map<std::string, JointWeightData> skinClusterData;
-		MaterialData material;
+		//MaterialData material;
 		bool isNormalmap;
 		Node rootNode;
 		bool isAssimp;
 		uint32_t skinningSrvindex;
 		std::vector <std::unique_ptr<Mesh>> mesh;
-
+		std::vector < std::unique_ptr<Material>> material;
 	};
 	std::vector<std::unique_ptr <LineDraw>> line_;
 
@@ -55,8 +56,8 @@ public:
 
 
 
-	Material* materialData;
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
+	//Material* materialData;
+	//Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 
 public:
 

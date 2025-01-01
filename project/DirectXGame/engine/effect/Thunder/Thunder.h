@@ -42,7 +42,7 @@ public:
 
 
 public:
-	Material* materialData;
+	Materials* materialData;
 
 	Matrix4x4 mat_;
 

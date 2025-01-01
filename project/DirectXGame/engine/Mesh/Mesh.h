@@ -60,7 +60,7 @@ public:
 	std::vector<VertexData> vertices;
 	std::vector<uint32_t> indices; // 追加：インデックスデータ
 
-
+	uint32_t meshIndex = 0;
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 

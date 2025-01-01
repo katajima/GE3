@@ -66,6 +66,7 @@ void Object3d::Update()
 	// モデルが存在する場合
 	if (model) {
 		localMatrix = model->modelData.rootNode.localMatrix;
+		model->modelData.material[0]->GPUData();
 	}
 
 
@@ -154,6 +155,7 @@ void Object3d::UpdateSkinning()
 		else {
 			localMatrix = model->modelData.rootNode.localMatrix;
 		}
+		model->modelData.material[0]->GPUData();
 	}
 
 
@@ -229,6 +231,7 @@ void Object3d::UpdateAnimation()
 		else {
 			localMatrix = model->modelData.rootNode.localMatrix;
 		}
+		model->modelData.material[0]->GPUData();
 	}
 
 

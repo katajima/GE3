@@ -10,7 +10,7 @@
 using namespace Microsoft::WRL;
 
 //マテリアルデータ
-struct Material {
+struct Materials {
 	Vector4 color;
 	int32_t enableLighting;
 	float padding[3];

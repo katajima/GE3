@@ -94,7 +94,7 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
-	Material* materialData;
+	Materials* materialData;
 
 	TransfomationMatrix* transfomationMatrixData;
 	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource;

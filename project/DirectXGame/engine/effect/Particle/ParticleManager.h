@@ -24,7 +24,7 @@ using namespace Microsoft::WRL;
 #include "DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/Line/Line.h"
 #include"DirectXGame/engine/Line/LineCommon.h"
-
+#include "DirectXGame/engine/Material/Material.h"
 
 
 
@@ -205,10 +205,13 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
 	//DirectionalLight* directionalLightData = nullptr;
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 
-	//// Lightingを有効にする
-	Material* materialData = nullptr;
+	std::unique_ptr<Material> material = nullptr;
+
+	//Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
+
+	////// Lightingを有効にする
+	//Material* materialData = nullptr;
 
 	std::mt19937 randomEngine_;
 

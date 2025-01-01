@@ -295,8 +295,10 @@ void ParticleManager::Draw()
 
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 
-	//commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+	//commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+
+	material->GetCommandListMaterial(0);
+
 
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
@@ -352,17 +354,11 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	auto test = model_->modelData.mesh[0]->vertices.data();
 	vertexResource->Unmap(0, nullptr); // マッピングを解除
 
+	material = std::make_unique<Material>();
 
-	materialResource = dxCommon_->CreateBufferResource(sizeof(Material));
+	material->Initialize(dxCommon_);
 
-	////書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-
-	//今回は赤を書き込んで見る //白
-	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
-	//スプライトはLightingしないのでfalseにする
-	materialData->enableLighting = false;
-	materialData->uvTransform = MakeIdentity4x4();
+	
 
 	// 加速度場の設定
 	acceleraionField.acceleration = { 15.0f, 0.0f, 0.0f };

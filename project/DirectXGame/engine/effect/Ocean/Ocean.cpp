@@ -72,12 +72,12 @@ void Ocean::Initialize(Vector2 renge)
 
 
 	// マテリアル
-	materialResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(Material));
+	materialResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(Materials));
 	// 書き込むためのアドレスを取得
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 
 	//今回は赤を書き込んで見る //白
-	*materialData = Material({ 0.0f, 0.0f, 1.0f, 1.0f }, { false }); //RGBA
+	*materialData = Materials({ 0.0f, 0.0f, 1.0f, 1.0f }, { false }); //RGBA
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableLighting = true;
 	materialData->shininess = 20.0f;

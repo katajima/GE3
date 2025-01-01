@@ -9,10 +9,10 @@
 #include<vector>
 
 
-std::string getLastPartOfPath(const std::string& path) { 
-	size_t pos = path.find_last_of("/\\"); if (pos == std::string::npos) { 
-		return path; 
-	} return path.substr(pos + 1); 
+std::string getLastPartOfPath(const std::string& path) {
+	size_t pos = path.find_last_of("/\\"); if (pos == std::string::npos) {
+		return path;
+	} return path.substr(pos + 1);
 }
 
 
@@ -30,62 +30,11 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	}
 
 
-	modelData = LoadOdjFileAssimp(dire, filename,texScale);
+	modelData = LoadOdjFileAssimp(dire, filename, texScale);
 
-	// .objの参照しているテクスチャファイル読み込み
-	TextureManager::GetInstance()->LoadTexture(modelData.material.textuerFilePath);
-	// 読み込んだテクスチャの番号を取得
-	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerFilePath);
-
-	if (modelData.material.textuerNormalFilePath == "") {
-		useNormalMap = false;
-	}
-	else {
-		useNormalMap = true;
-	}
-
-	if (useNormalMap) {
-		TextureManager::GetInstance()->LoadTexture(modelData.material.textuerNormalFilePath);
-
-		modelData.material.textureNormalIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerNormalFilePath);
-	}
-
-	
-	if (modelData.material.textuerSpeculerFilePath == "") {
-		useSpecularMap = false;
-	}
-	else {
-		useSpecularMap = true;
-	}
-	if (useSpecularMap) {
-		
-		TextureManager::GetInstance()->LoadTexture(modelData.material.textuerSpeculerFilePath);
-
-		modelData.material.textuerSpeculerIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerSpeculerFilePath);
-	}
-
-
-	
-
-	// マテリアル
-	materialResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(Material));
-	// 書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-
-	//今回は赤を書き込んで見る //白
-	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
-	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableLighting = true;
-	materialData->shininess = 20.0f;
-	materialData->useLig = false;
-
-	if (useNormalMap) {
-		materialData->useNormalMap = true;
-	}
-	if (useSpecularMap) {
-		materialData->useSpeculerMap = true;
-	}
-
+	for (auto& material : modelData.material) {
+		material->LoadTex();
+	};
 
 }
 
@@ -113,81 +62,9 @@ void Model::InitializeAnime(ModelCommon* modelCommon, const std::string& directo
 
 	InitializeDrawLineSkeleton(skeleton.joints, line_);
 
-	// .objの参照しているテクスチャファイル読み込み
-	TextureManager::GetInstance()->LoadTexture(modelData.material.textuerFilePath);
-	// 読み込んだテクスチャの番号を取得
-	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerFilePath);
-
-	if (modelData.material.textuerNormalFilePath == "") {
-		useNormalMap = false;
-	}
-	else {
-		useNormalMap = true;
-
-	}
-
-	if (useNormalMap) {
-		TextureManager::GetInstance()->LoadTexture(modelData.material.textuerNormalFilePath);
-
-		modelData.material.textureNormalIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerNormalFilePath);
-	}
-
-
-	if (modelData.material.textuerSpeculerFilePath == "") {
-		useSpecularMap = false;
-	}
-	else {
-		useSpecularMap = true;
-	}
-	if (useSpecularMap) {
-
-		TextureManager::GetInstance()->LoadTexture(modelData.material.textuerSpeculerFilePath);
-
-		modelData.material.textuerSpeculerIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textuerSpeculerFilePath);
-	}
-
-
-	//vertexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
-
-	//// リソースの先頭のアドレスを作成する
-	//vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	//vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
-	//vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	//vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	//std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
-
-
-	// インデクスリソース
-	//indexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * modelData.indices.size());
-
-	//indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
-	//indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
-	//indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
-
-	//uint32_t* indexData = nullptr;
-	//indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	//std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
-
-
-	// マテリアル
-	materialResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(Material));
-	// 書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-
-	//今回は赤を書き込んで見る //白
-	*materialData = Material({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
-	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableLighting = true;
-	materialData->shininess = 20.0f;
-	materialData->useLig = false;
-
-	if (useNormalMap) {
-		materialData->useNormalMap = true;
-	}
-	if (useSpecularMap) {
-		materialData->useSpeculerMap = true;
-	}
+	for (auto& material : modelData.material) {
+		material->LoadTex();
+	};
 }
 
 #pragma endregion // 初期化
@@ -198,19 +75,18 @@ void Model::Draw()
 {
 	for (auto& mesh : modelData.mesh)
 	{
+
+		//for (auto& material : modelData.material) {
+
+		modelData.material[mesh->meshIndex]->GetCommandListMaterial(0);
+
+		modelData.material[mesh->meshIndex]->GetCommandListTexture(2, 7, 8);
+		//}
+
 		// マテリアルのバインド
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+		//modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-		// テクスチャのバインド
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
-		if (useNormalMap) {
-			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
-			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
 
-		}
-		if (useSpecularMap) {
-			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerSpeculerFilePath));
-		}
 
 		mesh->GetCommandList();
 
@@ -223,19 +99,11 @@ void Model::DrawSkinning()
 {
 	for (auto& mesh : modelData.mesh)
 	{
-		// マテリアルのバインド
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-		// テクスチャのバインド
-		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerFilePath));
-		if (useNormalMap) {
-			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
-			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(9, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerNormalFilePath));
+		modelData.material[mesh->meshIndex]->GetCommandListMaterial(0);
 
-		}
-		if (useSpecularMap) {
-			modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textuerSpeculerFilePath));
-		}
+		modelData.material[mesh->meshIndex]->GetCommandListTexture(2, 7, 8);
+
 
 		modelCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(10, SrvManager::GetInstance()->GetGPUDescriptorHandle(modelData.skinningSrvindex));
 
@@ -243,7 +111,7 @@ void Model::DrawSkinning()
 
 		// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
 		modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
-		
+
 	}
 }
 
@@ -265,15 +133,14 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 	assert(scene->HasMeshes()); //メッシュがないのは対応しない
 
 
-	
+
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0)); //TexcoordがないMeshは今回は非対応
 
 		std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
-		//modelData.mesh = std::make_unique<Mesh>();
-
+		pMesh->meshIndex = meshIndex;
 
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
@@ -284,7 +151,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 				aiVector3D& normal = mesh->mNormals[vertexIndex];
 				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 				Mesh::VertexData vertex;
-				
+
 				vertex.position = { position.x,position.y,position.z,1.0f };
 				vertex.normal = { normal.x,normal.y,normal.z };
 				vertex.texcoord = { texcoord.x * texScale.x,texcoord.y * texScale.y };
@@ -304,39 +171,65 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 		modelData.mesh.push_back(std::move(pMesh));
 	}
 
-	
 
-	
-
+	int countD = 0;
+	int countS = 0;
+	int countN = 0;
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
-		aiString textureFilePath;
-
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
-			aiString textureFilePaths;
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePaths);
-			std::cout << "Diffuse Texture File Path: " << textureFilePaths.C_Str() << std::endl;
-			modelData.material.textuerFilePath = directoryPath + "/" + textureFilePaths.C_Str();
+			countD++;
 		}
 		if (material->GetTextureCount(aiTextureType_SPECULAR) != 0) {
-			aiString textureFilePath;
-			material->GetTexture(aiTextureType_SPECULAR, 0, &textureFilePath);
-			std::cout << "Specular Texture File Path: " << textureFilePath.C_Str() << std::endl;
-			modelData.material.textuerSpeculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			countS++;
 		}
 		if (material->GetTextureCount(aiTextureType_HEIGHT) != 0 || material->GetTextureCount(aiTextureType_NORMALS) != 0) {
-			aiString textureFilePath;
-			if (material->GetTextureCount(aiTextureType_HEIGHT) != 0) {
-				material->GetTexture(aiTextureType_HEIGHT, 0, &textureFilePath);
-			}
-			else {
-				material->GetTexture(aiTextureType_NORMALS, 0, &textureFilePath);
-			}
-			std::cout << "Normal/Height Texture File Path: " << textureFilePath.C_Str() << std::endl;
-			modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			countN++;
 		}
 	}
-	
+
+
+	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		std::unique_ptr<Material> pMaterial = std::make_unique<Material>();
+		pMaterial->Initialize(ModelCommon::GetInstance()->GetDxCommon());
+
+		for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+			aiMaterial* material = scene->mMaterials[materialIndex];
+			aiString textureFilePath;
+
+			if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+				aiString textureFilePaths;
+				material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePaths);
+				std::cout << "Diffuse Texture File Path: " << textureFilePaths.C_Str() << std::endl;
+				//modelData.material.textuerFilePath = directoryPath + "/" + textureFilePaths.C_Str();
+				pMaterial->tex_.diffuseFilePath = directoryPath + "/" + textureFilePaths.C_Str();
+
+			}
+			if (material->GetTextureCount(aiTextureType_SPECULAR) != 0) {
+				aiString textureFilePath;
+				material->GetTexture(aiTextureType_SPECULAR, 0, &textureFilePath);
+				std::cout << "Specular Texture File Path: " << textureFilePath.C_Str() << std::endl;
+				//modelData.material.textuerSpeculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
+				pMaterial->tex_.speculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			}
+			if (material->GetTextureCount(aiTextureType_HEIGHT) != 0 || material->GetTextureCount(aiTextureType_NORMALS) != 0) {
+				aiString textureFilePath;
+				if (material->GetTextureCount(aiTextureType_HEIGHT) != 0) {
+					material->GetTexture(aiTextureType_HEIGHT, 0, &textureFilePath);
+				}
+				else {
+					material->GetTexture(aiTextureType_NORMALS, 0, &textureFilePath);
+				}
+				std::cout << "Normal/Height Texture File Path: " << textureFilePath.C_Str() << std::endl;
+				//modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
+
+				pMaterial->tex_.normalFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			}
+		}
+		modelData.material.push_back(std::move(pMaterial));
+
+	}
+
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
 	return modelData;
@@ -350,9 +243,9 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 	Assimp::Importer importer;
 	std::string filePach = directoryPath + "/" + filename;
 
-	
+
 	//modelData.mesh = std::make_unique<Mesh>();
-	
+
 	const aiScene* scene = importer.ReadFile(filePach.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); //メッシュがないのは対応しない
 
@@ -361,6 +254,8 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0)); //TexcoordがないMeshは今回は非対応
 		std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
+
+		pMesh->meshIndex = meshIndex;
 
 		pMesh->vertices.resize(mesh->mNumVertices);
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
@@ -378,7 +273,7 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 			assert(face.mNumIndices == 3); // 三角形のみサポート
 			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
 				uint32_t vertexIndex = face.mIndices[element];
-			
+
 				pMesh->indices.push_back(vertexIndex);
 			}
 		}
@@ -386,12 +281,12 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 			aiBone* bone = mesh->mBones[boneIndex];
 			std::string jointName = bone->mName.C_Str();
 			JointWeightData& jointWeightData = modelData.skinClusterData[jointName];
-			
+
 			aiMatrix4x4 bindPoseMatrixAssimp = bone->mOffsetMatrix.Inverse();
 			aiVector3D scale, translate;
 			aiQuaternion rotate;
 			bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
-			Matrix4x4 bindPoseMatrix = MakeAffineMatrix(Vector3{ scale.x, scale.y, scale.z}, Quaternion{ rotate.x,-rotate.y,-rotate.z,rotate.w }, Vector3{ -translate.x,translate.y,translate.z });
+			Matrix4x4 bindPoseMatrix = MakeAffineMatrix(Vector3{ scale.x, scale.y, scale.z }, Quaternion{ rotate.x,-rotate.y,-rotate.z,rotate.w }, Vector3{ -translate.x,translate.y,translate.z });
 			jointWeightData.inverseBindPoseMatrix = Inverse(bindPoseMatrix);
 
 			for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
@@ -399,43 +294,55 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 			}
 
 		}
-		
+
 		pMesh->Initialize(ModelCommon::GetInstance()->GetDxCommon());
 
 		modelData.mesh.push_back(std::move(pMesh));
 	}
-	
+
 
 	modelData.skinningSrvindex = SrvManager::GetInstance()->Allocate();
 
-	
-	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
-		aiMaterial* material = scene->mMaterials[materialIndex];
-		aiString textureFilePath;
+	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		std::unique_ptr<Material> pMaterial = std::make_unique<Material>();
 
-		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
-			aiString textureFilePaths;
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePaths);
-			std::cout << "Diffuse Texture File Path: " << textureFilePaths.C_Str() << std::endl;
-			modelData.material.textuerFilePath = directoryPath + "/" + textureFilePaths.C_Str();
-		}
-		if (material->GetTextureCount(aiTextureType_SPECULAR) != 0) {
+		//modelData.material[] = std::make_unique<Material>();
+
+		pMaterial->Initialize(ModelCommon::GetInstance()->GetDxCommon());
+		for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+			aiMaterial* material = scene->mMaterials[materialIndex];
 			aiString textureFilePath;
-			material->GetTexture(aiTextureType_SPECULAR, 0, &textureFilePath);
-			std::cout << "Specular Texture File Path: " << textureFilePath.C_Str() << std::endl;
-			modelData.material.textuerSpeculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
-		}
-		if (material->GetTextureCount(aiTextureType_HEIGHT) != 0 || material->GetTextureCount(aiTextureType_NORMALS) != 0) {
-			aiString textureFilePath;
-			if (material->GetTextureCount(aiTextureType_HEIGHT) != 0) {
-				material->GetTexture(aiTextureType_HEIGHT, 0, &textureFilePath);
+
+			if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+				aiString textureFilePaths;
+				material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePaths);
+				std::cout << "Diffuse Texture File Path: " << textureFilePaths.C_Str() << std::endl;
+				//modelData.material.textuerFilePath = directoryPath + "/" + textureFilePaths.C_Str();
+				pMaterial->tex_.diffuseFilePath = directoryPath + "/" + textureFilePaths.C_Str();
 			}
-			else {
-				material->GetTexture(aiTextureType_NORMALS, 0, &textureFilePath);
+			if (material->GetTextureCount(aiTextureType_SPECULAR) != 0) {
+				aiString textureFilePath;
+				material->GetTexture(aiTextureType_SPECULAR, 0, &textureFilePath);
+				std::cout << "Specular Texture File Path: " << textureFilePath.C_Str() << std::endl;
+				//modelData.material.textuerSpeculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
+				pMaterial->tex_.speculerFilePath = directoryPath + "/" + textureFilePath.C_Str();
 			}
-			std::cout << "Normal/Height Texture File Path: " << textureFilePath.C_Str() << std::endl;
-			modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			if (material->GetTextureCount(aiTextureType_HEIGHT) != 0 || material->GetTextureCount(aiTextureType_NORMALS) != 0) {
+				aiString textureFilePath;
+				if (material->GetTextureCount(aiTextureType_HEIGHT) != 0) {
+					material->GetTexture(aiTextureType_HEIGHT, 0, &textureFilePath);
+				}
+				else {
+					material->GetTexture(aiTextureType_NORMALS, 0, &textureFilePath);
+				}
+				std::cout << "Normal/Height Texture File Path: " << textureFilePath.C_Str() << std::endl;
+				//modelData.material.textuerNormalFilePath = directoryPath + "/" + textureFilePath.C_Str();
+
+				pMaterial->tex_.normalFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			}
 		}
+		modelData.material.push_back(std::move(pMaterial));
+
 	}
 
 	modelData.rootNode = ReadNode(scene->mRootNode);
@@ -445,7 +352,7 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 
 Node Model::ReadNode(aiNode* node) {
 	Node result;
-	
+
 	aiVector3D scale{}, translate{};
 	aiQuaternion rotate{};
 	node->mTransformation.Decompose(scale, rotate, translate); // assimpの行列からSRTを抽出する関数を利用
@@ -453,7 +360,7 @@ Node Model::ReadNode(aiNode* node) {
 	result.transform.scale = { scale.x,scale.y,scale.z }; // Scaleはそのまま
 	result.transform.rotate = { rotate.x,-rotate.y,-rotate.z,rotate.w }; // x軸を反転、さらに回転方向が逆なので軸を反転させる	
 	result.transform.translate = { -translate.x,translate.y,translate.z }; // x軸を反転
-	
+
 	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
 
 

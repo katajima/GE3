@@ -17,14 +17,15 @@ public:
 	void Initialize(DirectXCommon* dxcommon);
 
 
+	void GetCommandListMaterial(int index);
 
-
-
+	void GetCommandListTexture(int indexDiffuse, int normalIndex,int speculerIndex);
 
 	void GPUData();
 	void LoadTex();
 public:
 	Transform transform;
+	Vector4 color;
 
 	int32_t enableLighting_ = true;
 	float shininess_;
@@ -71,14 +72,14 @@ private:
 
 	
 
-	std::string textuerFilePath;
-	std::string textuerNormalFilePath;
-	std::string textuerSpeculerFilePath;
+	//std::string textuerFilePath;
+	//std::string textuerNormalFilePath;
+	//std::string textuerSpeculerFilePath;
 
-	//テクスチャ番号
-	uint32_t textureIndex = 0;
-	uint32_t textureNormalIndex = 0;
-	uint32_t textuerSpeculerIndex = 0;
+	////テクスチャ番号
+	//uint32_t textureIndex = 0;
+	//uint32_t textureNormalIndex = 0;
+	//uint32_t textuerSpeculerIndex = 0;
 
 	
 
