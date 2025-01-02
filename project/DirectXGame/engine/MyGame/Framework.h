@@ -15,7 +15,7 @@
 #include"DirectXGame/engine/3d/ModelManager.h"
 #include"DirectXGame/engine/3d/LightCommon.h"
 #include"DirectXGame/engine/Skinning/Skinning.h"
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/base/SrvManager.h"
 #include"DirectXGame/engine/effect/Particle/ParticleManager.h"
 #include"DirectXGame/engine/effect/Particle/ParticleEmitter.h"
@@ -23,6 +23,8 @@
 #include"DirectXGame/engine/effect/Thunder/ThunderManager.h"
 
 #include"DirectXGame/engine/base/ImGuiManager.h"
+#include"DirectXGame/engine/Camera/CameraCommon.h"
+
 #include"DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/base/StringUtility.h"
 #include"DirectXGame/engine/base/Logger.h"
@@ -79,6 +81,8 @@ protected:
 	Object3dCommon* object3dCommon = nullptr;
 	// モデルコモン
 	std::unique_ptr <ModelCommon> modelCommon;
+	// モデルコモン
+	CameraCommon* cameraCommon = nullptr;
 	// ラインコモン
 	LineCommon* lineCommon = nullptr;
 	// 

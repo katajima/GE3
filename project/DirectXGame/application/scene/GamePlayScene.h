@@ -4,7 +4,7 @@
 #include "DirectXGame/engine/input/Input.h"
 #include "DirectXGame/engine/audio/Audio.h"
 #include "DirectXGame/engine/3d/ModelManager.h"
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/3d/Object3d.h"
 #include"DirectXGame/engine/2d/Sprite.h"
 #include"DirectXGame/engine/Line/Line.h"

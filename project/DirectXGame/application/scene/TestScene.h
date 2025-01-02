@@ -2,7 +2,7 @@
 #include"DirectXGame/engine/scene/BaseScene.h"
 #include"DirectXGame/engine/scene/SceneManager.h"
 #include "DirectXGame/engine/input/Input.h"
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/3d/Object3d.h"
 #include "DirectXGame/engine/base/TextureManager.h"
 #include "DirectXGame/engine/input/Input.h"
@@ -10,6 +10,8 @@
 #include"DirectXGame/engine/3d/Object3dCommon.h"
 #include"DirectXGame/engine/3d/LightCommon.h"
 #include"DirectXGame/engine/2d/SpriteCommon.h"
+#include"DirectXGame/engine/2d/Sprite.h"
+
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include "DirectXGame/engine/effect/Particle/ParticleManager.h"
 #include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
@@ -89,7 +91,7 @@ private:
 	
 	Quaternion test{};
 
-
+	Sprite sprite;
 
 };
 

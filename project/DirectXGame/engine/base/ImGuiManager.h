@@ -11,7 +11,7 @@
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include "DirectXGame/engine/input/Input.h"
 #include "DirectXGame/engine/3d/Object3d.h"
-#include "DirectXGame/engine/base/Camera.h"
+#include "DirectXGame/engine/Camera/Camera.h"
 
 // 前方宣言
 class WinApp;

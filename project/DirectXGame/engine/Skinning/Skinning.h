@@ -1,6 +1,6 @@
 #pragma once
 #include "DirectXGame/engine/base/DirectXCommon.h"
-#include "DirectXGame/engine/base/Camera.h"
+#include "DirectXGame/engine/Camera/Camera.h"
 
 class SkinningConmmon
 {

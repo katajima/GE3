@@ -50,14 +50,6 @@ public:
 	Skeleton skeleton;
 	SkinCluster skinCluster;
 
-	
-
-	
-
-
-
-	//Material* materialData;
-	//Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 
 public:
 

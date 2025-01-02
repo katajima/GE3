@@ -33,13 +33,13 @@ void ParticleManager::Finalize()
 
 void ParticleManager::DrawCommonSetting()
 {
-	////// RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	//dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
+	//// RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
 
-	//dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get()); //PSOを設定
+	dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get()); //PSOを設定
 
-	////形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
-	//dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
+	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void ParticleManager::Update()
@@ -140,7 +140,7 @@ void ParticleManager::Update()
 			for (size_t i = 0; i < 24; i += 2) {
 				group.line_[i]->Update();
 			}
-
+			group.material->GPUData();
 
 			for (auto particleIterator = group.particle.begin(); particleIterator != group.particle.end(); )
 			{
@@ -282,36 +282,27 @@ void ParticleManager::Draw()
 {
 	ParticleManager::GetInstance()->DrawCommonSetting();
 
-
-	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
-
-	dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get()); //PSOを設定
-
-	//形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
-	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	
 	auto commandList = dxCommon_->GetCommandList();
 
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 
-	//commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
-
-	material->GetCommandListMaterial(0);
-
-
+	
+	
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
 
-		//commandList->SetGraphicsRootConstantBufferView(3, group.resource->GetGPUVirtualAddress());
+		//group.material->GetCommandListMaterial(0);
 
-		// テクスチャのSRVのDescriptorTableを設定
-		commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(group.materialData.textuerFilePath));
+		group.material->GetCommandListTexture(2);
+		
+		commandList->SetGraphicsRootConstantBufferView(0, group.resource->GetGPUVirtualAddress());
 
 		// インスタンシングデータのSRVのDescriptorTableを設定
 		commandList->SetGraphicsRootDescriptorTable(1, group.instancingSrvHandleGPU);
 
 		// インスタンシングの描画コール
+		commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+
 		// インスタンシング描画
 		uint32_t instanceCount = (std::min)(group.instanceCount, kNumMaxInstance);
 		commandList->DrawInstanced(static_cast<UINT>(group.model->modelData.mesh[0]->indices.size()), instanceCount, 0, 0);
@@ -331,47 +322,34 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera)
 {
-	model_ = model;
-
+	
 	// ランダムエンジンの初期化
 	std::random_device seedGenerator;
 	randomEngine_.seed(seedGenerator()); // randomEngine_ にシードを設定
-	//std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
-
+	
+	// = model->modelData.mesh[0]->Initialize(dxCommon_);
 
 	// 頂点リソースを作成
-	vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * model_->modelData.mesh[0]->vertices.size());
+	vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * model->modelData.mesh[0]->vertices.size());
 
 	// 頂点バッファビューを設定
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.SizeInBytes = sizeof(VertexData) * static_cast<UINT>(model_->modelData.mesh[0]->vertices.size());
+	vertexBufferView.SizeInBytes = sizeof(VertexData) * static_cast<UINT>(model->modelData.mesh[0]->vertices.size());
 	vertexBufferView.StrideInBytes = sizeof(VertexData);
 
 	// 頂点データを書き込む
 	void* vertexData = nullptr;
 	vertexResource->Map(0, nullptr, &vertexData);
-	std::memcpy(vertexData, model_->modelData.mesh[0]->vertices.data(), sizeof(VertexData) * model_->modelData.mesh[0]->vertices.size());
-	auto test = model_->modelData.mesh[0]->vertices.data();
+	std::memcpy(vertexData, model->modelData.mesh[0]->vertices.data(), sizeof(VertexData) * model->modelData.mesh[0]->vertices.size());
+	auto test = model->modelData.mesh[0]->vertices.data();
 	vertexResource->Unmap(0, nullptr); // マッピングを解除
 
-	material = std::make_unique<Material>();
-
-	material->Initialize(dxCommon_);
-
 	
-
-	// 加速度場の設定
-	acceleraionField.acceleration = { 15.0f, 0.0f, 0.0f };
-	acceleraionField.area.min = { -1.0f, -1.0f, -1.0f };
-	acceleraionField.area.max = { 1.0f, 1.0f, 1.0f };
-
 	if (particleGroups.contains(name)) {
 		return;
 	}
 
 	ParticleGroup& particleGroup = particleGroups[name];
-
-
 	particleGroup.emiter.center = Vector3{ 0,0,0 };
 	particleGroup.emiter.renge.max = Vector3{ 1.0f,1.0f,1.0f };
 	particleGroup.emiter.renge.min = Vector3{ -1.0f,-1.0f,-1.0f };
@@ -399,19 +377,17 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	// 名前
 	particleGroup.name = name;
-
 	// モデル
-	particleGroup.model = model_;
+	particleGroup.model = model;
 
-	
-	// テクスチャのロードと設定
-	TextureManager::GetInstance()->LoadTexture(textureFilePath);
-	particleGroup.materialData.textuerFilePath = textureFilePath;
-
+	// マテリアル
+	particleGroup.material = std::make_unique<Material>();
+	particleGroup.material->Initialize(dxCommon_);
+	particleGroup.material->tex_.diffuseFilePath = textureFilePath;
+	particleGroup.material->LoadTex();
 	// SRVインデックスの取得と設定
 	particleGroup.srvIndex = SrvManager::GetInstance()->Allocate();
-	particleGroup.materialData.textureIndex = particleGroup.srvIndex;
-
+	
 
 	// GPUリソースの作成
 	particleGroup.resource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
@@ -443,9 +419,30 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.instancingSrvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(particleGroup.srvIndex);
 	dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, particleGroup.instancingSrvHandleCPU);
 
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void ParticleManager::DrawAABB()
 {
@@ -503,7 +500,7 @@ void ParticleManager::CreateRootSignature()
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
 	D3D12_DESCRIPTOR_RANGE descriptorRangeForInstancing[1] = {};
-	descriptorRangeForInstancing[0].BaseShaderRegister = 0; // 0から始まる
+	descriptorRangeForInstancing[0].BaseShaderRegister = 1; // 0から始まる
 	descriptorRangeForInstancing[0].NumDescriptors = 1; // 数は1つ
 	descriptorRangeForInstancing[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
 	descriptorRangeForInstancing[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
@@ -517,7 +514,7 @@ void ParticleManager::CreateRootSignature()
 	descriptionSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	// RootParameter作成。複数指定できるのではい
-	D3D12_ROOT_PARAMETER rootParameters[4] = {};
+	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 
 	//mat
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -534,11 +531,6 @@ void ParticleManager::CreateRootSignature()
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
-
-	//directional
-	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[3].Descriptor.ShaderRegister = 1;
 
 	descriptionSignature.pParameters = rootParameters;
 	descriptionSignature.NumParameters = _countof(rootParameters);
@@ -802,9 +794,5 @@ void ParticleManager::RandParticle(const std::string name, const Vector3& positi
 	}
 }
 
-void ParticleManager::ConstantParticle(const std::string name, const Vector3& position)
-{
-	
-}
 
 

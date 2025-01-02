@@ -432,22 +432,7 @@ Animation Model::LoadAnimationFile(const std::string& directoryPath, const std::
 
 #pragma endregion // 読み込み系
 
-#pragma region MyRegion
 
-
-
-void Model::MoveVertices(const Vector3& offset) {
-	//for (const auto& index : modelData.indices) {
-	//	modelData.vertices[index].position.x += offset.x;
-	//	modelData.vertices[index].position.y += offset.y;
-	//	modelData.vertices[index].position.z += offset.z;
-
-	//}
-	//UpdateVertexBuffer(); // バッファを更新
-}
-
-
-#pragma endregion // 生成
 
 
 SkinCluster Model::CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData)

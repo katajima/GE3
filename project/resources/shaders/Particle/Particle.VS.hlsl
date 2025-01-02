@@ -2,23 +2,21 @@
 
 struct ParticleGPU
 {
-    float32_t4x4 WVP;
-    float32_t4x4 World;
-    float32_t4 color;
+    float4x4 WVP;
+    float4x4 World;
+    float4 color;
 };
-
-
-StructuredBuffer<ParticleGPU> gParticle : register(t0);
+StructuredBuffer<ParticleGPU> gParticle : register(t1);
 
  
 struct VertexShaderInput
 {
-    float32_t4 position : POSITION0;
-    float32_t2 texcoord : TEXCOORD0;
-    float32_t3 normal : NORMAL0;
+    float4 position : POSITION0;
+    float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL0;
 };
 
-VertexShaderOutput main(VertexShaderInput input,uint32_t instanceId : SV_InstanceID)
+VertexShaderOutput main(VertexShaderInput input,uint instanceId : SV_InstanceID)
 {
     VertexShaderOutput output;
     

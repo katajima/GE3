@@ -37,18 +37,4 @@ private:
 
 };
 
-//static Matrix4x4 SafeMatrix(const Matrix4x4& matrix) {
-//	Matrix4x4 safeMatrix = matrix;
-//	float epsilon = 1e-6f; // 非常に小さな値
-//
-//	for (int i = 0; i < 4; ++i) {
-//		for (int j = 0; j < 4; ++j) {
-//			if (safeMatrix.m[i][j] == 0.0f) {
-//				safeMatrix.m[i][j] = epsilon;
-//			}
-//		}
-//	}
-//
-//	return safeMatrix;
-//}
 

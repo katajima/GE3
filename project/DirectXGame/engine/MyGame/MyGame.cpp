@@ -141,6 +141,12 @@ void MyGame::InitializeResource()
 	//	TextureManager::GetInstance()->LoadTexture(label);
 	}
 
+
+	ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
+
+	ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
+	
+
 	ModelManager::GetInstance()->LoadModelAmime("walk.gltf", "human");
 	ModelManager::GetInstance()->LoadModelAmime("sneakWalk.gltf", "human");
 	ModelManager::GetInstance()->LoadModelAmime("AnimatedCube.gltf", "AnimatedCube");
@@ -154,8 +160,8 @@ void MyGame::InitializeResource()
 
 	ModelManager::GetInstance()->LoadModel("plane.obj", "plane");
 	ModelManager::GetInstance()->LoadModel("axis.obj", "axis");
-	ModelManager::GetInstance()->LoadModel("multiMesh.obj", "multiMesh");
-	ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
+	//ModelManager::GetInstance()->LoadModel("multiMesh.obj", "multiMesh");
+	//ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
 	ModelManager::GetInstance()->LoadModel("teapot.obj", "teapot");
 
 

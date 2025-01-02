@@ -3,7 +3,7 @@
 #include <iostream>
 #include"DirectXGame/engine/base/TextureManager.h"
 
-void Sprite::Initialize(/*SpriteCommon* spriteCommon,*/ std::string textureFilePath)
+void Sprite::Initialize(std::string textureFilePath)
 {
 
 	textureFilePath_ = textureFilePath;
@@ -33,31 +33,52 @@ void Sprite::Initialize(/*SpriteCommon* spriteCommon,*/ std::string textureFileP
 
 	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
 	
-	materialResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(Materials));
 	
-	//書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-	
+	// マテリアル
+	material = std::make_unique<Material>();
+	material->Initialize(SpriteCommon::GetInstance()->GetDxCommon());
+	material->tex_.diffuseFilePath = textureFilePath;
+	material->LoadTex();
 
-	//今回は赤を書き込んで見る //白
-	*materialData = Materials({ 1.0f, 1.0f, 1.0f, 1.0f }, { false }); //RGBA
-	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableLighting = false;
+	// トランスフォーム
+	transfomation = std::make_unique<Transfomation>();
+	transfomation->Initialize(SpriteCommon::GetInstance()->GetDxCommon());
 
-	
-	transformationMatrixResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
-	
-	//書き込むためのアドレスを取得
-	transformationMatrixResource->Map(0, nullptr, reinterpret_cast<void**>(&transfomationMatrixData));
-	
-	//単位行列を書き込んでおく
-	transfomationMatrixData->WVP = MakeIdentity4x4();
-	transfomationMatrixData->World = MakeIdentity4x4();
 
-	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+	/*TextureManager::GetInstance()->LoadTexture(textureFilePath);
 
-	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);*/
 
+
+
+	transform.scale = { size.x,size.y,1.0f };
+	transform.rotate = { 0.0f,0.0f,rotation };
+	transform.translate = { position.x,position.y,0.0f };
+
+	float left = 0.0f - anchorPoint.x;
+	float right = 1.0f - anchorPoint.x;
+	float top = 0.0f - anchorPoint.y;
+	float bottom = 1.0f - anchorPoint.y;
+
+	// 左右反転
+	if (isFlipX_) {
+		left = -left;
+		right = -right;
+	}
+	// 上下反転
+	if (isFlipY_) {
+		top = -top;
+		bottom = -bottom;
+	}
+
+	/// テクスチャ範囲指定-反映処理-
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMataData(textureFilePath_);
+	float tex_left = textureLeftTop.x / metadata.width;
+	float tex_right = (textureLeftTop.x + textureSize.x) / metadata.width;
+	float tex_top = textureLeftTop.y / metadata.height;
+	float tex_bottom = (textureLeftTop.y + textureSize.y) / metadata.height;
+
+	AdjusttextureSize();
 }
 
 void Sprite::Update()
@@ -89,7 +110,7 @@ void Sprite::Update()
 	float tex_top = textureLeftTop.y / metadata.height;
 	float tex_bottom = (textureLeftTop.y + textureSize.y) / metadata.height;
 
-	AdjusttextureSize();
+	//AdjusttextureSize();
 
 	// 1枚目の三角形
 	vertexData[0].position = { left,bottom,0.0f,1.0f };//左下
@@ -116,37 +137,36 @@ void Sprite::Update()
 	indexData[5] = 2;
 
 
-	//transform.rotate.x = 3.14f;
-	//transform.rotate.z = 3.14f;
 	//transform変数を作る
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	////透視射影行列
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::GetClientWidth()), float(WinApp::GetClientHeight()), 0.0f, 100.0f);
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-	transfomationMatrixData->World = worldViewProjectionMatrix;
-	transfomationMatrixData->WVP = worldViewProjectionMatrix;
+	
+	// トランスフォーム
+	transfomation->UpdateSprite(worldViewProjectionMatrix);
 
-	materialData->color;
+	// マテリアル
+	material->GPUData();
 }
 
 void Sprite::Draw()
 {
-	spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+	material->GetCommandListMaterial(0);
 
-	//spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureFilePath_));
+	material->GetCommandListTexture(2,2,2);
 
-	// SRVセットコマンド
-	TextureManager::GetInstance()->GetSrvManager()->SetGraphicsRootdescriptorTable(2, textureIndex);
-
+	
 	//vertexBufferViewSprite
 	spriteCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); //VBVを設定
 
 	spriteCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
 
 	//トランスフォームMatrixResource
-	spriteCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
+	transfomation->GetCommandList(1);
 
+	
 	spriteCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 	
 }
@@ -160,5 +180,4 @@ void Sprite::AdjusttextureSize()
 	textureSize.y = static_cast<float>(metadata.height);
 	// 画像サイズをテクスチャサイズに合わせる
 	size = textureSize;
-
 }

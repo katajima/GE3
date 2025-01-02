@@ -17,8 +17,11 @@ using namespace Microsoft::WRL;
 #include"DirectXGame/engine/struct/Material.h"
 #include"DirectXGame/engine/base/DirectXCommon.h"
 #include"DirectXGame/engine/base/SrvManager.h"
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/3d/LightCommon.h"
+#include"DirectXGame/engine/Transfomation/Transfomation.h"
+#include"DirectXGame/engine/Material/Material.h"
+
 #include<random>
 #include<numbers>
 
@@ -42,10 +45,11 @@ public:
 
 
 public:
-	Materials* materialData;
-
+	// マテリアル
+	std::unique_ptr<Material> material = nullptr;
+	// マトリックス
 	Matrix4x4 mat_;
-
+	// 位置
 	Transform transform;
 
 
@@ -84,8 +88,8 @@ private:
 	};
 	Renge renge_;
 
-	TransfomationMatrix* transfomationMatrixData;
-	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource;
+	
+	std::unique_ptr<Transfomation>transfomation = nullptr;
 
 	// バッファリソース
 	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
@@ -103,8 +107,6 @@ private:
 
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 
-	Microsoft::WRL::ComPtr < ID3D12Resource> cameraResource;
-	CameraGPU* cameraData = nullptr;
 	
 	Camera* camera = nullptr;
 

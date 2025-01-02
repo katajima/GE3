@@ -3,6 +3,9 @@
 #include"DirectXGame/engine/struct/Material.h"
 
 #include"DirectXGame/engine/math/MathFanctions.h"
+#include"DirectXGame/engine/Transfomation/Transfomation.h"
+#include"DirectXGame/engine/Material/Material.h"
+
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>
@@ -36,8 +39,8 @@ public:// メンバ関数
 	void SetSize(const Vector2& size) { this->size = size; }
 
 	// 色
-	const Vector4& GetColor() const { return materialData->color; }
-	void SetColor(const Vector4& color) { materialData->color = color; }
+	const Vector4& GetColor() const { return material->color; }
+	void SetColor(const Vector4& color) { material->color = color; }
 
 	// アンカーポイント
 	const Vector2& GetAnchorPoint() const { return anchorPoint; };
@@ -93,12 +96,14 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
-	Materials* materialData;
+	
+	// トランスフォーム
+	std::unique_ptr<Transfomation>transfomation = nullptr;
+	// マテリアル
+	std::unique_ptr<Material> material = nullptr;
 
-	TransfomationMatrix* transfomationMatrixData;
-	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource;
 
+	
 	//テクスチャ番号
 	uint32_t textureIndex = 0;
 

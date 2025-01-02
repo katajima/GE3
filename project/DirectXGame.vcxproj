@@ -64,7 +64,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning;$(ProjectDir)engine\Mesh;$(ProjectDir)engine\Material</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning;$(ProjectDir)engine\Mesh;$(ProjectDir)engine\Material;$(ProjectDir)engine\Transfomation;$(ProjectDir)engine\Camera</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -91,7 +91,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Line;$(ProjectDir)engine\effect;$(ProjectDir)engine\Animation;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning;$(ProjectDir)engine\Mesh;$(ProjectDir)engine\Material</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\input;$(ProjectDir)engine\struct;$(ProjectDir)engine\MyGame;$(ProjectDir)application\scene;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Line;$(ProjectDir)engine\effect;$(ProjectDir)engine\Animation;$(ProjectDir)DirectXGame\application\base;$(ProjectDir)engine\Skinning;$(ProjectDir)engine\Mesh;$(ProjectDir)engine\Material;$(ProjectDir)engine\Transfomation;$(ProjectDir)engine\Camera</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -121,6 +121,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\base\RtvManeger.cpp" />
     <ClCompile Include="DirectXGame\application\scene\GamePlayScene.cpp" />
     <ClCompile Include="DirectXGame\application\scene\TitleScene.cpp" />
+    <ClCompile Include="DirectXGame\engine\Camera\CameraCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\collider\Collider.cpp" />
     <ClCompile Include="DirectXGame\engine\collider\CollisionManager.cpp" />
     <ClCompile Include="DirectXGame\engine\collider\ContactRecord.cpp" />
@@ -131,7 +132,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\Line\Line.cpp" />
     <ClCompile Include="DirectXGame\engine\Line\LineCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\audio\Audio.cpp" />
-    <ClCompile Include="DirectXGame\engine\base\Camera.cpp" />
+    <ClCompile Include="DirectXGame\engine\Camera\Camera.cpp" />
     <ClCompile Include="DirectXGame\engine\base\D3DResourceLeakchecker.cpp" />
     <ClCompile Include="DirectXGame\engine\base\DirectXCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\base\ImGuiManager.cpp" />
@@ -145,6 +146,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\Skinning\Skinning.cpp" />
     <ClCompile Include="DirectXGame\engine\struct\Matrix4x4.cpp" />
     <ClCompile Include="DirectXGame\engine\struct\Quaternion.cpp" />
+    <ClCompile Include="DirectXGame\engine\Transfomation\Transfomation.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\ImGuizmo.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
@@ -327,6 +329,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\3d\LightCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\RenderingCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\RtvManeger.h" />
+    <ClInclude Include="DirectXGame\engine\Camera\CameraCommon.h" />
     <ClInclude Include="DirectXGame\engine\collider\Collider.h" />
     <ClInclude Include="DirectXGame\engine\collider\CollisionManager.h" />
     <ClInclude Include="DirectXGame\engine\collider\CollisionTypeIdDef.h" />
@@ -345,7 +348,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\Line\Line.h" />
     <ClInclude Include="DirectXGame\engine\Line\LineCommon.h" />
     <ClInclude Include="DirectXGame\engine\audio\Audio.h" />
-    <ClInclude Include="DirectXGame\engine\base\Camera.h" />
+    <ClInclude Include="DirectXGame\engine\Camera\Camera.h" />
     <ClInclude Include="DirectXGame\engine\base\D3DResourceLeakchecker.h" />
     <ClInclude Include="DirectXGame\engine\base\DirectXCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\ImGuiManager.h" />
@@ -363,6 +366,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\struct\Vector2.h" />
     <ClInclude Include="DirectXGame\engine\struct\Vector3.h" />
     <ClInclude Include="DirectXGame\engine\struct\Vector4.h" />
+    <ClInclude Include="DirectXGame\engine\Transfomation\Transfomation.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\ImGuizmo.h" />

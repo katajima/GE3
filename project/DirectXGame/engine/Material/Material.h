@@ -19,7 +19,7 @@ public:
 
 	void GetCommandListMaterial(int index);
 
-	void GetCommandListTexture(int indexDiffuse, int normalIndex,int speculerIndex);
+	void GetCommandListTexture(int indexDiffuse, int normalIndex = 0,int speculerIndex = 0);
 
 	void GPUData();
 	void LoadTex();
@@ -69,20 +69,5 @@ private:
 
 	// テクスチャ数
 	uint32_t texDiffuseNum = 0;
-
-	
-
-	//std::string textuerFilePath;
-	//std::string textuerNormalFilePath;
-	//std::string textuerSpeculerFilePath;
-
-	////テクスチャ番号
-	//uint32_t textureIndex = 0;
-	//uint32_t textureNormalIndex = 0;
-	//uint32_t textuerSpeculerIndex = 0;
-
-	
-
-
 };
 

@@ -58,43 +58,16 @@ void Ocean::Initialize(Vector2 renge)
 
 
 	
-
-	//トランスフォーム
-	transformationMatrixResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
-
-	//書き込むためのアドレスを取得
-	transformationMatrixResource->Map(0, nullptr, reinterpret_cast<void**>(&transfomationMatrixData));
-
-	//単位行列を書き込んでおく
-	transfomationMatrixData->WVP = MakeIdentity4x4();
-	transfomationMatrixData->World = MakeIdentity4x4();
-
-
-
-	// マテリアル
-	materialResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(Materials));
-	// 書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-
-	//今回は赤を書き込んで見る //白
-	*materialData = Materials({ 0.0f, 0.0f, 1.0f, 1.0f }, { false }); //RGBA
-	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableLighting = true;
-	materialData->shininess = 20.0f;
-	materialData->useLig = false;
-
-
-	cameraResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(CameraGPU));
-	//書き込むためのアドレスを取得
-	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
-
-
-
-	cameraData->worldPosition = Vector3{ 1.0f,1.0f,1.0f };
-	cameraData->normal = { 0,0,0 };
-
+	transfomation = std::make_unique<Transfomation>();
+	transfomation->Initialize(OceanManager::GetInstance()->GetDxCommon());
 
 	
+	material = std::make_unique<Material>();
+	material->Initialize(OceanManager::GetInstance()->GetDxCommon());
+	material->tex_.diffuseFilePath = "resources/Texture/Image.png";
+	material->LoadTex();
+	material->color = { 0,0,1,1.0f };
+
 
 	waveResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(WaveParameters));
 	waveResource->Map(0, nullptr, reinterpret_cast<void**>(&waveData));
@@ -123,35 +96,9 @@ void Ocean::Update()
 	// ワールド行列の計算
 	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	
-	Matrix4x4 worldViewProjectionMatrix;
-	if (camera) {
+	transfomation->Update(camera,mat_);
 
-		const Matrix4x4& viewMatrix = camera->GetViewMatrix();
-		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
-
-
-		// WVP計算
-		worldViewProjectionMatrix = mat_; // ワールド変換
-		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, camera->GetViewMatrix()); // ビュー変換
-		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, camera->GetProjectionMatrix()); // 射影変換
-
-
-		// カメラデータの更新
-		Vector3 cameraFront(viewMatrix.m[0][2], viewMatrix.m[1][2], viewMatrix.m[2][2]);
-		cameraData->normal = Normalize(cameraFront); // 必要なら正規化
-		cameraData->worldPosition = camera->transform_.translate;
-
-		transfomationMatrixData->WVP = worldViewProjectionMatrix;
-		transfomationMatrixData->World = mat_;
-
-	}
-	else {
-		worldViewProjectionMatrix = mat_;
-		transfomationMatrixData->WVP = worldViewProjectionMatrix;
-		transfomationMatrixData->World = mat_;
-	}
-
-	transfomationMatrixData->worldInverseTranspose = Transpose(Inverse(mat_));
+	material->GPUData();
 }
 
 void Ocean::Draw()
@@ -161,20 +108,17 @@ void Ocean::Draw()
 	LightCommon::GetInstance()->DrawLight();
 
 	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(7, waveResource->GetGPUVirtualAddress());
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(8, transformationMatrixResource->GetGPUVirtualAddress());
 
+	transfomation->GetCommandList(1);
+	transfomation->GetCommandList(8);
 
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
+	camera->GetCommandList(4);
 
-	// Cameraのバインド
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
+	material->GetCommandListMaterial(0);
 
-	// マテリアルのバインド
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+	material->GetCommandListTexture(2);
 
-	// テクスチャのバインド
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modeldata.material.textuerFilePath));
-
+	
 	// 頂点バッファの設定
 	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 

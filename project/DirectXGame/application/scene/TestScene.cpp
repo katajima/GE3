@@ -35,7 +35,7 @@ void TestScene::Initialize()
 	mm.SetModel("building.obj");
 	mm.transform.translate = { 30,1,1 };
 	mm.SetCamera(camera.get());
-
+	mm.model->modelData.material[0]->color.w = 0.5f;
 	mm2.Initialize();
 	mm2.SetModel("AnimatedCube.gltf");
 	mm2.transform.translate = { -30,10,1 };
@@ -66,8 +66,10 @@ void TestScene::Initialize()
 	ocean_.SetCamera(camera.get());
 	ocean_.transform.rotate.x = DegreesToRadians(-90);
 	
-
-
+	sprite.Initialize("resources/Texture/uvChecker.png");
+	sprite.SetPosition({ 0,0 });
+	sprite.SetColor({ 1,1,1,0.1f });
+	//sprite.SetSize({10,10});
 
 }
 
@@ -97,10 +99,7 @@ void TestScene::Update()
 	}
 
 	
-	/*mm.model->modelData.materials[1].materialData->color;
-	mm.model->modelData.materials[1].materialData->uvTransform;
-	mm.model->modelData.materials[1].materialData->color;
-*/
+	
 
 	camera->UpdateMatrix();
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
@@ -281,6 +280,8 @@ void TestScene::Update()
 	emitter_->Update();
 
 	ocean_.Update();
+
+	sprite.Update();
 }
 
 void TestScene::Draw3D()
@@ -309,6 +310,7 @@ void TestScene::DrawLine3D()
 
 void TestScene::Draw2D()
 {
+	sprite.Draw();
 }
 
 void TestScene::InitializeResources()
@@ -321,6 +323,7 @@ void TestScene::InitializeResources()
 void TestScene::InitializeCamera()
 {
 	camera = std::make_unique <Camera>();
+	camera->Initialize();
 	camera->transform_.rotate = { 1.0f,0,0 };
 	camera->transform_.translate = { 0,100,-60.0f };
 

@@ -1,25 +1,28 @@
 #pragma once
 #include "DirectXGame/engine/struct/Structs.h"
 #include"DirectXGame/engine/math/MathFanctions.h"
+#include"DirectXGame/engine/Camera/CameraCommon.h"
 
+#include<wrl.h>
+#include<d3d12.h>
+#include<dxgi1_6.h>
+#include<dxcapi.h>
+using namespace Microsoft::WRL;
+#include<d3d12.h>
+#include<dxgi1_6.h>
 
 class Object3d;
 
-// 定数バッファ用データ構造体
-struct ConstBufferDataViewProjection {
-	Matrix4x4 view;       // ワールド → ビュー変換行列
-	Matrix4x4 projection; // ビュー → プロジェクション変換行列
-	Vector3 cameraPos;    // カメラ座標（ワールド座標）
-};
-
-// かめら
+// カメラ
 class Camera
 {
 public: // メンバ関数
 	static Camera* GetInstance();	
 	Camera();
+	//
+	void Initialize();
 
-
+	void GetCommandList(int index);
 
 	// 更新
 	void UpdateMatrix();
@@ -27,11 +30,7 @@ public: // メンバ関数
 
 	void TransferMatrix();
 
-	//Matrix4x4 LookAt(const Vector3& cameraPosition, const Vector3& targetPosition, const Vector3& upVector);
 	void LookAt(const Vector3& cameraPosition, const Vector3& targetPosition, const Vector3& upVector);
-	// setter
-	//void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }
-	//void SetTranslate(const Vector3& translate) { transform.translate = translate; }
 	void SetFovY(const float fovY) { fovY_ = fovY; }
 	void SetAspectRatio(const float aspect) { aspect_ = aspect; }
 	void SetNearClip(const float nearC) { nearClip_ = nearC; }
@@ -57,6 +56,18 @@ public:
 	Matrix4x4 viewMatrix_;
 	Matrix4x4 projectionMatrix_;
 	Matrix4x4 viewProjectionMatrix_;
+
+	struct DataGPU {
+		Vector3 worldPosition;
+		float padding[1];
+		Vector3 normal;
+	};
+	DataGPU* data;
+private:
+	DirectXCommon* dxCommon_;
+
+	Microsoft::WRL::ComPtr < ID3D12Resource> resource;
+
 };
 
 

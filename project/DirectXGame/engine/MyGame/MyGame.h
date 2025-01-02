@@ -27,7 +27,7 @@
 #include"DirectXGame/engine/3d/ModelCommon.h"
 #include"DirectXGame/engine/3d/ModelManager.h"
 
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/base/SrvManager.h"
 #include"DirectXGame/engine/effect/Particle/ParticleManager.h"
 #include"DirectXGame/engine/effect/Particle/ParticleEmitter.h"

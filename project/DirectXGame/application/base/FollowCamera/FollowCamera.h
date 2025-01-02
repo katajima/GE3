@@ -1,5 +1,5 @@
 #pragma once
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/3d/Object3d.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/math/MathFanctions.h"

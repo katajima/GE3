@@ -20,9 +20,6 @@ void Thunder::Initialize(Vector2 renge)
 	
 	
 
-	modeldata.material.textuerFilePath = "resources/Texture/Image.png";
-
-
 
 	vertexResource = ThunderManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modeldata.vertices.size());
 
@@ -70,27 +67,12 @@ void Thunder::Initialize(Vector2 renge)
 	transfomationMatrixData->time = 0;
 
 
-	// マテリアル
-	materialResource = ThunderManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(Materials));
-	// 書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-
-	//今回は赤を書き込んで見る //白
-	*materialData = Materials({ 0.0f, 0.0f, 1.0f, 1.0f }, { false }); //RGBA
-	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableLighting = true;
-	materialData->shininess = 20.0f;
-	materialData->useLig = false;
+	material = std::make_unique<Material>();
+	material->Initialize(ThunderManager::GetInstance()->GetDxCommon());
+	material->tex_.diffuseFilePath = "resources/Texture/Image.png";
+	material->LoadTex();
 
 
-	cameraResource = ThunderManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(CameraGPU));
-	//書き込むためのアドレスを取得
-	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
-
-
-
-	cameraData->worldPosition = Vector3{ 1.0f,1.0f,1.0f };
-	cameraData->normal = { 0,0,0 };
 
 	thunderResource = ThunderManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(ThunderParameters));
 	//書き込むためのアドレスを取得
@@ -130,12 +112,6 @@ void Thunder::Update()
 		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, camera->GetViewMatrix()); // ビュー変換
 		worldViewProjectionMatrix = Multiply(worldViewProjectionMatrix, camera->GetProjectionMatrix()); // 射影変換
 
-
-		// カメラデータの更新
-		Vector3 cameraFront(viewMatrix.m[0][2], viewMatrix.m[1][2], viewMatrix.m[2][2]);
-		cameraData->normal = Normalize(cameraFront); // 必要なら正規化
-		cameraData->worldPosition = camera->transform_.translate;
-
 		transfomationMatrixData->WVP = worldViewProjectionMatrix;
 		transfomationMatrixData->World = mat_;
 
@@ -156,16 +132,14 @@ void Thunder::Draw()
 	ThunderManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
 
 	// Cameraのバインド
-	ThunderManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
+	camera->GetCommandList(4);
+	
 	ThunderManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, thunderResource->GetGPUVirtualAddress());
 
+	material->GetCommandListMaterial(0);
+	material->GetCommandListTexture(2);
 
-	// マテリアルのバインド
-	ThunderManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
-
-	// テクスチャのバインド
-	ThunderManager::GetInstance()->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modeldata.material.textuerFilePath));
-
+	
 	// 頂点バッファの設定
 	ThunderManager::GetInstance()->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 

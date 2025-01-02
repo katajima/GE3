@@ -6,7 +6,7 @@
 #include <string>
 #include <wrl.h>
 #include "DirectXGame/engine/struct/Structs.h"
-#include "DirectXGame/engine/base/Camera.h"
+#include "DirectXGame/engine/Camera/Camera.h"
 #include "DirectXGame/engine/base/DirectXCommon.h"
 
 class LineCommon

@@ -9,18 +9,7 @@
 #include<dxcapi.h>
 using namespace Microsoft::WRL;
 
-//マテリアルデータ
-struct Materials {
-	Vector4 color;
-	int32_t enableLighting;
-	float padding[3];
-	Matrix4x4 uvTransform;
-	float shininess;
-	int32_t useLig;
-	int32_t useHim;
-	int32_t useNormalMap;
-	int32_t useSpeculerMap;
-};
+
 
 //マテリアルデータ
 struct MaterialData 
@@ -40,19 +29,7 @@ struct MaterialData
 
 };
 
-struct CameraGPU {
-	Vector3 worldPosition;
-	float padding[1];
-	Vector3 normal;
-};
 
-// 座標変換行列データ
-struct TransfomationMatrix
-{
-	Matrix4x4 WVP;
-	Matrix4x4 World;
-	Matrix4x4 worldInverseTranspose;
-};
 
 
 

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include"DirectXGame/engine/struct/Structs.h"
 #include"LineCommon.h"
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cstdint>

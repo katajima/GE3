@@ -8,6 +8,7 @@
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<dxcapi.h>
+#include<memory>
 using namespace Microsoft::WRL;
 #include<vector>
 #include"externals/DirectXTex/DirectXTex.h"
@@ -19,7 +20,7 @@ using namespace Microsoft::WRL;
 #include"DirectXGame/engine/base/SrvManager.h"
 #include<random>
 #include<numbers>
-#include "DirectXGame/engine/base/Camera.h"
+#include "DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/3d/Object3dCommon.h"
 #include "DirectXGame/engine/3d/Model.h"
 #include"DirectXGame/engine/Line/Line.h"
@@ -121,11 +122,10 @@ public:
 	struct ParticleGroup
 	{
 		std::string name; // 名前
-		MaterialData materialData;
+		std::unique_ptr<Material> material = nullptr;
 		std::list<Particle> particle;
 		uint32_t srvIndex;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
-		Microsoft::WRL::ComPtr<ID3D12Resource> materialResource;
 		uint32_t instanceCount; // インスタンス数
 		ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
 		D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
@@ -136,7 +136,7 @@ public:
 		bool usebillboard = true;
 		bool isAlpha = false;
 		bool isLine = true;
-		EmitType emitType = EmitType::kRandom; // 
+		EmitType emitType = EmitType::kRandom; 
 	};
 
 	
@@ -170,7 +170,7 @@ public:
 
 	void SetCamera(Camera* camera) { this->camera = camera; }
 
-	void DrawAABB(/*const EmiterAABB& emitAABB, *//*std::vector<std::unique_ptr<LineDraw>>& lineDraw_*/);
+	void DrawAABB();
 
 	void SetPos(const std::string name,const Vector3& position);
 	
@@ -202,16 +202,7 @@ private:
 
 	
 
-	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
-	//DirectionalLight* directionalLightData = nullptr;
-	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを利用する
-
-	std::unique_ptr<Material> material = nullptr;
-
-	//Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
-
-	////// Lightingを有効にする
-	//Material* materialData = nullptr;
+	
 
 	std::mt19937 randomEngine_;
 
@@ -246,11 +237,6 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
 	//// グラフィックスパイプラインステート
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
-
-	Model* model_;
-
-	
-	//
 
 };
 

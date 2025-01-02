@@ -36,6 +36,10 @@ void Framework::Initialize()
 	// モデルコモン
 	modelCommon = std::make_unique<ModelCommon>();
 	modelCommon->Initialize(dxCommon.get());
+	
+	// カメラコモン
+	cameraCommon = CameraCommon::GetInstance();
+	cameraCommon->Initialize(dxCommon.get());
 
 	skinningCommon = SkinningConmmon::GetInstance();
 	skinningCommon->Initialize(dxCommon.get());
@@ -83,8 +87,9 @@ void Framework::Finalize()
 
 	oceanManager_->Finalize();
 
-	//thunderManager->Finalize();
 
+	cameraCommon->Finalize();
+	
 	lineCommon->Finalize();
 
 	lightCommon->Finalize();

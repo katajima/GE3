@@ -1,6 +1,6 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
-#include "DirectXGame/engine/base/Camera.h"
+#include "DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/struct/Light.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
@@ -11,6 +11,8 @@
 #include<format>
 #include"Model.h"
 #include"ModelManager.h"
+#include"DirectXGame/engine/Transfomation/Transfomation.h"
+
 using namespace Microsoft::WRL;
 
 class Object3dCommon;
@@ -19,7 +21,7 @@ class Object3d
 {
 public:
 	// 初期化
-	void Initialize(/*Object3dCommon* object3dCommon*/);
+	void Initialize();
 	// 更新(アニメーション無し)
 	void Update();
 	// 更新(スキニング有り)
@@ -27,22 +29,18 @@ public:
 	// 更新(アニメーション有り)
 	void UpdateAnimation();
 	
-	// 描画
+	// 描画通常
 	void Draw();
-	// 描画
+	// 描画スキニング用
 	void DrawSkinning();
-
+	// 描画ライン
 	void DrawLine();
 	
 	// setter
 	 void SetModel(Model* model) { this->model = model; }
 	Model* GetModel() { return model; }
 	 void SetModel(const std::string& filePath);
-	//const Model& GetModel() const{ return model; }
-
-	
 	void SetCamera(Camera* camera) { this->camera = camera; }
-
 	Vector3 GetWorldPosition() const {
 		// ワールド座標を入れる
 		Vector3 worldPos;
@@ -51,53 +49,28 @@ public:
 		worldPos.z = mat_.m[3][2];
 		return worldPos;
 	};
+private:
+	// 各コマンドリスト
+	void DrawSetting();
 
 private:
+	// カメラ
 	Camera* camera = nullptr;
-
+	// トランスフォームデータ
+	std::unique_ptr<Transfomation> transfomation = nullptr;
+	//
+	// 
 	bool flag = true;
-	// 頂点データ
-	struct VertexData {
-
-		Vector4 position;
-		Vector2 texcoord;
-		Vector3 normal;
-	};
 	
-	//モデルデータ
-	struct ModelData
-	{
-		std::vector<VertexData> vertices;
-		std::vector<uint32_t> indices; // 追加：インデックスデータ
-		std::vector<VertexData> indicesPos;
-		MaterialData material;
-	};
-	
-	
-	
-
-	TransfomationMatrix* transfomationMatrixData;
-	Microsoft::WRL::ComPtr < ID3D12Resource> transformationMatrixResource;
-
-	
-
-	Microsoft::WRL::ComPtr < ID3D12Resource> cameraResource;
-	CameraGPU* cameraData = nullptr;
-
-	size_t size_;
-
-	std::vector<Transform> transforms;
 public:
+	// トランスフォーム(位置、回転、拡縮)
 	Transform transform;
-
+	// モデル
 	Model* model = nullptr;
-
+	// マトリックス
 	Matrix4x4 mat_;
-
 	// 親となるワールド変換へのポインタ
 	const Object3d* parent_ = nullptr;
-
-	//std::vector<Transform> transforms;
 };
 
 

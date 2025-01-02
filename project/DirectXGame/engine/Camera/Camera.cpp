@@ -17,12 +17,32 @@ Camera::Camera()
 	, viewMatrix_(Inverse(worldMatrix_))
 	, projectionMatrix_(MakePerspectiveFovMatrix(fovY_, aspect_, nearClip_, farClip_))
 	, viewProjectionMatrix_(Multiply(viewMatrix_, projectionMatrix_))
-{}
+
+{
+	
+
+
+}
+
+void Camera::Initialize()
+{
+	dxCommon_ = CameraCommon::GetInstance()->GetDxCommon();
+
+	resource = dxCommon_->CreateBufferResource(sizeof(DataGPU));
+	//書き込むためのアドレスを取得
+	resource->Map(0, nullptr, reinterpret_cast<void**>(&data));
+
+	data->worldPosition = Vector3{ 1.0f,1.0f,1.0f };
+	data->normal = { 0,0,0 };
+}
+
+void Camera::GetCommandList(int index)
+{
+	// Cameraのバインド
+	dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(index, resource->GetGPUVirtualAddress());
+}
 
 void Camera::UpdateMatrix() {
-
-
-
 
 	// カメラのワールド行列を計算
 	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
@@ -35,6 +55,12 @@ void Camera::UpdateMatrix() {
 
 	// ビュー・プロジェクション行列を更新
 	viewProjectionMatrix_ = Multiply(viewMatrix_, projectionMatrix_);
+
+
+	// カメラデータの更新
+	Vector3 cameraFront(viewMatrix_.m[0][2], viewMatrix_.m[1][2], viewMatrix_.m[2][2]);
+	data->normal = Normalize(cameraFront); // 必要なら正規化
+	data->worldPosition = transform_.translate;
 }
 
 

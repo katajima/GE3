@@ -17,7 +17,9 @@ using namespace Microsoft::WRL;
 #include"DirectXGame/engine/struct/Material.h"
 #include"DirectXGame/engine/base/DirectXCommon.h"
 #include"DirectXGame/engine/base/SrvManager.h"
-#include"DirectXGame/engine/base/Camera.h"
+#include"DirectXGame/engine/Camera/Camera.h"
+#include"DirectXGame/engine/Material/Material.h"
+
 #include"DirectXGame/engine/3d/LightCommon.h"
 #include<random>
 #include<numbers>
@@ -42,7 +44,7 @@ public:
 
 
 public:
-	Materials* materialData;
+	std::unique_ptr<Material> material = nullptr;
 
 	Matrix4x4 mat_;
 
@@ -107,11 +109,5 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 
 
-	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
-
-	Microsoft::WRL::ComPtr < ID3D12Resource> cameraResource;
-	CameraGPU* cameraData = nullptr;
-	
 	Camera* camera = nullptr;
-
 };
