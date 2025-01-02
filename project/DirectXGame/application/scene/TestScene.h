@@ -34,10 +34,6 @@ public:
 	// 描画
 	void Draw3D() override;
 
-	void DrawP3D() override;
-
-	void DrawLine3D() override;
-
 	void Draw2D() override;
 
 private:

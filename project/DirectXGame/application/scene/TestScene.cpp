@@ -35,7 +35,6 @@ void TestScene::Initialize()
 	mm.SetModel("building.obj");
 	mm.transform.translate = { 30,1,1 };
 	mm.SetCamera(camera.get());
-	mm.model->modelData.material[0]->color.w = 0.5f;
 	mm2.Initialize();
 	mm2.SetModel("AnimatedCube.gltf");
 	mm2.transform.translate = { -30,10,1 };
@@ -65,7 +64,9 @@ void TestScene::Initialize()
 	ocean_.Initialize(Vector2{30,30});
 	ocean_.SetCamera(camera.get());
 	ocean_.transform.rotate.x = DegreesToRadians(-90);
-	
+	ocean_.material->color.w = 0.3f;
+
+
 	sprite.Initialize("resources/Texture/uvChecker.png");
 	sprite.SetPosition({ 0,0 });
 	sprite.SetColor({ 1,1,1,0.1f });
@@ -105,113 +106,9 @@ void TestScene::Update()
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
 #ifdef _DEBUG
-	Quaternion rotation0{};
-	rotation0.MakeQuaternion(Vector3{ 0.71f,0.71f,0.0f }, 0.3f);
-	Quaternion rotation1 = -rotation0;
-
-	Quaternion interpolate0 = Slerp(rotation0, rotation1, 0.0f);
-	Quaternion interpolate1 = Slerp(rotation0, rotation1, 0.3f);
-	Quaternion interpolate2 = Slerp(rotation0, rotation1, 0.5f);
-	Quaternion interpolate3 = Slerp(rotation0, rotation1, 0.7f);
-	Quaternion interpolate4 = Slerp(rotation0, rotation1, 1.0f);
-
-
-	ImGui::Begin("Quaternion");
-	ImGui::InputFloat4("interpolate0,Slerp(q0, q1, 0.0f)", &interpolate0.x,"%.2f");
-	ImGui::InputFloat4("interpolate0,Slerp(q0, q1, 0.3f)", &interpolate1.x,"%.2f");
-	ImGui::InputFloat4("interpolate0,Slerp(q0, q1, 0.5f)", &interpolate2.x, "%.2f");
-	ImGui::InputFloat4("interpolate0,Slerp(q0, q1, 0.7f)", &interpolate3.x, "%.2f");
-	ImGui::InputFloat4("interpolate0,Slerp(q0, q1, 1.0f)", &interpolate4.x, "%.2f");
-	ImGui::End();
-	ImGui::Begin("Quaternion");
-	test = a.IdentityQuaternion();
-	ImGui::InputFloat4("Identity", &test.x);
-	test = a.Conjugate();
-	ImGui::InputFloat4("Conjugate", &test.x);
-	float norm = a.Norm();
-	ImGui::InputFloat("Norm", &norm,0,0,"%.2f");
-	test = a.Normalize();
-	ImGui::InputFloat4("Normalize", &test.x,"%.2f");
-	test = Inverse(a);
-	ImGui::InputFloat4("Inverse", &test.x,"%.2f");
-	test.MakeQuaternion(Normalize(Vector3{ 1.0f,0.4f,-0.2f }), 0.45f);
-	ImGui::InputFloat4("MakeQuaternion", &test.x,"%.2f");
-	Matrix4x4 mat4x4 = test.MakeRotateMatrix();
-	ImGui::InputFloat4("mat[0][~]", &mat4x4.m[0][0], "%.3f");
-	ImGui::InputFloat4("mat[1][~]", &mat4x4.m[1][0], "%.3f");
-	ImGui::InputFloat4("mat[2][~]", &mat4x4.m[2][0], "%.3f");
-	ImGui::InputFloat4("mat[3][~]", &mat4x4.m[3][0], "%.3f");
-	Vector3 vec = test.RotateVector(Vector3{2.1f,-0.9f,1.3f});
-	ImGui::InputFloat3("rotateByQuaternion", &vec.x, "%.2f");
-	vec = Transforms(Vector3{ 2.1f,-0.9f,1.3f }, mat4x4);
-	ImGui::InputFloat3("rotateByMatrix", &vec.x, "%.2f");
-	ImGui::End();
-
-	/*ImGui::Begin("Matrix4x4");
-	Matrix4x4 oo{};
-	Matrix4x4 oo2{};
-	Matrix4x4 oo3{};
-
-	ImGui::InputFloat4("mat[0][~]", &oo3.m[0][0], "%.3f");
-	ImGui::InputFloat4("mat[1][~]", &oo3.m[1][0], "%.3f");
-	ImGui::InputFloat4("mat[2][~]", &oo3.m[2][0], "%.3f");
-	ImGui::InputFloat4("mat[3][~]", &oo3.m[3][0], "%.3f");
-
-	ImGui::End();*/
-	ImGui::Begin("ObjectSize");
-	int i = (int)mm.model->modelData.mesh[0]->indices.size();
-	ImGui::InputInt("Index size",&i);
-	i = (int)mm.model->modelData.mesh[0]->vertices.size();
-	ImGui::InputInt("Vertex size",&i);
-	i = (int)mm2.model->modelData.mesh[0]->indices.size();
-	ImGui::InputInt("Index size",&i);
-	i = (int)mm2.model->modelData.mesh[0]->vertices.size();
-	ImGui::InputInt("Vertex size",&i);
-	i = (int)tail.model->modelData.mesh[0]->indices.size();
-	ImGui::InputInt("Index size",&i);
-	i = (int)tail.model->modelData.mesh[0]->vertices.size();
-	ImGui::InputInt("Vertex size",&i);
-	i = (int)walk.model->modelData.mesh[0]->indices.size();
-	ImGui::InputInt("Index size",&i);
-	i = (int)walk.model->modelData.mesh[0]->vertices.size();
-	ImGui::InputInt("Vertex size",&i);
-	
-	i = (int)multiMesh.model->modelData.mesh[0]->indices.size();
-	ImGui::InputInt("multiMesh.Index size",&i);
-	i = (int)multiMesh.model->modelData.mesh[0]->vertices.size();
-	ImGui::InputInt("multiMesh.Vertex size",&i);
-	i = (int)multiMesh.model->modelData.mesh[1]->indices.size();
-	ImGui::InputInt("multiMesh.Index2 size",&i);
-	i = (int)multiMesh.model->modelData.mesh[1]->vertices.size();
-	ImGui::InputInt("multiMesh.Vertex2 size",&i);
-
-	ImGui::End();
-
 	ImGui::Begin("engine");
 
-	if (ImGui::CollapsingHeader("Matelial")) {
-		/*bool is = mm.model->materialData->enableLighting;
-		ImGui::Checkbox("is", &is);
-		mm.model->materialData->enableLighting = is;
-		mm2.model->materialData->enableLighting = is;
-		tail.model->materialData->enableLighting = is;
-		walk.model->materialData->enableLighting = is;
-
-		bool is2 = mm.model->materialData->useLig;
-		ImGui::Checkbox("useLig", &is2);
-		mm.model->materialData->useLig = is2;
-		mm2.model->materialData->useLig = is2;
-		tail.model->materialData->useLig = is2;
-
-		bool is3 = mm.model->materialData->useHim;
-		ImGui::Checkbox("useHim", &is3);
-		mm.model->materialData->useHim = is3;
-		mm2.model->materialData->useHim = is3;
-		tail.model->materialData->useHim = is3;
-
-		ImGui::SliderFloat("shininess", &tail.model->materialData->shininess, 0.1f, 100.0f);*/
-
-	}
+	
 
 	if (ImGui::CollapsingHeader("Gizmos")) {
 		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
@@ -249,16 +146,6 @@ void TestScene::Update()
 
 	}
 
-	if (ImGui::TreeNode("Test")) {
-		ImGui::Text("Camera1");
-		ImGui::SliderFloat("値", &camera->transform_.rotate.x, 0.0f, 1.0f);
-		//ImGui::TreePop();
-		ImGui::Text("Camera2");
-		ImGui::SliderFloat("値", &camera->transform_.rotate.x, 0.0f, 1.0f);
-		ImGui::TreePop();
-	}
-
-
 	ImGui::End();
 #endif
 
@@ -270,7 +157,6 @@ void TestScene::Update()
 
 
 
-	//walk.Update();
 	walk.UpdateSkinning();
 	mm.Update();
 	mm2.UpdateAnimation();
@@ -286,38 +172,33 @@ void TestScene::Update()
 
 void TestScene::Draw3D()
 {
+	
+	
 	walk.DrawSkinning();
 	walk.DrawLine();
 	tail.Draw();
 	multiMesh.Draw();
 	mm.Draw();
 	mm2.Draw();
-}
 
-void TestScene::DrawP3D()
-{
-	ParticleManager::GetInstance()->GetInstance()->Draw();
+	
+
 
 	//ocean_.Draw();
 
-}
-
-void TestScene::DrawLine3D()
-{
+	ParticleManager::GetInstance()->GetInstance()->Draw();
 	ParticleManager::GetInstance()->GetInstance()->DrawAABB();
-
 }
 
 void TestScene::Draw2D()
 {
-	sprite.Draw();
+	//sprite.Draw();
 }
 
 void TestScene::InitializeResources()
 {
 	// オブジェクト3D
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
-
 }
 
 void TestScene::InitializeCamera()
@@ -327,9 +208,7 @@ void TestScene::InitializeCamera()
 	camera->transform_.rotate = { 1.0f,0,0 };
 	camera->transform_.translate = { 0,100,-60.0f };
 
-	/*cameraDebugT = camera->transform_.translate;
-	cameraDebugR = camera->transform_.rotate;*/
-
+	
 	cameraT.y = 1.0f;
 }
 

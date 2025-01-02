@@ -168,7 +168,7 @@ public:
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera);
 
-	void SetCamera(Camera* camera) { this->camera = camera; }
+	void SetCamera(Camera* camera) { this->camera_ = camera; }
 
 	void DrawAABB();
 
@@ -219,7 +219,7 @@ private:
 
 	AcceleraionField acceleraionField;
 	
-	Camera* camera = nullptr;
+	Camera* camera_ = nullptr;
 
 	
 	//// バッファリソース

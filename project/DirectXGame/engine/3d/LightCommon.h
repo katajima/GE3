@@ -11,6 +11,8 @@
 #include"DirectXGame/engine/Line/Line.h"
 #include"DirectXGame/engine/Line/LineCommon.h"
 
+#include"DirectXGame/application/GlobalVariables/GlobalVariables.h"
+
 class LightCommon
 {
 public:
@@ -30,7 +32,8 @@ public:
 
 	void Update();
 private:
-	
+	void ApplyGlobalVariables();
+
 	void DrawLineWithLines(const Vector3& center, const Vector3& extent,
 		std::vector<std::unique_ptr<LineDraw>>& lines);
 
@@ -41,17 +44,10 @@ private:
 	Microsoft::WRL::ComPtr < ID3D12Resource> directionalLightResource;
 	DirectionalLight* directionalLightData = nullptr;
 
-	/*struct PointLights
-	{
-		Microsoft::WRL::ComPtr < ID3D12Resource> pointLightResource;
-		PointLight* pointLightData = nullptr;
-	};
-	std::vector < std::unique_ptr<PointLights>> pointLights;*/
-
+	
 
 	Microsoft::WRL::ComPtr < ID3D12Resource> pointLightResource;
 	PointLight* pointLightData = nullptr;
-	//std::vector<PointLight> pointLightData;
 	const int pointMax = 3;
 
 

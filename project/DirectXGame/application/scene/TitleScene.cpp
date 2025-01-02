@@ -26,18 +26,10 @@ void TitleScene::Update()
 
 void TitleScene::Draw3D()
 {
-	
-}
-
-void TitleScene::DrawP3D()
-{
 	ParticleManager::GetInstance()->GetInstance()->Draw();
-}
-
-void TitleScene::DrawLine3D()
-{
 	ParticleManager::GetInstance()->GetInstance()->DrawAABB();
 }
+
 
 void TitleScene::Draw2D()
 {

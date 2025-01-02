@@ -12,17 +12,14 @@ ParticleManager* ParticleManager::GetInstance()
 	return instance;
 }
 
-void ParticleManager::Initialize(DirectXCommon* dxCommon/*, SrvManager* srvManager*/)
+void ParticleManager::Initialize(DirectXCommon* dxCommon)
 {
 
-	//this->camera = Camera::GetInstance();
-	this->camera = Object3dCommon::GetInstance()->GetDefaltCamera();
+	this->camera_ = Object3dCommon::GetInstance()->GetDefaltCamera();
 
 	dxCommon_ = dxCommon;
 
-
 	CreateGraphicsPipeline();
-
 }
 
 void ParticleManager::Finalize()
@@ -117,14 +114,14 @@ void ParticleManager::Update()
 
 
 	// ビルボード用行列
-	if (camera) {
+	if (camera_) {
 		// 透視射影行列
-		Matrix4x4 projectionMatrix = camera->GetProjectionMatrix();
-		Matrix4x4 viewMatrix = camera->GetViewMatrix();
+		Matrix4x4 projectionMatrix = camera_->GetProjectionMatrix();
+		Matrix4x4 viewMatrix = camera_->GetViewMatrix();
 
-		camera->GetRotate().y;
+		camera_->GetRotate().y;
 		Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
-		Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, camera->GetWorldMatrix());
+		Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, camera_->GetWorldMatrix());
 		billboardMatrix.m[3][0] = 0.0f; // 平行移動成分は不要
 		billboardMatrix.m[3][1] = 0.0f;
 		billboardMatrix.m[3][2] = 0.0f;
@@ -182,10 +179,10 @@ void ParticleManager::Update()
 					group.instanceData[group.instanceCount].World = worldMatrix;
 					group.instanceData[group.instanceCount].WVP = worldViewProjectionMatrix;
 					group.instanceData[group.instanceCount].color = particleIterator->color;
-					if (group.isAlpha) {
+					//if (group.isAlpha) {
 						group.instanceData[group.instanceCount].color.w = alpha;
-					}
-					
+					//}
+						
 					// インスタンス数をカウント
 					++group.instanceCount;
 				}
@@ -291,11 +288,10 @@ void ParticleManager::Draw()
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
 
-		//group.material->GetCommandListMaterial(0);
-
 		group.material->GetCommandListTexture(2);
 		
 		commandList->SetGraphicsRootConstantBufferView(0, group.resource->GetGPUVirtualAddress());
+		//commandList->SetGraphicsRootDescriptorTable(0, group.instancingSrvHandleGPU);
 
 		// インスタンシングデータのSRVのDescriptorTableを設定
 		commandList->SetGraphicsRootDescriptorTable(1, group.instancingSrvHandleGPU);
@@ -322,13 +318,13 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera)
 {
-	
+
+	camera_ = camera;
+
 	// ランダムエンジンの初期化
 	std::random_device seedGenerator;
 	randomEngine_.seed(seedGenerator()); // randomEngine_ にシードを設定
 	
-	// = model->modelData.mesh[0]->Initialize(dxCommon_);
-
 	// 頂点リソースを作成
 	vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * model->modelData.mesh[0]->vertices.size());
 
@@ -344,7 +340,6 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	auto test = model->modelData.mesh[0]->vertices.data();
 	vertexResource->Unmap(0, nullptr); // マッピングを解除
 
-	
 	if (particleGroups.contains(name)) {
 		return;
 	}
@@ -380,24 +375,18 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	// モデル
 	particleGroup.model = model;
 
+
 	// マテリアル
 	particleGroup.material = std::make_unique<Material>();
 	particleGroup.material->Initialize(dxCommon_);
 	particleGroup.material->tex_.diffuseFilePath = textureFilePath;
 	particleGroup.material->LoadTex();
-	// SRVインデックスの取得と設定
-	particleGroup.srvIndex = SrvManager::GetInstance()->Allocate();
 	
 
 	// GPUリソースの作成
 	particleGroup.resource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
-
 	// マッピング
-	HRESULT hr = particleGroup.resource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instanceData));
-	if (FAILED(hr)) {
-		return; // エラー処理
-	}
-
+	particleGroup.resource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instanceData));
 	// 初期化
 	for (uint32_t i = 0; i < kNumMaxInstance; ++i) {
 		particleGroup.instanceData[i].World = MakeIdentity4x4();
@@ -406,18 +395,13 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	}
 
 	// SRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
-	instancingSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	instancingSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	instancingSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	instancingSrvDesc.Buffer.FirstElement = 0;
-	instancingSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-	instancingSrvDesc.Buffer.NumElements = kNumMaxInstance;
-	instancingSrvDesc.Buffer.StructureByteStride = sizeof(ParticleForGPU);
-
+	// SRVインデックスの取得と設定
+	particleGroup.srvIndex = SrvManager::GetInstance()->Allocate();
 	particleGroup.instancingSrvHandleCPU = SrvManager::GetInstance()->GetCPUDescriptorHandle(particleGroup.srvIndex);
 	particleGroup.instancingSrvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(particleGroup.srvIndex);
-	dxCommon_->GetDevice()->CreateShaderResourceView(particleGroup.resource.Get(), &instancingSrvDesc, particleGroup.instancingSrvHandleCPU);
+	SrvManager::GetInstance()->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.resource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
+	
+	
 
 }
 

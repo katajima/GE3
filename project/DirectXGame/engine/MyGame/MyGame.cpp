@@ -94,16 +94,12 @@ void MyGame::Draw()
 
 	//////////////---------3Dモデル-------------///////////////
 
-	SceneManager::GetInstance()->DrawP3D();
-
+	
 	//// 3Dオブジェクトの描画準備
 	
-	//LightCommon::GetInstance()->DrawLight();
-
 	SceneManager::GetInstance()->Draw3D();
 
-	SceneManager::GetInstance()->DrawLine3D();
-
+	
 	//// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 

@@ -42,6 +42,17 @@ void GlobalVariables::SetValue(const std::string& groupName, const std::string& 
 	group[key] = newItem;
 }
 
+void GlobalVariables::SetValue(const std::string& groupName, const std::string& key, const Vector4& value)
+{
+	// グループの参照を取得
+	Group& group = datas_[groupName];
+	// 新しい項目のデータを参照
+	Item newItem{};
+	newItem = value;
+	// 設定した項目をstd::mapに追加
+	group[key] = newItem;
+}
+
 void GlobalVariables::SetValue(const std::string& groupName, const std::string& key, bool value) {
 	// グループの参照を取得
 	Group& group = datas_[groupName];
@@ -91,6 +102,20 @@ Vector3 GlobalVariables::GetVector3Value(const std::string& groupName, const std
 
 	// 指定グループから指定のキーを取得
 	return std::get<Vector3>(group.at(key));
+}
+
+Vector4 GlobalVariables::GetVector4Value(const std::string& groupName, const std::string& key) const
+{
+	// 指定グループが存在する
+	assert(datas_.find(groupName) != datas_.end());
+	// グループの参照を取得
+	const Group& group = datas_.at(groupName);
+
+	// 指定グループに指定のキーが存在する
+	assert(group.find(key) != group.end());
+
+	// 指定グループから指定のキーを取得
+	return std::get<Vector4>(group.at(key));
 }
 
 bool GlobalVariables::GetBoolValue(const std::string& groupName, const std::string& key) const {
@@ -285,6 +310,16 @@ void GlobalVariables::AddItem(const std::string& groupName, const std::string& k
 	}
 }
 
+void GlobalVariables::AddItem(const std::string& groupName, const std::string& key, const Vector4& value)
+{
+	std::map<std::string, Group>::iterator itGroup = datas_.find(groupName);
+	// 項目が未登録なら
+	Group& group = itGroup->second;
+	if (group.find(key) == group.end()) {
+		SetValue(groupName, key, value);
+	}
+}
+
 void GlobalVariables::AddItem(const std::string& groupName, const std::string& key, bool value) {
 
 	std::map<std::string, Group>::iterator itGroup = datas_.find(groupName);
@@ -378,6 +413,10 @@ void GlobalVariables::Update() {
 			else if (std::holds_alternative<Vector3>(item)) {
 				Vector3* ptr = std::get_if<Vector3>(&item);
 				ImGui::DragFloat3(itemName.c_str(), reinterpret_cast<float*>(ptr), 0.1f);
+			}
+			else if (std::holds_alternative<Vector4>(item)) {
+				Vector4* ptr = std::get_if<Vector4>(&item);
+				ImGui::DragFloat4(itemName.c_str(), reinterpret_cast<float*>(ptr), 0.1f);
 			}
 			else if (std::holds_alternative<bool>(item)) {
 				bool* ptr = std::get_if<bool>(&item);

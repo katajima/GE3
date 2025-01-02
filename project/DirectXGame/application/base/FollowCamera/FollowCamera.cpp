@@ -2,7 +2,7 @@
 
 void FollowCamera::Initialize()
 {
-
+	camera_.Initialize();
 	camera_.farClip_ = 5000.0f;
 	camera_.transform_.rotate.x = DegreesToRadians(90);
 }

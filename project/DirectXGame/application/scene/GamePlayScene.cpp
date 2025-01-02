@@ -24,6 +24,7 @@ void GamePlayScene::Initialize()
 
 
 	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize();
 	followCamera_->SetTarget(&player_->GetObject3D());
 	
 	player_->SetCamera(camera.get());
@@ -61,6 +62,7 @@ void GamePlayScene::Initialize()
 void GamePlayScene::InitializeCamera()
 {
 	camera = std::make_unique <Camera>();
+	camera->Initialize();
 	//camera = Camera::GetInstance();
 	camera->transform_.rotate = { 0.36f,0,0 };
 	camera->transform_.translate = { 5,32.5f,-59.2f };
@@ -345,13 +347,6 @@ void GamePlayScene::Draw3D()
 	
 }
 
-void GamePlayScene::DrawP3D()
-{
-
-}
-void GamePlayScene::DrawLine3D()
-{
-}
 // 2D描画
 void GamePlayScene::Draw2D()
 {

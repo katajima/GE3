@@ -30,10 +30,6 @@ void LightCommon::Initialize()
 	directionalLightData->groundNormal = { 0.0f,1.0f,0.0f };
 
 
-
-
-
-
 	pointLightResource = Object3dCommon::GetInstance()->GetDxCommon()->CreateBufferResource((sizeof(PointLight) * kNumMaxInstance));
 	pointLightResource->Map(0, nullptr, reinterpret_cast<void**>(&pointLightData));
 
@@ -61,8 +57,23 @@ void LightCommon::Initialize()
 		spotLightData[i].isLight = false;
 	}
 
-	
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 
+	const char* gropName = "directionalLight";
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+	//std::string label = "direction";
+	globalVariables->AddItem(gropName, "direction", directionalLightData->direction);
+	globalVariables->AddItem(gropName, "intensity", directionalLightData->intensity);
+	globalVariables->AddItem(gropName, "color", directionalLightData->color);
+
+
+
+	/*for (int i = 0; i < directionalLightData.size(); i++) {
+		std::string label = "Translate " + std::to_string(i);
+		globalVariables->AddItem(gropName, label, enemys_[i]->GetPostion());
+	}*/
+
+	ApplyGlobalVariables();
 }
 
 void LightCommon::Finalize()
@@ -87,7 +98,7 @@ void LightCommon::DrawLight()
 void LightCommon::SetLineCamera(Camera* camera)
 {
 	for (int i = 0; i < pointLightLines_.size(); i++) {
-		//pointLightLines_[i]->SetCamera(camera);
+		pointLightLines_[i]->SetCamera(camera);
 	}
 	for (int i = 0; i < spotLightLines_.size(); i++) {
 		spotLightLines_[i]->SetCamera(camera);
@@ -96,6 +107,9 @@ void LightCommon::SetLineCamera(Camera* camera)
 
 void LightCommon::Update()
 {
+	//ApplyGlobalVariables();
+
+
 #ifdef _DEBUG
 	ImGui::Begin("engine");
 
@@ -106,21 +120,27 @@ void LightCommon::Update()
 			{
 				if (ImGui::BeginTabItem("directionalLightData"))
 				{
-						bool is = directionalLightData->isLight;
-						ImGui::Checkbox("isLighting", &is);
-						directionalLightData->isLight = is;
-						ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.1f);
-						directionalLightData->direction = Normalize(directionalLightData->direction);
-						ImGui::DragFloat("intensity", &directionalLightData->intensity, 0.1f);
-						if (0 >= directionalLightData->intensity)
-							directionalLightData->intensity = 0;
-						ImGui::DragFloat("lig", &directionalLightData->lig, 0.1f);
-						ImGui::ColorEdit3("groundColor", &directionalLightData->groundColor.x);
-						ImGui::ColorEdit3("skyColor", &directionalLightData->skyColor.x);
+					bool is = directionalLightData->isLight;
+					ImGui::Checkbox("isLighting", &is);
+					directionalLightData->isLight = is;
+					ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.1f);
+					directionalLightData->direction = Normalize(directionalLightData->direction);
+					ImGui::DragFloat("intensity", &directionalLightData->intensity, 0.1f);
+					if (0 >= directionalLightData->intensity)
+						directionalLightData->intensity = 0;
+					ImGui::DragFloat("lig", &directionalLightData->lig, 0.1f);
+					ImGui::ColorEdit3("groundColor", &directionalLightData->groundColor.x);
+					ImGui::ColorEdit3("skyColor", &directionalLightData->skyColor.x);
 
-						ImGui::ColorEdit4("color", &directionalLightData->color.x);
-						ImGui::EndTabItem();
-					
+					ImGui::ColorEdit4("color", &directionalLightData->color.x);
+					ImGui::EndTabItem();
+
+					if (ImGui::Button("save")) {
+						
+						GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+						const char* gropName = "directionalLight";
+						globalVariables->saveFile(gropName);
+					}
 				}
 			}
 		//}
@@ -183,9 +203,22 @@ void LightCommon::Update()
 		spotLightLines_[i]->Update();
 	}
 	for (int i = 0; i < pointLightLines_.size(); i++) {
-		//pointLightLines_[i]->Update();
+		pointLightLines_[i]->Update();
 	}
 #endif
+}
+
+void LightCommon::ApplyGlobalVariables()
+{
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+
+	const char* gropName = "directionalLight";
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+	
+	directionalLightData->direction = globalVariables->GetVector3Value(gropName, "direction");
+	directionalLightData->intensity = globalVariables->GetFloatValue(gropName, "intensity");
+	directionalLightData->color = globalVariables->GetVector4Value(gropName, "color");
+
 }
 
 
@@ -194,7 +227,7 @@ void LightCommon::DrawLightLine() {
 	//DrawLineWithLines(pointLightData->position, Vector3{ 1, 1, 1 }, pointLightLines_);
 
 	// SpotLight のライン描画
-	DrawLineWithLines(spotLightData->position, Vector3{ 1, 1, 1 }, spotLightLines_);
+	//DrawLineWithLines(spotLightData->position, Vector3{ 1, 1, 1 }, spotLightLines_);
 }
 
 void LightCommon::DrawLineWithLines(const Vector3& center, const Vector3& extent,
