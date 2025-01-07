@@ -1,14 +1,8 @@
 #include"Particle.hlsli"
 
-struct ParticleGPU
-{
-    float4x4 WVP;
-    float4x4 World;
-    float4 color;
-};
+
 StructuredBuffer<ParticleGPU> gParticle : register(t1);
 
- 
 struct VertexShaderInput
 {
     float4 position : POSITION0;

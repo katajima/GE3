@@ -109,12 +109,18 @@ float Clamp(float t, float min, float max) {
 
 	return t;
 }
-// 2つの点間の距離を計算する関数
-float Distance(const Vector3& point1, const Vector3& point2) {
+float Distance(const Vector3& point1, const Vector3& point2)
+{
 	float dx = point1.x - point2.x;
 	float dy = point1.y - point2.y;
 	float dz = point1.z - point2.z;
-	return std::sqrt(dx * dx + dy * dy + dz * dz);
+	return std::sqrt(dx * dx + dy * dy +dz * dz);
+}
+// 2つの点間の距離を計算する関数
+float DistanceXZ(const Vector3& point1, const Vector3& point2) {
+	float dx = point1.x - point2.x;
+	float dz = point1.z - point2.z;
+	return std::sqrt(dx * dx + dz * dz);
 }
 
 Vector3 Normalize(const Vector3& v) {

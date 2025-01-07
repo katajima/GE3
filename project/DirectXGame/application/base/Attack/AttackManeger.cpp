@@ -48,13 +48,13 @@ void AttackManeger::Update(WrokAttack& work)
 
 void AttackManeger::DrawImGui()
 {
-	ImGui::Begin("attack");
+	/*ImGui::Begin("attack");
 	ImGui::Checkbox("workAttack.comboNext", &workAttack.comboNext);
 	ImGui::Checkbox("isCombo", &isCombo);
 	ImGui::InputInt("comboIndex", &workAttack.comboIndex);
 	ImGui::InputInt("ComboNum", &ComboNum);
 	ImGui::InputInt("attackParameter_", &workAttack.attackParameter_);
-	ImGui::End();
+	ImGui::End();*/
 }
 
 void AttackManeger::SetAttackCombo(WrokAttack& work)

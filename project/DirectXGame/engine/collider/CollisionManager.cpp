@@ -99,7 +99,7 @@ void CollisionManager::Draw() {
 	// 全てのコライダーについて
 	for (Collider* collider : colliders_) {
 		// 更新
-	//	collider->Draw(modelCollosion_.get(), viewProjection);
+		collider->Draw();
 	}
 
 }

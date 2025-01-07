@@ -67,9 +67,7 @@ void Framework::Initialize()
 	// モデルマネージャ
 	ModelManager::GetInstance()->Initialize(dxCommon.get());
 
-	// グローバル変数の読み込み
-	GlobalVariables::GetInstance()->LoadFiles();
-
+	
 }
 
 void Framework::Finalize()

@@ -12,13 +12,15 @@ class LineCommon;
 class LineDraw
 {
 public:
-	void Initialize(LineCommon *lineCommon);
+	void Initialize();
 
 	void Update();
 
 	void Draw3D(const Vector3& p1, const Vector3& p2, const Vector4& color);
 
 	void SetCamera(Camera* camera) { this->camera = camera; }
+
+
 
 private:
 	Camera* camera = nullptr;

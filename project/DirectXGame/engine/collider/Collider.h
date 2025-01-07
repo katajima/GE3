@@ -8,7 +8,7 @@ class Collider {
 public:
 
 	// 初期化
-	void Initialize();
+	void Initialize(Camera* camera );
 
 	// ワールドトランスフォームの初期化
 	void UpdateWorldTransform();

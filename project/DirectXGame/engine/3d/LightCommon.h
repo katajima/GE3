@@ -31,6 +31,10 @@ public:
 	void SetLineCamera(Camera* camera);
 
 	void Update();
+
+	DirectionalLight GetDirectionalLight(int index) {return directionalLightData[index];}
+	PointLight GetPointLight(int index) {return pointLightData[index];}
+
 private:
 	void ApplyGlobalVariables();
 

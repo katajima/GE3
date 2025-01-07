@@ -235,7 +235,7 @@ static void InitializeDrawLineSkeleton(const std::vector<Joint>& joints, std::ve
 		lines.resize(joints.size());
 		for (size_t i = 0; i < joints.size(); ++i) {
 			lines[i] = std::make_unique<LineDraw>();
-			lines[i]->Initialize(LineCommon::GetInstance());
+			lines[i]->Initialize();
 		}
 	}
 }

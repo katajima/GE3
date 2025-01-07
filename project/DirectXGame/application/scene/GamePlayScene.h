@@ -23,6 +23,12 @@
 #include"DirectXGame/application/GlobalVariables/GlobalVariables.h"
 #include"DirectXGame/application/base/FollowCamera/FollowCamera.h"
 
+#include "DirectXGame/engine/effect/Particle/ParticleManager.h"
+#include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
+
+#include "DirectXGame/engine/collider/CollisionManager.h"
+#include"DirectXGame/engine/3d/LightCommon.h"
+
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
 {
@@ -51,6 +57,12 @@ public:
 
 	void ApplyGlobalVariables();
 
+	/// <summary>
+	/// 衝突判定と応答
+	/// </summary>
+	void CheckAllCollisions();
+
+
 private:
 
 	void InitializeResources();
@@ -68,9 +80,7 @@ private:
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	// 敵
-	std::vector<std::unique_ptr <Enemy>> enemys_;
-
+	
 	// カメラ
 	std::unique_ptr < Camera> camera;
 	Vector3 cameraR;
@@ -96,9 +106,39 @@ private:
 
 	std::unique_ptr<Player> player_;
 
+	std::vector<std::unique_ptr<Enemy>> enemys_;
+
+	ParticleManager* particleManager_;
+	ParticleEmitter* emitter_;
+
+
 	Object3d tail;
+	Object3d sky;
+
+	int count = 0;
+
+	int sceneCount = 0;
+	int clock = 1;
+	// 衝突マネージャ
+	std::unique_ptr<CollisionManager> collisionManager_;
 
 private:
+	std::unique_ptr<Sprite> numSprites[3][10];
+	Vector2 numpos[3]{};
+	std::unique_ptr<Sprite> icon_X;
+	std::unique_ptr<Sprite> icon_Y;
+	std::unique_ptr<Sprite> icon_B;
+	std::unique_ptr<Sprite> icon_RT;
+	std::unique_ptr<Sprite> text_jump;
+	std::unique_ptr<Sprite> text_normal;
+	std::unique_ptr<Sprite> text_dash;
+	std::unique_ptr<Sprite> text_special;
+	std::unique_ptr<Sprite> text_hit;
+	std::unique_ptr<Sprite> text_clera;
+	std::unique_ptr<Sprite> text_over;
+
+
+
 
 };
 

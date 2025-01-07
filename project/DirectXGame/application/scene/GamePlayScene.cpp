@@ -13,20 +13,16 @@ void GamePlayScene::Initialize()
 	// オブジェクト3D
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
-	
-	//オーディオの初期化
-	//audio_ = Audio::GetInstance();
-	// 入力初期化
-	//input_ = Input::GetInstance();
+
 
 	player_ = std::make_unique<Player>();
-	player_->Initialize(Vector3(0, 0, 0), camera.get());
+	player_->Initialize(Vector3(0, 2, -40), camera.get());
 
 
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize();
 	followCamera_->SetTarget(&player_->GetObject3D());
-	
+
 	player_->SetCamera(camera.get());
 
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -34,24 +30,66 @@ void GamePlayScene::Initialize()
 
 	for (int i = 0; i < 40; i++) {
 		auto enemy = std::make_unique<Enemy>();
-		enemy->Initialize({ 10, 0, 0 }, 100, camera.get());
+		Vector3 randPos = { float(rand() % 41 - 20),2,float(rand() % 40) };
+		enemy->Initialize(randPos, 50, camera.get());
+		enemy->SetPlayer(player_.get());
 		enemys_.push_back(std::move(enemy));
 	}
 
-	const char* gropName = "enemys";
-	GlobalVariables::GetInstance()->CreateGroup(gropName);
-	for (int i = 0; i < enemys_.size(); i++) {
-		std::string label = "Translate " + std::to_string(i);
-		globalVariables->AddItem(gropName, label, enemys_[i]->GetPostion());
-	}
+	//const char* gropName = "enemys";
+	//GlobalVariables::GetInstance()->CreateGroup(gropName);
+	//for (int i = 0; i < enemys_.size(); i++) {
+	//	std::string label = "Translate " + std::to_string(i);
+	//	//globalVariables->AddItem(gropName, label, enemys_[i]->GetPostion());
+	//}
 
 
 	tail.Initialize();
 	tail.SetModel("renga.gltf");
 	tail.SetCamera(camera.get());
-	tail.transform.scale = { 1,1,1 };
+	tail.transform.scale = { 10,10,10 };
 
+	sky.Initialize();
+	sky.SetModel("skydome.obj");
+	sky.SetCamera(camera.get());
+	sky.transform.scale = { 10,10,10 };
+	sky.model->modelData.material[0]->enableLighting_ = false;
+
+	//particleManager_ = ParticleManager::GetInstance();
+	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+	ParticleManager::GetInstance()->SetPos("cc", { 0,0,0 });
+	ParticleManager::GetInstance()->SetObject("cc", player_->GetObject3D());
 	
+	ParticleManager::GetInstance()->CreateParticleGroup("Slash", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection());
+	ParticleManager::GetInstance()->SetPos("Slash", { 0,0,0 });
+	ParticleManager::GetInstance()->SetObject("Slash", player_->GetWeapon()->GetObject3D());
+	
+	
+
+	for (int i = 0; i < 10; i++) {
+		std::string strin = std::to_string(i) + "bullet";
+		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+		ParticleManager::GetInstance()->SetPos(strin, { 0,0,0 });
+
+		strin = std::to_string(i) + "exp";
+		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+		ParticleManager::GetInstance()->SetPos(strin, { 0,0,0 });
+		
+		strin = std::to_string(i) + "exp2";
+		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+		ParticleManager::GetInstance()->SetPos(strin, { 0,0,0 });
+	}
+	emitter_ = new ParticleEmitter("cc", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
+
+
+
+	// 衝突マネージャの生成
+	collisionManager_ = std::make_unique<CollisionManager>();
+	collisionManager_->Initialize();
+
+	InitializeResources();
+
+	//ApplyGlobalVariables();
 
 
 	LoadLevelData();
@@ -89,7 +127,100 @@ void GamePlayScene::InitializeResources()
 	// オブジェクト3D
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
-	
+
+	for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < 10; i++) {
+			numSprites[j][i] = std::make_unique<Sprite>();
+			std::string str = "resources/Texture/num/" + std::to_string(i) + ".png";
+			numSprites[j][i]->Initialize(str, false);
+			numSprites[j][i]->SetPosition(Vector2{ float(50 * i), 100 });
+		}
+	}
+
+	float xpos = 1050;
+	Vector2 scale{ 75,75 };
+
+	icon_B = std::make_unique<Sprite>();
+	icon_B->Initialize("resources/Texture/icon/B.png");
+	icon_B->SetPosition({ xpos,500 });
+	icon_B->SetSize(scale);
+
+	icon_Y = std::make_unique<Sprite>();
+	icon_Y->Initialize("resources/Texture/icon/Y.png");
+	icon_Y->SetPosition({ xpos,550 });
+	icon_Y->SetSize(scale);
+
+	icon_X = std::make_unique<Sprite>();
+	icon_X->Initialize("resources/Texture/icon/X.png");
+	icon_X->SetPosition({ xpos,600 });
+	icon_X->SetSize(scale);
+
+	icon_RT = std::make_unique<Sprite>();
+	icon_RT->Initialize("resources/Texture/icon/RB.png");
+	icon_RT->SetPosition({ xpos,450 });
+	icon_RT->SetSize(scale);
+
+	scale = { 100,33 };
+	xpos = 1120;
+
+	text_normal = std::make_unique<Sprite>();
+	text_normal->Initialize("resources/Texture/text/normalAttack.png");
+	text_normal->SetPosition({ xpos,520 });
+	text_normal->SetSize(scale);
+
+	text_jump = std::make_unique<Sprite>();
+	text_jump->Initialize("resources/Texture/text/JumpAttack.png");
+	text_jump->SetPosition({ xpos,570 });
+	text_jump->SetSize(scale);
+
+	text_dash = std::make_unique<Sprite>();
+	text_dash->Initialize("resources/Texture/text/DashAttack.png");
+	text_dash->SetPosition({ xpos,620 });
+	text_dash->SetSize(scale);
+
+	text_special = std::make_unique<Sprite>();
+	text_special->Initialize("resources/Texture/text/special.png");
+	text_special->SetPosition({ xpos,470 });
+	text_special->SetSize(scale);
+
+	scale = { 100 * 1.5f,33 * 1.5f };
+
+	text_hit = std::make_unique<Sprite>();
+	text_hit->Initialize("resources/Texture/text/Hit.png");
+	text_hit->SetPosition({ 1100,110 });
+	text_hit->SetSize(scale);
+
+	text_clera = std::make_unique<Sprite>();
+	text_clera->Initialize("resources/Texture/text/clear.png");
+	text_clera->SetPosition({ 300,200 });
+	//text_clera->SetAnchorPoint({ 0.5f,0.5f });
+	text_clera->SetSize(2);
+	text_clera->SetColor({ 0,1,0,1 });
+	text_over = std::make_unique<Sprite>();
+	text_over->Initialize("resources/Texture/text/over.png");
+	text_over->SetPosition({ 300,200 });
+	//text_over->SetAnchorPoint({ 0.5f,0.5f });
+	text_over->SetSize(2);
+	text_over->SetColor({ 1,0,0,1 });
+
+
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* gropName = "sprite";
+
+	// グループを追加する 
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+
+	for (int j = 0; j < 3; j++) {
+		std::string str = "posNum" + std::to_string(j);
+		globalVariables->AddItem(gropName, str, numpos[j]);
+	}
+
+	xpos = { 950 };
+
+	numpos[2] = { xpos,100 };
+	numpos[1] = { xpos + (50 * 1),100 };
+	numpos[0] = { xpos + (50 * 2),100 };
+
 
 
 }
@@ -179,17 +310,48 @@ void GamePlayScene::LoadLevelData()
 void GamePlayScene::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* gropName = "controlPoint";
-	
-	gropName = "enemys";
+	const char* gropName = "sprite";
+
+
 	// グループを追加する 
 	GlobalVariables::GetInstance()->CreateGroup(gropName);
-	for (int i = 0; i < enemys_.size(); i++) {
-		std::string label = "Translate " + std::to_string(i);
-		enemys_[i]->SetPostion(globalVariables->GetVector3Value(gropName, label));
-		//globalVariables->SetValue(gropName, label, controlPoints2_[i]);
+	for (int j = 0; j < 3; j++) {
+		std::string str = "posNum" + std::to_string(j);
+
+		//numpos[j] = globalVariables->GetVector2Value(gropName, str);
+
 	}
 
+	for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < 10; i++) {
+			numSprites[j][i]->SetPosition(numpos[j]);
+		}
+	}
+
+}
+
+void GamePlayScene::CheckAllCollisions()
+{
+	// 衝突マネージャのリセット
+	collisionManager_->Reset();
+	// コライダーをリストに登録
+	collisionManager_->AddCollider(player_.get());
+	if (player_->GetBehavior() == Player::Behavior::kAttack) {
+		// コライダーをリストに登録
+		collisionManager_->AddCollider(player_->GetWeapon());
+	}
+
+	for (const auto& bullet : player_->GetBullets()) {
+		collisionManager_->AddCollider(bullet.get());
+	}
+
+	//// 敵全てについて
+	for (const std::unique_ptr<Enemy>& enemy : enemys_) {
+		collisionManager_->AddCollider(enemy.get());
+	}
+
+	// 衝突判定
+	collisionManager_->CheckAllCollisions();
 }
 #pragma endregion 初期化関係
 
@@ -201,13 +363,19 @@ void GamePlayScene::UpdateImGui()
 {
 
 
-	
-	
+
+
 #ifdef _DEBUG
-	
+	if (Input::GetInstance()->IsTriggerKey(DIK_P)) {
+		// シーン切り替え
+		SceneManager::GetInstance()->ChangeScene("TITLE");
+	}
+	Vector2 pos = player_->GetObject3D().GetScreenPosition();
+	ImGui::Begin("engine");
+	ImGui::DragFloat2("screenpos", &pos.x, 0.1f);
+	ImGui::End();
 
-
-	ImGui::Begin("engine");	
+	ImGui::Begin("engine");
 	if (ImGui::CollapsingHeader("Camera")) {
 		ImGui::DragFloat3("Translate", &camera->transform_.translate.x, 0.1f);
 		ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x, 0.01f);
@@ -257,14 +425,18 @@ void GamePlayScene::Update()
 	UpdateImGui();
 
 	// プレイヤー
-	player_->Update();
+	//if (player_->GetAlive()) {
+		player_->Update();
+		player_->LockOn(enemys_);
+	//}
+	//emitter_->Update();
 
 
 
 	/// レールカメラ
 	// カメラの回転を設定
 	if (flag) {
-		
+
 		followCamera_->Update();
 		camera->viewMatrix_ = followCamera_->GetViewProjection().viewMatrix_;
 		camera->projectionMatrix_ = followCamera_->GetViewProjection().projectionMatrix_;
@@ -300,24 +472,34 @@ void GamePlayScene::Update()
 	}
 
 
-	
 
-	
-	
+
+
+
 	// 敵
+	count = 0;
 	for (int i = 0; i < enemys_.size(); i++) {
-		//enemys_[i]->Update();
+		enemys_[i]->Update();
+		if (!enemys_[i]->GetAlive()) {
+			count++;
+		}
 	}
-	
+
+
+
 	// タイル
 	tail.Update();
+	sky.Update();
 
-	
-	if (Input::GetInstance()->IsTriggerKey(DIK_P)) {
-		// シーン切り替え
-		SceneManager::GetInstance()->ChangeScene("TITLE");
-	}
+	// デバック表示用にワールドトランスフォームを更新
+	collisionManager_->UpdateWorldTransform();
 
+
+	player_->SetCamera(camera.get());
+
+	LightCommon::GetInstance()->SetLineCamera(camera.get());
+
+	CheckAllCollisions();
 }
 
 #pragma endregion //更新関係
@@ -339,19 +521,109 @@ void GamePlayScene::Finalize()
 // 3D描画
 void GamePlayScene::Draw3D()
 {
+	sky.Draw();
+	tail.Draw();
+
 	////3Dオブジェクトの描画
+
 
 	player_->Draw();
 
-	tail.Draw();
-	
+	// 敵
+	for (int i = 0; i < enemys_.size(); i++) {
+		enemys_[i]->Draw();
+	}
+
+
+	// パーティクル
+	//player_->DrawP();
+	for (int i = 0; i < enemys_.size(); i++) {
+		//enemys_[i]->DrawP();
+	}
+	ParticleManager::GetInstance()->GetInstance()->Draw();
+
+	// 当たり判定の表示
+	collisionManager_->Draw();
+
 }
 
 // 2D描画
 void GamePlayScene::Draw2D()
 {
-	//////////////--------スプライト-----------///////////////////
+	player_->Draw2D();
 
+
+	//////////////--------スプライト-----------///////////////////
+	int adsbhads = player_->GetHitCount();
+	if (adsbhads >= 999) {
+		adsbhads = 999;
+	}
+
+	int numDigits = (adsbhads == 0) ? 1 : static_cast<int>(log10(adsbhads)) + 1;
+
+	for (int j = 0; j < numDigits; ++j) {
+		// j桁目の数字を取り出す（右から左へ）
+		int digit = (static_cast<int>(adsbhads) / static_cast<int>(pow(10, j))) % 10;
+
+		// 桁に対応する数字を描画
+		numSprites[j][digit]->SetPosition(numpos[j]);
+		numSprites[j][digit]->Update();
+		numSprites[j][digit]->Draw();
+	}
+
+
+	icon_B->Update();
+	icon_Y->Update();
+	icon_X->Update();
+	icon_RT->Update();
+	text_normal->Update();
+	text_jump->Update();
+	text_dash->Update();
+	text_special->Update();
+	text_hit->Update();
+	icon_B->Draw();
+	icon_Y->Draw();
+	icon_X->Draw();
+	if (player_->GetIsSpecial()) {
+		icon_RT->Draw();
+		text_special->Draw();
+	}
+	text_normal->Draw();
+	text_jump->Draw();
+	text_dash->Draw();
+	text_hit->Draw();
+
+	for (int i = 0; i < enemys_.size(); i++) {
 	
+		enemys_[i]->Draw2D();
+	}
+
+
+
+	if (!player_->GetAlive()) {
+		sceneCount++;
+		if (clock == 1) {
+			text_over->Update();
+			text_over->Draw();
+		}
+	}
+	else if (count >= enemys_.size()) {
+		sceneCount++;
+		if (clock == 1) {
+			text_clera->Update();
+			text_clera->Draw();
+		}
+	}
+	if (sceneCount % 15 == 0) {
+		clock *= -1;
+	}
+
+	if (sceneCount >= 240) {
+		SceneManager::GetInstance()->ChangeScene("TITLE");
+	}
+
+
+
+
 }
 

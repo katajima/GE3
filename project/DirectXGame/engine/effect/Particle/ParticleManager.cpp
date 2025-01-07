@@ -76,7 +76,7 @@ void ParticleManager::Update()
 					ImGui::Checkbox("isAlpha", &group.isAlpha);
 					ImGui::Checkbox("isLine", &group.isLine);
 					ImGui::Separator(); // 水平線を引く
-					ImGui::DragFloat3("center", &group.emiter.center.x, 0.1f);
+					ImGui::DragFloat3("center", &group.emiter.object.transform.translate.x, 0.1f);
 					ImGui::DragFloat3("renge.max", &group.emiter.renge.max.x, 0.1f);
 					ImGui::DragFloat3("renge.min", &group.emiter.renge.min.x, 0.1f);
 					ImGui::Separator(); // 水平線を引く
@@ -114,30 +114,36 @@ void ParticleManager::Update()
 
 
 	// ビルボード用行列
-	if (camera_) {
+	//if (camera_) {
 		// 透視射影行列
-		Matrix4x4 projectionMatrix = camera_->GetProjectionMatrix();
-		Matrix4x4 viewMatrix = camera_->GetViewMatrix();
-
-		camera_->GetRotate().y;
-		Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
-		Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, camera_->GetWorldMatrix());
-		billboardMatrix.m[3][0] = 0.0f; // 平行移動成分は不要
-		billboardMatrix.m[3][1] = 0.0f;
-		billboardMatrix.m[3][2] = 0.0f;
-
-
+		
+		
+		
 
 		// 全パーティクルグループに対する処理
 		for (auto& pair : particleGroups) // 各パーティクルグループに対して
 		{
 			ParticleGroup& group = pair.second;
 			group.instanceCount = 0; // 描画すべきインスタンスのカウント
+			
+			Matrix4x4 projectionMatrix = group.camera->GetProjectionMatrix();
+			Matrix4x4 viewMatrix = group.camera->GetViewMatrix();
+
+
+			Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
+			Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, group.camera->GetWorldMatrix());
+			//Matrix4x4 billboardMatrix = Multiply(Multiply(group.emiter.object.mat_,backToFrontMatrix), camera_->GetWorldMatrix());
+			billboardMatrix.m[3][0] = 0.0f; // 平行移動成分は不要
+			billboardMatrix.m[3][1] = 0.0f;
+			billboardMatrix.m[3][2] = 0.0f;
+
+			
+			group.emiter.object.Update();
 
 			for (size_t i = 0; i < 24; i += 2) {
 				group.line_[i]->Update();
 			}
-			group.material->GPUData();
+			//group.material->GPUData();
 
 			for (auto particleIterator = group.particle.begin(); particleIterator != group.particle.end(); )
 			{
@@ -152,24 +158,26 @@ void ParticleManager::Update()
 					if (upDataWind && IsCollision(acceleraionField.area, particleIterator->transform.translate)) {
 						particleIterator->velocity = Add(particleIterator->velocity, Multiply(kDeltaTime, acceleraionField.acceleration));
 					}
-
 					// 移動処理 (速度を位置に加算)
 					particleIterator->transform.translate = Add(particleIterator->transform.translate, Multiply(kDeltaTime, particleIterator->velocity));
 
 					// 経過時間を加算
 					particleIterator->currentTime += kDeltaTime;
 
-					// アルファ値を計算
-					float alpha = 1.0f - (particleIterator->currentTime / particleIterator->lifeTime);
+					
+					
 
 					// ワールド行列を計算
 					Matrix4x4 worldMatrix;
 					if (group.usebillboard) {
-						worldMatrix = Multiply(Multiply(MakeScaleMatrix((*particleIterator).transform.scale), billboardMatrix), MakeTranslateMatrix((*particleIterator).transform.translate));
+						Matrix4x4 mat = group.emiter.object.mat_;
 						
+						worldMatrix = Multiply(Multiply(MakeScaleMatrix((*particleIterator).transform.scale), billboardMatrix), MakeTranslateMatrix((*particleIterator).transform.translate));
+							
 					}
 					else {
 						worldMatrix = MakeAffineMatrix(particleIterator->transform.scale, particleIterator->transform.rotate, particleIterator->transform.translate);
+									
 					}
 
 					// ワールドビュー射影行列を合成
@@ -179,9 +187,15 @@ void ParticleManager::Update()
 					group.instanceData[group.instanceCount].World = worldMatrix;
 					group.instanceData[group.instanceCount].WVP = worldViewProjectionMatrix;
 					group.instanceData[group.instanceCount].color = particleIterator->color;
-					//if (group.isAlpha) {
-						group.instanceData[group.instanceCount].color.w = alpha;
-					//}
+					
+					if (group.isAlpha) {
+
+					// アルファ値を計算
+					float alpha = 1.0f - (particleIterator->currentTime / particleIterator->lifeTime);
+
+					group.instanceData[group.instanceCount].color.w = alpha; //(std::max)((1.0f - alpha),0.0f);
+					//group.instanceData[group.instanceCount].color.w = (std::max)((group.w),0.0f);
+					}
 						
 					// インスタンス数をカウント
 					++group.instanceCount;
@@ -189,11 +203,8 @@ void ParticleManager::Update()
 
 				++particleIterator;
 			}
-
-
 		}
-	}
-
+	//}
 }
 
 void ParticleManager::LimitMaxMin()
@@ -287,6 +298,10 @@ void ParticleManager::Draw()
 	
 	for (auto& pair : particleGroups) {
 		ParticleGroup& group = pair.second;
+		if (group.instanceCount == 0) {
+			continue;
+		}
+			
 
 		group.material->GetCommandListTexture(2);
 		
@@ -305,18 +320,31 @@ void ParticleManager::Draw()
 	}
 }
 
-void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
+void ParticleManager::Emit(const std::string name,const std::string emitName, const Vector3& position, uint32_t count)
 {
-
 	// パーティクルグループが登録済みであることを確認
 	assert(particleGroups.contains(name) && "Error: Particle group with this name is not registered.");
 
-	RandParticle(name, position);
+	if (emitName == "rand") {
+		RandParticle(name, position,count);
+	}
+}
 
+void ParticleManager::Emit(const std::string name, const std::string emitName, const Constant& cons)
+{
+	// パーティクルグループが登録済みであることを確認
+	assert(particleGroups.contains(name) && "Error: Particle group with this name is not registered.");
+
+	if (emitName == "const") {
+		ConstantParticle(name,cons);
+	}
+	if (emitName == "const2") {
+		ConstantParticle2(name,cons);
+	}
 
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera)
+void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera, bool flag)
 {
 
 	camera_ = camera;
@@ -345,7 +373,6 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	}
 
 	ParticleGroup& particleGroup = particleGroups[name];
-	particleGroup.emiter.center = Vector3{ 0,0,0 };
 	particleGroup.emiter.renge.max = Vector3{ 1.0f,1.0f,1.0f };
 	particleGroup.emiter.renge.min = Vector3{ -1.0f,-1.0f,-1.0f };
 	particleGroup.emiter.color.max = Vector4{ 1,1,1,1 };
@@ -363,9 +390,12 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.emiter.count = 10;
 
 
+	particleGroup.emiter.object.Initialize();
+	particleGroup.camera = camera;
+	
 	for (int i = 0; i < 24; i++) {
 		auto line = std::make_unique<LineDraw>();
-		line->Initialize(LineCommon::GetInstance());
+		line->Initialize();
 		line->SetCamera(camera);
 		particleGroup.line_.push_back(std::move(line));
 	}
@@ -374,6 +404,8 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.name = name;
 	// モデル
 	particleGroup.model = model;
+
+	particleGroup.isAlpha = model;
 
 
 	// マテリアル
@@ -458,20 +490,26 @@ void ParticleManager::DrawAABB()
 				// 右側面
 				v1, v5, v2, v6
 			};
-
+#ifdef _DEBUG
 			// ライン描画
 			Vector4 color = { 1, 1, 1, 1 }; // 白色
 			for (size_t i = 0; i < 24; i += 2) {
 				group.line_.emplace_back(std::make_unique<LineDraw>());
-				group.line_[i]->Draw3D(Add(lines[i], group.emiter.center), Add(lines[i + 1], group.emiter.center), color);
+				group.line_[i]->Draw3D(Add(lines[i], group.emiter.object.GetWorldPosition()), Add(lines[i + 1], group.emiter.object.GetWorldPosition()), color);
 			}
+#endif // _DEBUG
 		}
 	}
 }
 
 void ParticleManager::SetPos(const std::string name, const Vector3& position)
 {
-	particleGroups[name].emiter.center = position;
+	particleGroups[name].emiter.object.transform.translate = position;
+}
+
+void ParticleManager::SetObject(const std::string name, Object3d& obj)
+{
+	particleGroups[name].emiter.object.parent_ = &obj;
 }
 
 void ParticleManager::CreateRootSignature()
@@ -602,6 +640,17 @@ void ParticleManager::CreateGraphicsPipeline()
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	
+	/*blendDesc.RenderTarget[0].BlendEnable = TRUE; 
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA; 
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA; 
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD; 
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE; 
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO; 
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD; 
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;*/
+	
+	//blendDesc.RenderTarget[0].BlendEnable = TRUE; blendDesc.RenderTarget[0].LogicOpEnable = FALSE; blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA; blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA; blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD; blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE; blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO; blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD; blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP; blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 #pragma endregion //BlendState(ブレンドステート)
 
@@ -693,13 +742,13 @@ void ParticleManager::CreateGraphicsPipeline()
 
 }
 
-void ParticleManager::RandParticle(const std::string name, const Vector3& position)
+void ParticleManager::RandParticle(const std::string name, const Vector3& position,const int count)
 {
 
 
 	ParticleGroup& particleGroup = particleGroups[name];
 
-
+	particleGroup.emiter.count = (float)count;
 	//particleGroup.emiter.center = position;
 
 	// 出る位置
@@ -731,7 +780,8 @@ void ParticleManager::RandParticle(const std::string name, const Vector3& positi
 	std::uniform_real_distribution<float> distributionSizeY(particleGroup.emiter.size.min.y, particleGroup.emiter.size.max.y);
 	std::uniform_real_distribution<float> distributionSizeZ(particleGroup.emiter.size.min.z, particleGroup.emiter.size.max.z);
 
-
+	particleGroup.emiter.object;
+	
 	// パーティクル
 	for (uint32_t t = 0; t < particleGroup.emiter.count; ++t) {
 		Particle newParticle;
@@ -750,9 +800,9 @@ void ParticleManager::RandParticle(const std::string name, const Vector3& positi
 		};
 		newParticle.transform.translate =
 		{
-			particleGroup.emiter.center.x + distributionX(randomEngine_),
-			particleGroup.emiter.center.y + distributionY(randomEngine_),
-			particleGroup.emiter.center.z + distributionZ(randomEngine_)
+			particleGroup.emiter.object.GetWorldPosition().x + distributionX(randomEngine_),
+			particleGroup.emiter.object.GetWorldPosition().y + distributionY(randomEngine_),
+			particleGroup.emiter.object.GetWorldPosition().z + distributionZ(randomEngine_)
 		};
 		newParticle.color =
 		{
@@ -778,5 +828,100 @@ void ParticleManager::RandParticle(const std::string name, const Vector3& positi
 	}
 }
 
+
+void ParticleManager::ConstantParticle(const std::string name, const Constant& cons)
+{
+	ParticleGroup& particleGroup = particleGroups[name];
+	particleGroup.emiter.count = (float)cons.count;
+
+	// 出る位置
+	std::uniform_real_distribution<float> distributionX(cons.renge.min.x, cons.renge.max.x);
+	std::uniform_real_distribution<float> distributionY(cons.renge.min.y, cons.renge.max.y);
+	std::uniform_real_distribution<float> distributionZ(cons.renge.min.z, cons.renge.max.z);
+
+	
+	// 時間
+	//std::uniform_real_distribution<float> distTime(particleGroup.emiter.lifeTime.min, particleGroup.emiter.lifeTime.max);
+
+	
+	particleGroup.emiter.object.transform.translate = cons.centar;
+	particleGroup.emiter.object.Update();
+	// パーティクル
+	for (uint32_t t = 0; t < particleGroup.emiter.count; ++t) {
+		Particle newParticle;
+		// パーティクルの初期化 (必要に応じて詳細を設定)
+		newParticle.transform.scale = cons.size;
+		newParticle.transform.rotate = cons.rotate;
+		newParticle.transform.translate = 
+		{
+			particleGroup.emiter.object.GetWorldPosition().x + distributionX(randomEngine_),
+			particleGroup.emiter.object.GetWorldPosition().y + distributionY(randomEngine_),
+			particleGroup.emiter.object.GetWorldPosition().z + distributionZ(randomEngine_)
+		};
+		newParticle.color = cons.color;
+
+		newParticle.lifeTime = cons.lifeTime;
+		newParticle.currentTime = 0;
+
+
+		//速度
+		newParticle.velocity = cons.velocity;
+		
+		// パーティクルをグループに追加
+		particleGroup.particle.push_back(newParticle);
+	}
+}
+
+
+void ParticleManager::ConstantParticle2(const std::string name, const Constant& cons)
+{
+	ParticleGroup& particleGroup = particleGroups[name];
+	particleGroup.emiter.count = (float)cons.count;
+
+	// 出る位置
+	std::uniform_real_distribution<float> distributionX(cons.renge.min.x, cons.renge.max.x);
+	std::uniform_real_distribution<float> distributionY(cons.renge.min.y, cons.renge.max.y);
+	std::uniform_real_distribution<float> distributionZ(cons.renge.min.z, cons.renge.max.z);
+
+	// 方向
+	std::uniform_real_distribution<float> distributionVeloX(particleGroup.emiter.velocity.min.x, particleGroup.emiter.velocity.max.x);
+	std::uniform_real_distribution<float> distributionVeloY(particleGroup.emiter.velocity.min.y, particleGroup.emiter.velocity.max.y);
+	std::uniform_real_distribution<float> distributionVeloZ(particleGroup.emiter.velocity.min.z, particleGroup.emiter.velocity.max.z);
+
+	// 時間
+	//std::uniform_real_distribution<float> distTime(particleGroup.emiter.lifeTime.min, particleGroup.emiter.lifeTime.max);
+
+	
+	particleGroup.emiter.object.transform.translate = cons.centar;
+	particleGroup.emiter.object.Update();
+	// パーティクル
+	for (uint32_t t = 0; t < particleGroup.emiter.count; ++t) {
+		Particle newParticle;
+		// パーティクルの初期化 (必要に応じて詳細を設定)
+		newParticle.transform.scale = cons.size;
+		newParticle.transform.rotate = cons.rotate;
+		newParticle.transform.translate = 
+		{
+			particleGroup.emiter.object.GetWorldPosition().x + distributionX(randomEngine_),
+			particleGroup.emiter.object.GetWorldPosition().y + distributionY(randomEngine_),
+			particleGroup.emiter.object.GetWorldPosition().z + distributionZ(randomEngine_)
+		};
+		newParticle.color = cons.color;
+
+		newParticle.lifeTime = cons.lifeTime;
+		newParticle.currentTime = 0;
+
+
+		//速度
+		newParticle.velocity = 
+		{
+			cons.velocity.x + distributionVeloX(randomEngine_),
+			cons.velocity.y + distributionVeloY(randomEngine_),
+			cons.velocity.z + distributionVeloZ(randomEngine_)
+		};
+		// パーティクルをグループに追加
+		particleGroup.particle.push_back(newParticle);
+	}
+}
 
 

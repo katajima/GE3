@@ -23,12 +23,8 @@ PixelShaderOutput main(VertexShaderOutput input)
     {
         discard;
     }
-    
-    //if (output.color.a <= 0.5f)
-    //{
-    //    discard;
-    //}
-    if (output.color.a == 0.0f)
+
+    if (output.color.a <= 0.0f)
     {
         discard;
     }

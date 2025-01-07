@@ -26,10 +26,13 @@
 
 void Object3d::Initialize()
 {
+	//Collider::Initialize();
 
 	transfomation = std::make_unique<Transfomation>();
 
 	transfomation->Initialize(Object3dCommon::GetInstance()->GetDxCommon());
+
+	parent_->mat_.Identity();
 
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
@@ -49,6 +52,12 @@ void Object3d::Update()
 	// ワールド行列の計算
 	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	
+
+	if (parent_) {
+		
+			mat_ =  Multiply(mat_, parent_->mat_);
+	}
+
 	// トランスフォームデータ
 	transfomation->Update(model, camera, localMatrix, mat_);
 }
@@ -60,15 +69,15 @@ void Object3d::UpdateSkinning()
 	if (model) {
 		// アニメーションの更新
 		if (model->animation.flag) {
-			ImGui::Begin("Joint Info");
-			ImGui::Checkbox("flagTime", &flag);
+			//ImGui::Begin("Joint Info");
+			//ImGui::Checkbox("flagTime", &flag);
 			if (flag) {
 				model->animationTime += 1.0f / 60.0f; // フレームごとの時間経過を反映
 			}
 			model->animationTime = std::fmod(model->animationTime, model->animation.duration);
-			ImGui::SliderFloat("animationTime", &model->animationTime, 0.0f, model->animation.duration);
+			//ImGui::SliderFloat("animationTime", &model->animationTime, 0.0f, model->animation.duration);
 
-			ImGui::End();
+			//ImGui::End();
 
 			localMatrix = model->skeleton.joints[0].skeletonSpaceMatrix;
 			
@@ -83,7 +92,7 @@ void Object3d::UpdateSkinning()
 			UpdateLineSkeleton(model->skeleton.joints, model->line_, camera);
 
 			// Imguiの表示
-			ImGuiJoint(model->skeleton.joints);
+			//ImGuiJoint(model->skeleton.joints);
 			
 		}
 		else {
@@ -168,6 +177,25 @@ void Object3d::DrawLine()
 
 
 	DrawSkeleton(model->skeleton.joints, model->line_, transform.translate, transform.scale);
+}
+
+Vector2 Object3d::GetScreenPosition()
+{
+	Vector3 wPos = mat_.GetWorldPosition();
+
+	// ビューポート行列
+	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, 1280, 720, 0, 1);
+	
+	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
+	Matrix4x4 matViewProjectionViewport = Multiply(camera->GetViewMatrix(), Multiply(camera->GetProjectionMatrix(), matViewport));
+
+	Vector3 screenPos;
+
+	// ワールド→スクリーン座標変換（ここで3Dから2Dになる）
+	screenPos = Transforms(wPos, matViewProjectionViewport);
+
+
+	return Vector2{ screenPos.x,screenPos.y};
 }
 
 void Object3d::DrawSetting()

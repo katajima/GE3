@@ -6,14 +6,14 @@
 struct Material
 {
     
-    float32_t4 color;
-    int32_t enableLighting;
-    float32_t4x4 uvTransform;
-    float32_t shininess;
-    int32_t useLig;
-    int32_t useHem;
-    int32_t useNormalMap;
-    int32_t useSpeculerMap;
+    float4 color;
+    int enableLighting;
+    float4x4 uvTransform;
+    float shininess;
+    int useLig;
+    int useHem;
+    int useNormalMap;
+    int useSpeculerMap;
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 Texture2D<float4> gTexture : register(t0);
@@ -26,8 +26,8 @@ static const int kMaxLight = 3;
 
 struct Camera
 {
-    float32_t3 worldPosition;
-    float32_t3 normal;
+    float3 worldPosition;
+    float3 normal;
 };
 ConstantBuffer<Camera> gCamera : register(b2);
 
@@ -35,28 +35,27 @@ ConstantBuffer<Camera> gCamera : register(b2);
 // 平行光線
 struct DirectionalLight
 {
-    float32_t4 color; //!< ライトの色
-    float32_t3 direction; //!< ライトの向き
-    float32_t intensity; //!< 輝度
-    float32_t ilg; // リグ
-    int32_t enableLighting;
-    float32_t3 groundColor; // 地面色
-    float32_t3 skyColor; // 天球色
-    float32_t3 groundNormal; // 地面法線方向
+    float4 color; //!< ライトの色
+    float3 direction; //!< ライトの向き
+    float intensity; //!< 輝度
+    float ilg; // リグ
+    int enableLighting;
+    float3 groundColor; // 地面色
+    float3 skyColor; // 天球色
+    float3 groundNormal; // 地面法線方向
 };
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 
 // ポイントライト
 struct PointLight
 {
-    float32_t4 color; //ライト色
-    float32_t3 position; // ライト位置
+    float4 color; //ライト色
+    float3 position; // ライト位置
     float intensity; //輝度
     float radius; // !< ライトの届く最大距離
-    float32_t decay; //!< 減衰率 
-    float32_t ilg; // リグ
-    int32_t enableLighting;
-    
+    float decay; //!< 減衰率 
+    float ilg; // リグ
+    int enableLighting; 
 };
 
 // 複数ポイントライト
@@ -69,15 +68,15 @@ ConstantBuffer<PointLights> gPointLight : register(b3);
 // スポットライト
 struct SpotLight
 {
-    float32_t4 color; //ライト色
-    float32_t3 position; // ライト位置
-    float32_t intensity; //輝度
-    float32_t3 direction; //!< ライトの向き
-    float32_t distance; //!< ライト届く距離
-    float32_t decay; //!< 減衰率 
-    float32_t cosAngle; //!< スポットライトの余弦
-    float32_t cosFalloffStart;
-    int32_t enableLighting;
+    float4 color; //ライト色
+    float3 position; // ライト位置
+    float intensity; //輝度
+    float3 direction; //!< ライトの向き
+    float distance; //!< ライト届く距離
+    float decay; //!< 減衰率 
+    float cosAngle; //!< スポットライトの余弦
+    float cosFalloffStart;
+    int enableLighting;
 };
 
 
@@ -101,12 +100,12 @@ ConstantBuffer<SpotLights> gSpotLight : register(b4);
 ////------PixelShader------////
 struct PixelShaderOutput
 {
-    float32_t4 color : SV_TARGET0;
+    float4 color : SV_TARGET0;
     
 };
 
 
-
+void O();
 
 
 PixelShaderOutput main(PixelShaderInput input)
@@ -114,7 +113,7 @@ PixelShaderOutput main(PixelShaderInput input)
     PixelShaderOutput output;
     
     float4 transformedUV = mul(float4(input.texcoord.xy, 0.0f, 1.0f), gMaterial.uvTransform);
-    float32_t4 textureColor = gTexture.Sample(sSampler, transformedUV.xy);
+    float4 textureColor = gTexture.Sample(sSampler, transformedUV.xy);
     
     
     float3 normal = input.normal;
@@ -145,22 +144,22 @@ PixelShaderOutput main(PixelShaderInput input)
         }
         
             
-        float32_t3 toEye = normalize(gCamera.worldPosition - input.worldPosition);
+        float3 toEye = normalize(gCamera.worldPosition - input.worldPosition);
         
         
         // 平行光原
-        float32_t3 diffuseDirectionalLight = { 0, 0, 0 }; // 拡散反射
-        float32_t3 specularDirectionalLight = { 0, 0, 0 }; // 鏡面反射
-        float32_t3 directionalLig = { 0, 0, 0 }; // 環境光
+        float3 diffuseDirectionalLight = { 0, 0, 0 }; // 拡散反射
+        float3 specularDirectionalLight = { 0, 0, 0 }; // 鏡面反射
+        float3 directionalLig = { 0, 0, 0 }; // 環境光
         if (gDirectionalLight.enableLighting)
         {
               // 平行光源の処理
               // 拡散反射
-            float32_t cos = Cos(gDirectionalLight.direction, toEye, normal);
+            float cos = Cos(gDirectionalLight.direction, toEye, normal);
 
             
               // 鏡面反射
-            float32_t specularPow = 0.0f;
+            float specularPow = 0.0f;
             if (gMaterial.shininess >= 1.0f)
             {
                 specularPow = SpecularPow2(gDirectionalLight.direction, toEye, normal, gMaterial.shininess);
@@ -173,12 +172,7 @@ PixelShaderOutput main(PixelShaderInput input)
                 
                 amdientPower = g_aoMap.Sample(sSampler, input.texcoord).r;
             }
-            
-
-
-
-            
-            
+                        
             // リムライト
             float3 limColor = { 0, 0, 0 };
             //float power1 = 1.0f - max(0.0f, dot(gDirectionalLight.direction, input.normal));
@@ -202,7 +196,7 @@ PixelShaderOutput main(PixelShaderInput input)
                // 拡散反射
             diffuseDirectionalLight = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
 
-           // diffuseDirectionalLight /= 3.1415926f;
+            //diffuseDirectionalLight /= 3.1415926f;
             
                // 鏡面反射
             specularDirectionalLight = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
@@ -229,10 +223,10 @@ PixelShaderOutput main(PixelShaderInput input)
         
         // ポイントライトの処理
         //拡散反射
-        float32_t3 diffusePointLight = { 0.0f, 0.0f, 0.0f };
-        float32_t3 specularPointLight = { 0.0f, 0.0f, 0.0f };
+        float3 diffusePointLight = { 0.0f, 0.0f, 0.0f };
+        float3 specularPointLight = { 0.0f, 0.0f, 0.0f };
         float3 pointLig = { 0, 0, 0 };
-        for (int32_t point_i = 0; point_i < kMaxLight; point_i++)
+        for (int point_i = 0; point_i < kMaxLight; point_i++)
         {
             if (gPointLight.pointLights[point_i].enableLighting == 0)
             {
@@ -313,6 +307,7 @@ PixelShaderOutput main(PixelShaderInput input)
         float3 allDire = (diffuseDirectionalLight + specularDirectionalLight);
         float3 allPoint = (diffusePointLight + specularPointLight);
         float3 allSpot = (diffuseSpotLight + specularSpotLight);
+        
         if (gMaterial.useLig != 0)
         {
           

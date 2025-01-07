@@ -13,6 +13,7 @@
 #include"ModelManager.h"
 #include"DirectXGame/engine/Transfomation/Transfomation.h"
 
+
 using namespace Microsoft::WRL;
 
 class Object3dCommon;
@@ -49,6 +50,9 @@ public:
 		worldPos.z = mat_.m[3][2];
 		return worldPos;
 	};
+
+	Vector2 GetScreenPosition();
+
 private:
 	// 各コマンドリスト
 	void DrawSetting();

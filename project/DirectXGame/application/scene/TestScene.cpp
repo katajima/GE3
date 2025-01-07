@@ -16,12 +16,13 @@ void TestScene::Initialize()
 
 	particleManager_ = ParticleManager::GetInstance();
 
-	ParticleManager::GetInstance()->CreateParticleGroup("aa", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
-	ParticleManager::GetInstance()->SetCamera(camera.get());
+	particleManager_->CreateParticleGroup("aa", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
+	//ParticleManager::GetInstance()->SetCamera(camera.get());
 
 	particleManager2_ = ParticleManager::GetInstance();
-	ParticleManager::GetInstance()->CreateParticleGroup("bb", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
-	ParticleManager::GetInstance()->SetCamera(camera.get());
+	particleManager2_->CreateParticleGroup("bb", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
+	//particleManager2_.
+	//ParticleManager::GetInstance()->SetCamera(camera.get());
 
 	ParticleManager::GetInstance()->SetPos("aa", { 0,0,0 });
 	ParticleManager::GetInstance()->SetPos("bb", { 10,0,0 });
@@ -51,7 +52,8 @@ void TestScene::Initialize()
 	tail.Initialize();
 	tail.SetModel("renga.gltf");
 	tail.SetCamera(camera.get());
-	
+	tail.model->modelData.material[0]->shininess_ = 1000.0f;
+
 	walk.Initialize();
 	walk.SetModel("walk.gltf");
 	walk.SetCamera(camera.get());
@@ -100,12 +102,18 @@ void TestScene::Update()
 	}
 
 	
-	
+	//LightCommon::GetInstance()->GetPointLight(0).intensity = 1.0f;
 
 	camera->UpdateMatrix();
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
 #ifdef _DEBUG
+	if (Input::GetInstance()->IsTriggerKey(DIK_P)) {
+		// シーン切り替え
+		SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	}
+
+
 	ImGui::Begin("engine");
 
 	
@@ -149,10 +157,7 @@ void TestScene::Update()
 	ImGui::End();
 #endif
 
-	if (Input::GetInstance()->IsTriggerKey(DIK_P)) {
-		// シーン切り替え
-		SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
-	}
+	
 
 
 
@@ -165,7 +170,7 @@ void TestScene::Update()
 
 	emitter_->Update();
 
-	ocean_.Update();
+	//ocean_.Update();
 
 	sprite.Update();
 }
@@ -187,7 +192,7 @@ void TestScene::Draw3D()
 	//ocean_.Draw();
 
 	ParticleManager::GetInstance()->GetInstance()->Draw();
-	ParticleManager::GetInstance()->GetInstance()->DrawAABB();
+	//ParticleManager::GetInstance()->GetInstance()->DrawAABB();
 }
 
 void TestScene::Draw2D()

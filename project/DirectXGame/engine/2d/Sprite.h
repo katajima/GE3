@@ -18,7 +18,7 @@ class Sprite
 {
 public:// メンバ関数
 	// 初期化
-	void Initialize(/*SpriteCommon* spriteCommon,*/std::string textureFilePath);
+	void Initialize(std::string textureFilePath, bool isTexLoad = true);
 	// 更新
 	void Update();
 	// 描画
@@ -37,6 +37,7 @@ public:// メンバ関数
 	// サイズ
 	const Vector2& GetSize() const { return size; }
 	void SetSize(const Vector2& size) { this->size = size; }
+	void SetSize(const float& size) { this->size = this->size * size; }
 
 	// 色
 	const Vector4& GetColor() const { return material->color; }

@@ -23,7 +23,8 @@ public:
 	//追従対象をポインタで持つ
 	void SetTarget(const Object3d* target) { target_ = target; };
 
-	const Camera& GetViewProjection() { return camera_; };
+	Camera& GetViewProjection() { return camera_; };
+
 
 	//void SetCameraRotate(Vector3& rotate) { return camera_.transform_.rotate = rotate; }
 

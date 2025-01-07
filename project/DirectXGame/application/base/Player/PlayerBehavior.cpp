@@ -1,0 +1,161 @@
+#include"Player.h"
+#include "Enemy/Enemy.h"
+
+
+void Player::BehaviorRootInitialize()
+{
+	workAttack.parameter = 0;
+	
+}
+
+void Player::BehaviorRootUpdate()
+{
+	AttackKey();
+
+
+	// 移動
+	Move();
+
+	
+
+	recastTime++;
+	if (workAttack.key.IsAttack) {
+		if (recastTime >= MaxRecastTime) {
+			behaviorRequest_ = Behavior::kAttack;
+		}
+	}
+	if (specialAttack.specialGauge >= specialAttack.max) {
+		if (workAttack.key.IsSpecialAttack) {
+			if (recastTime >= MaxRecastTime) {
+				behaviorRequest_ = Behavior::kDie;
+				specialAttack.specialGauge = 0;
+			}
+		}
+	}
+}
+
+void Player::BehaviorAttackInitialize()
+{
+	workAttack.attackAll.t = 0;
+	workAttack.attackAll.max_t = 60;
+	workAttack.comboIndex = 0;
+	
+	AttackTypes();
+
+	AttackTypeInit(workAttack.comboIndex);
+}
+
+void Player::BehaviorAttackUpdate()
+{
+	
+	AttackKey();
+
+	AttackTypes();
+
+
+	// コンボ段階によってモーションを分岐
+	Attack();
+
+	SetAttackCombo(workAttack);
+	
+	slash.centar = { 0,7,0 };
+	slash.rotate = { 0,0,0 };
+	slash.size = { 0.3f,0.3f,0.3f };
+	slash.count = 10;
+	slash.lifeTime = 1.0f;
+	
+	float k = 2.5f;
+	Vector3 move(0, 0, k);
+	// 速度ベクトルを自機の向きに合わせて回転させる
+	move = TransformNormal(move, weapon_->GetObject3D().mat_);
+
+	slash.velocity = move;
+	slash.renge = { -Vector3{0.1f,0.2f,0.1f},Vector3{0.1f,0.2f,0.1f} };
+	ParticleManager::GetInstance()->Emit("Slash", "const", slash);
+}
+
+void Player::BehaviorDieInitialize()
+{
+	specialAttack.phese = 0;
+	specialAttack.specialGauge = 0;
+}
+
+void Player::BehaviorDieUpdate()
+{
+	AttackKey();
+	int i = 0;
+	switch (specialAttack.phese)
+	{
+	case 0:
+		specialAttack.time++;
+		// 移動
+		Move();
+
+		if (specialAttack.time >= 30) {
+			if (Input::GetInstance()->IsGamePadTriggered(GamePadButton::GAMEPAD_RB)) {
+				specialAttack.phese = 1;
+				specialAttack.time = 0;
+			}
+		}
+		index_b = 0;
+		break;
+	case 1:
+		// 弾を発射
+		// 移動
+		//Move();
+
+		if (++specialAttack.time % 10 == 0) {
+			while (index_b < lockedOnEnemies.size())
+			{
+				auto bullet = std::make_unique<PlayerBullet>();
+				bullet->SetIndex(index_b);
+				bullet->Initialize(objectBase_.GetWorldPosition(), camera_);
+				bullet->SetEnemy(lockedOnEnemies[index_b]);
+				bullet->SetPlayer(this);
+				bullet->SetParent(objectBase_.parent_);
+				
+				
+
+				playerBullet_.push_back(std::move(bullet));
+
+				
+
+				index_b++;
+				break;
+			}
+		}
+		
+	
+			
+		
+
+		for (int i = 0;i< playerBullet_.size(); i++) {
+			
+
+		}
+
+		if (lockedOnEnemies.size() <= playerBullet_.size())
+		{
+			specialAttack.phese = 2;
+		}
+
+		break;
+	case 2:
+		behaviorRequest_ = Behavior::kRoot;
+
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+
+	}
+
+
+	
+
+
+
+
+	objectBase_.Update();
+}

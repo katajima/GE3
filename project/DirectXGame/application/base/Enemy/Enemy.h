@@ -4,9 +4,22 @@
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/math/MathFanctions.h"
 
-class Enemy
+#include "DirectXGame/engine/collider/Collider.h"
+#include"DirectXGame/engine/collider/ContactRecord.h"
+
+#include "DirectXGame/engine/effect/Particle/ParticleManager.h"
+#include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
+
+#include"DirectXGame/engine/2d/Sprite.h"
+
+class Player;
+
+class Enemy : public Collider
 {
 public:
+	// デフォルトコンストラクタ
+	Enemy();
+
 	// 初期化
 	void Initialize(Vector3 position,float HP,Camera* camera);
 	
@@ -15,6 +28,17 @@ public:
 
 	// 描画
 	void Draw();
+	//
+	void DrawP();
+
+	void Draw2D();
+
+	// 移動
+	void Move();
+	// 
+	void HitMotion();
+
+	void Emit();
 
 	// ダメージ
 	void addDamage(float damage) {
@@ -29,26 +53,68 @@ public:
 	bool GetAlive() const { return isAlive_; }
 
 	// 3Dオブジェクトの参照を返す（変更可能）
-	Object3d& GetObjectTrans() { return object_; }
+	Object3d& GetObject3D() { return object_; }
 	// 3Dオブジェクトの参照を返す（読み取り専用）
 	//const Object3d& GetObjectTrans() const { return object_; }
 
 	Vector3& GetPostion() { return object_.transform.translate; };
 	float& GetHP() { return HP_; };
+	void AddDamege(float da) { HP_ -= da; };
+
 
 	void SetPostion(Vector3 pos) { object_.transform.translate = pos; }
+	uint32_t GetSerialNumber() const { return serialNumber; }
+
+	// 衝突を検出したら呼び出されるコールバック関数
+	void OnCollision([[maybe_unused]] Collider* other) override;
+
+	virtual Vector3 GetCenterPosition() const;
+
+	void SetPlayer(Player* player) { player_ = player; };
+
+	void SetHit() { hit = true; };
+
+	bool GetLockOn() { return isLockOn; }
+
+	void SetLockOn(bool lock) { isLockOn = lock; }
+
+
+	// シリアルナンバー
+	uint32_t serialNumber = 0;
+	// 次のシリアルナンバー
+	static uint32_t nextSerialNumber;
+	ContactRecord contactRecord_;
+
+	bool hit = false;
+	int count = 0;
+
+	bool isLockOn = false;
 
 private:
 	// オブジェクト
 	Object3d object_;
+	Object3d objectSha_;
+
+	Player* player_;
 
 	// 生死
 	bool isAlive_ = true;
 
 	float HP_;
 
+	
+
 	// 移動
 	Vector3 velocity_;
+
+	//ParticleManager* particleManager_;
+	ParticleEmitter* emitter_;
+
+	ParticleManager::Constant dame;
+
+
+	std::unique_ptr<Sprite> icon_lockOn;
+
 };
 
 

@@ -26,7 +26,7 @@ using namespace Microsoft::WRL;
 #include"DirectXGame/engine/Line/Line.h"
 #include"DirectXGame/engine/Line/LineCommon.h"
 #include "DirectXGame/engine/Material/Material.h"
-
+#include "../../3d/Object3d.h"
 
 
 struct ParticleForGPU
@@ -80,14 +80,18 @@ public:
 		Vector3 rotate;
 		float lifeTime;
 		Vector3 velocity;
+		int count;
+
+		MaxMin<Vector3> renge;
+		MaxMin<Vector3> velocityRenge;  // 速度 (Vector3の範囲)
 	};
 
 
 	// エミッター構造体
 	struct Emiter
 	{
-		Vector3 center;
-
+		//Vector3 center;
+		//Matrix4x4 mat;
 		// ランダム用
 		MaxMin<Vector3> renge;     //出現位置 (Vector3の範囲)
 		MaxMin<Vector4> color;     // 色 (Vector3の範囲)
@@ -95,6 +99,8 @@ public:
 		MaxMin<Vector3> rotate;      // 回転 (floatの範囲)
 		MaxMin<float> lifeTime;    // 生存時間 (floatの範囲)
 		MaxMin<Vector3> velocity;  // 速度 (Vector3の範囲)
+		Object3d object;
+		bool isEmit = false;
 
 		// 定数用
 		Constant cons;
@@ -108,6 +114,7 @@ public:
 
 	struct Particle
 	{
+		
 		Transform transform;
 		Vector3 velocity;
 		Vector4 color;
@@ -124,6 +131,8 @@ public:
 		std::string name; // 名前
 		std::unique_ptr<Material> material = nullptr;
 		std::list<Particle> particle;
+		Camera* camera;
+		bool flag;
 		uint32_t srvIndex;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 		uint32_t instanceCount; // インスタンス数
@@ -137,6 +146,7 @@ public:
 		bool isAlpha = false;
 		bool isLine = true;
 		EmitType emitType = EmitType::kRandom; 
+		float w;
 	};
 
 	
@@ -159,14 +169,15 @@ public:
 	void DrawCommonSetting();
 
 	// パーティクルの発生
-	void Emit(const std::string name, const Vector3& position, uint32_t count);
+	void Emit(const std::string name,const std::string emitName, const Vector3& position, uint32_t count = 0);
+	void Emit(const std::string name,const std::string emitName, const Constant& cons);
 
 	std::unordered_map<std::string, ParticleGroup>& GetParticleGroups()
 	{
 		return particleGroups;
 	}
 
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera);
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera,bool flag = false);
 
 	void SetCamera(Camera* camera) { this->camera_ = camera; }
 
@@ -174,6 +185,8 @@ public:
 
 	void SetPos(const std::string name,const Vector3& position);
 	
+	void SetObject(const std::string name, Object3d& obj);
+
 private:
 	// ルートシグネチャの作成
 	void CreateRootSignature();
@@ -184,10 +197,12 @@ private:
 	void LimitMaxMin();
 
 	// ランダム
-	void RandParticle(const std::string name, const Vector3& position);
+	void RandParticle(const std::string name, const Vector3& position, const int count);
 
 	// 定数
-	void ConstantParticle(const std::string name, const Vector3& position);
+	void ConstantParticle(const std::string name, const Constant& cons);
+	// 定数
+	void ConstantParticle2(const std::string name, const Constant& cons);
 
 private:
 	static ParticleManager* instance;
@@ -210,7 +225,7 @@ private:
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 
-	const uint32_t kNumMaxInstance = 1000;
+	const uint32_t kNumMaxInstance = 10000;
 	const float kDeltaTime = 1.0f / 60.0f;
 	bool usebillboard = true;
 	bool upData = true;

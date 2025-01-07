@@ -1,8 +1,10 @@
 #include "Collider.h"
 
-void Collider::Initialize() {
+void Collider::Initialize(Camera* camera) {
 
-object.Initialize();
+	object.Initialize();
+	object.SetCamera(camera);
+	object.SetModel("enemy.obj");
 	count++;
 }
 
@@ -16,6 +18,7 @@ void Collider::UpdateWorldTransform() {
 
 void Collider::Draw() {
 
+	object.Draw();
 	
 }
 

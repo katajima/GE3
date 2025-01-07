@@ -1,10 +1,13 @@
 #include "Line.h"
 #include "LineCommon.h"
 
-void LineDraw::Initialize(LineCommon *lineCommon)
+void LineDraw::Initialize()
 {
+
+	lineCommon_ = LineCommon::GetInstance();
+
 	// 引数で受け取ってメンバ変数に記録する
-	this->lineCommon_ = lineCommon;
+	//this->lineCommon_ = lineCommon;
 	//this->camera = lineCommon_->GetDefaltCamera();
 
 
@@ -51,7 +54,7 @@ void LineDraw::Initialize(LineCommon *lineCommon)
 	*materialData = Material({ 1.0f, 0.0f, 0.0f, 1.0f }); //RGBA
 	
 	//トランスフォーム
-	transformationMatrixResource = lineCommon->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
+	transformationMatrixResource = lineCommon_->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
 
 	//書き込むためのアドレスを取得
 	transformationMatrixResource->Map(0, nullptr, reinterpret_cast<void**>(&transfomationMatrixData));

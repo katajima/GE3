@@ -9,7 +9,7 @@
 #include "DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/3d/Object3dCommon.h"
 #include"DirectXGame/engine/3d/LightCommon.h"
-#include"DirectXGame/engine/2d/SpriteCommon.h"
+#include"DirectXGame/engine/2d/Sprite.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include "DirectXGame/engine/effect/Particle/ParticleManager.h"
 #include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
@@ -54,6 +54,11 @@ private:
 	Vector3 cameraDebugR;
 	bool flag = false;
 
+	std::unique_ptr<Sprite> icon_B;
+	std::unique_ptr<Sprite> title;
+
+
+	Object3d tail;
 
 };
 

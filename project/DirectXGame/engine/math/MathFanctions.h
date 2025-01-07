@@ -7,9 +7,29 @@
 #include<assert.h>
 #include<random>
 #include<numbers>
+#include"Easing.h"
 
 
 #pragma region Math
+static float LerpShortAngle(float a, float b, float t) {
+    // 角度差分を求める
+    float diff = b - a;
+
+    // 角度を [-2*PI, +2*PI] に補正する
+    diff = float(fmod(double(diff + 2.0f) * M_PI, double(4.0f) * M_PI)) - 2.0f * float(M_PI);
+
+    // 角度を [-PI, +PI] に補正する
+    if (diff > float(M_PI)) {
+        diff -= 2 * float(M_PI);
+    }
+    if (diff < -float(M_PI)) {
+
+        diff += 2 * float(M_PI);
+    }
+
+    return Lerp(a, a + diff, t);
+}
+
 
 Vector3 Add(const Vector3& v1, const Vector3& v2);
 Vector2 Add(const Vector2& v1, const Vector2& v2);
@@ -27,6 +47,7 @@ float Clamp(float t);
 float Clamp(float t, float min, float max);
 //
 float Distance(const Vector3& point1, const Vector3& point2);
+
 //
 Vector3 Lerp(const Vector3& a, const Vector3& b, float t);
 //
@@ -116,7 +137,7 @@ Vector3 Reflect(const Vector3& input, const Vector3& normal);
 
 
 // 2点間の距離を計算する関数
-float Distance(const Vector3& a, const Vector3& b);
+float DistanceXZ(const Vector3& a, const Vector3& b);
 
 // アーク長を計算する関数
 float CalculateArcLength(const std::vector<Vector3>& controlPoints, int numSamples);

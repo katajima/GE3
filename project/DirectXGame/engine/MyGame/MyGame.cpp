@@ -12,13 +12,14 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	SceneManager::GetInstance()->ChangeScene("TEST");
+	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
 	InitializeResource();
 
-
+	// グローバル変数の読み込み
+	GlobalVariables::GetInstance()->LoadFiles();
 	//
 
 }
@@ -124,18 +125,16 @@ void MyGame::InitializeResource()
 {
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/train.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/rail.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/reticle.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/white.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/enemy.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/sky.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/enter.png");
-	//TextureManager::GetInstance()->LoadTexture("resources/NormalMap.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/aa2.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/aa3.png");
 	for (int i = 0; i < 10; i++) {
-		std::string label = "resources/num/" + std::to_string(i) + ".png";
-	//	TextureManager::GetInstance()->LoadTexture(label);
+		std::string label = "resources/Texture/num/" + std::to_string(i) + ".png";
+		TextureManager::GetInstance()->LoadTexture(label);
 	}
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
 
 
 	ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
@@ -144,6 +143,8 @@ void MyGame::InitializeResource()
 	
 
 	ModelManager::GetInstance()->LoadModelAmime("walk.gltf", "human");
+	ModelManager::GetInstance()->LoadModelAmime("player_bullet.obj", "player_bullet");
+	ModelManager::GetInstance()->LoadModelAmime("Sword.obj", "Sword");
 	ModelManager::GetInstance()->LoadModelAmime("sneakWalk.gltf", "human");
 	ModelManager::GetInstance()->LoadModelAmime("AnimatedCube.gltf", "AnimatedCube");
 

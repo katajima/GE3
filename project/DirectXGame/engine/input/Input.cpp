@@ -131,3 +131,98 @@ Vector2 Input::GetMousePosition() const
 
 	return result;
 }
+
+
+// ゲームパッド
+bool Input::IsGamePadTriggered(GamePadButton button) const
+{
+	if (xInputState_.Gamepad.wButtons & static_cast<WORD>(button) &&
+		!(preXInputState_.Gamepad.wButtons & static_cast<WORD>(button)))
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool Input::IsGamePadPressed(GamePadButton button) const
+{
+	if (xInputState_.Gamepad.wButtons & static_cast<WORD>(button) &&
+		preXInputState_.Gamepad.wButtons & static_cast<WORD>(button))
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool Input::IsGamePadReleased(GamePadButton button) const
+{
+	if (!(xInputState_.Gamepad.wButtons & static_cast<WORD>(button)) &&
+		preXInputState_.Gamepad.wButtons & static_cast<WORD>(button))
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+
+}
+
+Vector2 Input::GetGamePadLeftStick() const
+{
+	if (xInputState_.Gamepad.sThumbLX || xInputState_.Gamepad.sThumbLY)
+	{
+		Vector2 result{};
+		result.x = static_cast<float>(xInputState_.Gamepad.sThumbLX) / 32767.0f;
+		result.y = static_cast<float>(xInputState_.Gamepad.sThumbLY) / 32767.0f;
+
+		if (result.x< deadZone_ && result.x > -deadZone_)
+		{
+			result.x = 0.0f;
+		}
+		if (result.y < deadZone_ && result.y > -deadZone_)
+		{
+			result.y = 0.0f;
+		}
+
+
+		result.x = std::clamp(result.x, -1.0f, 1.0f);
+		result.y = std::clamp(result.y, -1.0f, 1.0f);
+
+		return result;
+	}
+	else {
+		return Vector2();
+	}
+}
+
+Vector2 Input::GetGamePadRightStick() const
+{
+	if (xInputState_.Gamepad.sThumbRX || xInputState_.Gamepad.sThumbRY)
+	{
+		Vector2 result{};
+		result.x = static_cast<float>(xInputState_.Gamepad.sThumbRX) / 32767.0f;
+		result.y = static_cast<float>(xInputState_.Gamepad.sThumbRY) / 32767.0f;
+
+		if (result.x < deadZone_ && result.x > -deadZone_)
+		{
+			result.x = 0.0f;
+		}
+		if (result.y < deadZone_ && result.y > -deadZone_)
+		{
+			result.y = 0.0f;
+		}
+
+
+		result.x = std::clamp(result.x, -1.0f, 1.0f);
+		result.y = std::clamp(result.y, -1.0f, 1.0f);
+
+		return result;
+	}
+	else {
+		return Vector2();
+	}
+}

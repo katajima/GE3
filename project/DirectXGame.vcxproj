@@ -112,6 +112,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\base\FollowCamera\FollowCamera.cpp" />
     <ClCompile Include="DirectXGame\application\base\Player\BasePlayerState.cpp" />
     <ClCompile Include="DirectXGame\application\base\Player\Player.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Player\PlayerAttack.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Player\PlayerBehavior.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Player\PlayerBullet.cpp" />
+    <ClCompile Include="DirectXGame\application\base\Player\playerWeapon.cpp" />
     <ClCompile Include="DirectXGame\application\GlobalVariables\GlobalVariables.cpp" />
     <ClCompile Include="DirectXGame\application\scene\SceneFactory.cpp" />
     <ClCompile Include="DirectXGame\application\scene\TestScene.cpp" />
@@ -321,6 +325,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\base\FollowCamera\FollowCamera.h" />
     <ClInclude Include="DirectXGame\application\base\Player\BasePlayerState.h" />
     <ClInclude Include="DirectXGame\application\base\Player\Player.h" />
+    <ClInclude Include="DirectXGame\application\base\Player\PlayerBullet.h" />
+    <ClInclude Include="DirectXGame\application\base\Player\playerWeapon.h" />
     <ClInclude Include="DirectXGame\application\GlobalVariables\GlobalVariables.h" />
     <ClInclude Include="DirectXGame\application\scene\SceneFactory.h" />
     <ClInclude Include="DirectXGame\application\scene\TestScene.h" />
@@ -339,6 +345,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\effect\Thunder\Thunder.h" />
     <ClInclude Include="DirectXGame\engine\effect\Thunder\ThunderManager.h" />
     <ClInclude Include="DirectXGame\engine\Material\Material.h" />
+    <ClInclude Include="DirectXGame\engine\math\Easing.h" />
     <ClInclude Include="DirectXGame\engine\math\ProbabilityUtils.h" />
     <ClInclude Include="DirectXGame\engine\Mesh\Mesh.h" />
     <ClInclude Include="DirectXGame\engine\scene\AbstractSceneFactory.h" />

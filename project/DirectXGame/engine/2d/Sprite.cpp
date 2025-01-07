@@ -3,7 +3,7 @@
 #include <iostream>
 #include"DirectXGame/engine/base/TextureManager.h"
 
-void Sprite::Initialize(std::string textureFilePath)
+void Sprite::Initialize(std::string textureFilePath,bool isTexLoad)
 {
 
 	textureFilePath_ = textureFilePath;
@@ -38,7 +38,10 @@ void Sprite::Initialize(std::string textureFilePath)
 	material = std::make_unique<Material>();
 	material->Initialize(SpriteCommon::GetInstance()->GetDxCommon());
 	material->tex_.diffuseFilePath = textureFilePath;
-	material->LoadTex();
+	if (isTexLoad) {
+		material->LoadTex();
+	}
+	//
 
 	// トランスフォーム
 	transfomation = std::make_unique<Transfomation>();

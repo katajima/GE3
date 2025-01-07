@@ -67,6 +67,23 @@ void LightCommon::Initialize()
 	globalVariables->AddItem(gropName, "color", directionalLightData->color);
 
 
+	gropName = "pointlight";
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+
+	globalVariables->AddItem(gropName, "p1 isLight", bool(pointLightData[0].isLight));
+	globalVariables->AddItem(gropName, "p1 position", pointLightData[0].position);
+	globalVariables->AddItem(gropName, "p1 decay", pointLightData[0].decay);
+	globalVariables->AddItem(gropName, "p1 radius", pointLightData[0].radius);
+	globalVariables->AddItem(gropName, "p1 intensity", pointLightData[0].intensity);
+	globalVariables->AddItem(gropName, "p1 color", pointLightData[0].color);
+	globalVariables->AddItem(gropName, "p2 isLight", bool(pointLightData[0].isLight));
+	globalVariables->AddItem(gropName, "p2 position", pointLightData[1].position);
+	globalVariables->AddItem(gropName, "p2 deca", pointLightData[1].decay);
+	globalVariables->AddItem(gropName, "p2 radiu", pointLightData[1].radius);
+	globalVariables->AddItem(gropName, "p2 intensity", pointLightData[1].intensity);
+	globalVariables->AddItem(gropName, "p2 color", pointLightData[1].color);
+
+
 
 	/*for (int i = 0; i < directionalLightData.size(); i++) {
 		std::string label = "Translate " + std::to_string(i);
@@ -107,8 +124,8 @@ void LightCommon::SetLineCamera(Camera* camera)
 
 void LightCommon::Update()
 {
-	//ApplyGlobalVariables();
-
+	ApplyGlobalVariables();
+		
 
 #ifdef _DEBUG
 	ImGui::Begin("engine");
@@ -206,6 +223,16 @@ void LightCommon::Update()
 		pointLightLines_[i]->Update();
 	}
 #endif
+
+
+	directionalLightData->isLight = false;
+	directionalLightData->intensity = 1.1f;
+	pointLightData[0].isLight = true;
+	pointLightData[0].position = { 0,100,0 };
+	pointLightData[0].radius = 1000;
+	pointLightData[0].intensity = 2.5f;
+
+
 }
 
 void LightCommon::ApplyGlobalVariables()
@@ -215,19 +242,32 @@ void LightCommon::ApplyGlobalVariables()
 	const char* gropName = "directionalLight";
 	GlobalVariables::GetInstance()->CreateGroup(gropName);
 	
-	directionalLightData->direction = globalVariables->GetVector3Value(gropName, "direction");
+	Vector3 di = globalVariables->GetVector3Value(gropName, "direction");
+	directionalLightData->direction = di.Normalize();
 	directionalLightData->intensity = globalVariables->GetFloatValue(gropName, "intensity");
 	directionalLightData->color = globalVariables->GetVector4Value(gropName, "color");
+
+	gropName = "pointlight";
+	GlobalVariables::GetInstance()->CreateGroup(gropName);
+
+	pointLightData[0].isLight   = globalVariables->GetBoolValue(gropName,    "p1 isLight");
+	pointLightData[0].position  = globalVariables->GetVector3Value(gropName, "p1 position");
+	pointLightData[0].decay     = globalVariables->GetFloatValue(gropName,   "p1 decay");
+	pointLightData[0].radius    = globalVariables->GetFloatValue(gropName,   "p1 radius");
+	pointLightData[0].intensity = globalVariables->GetFloatValue(gropName,   "p1 intensity");
+	pointLightData[0].color     = globalVariables->GetVector4Value(gropName, "p1 color");
+	pointLightData[1].isLight   = globalVariables->GetBoolValue(gropName,    "p2 isLight");
+	pointLightData[1].position  = globalVariables->GetVector3Value(gropName, "p2 position");
+	pointLightData[1].decay     = globalVariables->GetFloatValue(gropName,   "p2 deca");
+	pointLightData[1].radius    = globalVariables->GetFloatValue(gropName,   "p2 radiu");
+	pointLightData[1].intensity = globalVariables->GetFloatValue(gropName,   "p2 intensity");
+	pointLightData[1].color     = globalVariables->GetVector4Value(gropName, "p2 color");
 
 }
 
 
 void LightCommon::DrawLightLine() {
-	// PointLight のライン描画
-	//DrawLineWithLines(pointLightData->position, Vector3{ 1, 1, 1 }, pointLightLines_);
-
-	// SpotLight のライン描画
-	//DrawLineWithLines(spotLightData->position, Vector3{ 1, 1, 1 }, spotLightLines_);
+	
 }
 
 void LightCommon::DrawLineWithLines(const Vector3& center, const Vector3& extent,
@@ -238,7 +278,7 @@ void LightCommon::DrawLineWithLines(const Vector3& center, const Vector3& extent
 		// 不足分を追加生成
 		for (size_t i = lines.size(); i < requiredLines; ++i) {
 			auto line = std::make_unique<LineDraw>();
-			line->Initialize(LineCommon::GetInstance());
+			line->Initialize();
 			lines.push_back(std::move(line));
 		}
 	}

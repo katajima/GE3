@@ -32,24 +32,29 @@ void ParticleEmitter::Update()
 	// 全パーティクルグループ内の全パーティクルを処理する
 	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
 		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
+		particleGroup.emiter.object.Update();
 
-		particleGroup.emiter.frequencyTime_ += kDeltaTime;
-		if (particleGroup.emiter.frequency_ <= particleGroup.emiter.frequencyTime_) {
-			ParticleManager::GetInstance()->Emit(particleGroup.name, particleGroup.emiter.center, count_);
-			particleGroup.emiter.frequencyTime_ -= particleGroup.emiter.frequency_;
-		}
-
+		//particleGroup.emiter.frequencyTime_ += kDeltaTime;
+		//if (particleGroup.emiter.isEmit) {
+		//	if (particleGroup.emiter.frequency_ <= particleGroup.emiter.frequencyTime_) {
+		//		//ParticleManager::GetInstance()->Emit(particleGroup.name, particleGroup.emiter.object.GetWorldPosition(), count_);
+		//		//particleGroup.emiter.frequencyTime_ -= particleGroup.emiter.frequency_;
+		//	}
+		//}
 		// 各パーティクルの更新
 		for (auto& particle : particleGroup.particle) {
 			// 位置の更新
 			particle.transform.translate = Add(particle.transform.translate, Vector3{ 0.0f, 0.0f, 0.0f });
 			// 寿命の増加
-			particle.currentTime += kDeltaTime;
+			//particle.currentTime += kDeltaTime;
+
+			//particleGroup.w =1.0f + (particle.currentTime / particle.lifeTime);
 		}
 
 		// 寿命が尽きたパーティクルを削除する処理
 		particleGroup.particle.remove_if([](const ParticleManager::Particle& p)
-			{ return p.currentTime >= p.lifeTime;
+			{ 
+				return p.currentTime >= p.lifeTime;
 			});
 	}
 }
@@ -61,6 +66,6 @@ void ParticleEmitter::Emit()
 	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
 		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
 
-		ParticleManager::GetInstance()->Emit(particleGroup.name, particleGroup.emiter.center, count_);
+		ParticleManager::GetInstance()->Emit(particleGroup.name,"rand", particleGroup.emiter.object.GetWorldPosition(), count_);
 	}
 }
