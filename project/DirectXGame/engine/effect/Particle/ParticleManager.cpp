@@ -126,12 +126,12 @@ void ParticleManager::Update()
 			ParticleGroup& group = pair.second;
 			group.instanceCount = 0; // 描画すべきインスタンスのカウント
 			
-			Matrix4x4 projectionMatrix = group.camera->GetProjectionMatrix();
-			Matrix4x4 viewMatrix = group.camera->GetViewMatrix();
+			Matrix4x4 projectionMatrix = camera_->GetProjectionMatrix();
+			Matrix4x4 viewMatrix = camera_->GetViewMatrix();
 
 
 			Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
-			Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, group.camera->GetWorldMatrix());
+			Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, camera_->GetWorldMatrix());
 			//Matrix4x4 billboardMatrix = Multiply(Multiply(group.emiter.object.mat_,backToFrontMatrix), camera_->GetWorldMatrix());
 			billboardMatrix.m[3][0] = 0.0f; // 平行移動成分は不要
 			billboardMatrix.m[3][1] = 0.0f;
@@ -344,11 +344,8 @@ void ParticleManager::Emit(const std::string name, const std::string emitName, c
 
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera, bool flag)
+void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, bool flag)
 {
-
-	camera_ = camera;
-
 	// ランダムエンジンの初期化
 	std::random_device seedGenerator;
 	randomEngine_.seed(seedGenerator()); // randomEngine_ にシードを設定
@@ -391,12 +388,11 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 
 	particleGroup.emiter.object.Initialize();
-	particleGroup.camera = camera;
 	
 	for (int i = 0; i < 24; i++) {
 		auto line = std::make_unique<LineDraw>();
 		line->Initialize();
-		line->SetCamera(camera);
+		line->SetCamera(camera_);
 		particleGroup.line_.push_back(std::move(line));
 	}
 
@@ -506,6 +502,7 @@ void ParticleManager::SetPos(const std::string name, const Vector3& position)
 {
 	particleGroups[name].emiter.object.transform.translate = position;
 }
+
 
 void ParticleManager::SetObject(const std::string name, Object3d& obj)
 {

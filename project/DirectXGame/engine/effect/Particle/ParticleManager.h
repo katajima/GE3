@@ -131,7 +131,6 @@ public:
 		std::string name; // 名前
 		std::unique_ptr<Material> material = nullptr;
 		std::list<Particle> particle;
-		Camera* camera;
 		bool flag;
 		uint32_t srvIndex;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
@@ -146,7 +145,6 @@ public:
 		bool isAlpha = false;
 		bool isLine = true;
 		EmitType emitType = EmitType::kRandom; 
-		float w;
 	};
 
 	
@@ -177,7 +175,7 @@ public:
 		return particleGroups;
 	}
 
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, Camera* camera,bool flag = false);
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model,bool flag = false);
 
 	void SetCamera(Camera* camera) { this->camera_ = camera; }
 
@@ -185,7 +183,9 @@ public:
 
 	void SetPos(const std::string name,const Vector3& position);
 	
+	
 	void SetObject(const std::string name, Object3d& obj);
+
 
 private:
 	// ルートシグネチャの作成

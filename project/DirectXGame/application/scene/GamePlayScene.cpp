@@ -56,11 +56,11 @@ void GamePlayScene::Initialize()
 	sky.model->modelData.material[0]->enableLighting_ = false;
 
 	//particleManager_ = ParticleManager::GetInstance();
-	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"),true);
 	ParticleManager::GetInstance()->SetPos("cc", { 0,0,0 });
 	ParticleManager::GetInstance()->SetObject("cc", player_->GetObject3D());
 	
-	ParticleManager::GetInstance()->CreateParticleGroup("Slash", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection());
+	ParticleManager::GetInstance()->CreateParticleGroup("Slash", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"));
 	ParticleManager::GetInstance()->SetPos("Slash", { 0,0,0 });
 	ParticleManager::GetInstance()->SetObject("Slash", player_->GetWeapon()->GetObject3D());
 	
@@ -68,15 +68,15 @@ void GamePlayScene::Initialize()
 
 	for (int i = 0; i < 10; i++) {
 		std::string strin = std::to_string(i) + "bullet";
-		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"),true);
 		ParticleManager::GetInstance()->SetPos(strin, { 0,0,0 });
 
 		strin = std::to_string(i) + "exp";
-		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"),true);
 		ParticleManager::GetInstance()->SetPos(strin, { 0,0,0 });
 		
 		strin = std::to_string(i) + "exp2";
-		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), &followCamera_->GetViewProjection(),true);
+		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"),true);
 		ParticleManager::GetInstance()->SetPos(strin, { 0,0,0 });
 	}
 	emitter_ = new ParticleEmitter("cc", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
@@ -473,7 +473,7 @@ void GamePlayScene::Update()
 
 
 
-
+	ParticleManager::GetInstance()->SetCamera(&followCamera_->GetViewProjection());
 
 
 	// 敵
