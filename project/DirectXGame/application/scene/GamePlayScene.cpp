@@ -133,7 +133,7 @@ void GamePlayScene::InitializeResources()
 			numSprites[j][i] = std::make_unique<Sprite>();
 			std::string str = "resources/Texture/num/" + std::to_string(i) + ".png";
 			numSprites[j][i]->Initialize(str, false);
-			numSprites[j][i]->SetPosition(Vector2{ float(50 * i), 100 });
+			//numSprites[j][i]->SetPosition(Vector2{ float(50 * i), 100 });
 		}
 	}
 
