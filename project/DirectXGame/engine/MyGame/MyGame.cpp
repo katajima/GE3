@@ -12,7 +12,7 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	SceneManager::GetInstance()->ChangeScene("TITLE");
+	SceneManager::GetInstance()->ChangeScene("TEST");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -100,7 +100,8 @@ void MyGame::Draw()
 	
 	SceneManager::GetInstance()->Draw3D();
 
-	
+	particleManager_->Draw();
+
 	//// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
 
@@ -123,6 +124,8 @@ void MyGame::Draw()
 
 void MyGame::InitializeResource()
 {
+	ParticleManager::GetInstance()->SetCamera(Camera::GetInstance());
+
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/aa2.png");
@@ -169,4 +172,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
 	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
 	
+	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+
+
 }

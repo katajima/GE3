@@ -267,6 +267,9 @@
     <ClCompile Include="DirectXGame\application\base\Player\PlayerBullet.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="DirectXGame\engine\effect\Trail\TrailEffect.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -278,6 +281,7 @@
     <None Include="resources\shaders\Ocean\Ocean.hlsli" />
     <None Include="resources\shaders\Thunder\Thunder.hlsli" />
     <None Include="resources\shaders\Skining\SkinningObject3d.hlsli" />
+    <None Include="resources\shaders\Object3D\Light.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl" />
@@ -529,6 +533,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DirectXGame\application\base\Player\PlayerBullet.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXGame\engine\effect\Trail\TrailEffect.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

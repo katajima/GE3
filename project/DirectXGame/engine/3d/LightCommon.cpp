@@ -57,31 +57,31 @@ void LightCommon::Initialize()
 		spotLightData[i].isLight = false;
 	}
 
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	//GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 
-	const char* gropName = "directionalLight";
-	GlobalVariables::GetInstance()->CreateGroup(gropName);
-	//std::string label = "direction";
-	globalVariables->AddItem(gropName, "direction", directionalLightData->direction);
-	globalVariables->AddItem(gropName, "intensity", directionalLightData->intensity);
-	globalVariables->AddItem(gropName, "color", directionalLightData->color);
+	//const char* gropName = "directionalLight";
+	//GlobalVariables::GetInstance()->CreateGroup(gropName);
+	////std::string label = "direction";
+	//globalVariables->AddItem(gropName, "direction", directionalLightData->direction);
+	//globalVariables->AddItem(gropName, "intensity", directionalLightData->intensity);
+	//globalVariables->AddItem(gropName, "color", directionalLightData->color);
 
 
-	gropName = "pointlight";
-	GlobalVariables::GetInstance()->CreateGroup(gropName);
+	//gropName = "pointlight";
+	//GlobalVariables::GetInstance()->CreateGroup(gropName);
 
-	globalVariables->AddItem(gropName, "p1 isLight", bool(pointLightData[0].isLight));
-	globalVariables->AddItem(gropName, "p1 position", pointLightData[0].position);
-	globalVariables->AddItem(gropName, "p1 decay", pointLightData[0].decay);
-	globalVariables->AddItem(gropName, "p1 radius", pointLightData[0].radius);
-	globalVariables->AddItem(gropName, "p1 intensity", pointLightData[0].intensity);
-	globalVariables->AddItem(gropName, "p1 color", pointLightData[0].color);
-	globalVariables->AddItem(gropName, "p2 isLight", bool(pointLightData[0].isLight));
-	globalVariables->AddItem(gropName, "p2 position", pointLightData[1].position);
-	globalVariables->AddItem(gropName, "p2 deca", pointLightData[1].decay);
-	globalVariables->AddItem(gropName, "p2 radiu", pointLightData[1].radius);
-	globalVariables->AddItem(gropName, "p2 intensity", pointLightData[1].intensity);
-	globalVariables->AddItem(gropName, "p2 color", pointLightData[1].color);
+	//globalVariables->AddItem(gropName, "p1 isLight", bool(pointLightData[0].isLight));
+	//globalVariables->AddItem(gropName, "p1 position", pointLightData[0].position);
+	//globalVariables->AddItem(gropName, "p1 decay", pointLightData[0].decay);
+	//globalVariables->AddItem(gropName, "p1 radius", pointLightData[0].radius);
+	//globalVariables->AddItem(gropName, "p1 intensity", pointLightData[0].intensity);
+	//globalVariables->AddItem(gropName, "p1 color", pointLightData[0].color);
+	//globalVariables->AddItem(gropName, "p2 isLight", bool(pointLightData[0].isLight));
+	//globalVariables->AddItem(gropName, "p2 position", pointLightData[1].position);
+	//globalVariables->AddItem(gropName, "p2 deca", pointLightData[1].decay);
+	//globalVariables->AddItem(gropName, "p2 radiu", pointLightData[1].radius);
+	//globalVariables->AddItem(gropName, "p2 intensity", pointLightData[1].intensity);
+	//globalVariables->AddItem(gropName, "p2 color", pointLightData[1].color);
 
 
 
@@ -90,7 +90,7 @@ void LightCommon::Initialize()
 		globalVariables->AddItem(gropName, label, enemys_[i]->GetPostion());
 	}*/
 
-	ApplyGlobalVariables();
+	//ApplyGlobalVariables();
 }
 
 void LightCommon::Finalize()
@@ -124,7 +124,7 @@ void LightCommon::SetLineCamera(Camera* camera)
 
 void LightCommon::Update()
 {
-	ApplyGlobalVariables();
+	//ApplyGlobalVariables();
 		
 
 #ifdef _DEBUG
@@ -225,12 +225,12 @@ void LightCommon::Update()
 #endif
 
 
-	directionalLightData->isLight = false;
+	/*directionalLightData->isLight = false;
 	directionalLightData->intensity = 1.1f;
 	pointLightData[0].isLight = true;
 	pointLightData[0].position = { 0,100,0 };
 	pointLightData[0].radius = 1000;
-	pointLightData[0].intensity = 2.5f;
+	pointLightData[0].intensity = 2.5f;*/
 
 
 }

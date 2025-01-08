@@ -16,9 +16,7 @@ struct VertexShaderInput
     float32_t3 normal : NORMAL0;
     // 追加
     float3 tangent : TANGENT0; // 接ベクトル
-    float3 biNormal : BINORMAL0; // 従ベクトル
-    
-    
+    float3 biNormal : BINORMAL0; // 従ベクトル 
 };
 
 VertexShaderOutput main(VertexShaderInput input)

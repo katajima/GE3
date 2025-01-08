@@ -58,12 +58,7 @@ private:
 
 	// 列車のオブジェクト
 
-	ParticleManager* particleManager_;
-	ParticleManager* particleManager2_;
-
-
-	ParticleEmitter* emitter_;
-
+	
 	ModelManager* modelm_;
 
 	Object3d mm;

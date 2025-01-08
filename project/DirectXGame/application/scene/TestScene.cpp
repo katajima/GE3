@@ -14,23 +14,11 @@ void TestScene::Initialize()
 	InitializeResources();
 
 
-	particleManager_ = ParticleManager::GetInstance();
+	
 
-	particleManager_->CreateParticleGroup("aa", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
-	//ParticleManager::GetInstance()->SetCamera(camera.get());
+	
 
-	particleManager2_ = ParticleManager::GetInstance();
-	particleManager2_->CreateParticleGroup("bb", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera.get());
-	//particleManager2_.
-	//ParticleManager::GetInstance()->SetCamera(camera.get());
-
-	ParticleManager::GetInstance()->SetPos("aa", { 0,0,0 });
-	ParticleManager::GetInstance()->SetPos("bb", { 10,0,0 });
-
-
-	//particleManager_->Emit("aa", Vector3(100.0f, 10.0f, 0.0f) , 100);
-	emitter_ = new ParticleEmitter("aa", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
-
+	
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
 	mm.SetModel("building.obj");
@@ -82,6 +70,17 @@ void TestScene::Finalize()
 
 void TestScene::Update()
 {
+	/*ParticleManager::Constant cons{};
+	cons.lifeTime = 2;
+	cons.count = 20;
+	cons.size = 2;
+	cons.renge = { -Vector3{2,2,2} ,Vector3{2,2,2} };
+	cons.velocityRenge = {-Vector3{2,2,2},{2,2,2} };
+	ParticleManager::GetInstance()->SetCamera(camera.get());
+	ParticleManager::GetInstance()->Emit("cc","const", cons);
+	ParticleManager::GetInstance()->SetObject("cc",walk);*/
+
+
 	if (Input::GetInstance()->IsPushKey(DIK_A)) {
 		camera->transform_.translate.x -= 0.3f;
 	}
@@ -168,8 +167,7 @@ void TestScene::Update()
 	multiMesh.Update();
 	tail.Update();
 
-	emitter_->Update();
-
+	
 	//ocean_.Update();
 
 	sprite.Update();
@@ -182,17 +180,15 @@ void TestScene::Draw3D()
 	walk.DrawSkinning();
 	walk.DrawLine();
 	tail.Draw();
-	multiMesh.Draw();
-	mm.Draw();
-	mm2.Draw();
+	//multiMesh.Draw();
+	//mm.Draw();
+	//mm2.Draw();
 
 	
 
 
 	//ocean_.Draw();
 
-	ParticleManager::GetInstance()->GetInstance()->Draw();
-	//ParticleManager::GetInstance()->GetInstance()->DrawAABB();
 }
 
 void TestScene::Draw2D()
