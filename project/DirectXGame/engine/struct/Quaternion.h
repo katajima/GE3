@@ -4,9 +4,9 @@
 #include "Matrix4x4.h"
 #include <limits>
 
-static float Lerp(float _a, float _b, float _t)
+static float Lerp(float a, float b, float t)
 {
-    return _a + (_b - _a) * _t;
+    return a + (b - a) * t;
 }
 
 struct Quaternion final {
@@ -91,16 +91,7 @@ struct Quaternion final {
         return { result.x, result.y, result.z };
     }
 
-    //ぜろ除算防ぎ
-    //Quaternion SafeQuaternion() const {
-    //    const float epsilon = 1e-6f; // 非常に小さな値
-    //    return {
-    //        w != 0.0f ? w : epsilon,
-    //        x != 0.0f ? x : epsilon,
-    //        y != 0.0f ? y : epsilon,
-    //        z != 0.0f ? z : epsilon
-    //    };
-    //}
+
     // + 演算子のオーバーロード
     Quaternion operator+(const Quaternion& other) const;
 

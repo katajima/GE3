@@ -107,6 +107,37 @@ static Vector3 Lerp(const Vector3& a, const Vector3& b, float t) {
 
 	return temp;
 }
+static Vector3 Normalize(const Vector3& v) {
+	Vector3 result{};
+	float length;
+
+	length = sqrtf((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
+
+	if (length != 0.0f) {
+		result.x = v.x / length;
+		result.y = v.y / length;
+		result.z = v.z / length;
+	};
+
+	return result;
+};
+
+static Vector3 Cross(const Vector3& v1, const Vector3& v2) {
+	Vector3 result{};
+
+	result.x = v1.y * v2.z - v1.z * v2.y;
+	result.y = v1.z * v2.x - v1.x * v2.z;
+	result.z = v1.x * v2.y - v1.y * v2.x;
+
+	return result;
+};
+
+static float Dot(const Vector3& v1, const Vector3& v2) {
+	float result;
+
+	result = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 
 
+	return result;
+};
 
