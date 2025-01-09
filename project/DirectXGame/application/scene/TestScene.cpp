@@ -50,6 +50,30 @@ void TestScene::Initialize()
 
 	test = a.Conjugate();
 
+	
+
+	sphere1.Initialize();
+	sphere1.SetModel("Sphere.obj");
+	sphere1.SetCamera(camera.get());
+	sphere1.transform.translate = { 2,0,-10 };
+	sphere1.transform.scale = scale1;
+	
+	ball1.mass = 2.0f;
+	ball1.rad = scale1;
+	ball1.velocity = 0;
+
+	sphere2.Initialize();
+	sphere2.SetModel("Sphere.obj");
+	sphere2.SetCamera(camera.get());
+	sphere2.transform.translate = { 0,0,10 };
+	sphere2.transform.scale = scale2;
+
+	ball2.mass = 2.0f;
+	ball2.rad = scale2;
+	ball2.velocity = 0;
+
+
+	setVelo.z = 0.2f;
 
 	ocean_.Initialize(Vector2{ 30,30 });
 	ocean_.SetCamera(camera.get());
@@ -60,9 +84,14 @@ void TestScene::Initialize()
 	sprite.Initialize("resources/Texture/uvChecker.png");
 	sprite.SetPosition({ 0,0 });
 	sprite.SetColor({ 1,1,1,0.1f });
-	//sprite.SetSize({10,10});
-
 	
+	lineDraw_.Initialize();
+	lineDraw_.SetCamera(camera.get());
+	lineDraw2_.Initialize();
+	lineDraw2_.SetCamera(camera.get());
+
+	camera->transform_.translate = { 0,500,0 };
+	camera->transform_.rotate = { DegreesToRadians(90),0,0 };
 }
 
 void TestScene::Finalize()
@@ -71,6 +100,10 @@ void TestScene::Finalize()
 
 void TestScene::Update()
 {
+	sphere1.transform.scale = scale1;
+	sphere2.transform.scale = scale2;
+	ball1.rad = scale1;
+	ball2.rad = scale2;
 
 	
 
@@ -161,8 +194,32 @@ void TestScene::Update()
 	ImGui::Separator();
 	if (ImGui::TreeNode("MT4_01_05")) {
 		ImGui::Text("01_05");
+
+		// rotation0 と rotation1 を初期化
+		Quaternion rotation0 = rotation0.MakeQuaternion({ 0.71f, 0.71f, 0.0f }, 0.3f);
+		Quaternion rotation1 = rotation1.MakeQuaternion({ 0.71f, 0.0f, 0.71f }, 0.3141592f);
+
+		// Slerp 関数を使用して補間クォータニオンを計算
+		Quaternion interpolate0 = Slerp(rotation0, rotation1, 0.0f);
+		Quaternion interpolate1 = Slerp(rotation0, rotation1, 0.3f);
+		Quaternion interpolate2 = Slerp(rotation0, rotation1, 0.5f);
+		Quaternion interpolate3 = Slerp(rotation0, rotation1, 0.7f);
+		Quaternion interpolate4 = Slerp(rotation0, rotation1, 1.0f);
+
+		// ImGui でクォータニオンを表示
+		ImGui::InputFloat4("interpolate0 Slerp(q0,q1,0.0f)", &interpolate0.x, "%.2f");
+		ImGui::InputFloat4("interpolate1 Slerp(q0,q1,0.3f)", &interpolate1.x, "%.2f");
+		ImGui::InputFloat4("interpolate2 Slerp(q0,q1,0.5f)", &interpolate2.x, "%.2f");
+		ImGui::InputFloat4("interpolate3 Slerp(q0,q1,0.7f)", &interpolate3.x, "%.2f");
+		ImGui::InputFloat4("interpolate4 Slerp(q0,q1,1.0f)", &interpolate4.x, "%.2f");
+
+		ImGui::TreePop();
+	}
+	ImGui::Separator();
+	if (ImGui::TreeNode("MT4_01_05_EX")) {
+		ImGui::Text("01_05_EX");
 		Quaternion rotation0 = rotation0.MakeQuaternion({ 0.71f, 0.71f,0.0f }, 0.3f);
-		Quaternion rotation1 = rotation1.MakeQuaternion({ 0.71f, 0.0f,0.71f }, 0.3141592f);
+		Quaternion rotation1 = { -rotation0.x,-rotation0.y,-rotation0.z,-rotation0.w };
 		Quaternion interpolate0 = Slerp(rotation0, rotation1, 0.0f);
 		Quaternion interpolate1 = Slerp(rotation0, rotation1, 0.3f);
 		Quaternion interpolate2 = Slerp(rotation0, rotation1, 0.5f);
@@ -177,36 +234,31 @@ void TestScene::Update()
 		ImGui::TreePop();
 	}
 	ImGui::Separator();
-	if (ImGui::TreeNode("MT4_01_05_EX")) {
-		ImGui::Text("01_05_EX");
-		Quaternion rotation0 = rotation0.MakeQuaternion({ 0.71f, 0.71f,0.0f }, 0.3f);
-		Quaternion rotation1 = { -rotation0.x,-rotation0.y,-rotation0.z,-rotation0.w};
-		Quaternion interpolate0 = Slerp(rotation0, rotation1, 0.0f);
-		Quaternion interpolate1 = Slerp(rotation0, rotation1, 0.3f);
-		Quaternion interpolate2 = Slerp(rotation0, rotation1, 0.5f);
-		Quaternion interpolate3 = Slerp(rotation0, rotation1, 0.7f);
-		Quaternion interpolate4 = Slerp(rotation0, rotation1, 1.0f);
+	if (ImGui::TreeNode("MT4_02_01_EX")) {
+		ImGui::Text("02_01_EX");
+		ImGui::Text("reset velo R key");
+		ImGui::Text("reset pos,velo T key");
+		ImGui::Text("start SPACE key");
+		
+		ImGui::DragFloat("refrect", &refrect, 0.1f);
+		ImGui::DragFloat3("setVelo", &setVelo.x, 0.01f);
+		ImGui::Separator();
+		ImGui::DragFloat("ball1.mass", &ball1.mass);
+		ImGui::DragFloat("ball1.rad", &scale1,0.1f);
+		ImGui::InputFloat3("ball1.velocity", &ball1.velocity.x, "%.2f");
+		ImGui::DragFloat3("ball1.pos", &sphere1.transform.translate.x, 0.1f);
+		ImGui::Separator();
+		ImGui::DragFloat("ball2.mass", &ball2.mass);
+		ImGui::DragFloat("ball2.rad", &scale2, 0.1f);
+		ImGui::InputFloat3("ball2.velocity", &ball2.velocity.x, "%.2f");
+		ImGui::DragFloat3("ball2.pos", &sphere2.transform.translate.x, 0.1f);
 
-		ImGui::InputFloat4("interpolate0 Sleap(q0,q1,0.0f)", &interpolate0.x, "%.2f");
-		ImGui::InputFloat4("interpolate1 Sleap(q0,q1,0.3f)", &interpolate1.x, "%.2f");
-		ImGui::InputFloat4("interpolate2 Sleap(q0,q1,0.5f)", &interpolate2.x, "%.2f");
-		ImGui::InputFloat4("interpolate3 Sleap(q0,q1,0.7f)", &interpolate3.x, "%.2f");
-		ImGui::InputFloat4("interpolate4 Sleap(q0,q1,1.0f)", &interpolate4.x, "%.2f");
 		ImGui::TreePop();
 	}
-
 	ImGui::End();
 
 
-	/*ParticleManager::Constant cons{};
-	cons.lifeTime = 2;
-	cons.count = 20;
-	cons.size = 2;
-	cons.renge = { -Vector3{2,2,2} ,Vector3{2,2,2} };
-	cons.velocityRenge = {-Vector3{2,2,2},{2,2,2} };
-	ParticleManager::GetInstance()->SetCamera(camera.get());
-	ParticleManager::GetInstance()->Emit("cc","const", cons);
-	ParticleManager::GetInstance()->SetObject("cc",walk);*/
+	
 
 
 	if (Input::GetInstance()->IsPushKey(DIK_A)) {
@@ -241,7 +293,7 @@ void TestScene::Update()
 	//	}
 	//
 	//
-	//	ImGui::Begin("engine");
+	ImGui::Begin("engine");
 	//
 	//	
 	//
@@ -253,43 +305,84 @@ void TestScene::Update()
 	//		ImGuiManager::GetInstance()->RenderGizmo2(multiMesh, *camera.get(), "multiMesh");
 	//
 	//	}
-	//	if (ImGui::CollapsingHeader("Camera")) {
-	//		ImGui::DragFloat3("Translate", &camera->transform_.translate.x, 0.1f);
-	//		ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x, 0.01f);
-	//		ImGui::Checkbox("flag", &flag);
-	//		if (ImGui::Button("cameraPos")) {
-	//			camera->transform_.translate = { 0,20,-175 };
-	//			camera->transform_.rotate = { 0,0,0 };
-	//		}
-	//		if (ImGui::Button("cameraPos2")) {
-	//			camera->transform_.translate = { -30,10,-140 };
-	//			camera->transform_.rotate = { 0,0,0 };
-	//		}
-	//		if (ImGui::Button("cameraPos3")) {
-	//			camera->transform_.translate = { 0,500,0 };
-	//			camera->transform_.rotate = { DegreesToRadians(90),0,0 };
-	//		}
-	//		if (ImGui::Button("cameraPos4")) {
-	//			camera->transform_.translate = { 0,60,-220 };
-	//			camera->transform_.rotate = { DegreesToRadians(10),0,0 };
-	//		}
-	//		if (ImGui::Button("cameraPos5")) {
-	//			camera->transform_.translate = { 0,60,220 };
-	//			camera->transform_.rotate = { DegreesToRadians(10),DegreesToRadians(180),0};
-	//		}
-	//
-	//
-	//	}
-	//
-	//	ImGui::End();
+		if (ImGui::CollapsingHeader("Camera")) {
+			ImGui::DragFloat3("Translate", &camera->transform_.translate.x, 0.1f);
+			ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x, 0.01f);
+			ImGui::Checkbox("flag", &flag);
+			if (ImGui::Button("cameraPos")) {
+				camera->transform_.translate = { 0,20,-175 };
+				camera->transform_.rotate = { 0,0,0 };
+			}
+			if (ImGui::Button("cameraPos2")) {
+				camera->transform_.translate = { -30,10,-140 };
+				camera->transform_.rotate = { 0,0,0 };
+			}
+			if (ImGui::Button("cameraPos3")) {
+				camera->transform_.translate = { 0,500,0 };
+				camera->transform_.rotate = { DegreesToRadians(90),0,0 };
+			}
+			if (ImGui::Button("cameraPos4")) {
+				camera->transform_.translate = { 0,60,-220 };
+				camera->transform_.rotate = { DegreesToRadians(10),0,0 };
+			}
+			if (ImGui::Button("cameraPos5")) {
+				camera->transform_.translate = { 0,60,220 };
+				camera->transform_.rotate = { DegreesToRadians(10),DegreesToRadians(180),0};
+			}
+	
+	
+		}
+	
+		ImGui::End();
 	//#endif
 
+	if (Input::GetInstance()->IsTriggerKey(DIK_SPACE)) {
+		ball1.velocity = setVelo;
+	}
+
+	if (Input::GetInstance()->IsTriggerKey(DIK_R)) {
+		ball1.velocity = 0.0f;
+		ball2.velocity = 0.0f;
+	}
+	if (Input::GetInstance()->IsTriggerKey(DIK_T)) {
+		ball1.velocity = 0.0f;
+		ball2.velocity = 0.0f;
+
+		sphere1.transform.translate = { 2, 0, -10 };
+		sphere2.transform.translate = { 0, 0, 10 };
+	}
+
+
+	 // 球の速度を更新
+	sphere1.transform.translate += ball1.velocity;
+	sphere2.transform.translate += ball2.velocity;
+
+	// 球の位置を取得
+	Vector3 position1 = sphere1.transform.translate;
+	Vector3 position2 = sphere2.transform.translate;
+
+	// 球の半径（仮に1.0fとします）
+	//float radius = 1.0f;
+	// 衝突の検出
+	Vector3 distance = position2 - position1;
+	if (distance.Length() <= ball1.rad + ball2.rad) {
+		// 衝突検出時の処理
+		Vector3 normal = sphere1.transform.translate - sphere2.transform.translate;
+		normal.Normalize();
+		auto result = ComputeCollisionVelocities(ball1.mass, ball1.velocity, ball2.mass, ball2.velocity, refrect, normal.Normalize());
+		ball1.velocity = result.first;
+		ball2.velocity = result.second;
+	}
 
 
 
 
 
-		//walk.UpdateSkinning();
+	
+
+
+
+	//walk.UpdateSkinning();
 	mm.Update();
 	mm2.UpdateAnimation();
 	multiMesh.Update();
@@ -299,6 +392,13 @@ void TestScene::Update()
 	//ocean_.Update();
 
 	sprite.Update();
+
+
+	sphere1.Update();
+	sphere2.Update();
+
+	lineDraw_.Update();
+	lineDraw2_.Update();
 }
 
 void TestScene::Draw3D()
@@ -314,9 +414,19 @@ void TestScene::Draw3D()
 
 
 
+	sphere1.Draw();
+	sphere2.Draw();
+
 
 	//ocean_.Draw();
+	if (ball1.velocity.Length() == 0) {
+		lineDraw_.Draw3D(sphere1.transform.translate, sphere1.transform.translate + (setVelo.Normalize() * 10), { 1,1,0,1 });
 
+	}
+	else {
+		lineDraw_.Draw3D(sphere1.transform.translate, sphere1.transform.translate + (ball1.velocity.Normalize() * 10), { 1,0,0,1 });
+	}
+	lineDraw2_.Draw3D(sphere2.transform.translate, sphere2.transform.translate + (ball2.velocity.Normalize() * 10), { 1,0,0,1 });
 }
 
 void TestScene::Draw2D()

@@ -67,7 +67,20 @@ private:
 	Object3d walk;
 	Object3d multiMesh;
 
+	struct BallLLL {
+		Vector3 velocity;
+		float mass;
+		float rad;
+	}; 
+	BallLLL ball1;
+	BallLLL ball2;
 
+	Vector3 setVelo;
+	float scale1 = 5;
+	float scale2 = 7;
+	float refrect = 1.0f;
+	Object3d sphere1;
+	Object3d sphere2;
 
 	LineDraw lineDraw_;
 	LineDraw lineDraw2_;

@@ -174,7 +174,25 @@ static Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
     result.Normalize(); // 最終結果の正規化
     return result;
 }
+static Quaternion Slerp2(const Quaternion& q0, const Quaternion& q1, float t) {
+    Quaternion q0_t = q0, q1_t = q1;
 
+    float dot = Dot(q0_t, q1_t); // 内積
+
+    if (dot < 0) {
+        q0_t.Conjugate(); // もう片方の回転を利用する
+        dot =-dot;
+    }
+
+    float theta = std::acos(dot);
+
+    float scale0 = std::sin((1 - t) * theta) / std::sin(theta);
+    float scale1 = std::sin(t * theta) / std::sin(theta);
+
+    return Quaternion{ ((scale0 * q0_t.x) + (scale1 * q1_t.x)),((scale0 * q0_t.y) + (scale1 * q1_t.y)),
+         ((scale0 * q0_t.z) + (scale1 * q1_t.z)), ((scale0 * q0_t.w) + (scale1 * q1_t.w)) };
+
+}
 
 
 

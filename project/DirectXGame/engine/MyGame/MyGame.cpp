@@ -169,6 +169,8 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("rail.obj","rail");
 	ModelManager::GetInstance()->LoadModel("building.obj","building");
 	ModelManager::GetInstance()->LoadModel("Sphere.obj","sphere");
+	ModelManager::GetInstance()->LoadModel("Sphere2.obj","sphere");
+	ModelManager::GetInstance()->LoadModel("Sphere3.obj","sphere");
 	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
 	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
 	

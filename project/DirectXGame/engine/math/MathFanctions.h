@@ -12,22 +12,22 @@
 
 #pragma region Math
 static float LerpShortAngle(float a, float b, float t) {
-    // 角度差分を求める
-    float diff = b - a;
+	// 角度差分を求める
+	float diff = b - a;
 
-    // 角度を [-2*PI, +2*PI] に補正する
-    diff = float(fmod(double(diff + 2.0f) * M_PI, double(4.0f) * M_PI)) - 2.0f * float(M_PI);
+	// 角度を [-2*PI, +2*PI] に補正する
+	diff = float(fmod(double(diff + 2.0f) * M_PI, double(4.0f) * M_PI)) - 2.0f * float(M_PI);
 
-    // 角度を [-PI, +PI] に補正する
-    if (diff > float(M_PI)) {
-        diff -= 2 * float(M_PI);
-    }
-    if (diff < -float(M_PI)) {
+	// 角度を [-PI, +PI] に補正する
+	if (diff > float(M_PI)) {
+		diff -= 2 * float(M_PI);
+	}
+	if (diff < -float(M_PI)) {
 
-        diff += 2 * float(M_PI);
-    }
+		diff += 2 * float(M_PI);
+	}
 
-    return Lerp(a, a + diff, t);
+	return Lerp(a, a + diff, t);
 }
 
 
@@ -176,23 +176,48 @@ Vector3 RadiansToDegrees(Vector3 degrees);
 
 // ランダム
 //template <typename T>
-static Vector3 RandomMinMax(Vector3& min,Vector3& max, std::mt19937& randomEngine) {
-    // 範囲の確認と修正
-    if (min.x > max.x) std::swap(min.x, max.x);
-    if (min.y > max.y) std::swap(min.y, max.y);
-    if (min.z > max.z) std::swap(min.z, max.z);
+static Vector3 RandomMinMax(Vector3& min, Vector3& max, std::mt19937& randomEngine) {
+	// 範囲の確認と修正
+	if (min.x > max.x) std::swap(min.x, max.x);
+	if (min.y > max.y) std::swap(min.y, max.y);
+	if (min.z > max.z) std::swap(min.z, max.z);
 
-    // 各軸の乱数生成
-    std::uniform_real_distribution<float> distX(min.x, max.x);
-    std::uniform_real_distribution<float> distY(min.y, max.y);
-    std::uniform_real_distribution<float> distZ(min.z, max.z);
+	// 各軸の乱数生成
+	std::uniform_real_distribution<float> distX(min.x, max.x);
+	std::uniform_real_distribution<float> distY(min.y, max.y);
+	std::uniform_real_distribution<float> distZ(min.z, max.z);
 
-    return Vector3{
-        distX(randomEngine),
-        distY(randomEngine),
-        distZ(randomEngine)
-    };
+	return Vector3{
+		distX(randomEngine),
+		distY(randomEngine),
+		distZ(randomEngine)
+	};
 }
 
 // ランダムな位置を生成する関数
 Vector3 GenerateRandomPosition(const Vector3& min, const Vector3& max, std::mt19937& randomEngine);
+
+
+static std::pair<Vector3, Vector3> ComputeCollisionVelocities(float mass1, const Vector3& velocity1, float mass2, const Vector3& velocity2,
+	float coefficientOfRestitution, const Vector3& normal) {
+	// 衝突面法線方向の速度成分を射影
+	Vector3 project1 = Project(velocity1, normal); // 質点1の法線方向成分
+	Vector3 project2 = Project(velocity2, normal); // 質点2の法線方向成分
+	Vector3 sub1 = velocity1 - project1;           // 質点1の接線方向成分
+	Vector3 sub2 = velocity2 - project2;           // 質点2の接線方向成分
+
+	// 衝突後の法線方向速度を計算 (反発係数と運動量保存則に基づく)
+	Vector3 relativeVelocity = project1 - project2; // 衝突前の相対速度（法線方向）
+	float impulse = (-(1 + coefficientOfRestitution) * Dot(relativeVelocity, normal)) /
+		(1.0f / mass1 + 1.0f / mass2); // 衝撃量の計算
+	Vector3 impulseVector = normal * impulse;       // 衝撃量ベクトル
+
+	// 衝突後の法線方向速度を更新
+	Vector3 velocityAfter1 = project1 + impulseVector / mass1;
+	Vector3 velocityAfter2 = project2 - impulseVector / mass2;
+
+	// 接線成分を加算して最終的な速度を計算
+	return std::make_pair(velocityAfter1 + sub1, velocityAfter2 + sub2);
+}
+
+
