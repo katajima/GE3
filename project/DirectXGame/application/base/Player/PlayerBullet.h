@@ -15,6 +15,7 @@
 #include "DirectXGame/engine/effect/Particle/ParticleManager.h"
 #include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
 
+#include "DirectXGame/engine/effect/Trail/TrailEffect.h"
 
 class Enemy;
 
@@ -102,5 +103,11 @@ private:
 
 	int index_ = 0;
 
+
+	std::unique_ptr<TrailEffect> trailEffect_;
+	Object3d objectStr_;
+	Object3d objectEnd_;
+
+	int countTrail = 0;
 };
 

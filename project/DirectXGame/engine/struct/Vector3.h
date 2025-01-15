@@ -3,10 +3,17 @@
 #include <iostream>
 #include <algorithm>
 #include <limits>
+#include "Vector2.h"
 
 struct Vector3 final {
 	float x, y, z;
 	
+	
+	Vector2 xy() { return Vector2{ x,y }; }
+
+
+
+
 	// == 演算子のオーバーロード
 	bool operator==(const Vector3& other) const {
 		return x == other.x && y == other.y && z == other.z;
@@ -30,6 +37,14 @@ struct Vector3 final {
 		x += other.x;
 		y += other.y;
 		z += other.z;
+		return *this;
+	}
+	// + 演算子のオーバーロード
+	Vector3& operator-=(const Vector3& other)  {
+		
+		x -= other.x;
+		y -= other.y;
+		z -= other.z;
 		return *this;
 	}
 
@@ -140,4 +155,25 @@ static float Dot(const Vector3& v1, const Vector3& v2) {
 
 	return result;
 };
+
+static Vector3 Max(const Vector3& v1, const Vector3& v2) {
+	Vector3 result{};
+
+
+	result.x = (std::max)(v1.x, v2.x);
+	result.y = (std::max)(v1.y, v2.y);
+	result.z = (std::max)(v1.z, v2.z);
+
+	return result;
+}
+static Vector3 Min(const Vector3& v1, const Vector3& v2) {
+	Vector3 result{};
+
+
+	result.x = (std::min)(v1.x, v2.x);
+	result.y = (std::min)(v1.y, v2.y);
+	result.z = (std::min)(v1.z, v2.z);
+
+	return result;
+}
 

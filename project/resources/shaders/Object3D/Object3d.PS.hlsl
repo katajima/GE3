@@ -78,6 +78,7 @@ PixelShaderOutput main(PixelShaderInput input)
         }
         
         
+        
         output.color.rgb = allDire + allPoint + allSpot;
         
         

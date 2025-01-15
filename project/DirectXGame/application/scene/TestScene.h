@@ -17,6 +17,9 @@
 #include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
 #include"DirectXGame/engine/Line/Line.h"
 #include"DirectXGame/engine/effect/Ocean/Ocean.h"
+#include"DirectXGame/engine/effect/Trail/TrailEffect.h"
+
+#include"DirectXGame/engine/Primitive/Primitive.h"
 
 class TestScene : public BaseScene
 {
@@ -46,6 +49,7 @@ private:
 	Audio* audio_ = nullptr;
 
 
+
 	// カメラ
 	std::unique_ptr < Camera> camera;
 	Vector3 cameraR;
@@ -59,13 +63,18 @@ private:
 	// 列車のオブジェクト
 
 	
-	ModelManager* modelm_;
+	//ModelManager* modelm_;
+
+	ParticleManager::Constant cons;
 
 	Object3d mm;
 	Object3d mm2;
 	Object3d tail;
 	Object3d walk;
 	Object3d multiMesh;
+
+
+	Object3d testObject;
 
 	struct BallLLL {
 		Vector3 velocity;
@@ -80,7 +89,12 @@ private:
 	float scale2 = 7;
 	float refrect = 1.0f;
 	Object3d sphere1;
+	Object3d sphereStr;
+	Object3d sphereEnd;
 	Object3d sphere2;
+
+
+	Vector3 rotate_;
 
 	LineDraw lineDraw_;
 	LineDraw lineDraw2_;
@@ -97,6 +111,11 @@ private:
 
 	Sprite sprite;
 
+	std::unique_ptr<TrailEffect> trailEffect_;
+
+	std::unique_ptr<Primitive> primitive;
+
+	bool flag33;
 };
 
 

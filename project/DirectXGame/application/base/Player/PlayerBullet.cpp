@@ -71,7 +71,21 @@ void PlayerBullet::Initialize(Vector3 position, Camera* camera)
 	
 	strin2 = std::to_string(index_) + "exp2";
 	ParticleManager::GetInstance()->SetObject(strin2, object_);
-	//emitter_ = new ParticleEmitter(strin, Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
+	
+
+	trailEffect_ = std::make_unique<TrailEffect>();
+	trailEffect_->Initialize("resources/Texture/Image.png", 0.1f,{1.00f,1.00f,1.00f,0.9f});
+	trailEffect_->SetCamera(camera);
+	
+
+
+	objectStr_.Initialize();
+	objectStr_.parent_ = &object_;
+	objectStr_.transform.translate.y = object_.GetMesh(0)->GetMin().y * 1;
+
+	objectEnd_.Initialize();
+	objectEnd_.parent_ = &object_;
+	objectEnd_.transform.translate.y = object_.GetMesh(0)->GetMax().y * 1;
 
 }
 
@@ -84,6 +98,9 @@ void PlayerBullet::Update()
 
 	
 	if (isAlive_) {
+		countTrail++;
+		Vector3 norm;
+
 		switch (phase_)
 		{
 		case 0:
@@ -93,7 +110,7 @@ void PlayerBullet::Update()
 
 			object_.transform.translate = Lerp(str, randPosSky, t);
 
-			Vector3 norm =  randPosSky - str;
+			norm =  randPosSky - str;
 			
 			velocity_ = norm.Normalize();
 
@@ -152,9 +169,12 @@ void PlayerBullet::Update()
 
 	bullet.velocity = Multiply(-velocity_, 0.5f);
 
+	if (countTrail >= 5) {
+		bool flag_ =true ;
+		trailEffect_->Update(flag_, objectStr_, objectEnd_);
+	}
 
 
-	
 	ParticleManager::GetInstance()->Emit(strin, "const", bullet);
 	
 	if (!isAlive_) {
@@ -172,9 +192,7 @@ void PlayerBullet::Update()
 		ParticleManager::GetInstance()->Emit(strin2, "const2", exp);
 	}
 
-	//座標を移動させる
-	//object_.transform.translate += velocity_;
-
+	
 	// Y軸周り角度(θy)
 	object_.transform.rotate.y = std::atan2(velocity_.x, velocity_.z);
 	float length = Length(Vector3(velocity_.x, 0, velocity_.z));
@@ -183,8 +201,8 @@ void PlayerBullet::Update()
 	object_.transform.rotate.x = std::atan2(velocity_.y, -length);
 
 
-	//
-	//emitter_->Update();
+	objectStr_.Update();
+	objectEnd_.Update();
 	object_.Update();
 }
 
@@ -195,7 +213,7 @@ void PlayerBullet::Draw()
 
 void PlayerBullet::DrawP()
 {
-	//ParticleManager::GetInstance()->GetInstance()->Draw();
+	trailEffect_->Draw();
 }
 
 void PlayerBullet::OnCollision(Collider* other)

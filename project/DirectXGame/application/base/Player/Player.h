@@ -19,6 +19,8 @@
 #include "DirectXGame/engine/collider/Collider.h"
 #include "PlayerBullet.h"
 
+#include "DirectXGame/engine/effect/Trail/TrailEffect.h"
+
 ///< summary>
 /// 自キャラ
 ///</summary>
@@ -161,6 +163,9 @@ private: // 攻撃関係
 		int time = 0;
 		// 
 		int max; 
+		// クロック
+		int clock = 1;
+
 	};
 	SpecialAttack specialAttack{};
 	int index_b = 0;
@@ -235,6 +240,7 @@ public:
 	std::string strin;
 
 	Object3d& GetObject3D() { return objectBase_; }
+	//Object3d& GetObjectWeapon3D() { return ; }
 
 	
 
@@ -284,13 +290,25 @@ private:
 	Object3d objectBase_;
 	// 本体
 	Object3d objectBody_;
-	//
+	
+	//　レティクル
 	Object3d objectReticle_;
 	
+	// ミサイル発射位置
+	Object3d injectionLeftObj_;
+	Object3d injectionRightObj_;
+
+
+
+	// 影
 	Object3d objectSha_;
 
 	std::unique_ptr<playerWeapon> weapon_;
 	
+	Object3d weaponStr;
+	Object3d weaponEnd;
+
+
 	std::list<std::unique_ptr<PlayerBullet>> playerBullet_;
 
 	// シリアルナンバー
@@ -320,6 +338,10 @@ private:
 	float speed;
 
 	std::vector<Enemy*> lockedOnEnemies;
+
+
+	std::unique_ptr<TrailEffect> trailEffect_;
+	bool flag33;
 };
 
 

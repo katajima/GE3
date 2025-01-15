@@ -12,30 +12,35 @@
 #include"DirectXGame/engine/base/DirectXCommon.h"
 #include"DirectXGame/engine/Camera/Camera.h"
 
+#include"DirectXGame/engine/Mesh/Mesh.h"
+#include"DirectXGame/engine/Material/Material.h"
+#include "DirectXGame/engine/Transfomation/Transfomation.h"
+
+#include"TrailEffectManager.h"
+
 class Object3d;
 
 class TrailEffect
 {
 public:
-	static TrailEffect* instance;
+	
 
-	static TrailEffect* GetInstance();
+	void Initialize(const std::string& tex, float maxtime , const Vector4 color = {1,1,1,1});
 
-	void Initialize(DirectXCommon* dxcommon);
-
-	void Initialize();
-
-	void Finalize();
+	
+	void Update(bool& flag, const Object3d& str, const Object3d& end);
 
 	void Draw();
 
 	void SetCamera(Camera* camera) { camera_ = camera; };
 
-	void TargetObject();
+	void SetObject(Object3d* obj) { object_ = obj; };
 
-	void Update();
-private:
+	void SetMatrix(Matrix4x4& mat) { mat_ = mat; }
 
+	Mesh* GetMesh() const { return mesh.get(); }
+
+	std::unique_ptr<Mesh> mesh;
 
 private:
 	struct VertexData {
@@ -46,17 +51,18 @@ private:
 	// カメラ
 	Camera* camera_ = nullptr;
 
+	Object3d* object_;
 
-	std::vector<VertexData> vertices;
-	std::vector<uint32_t> indices; // 追加：インデックスデータ
+	std::unique_ptr<Material> material;
+	std::unique_ptr<Transfomation> transfomation = nullptr;
 
+	Matrix4x4 mat_;
+	Matrix4x4 parentTransform_;
 
+	bool flag_ = false;
 	Vector3 velocity_; // 速度
 	//Object3d object_;
 
 	int timer = 0;
-
-
-
 };
 

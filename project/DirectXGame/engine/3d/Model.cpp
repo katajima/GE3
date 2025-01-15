@@ -91,7 +91,7 @@ void Model::Draw()
 		mesh->GetCommandList();
 
 		// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
-		modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
+		ModelCommon::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
 	}
 }
 
@@ -142,6 +142,8 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 		std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
 		pMesh->meshIndex = meshIndex;
 
+		Vector3 min = { 100 };
+		Vector3 max = { -100 };
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3); // 三角形のみサポート
@@ -160,35 +162,28 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 				vertex.position.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
 				pMesh->vertices.push_back(vertex);
+
+				
+				min = Min(min, vertex.position.xyz());
+				max = Max(max, vertex.position.xyz());
 			}
 		}
+
+		pMesh->SetMin(min);
+		pMesh->SetMax(max);
+		
 		// インデックスを生成
 		pMesh->GenerateIndices2(); // thisは省略可能
 
 		pMesh->Initialize(ModelCommon::GetInstance()->GetDxCommon());
 
 
+
 		modelData.mesh.push_back(std::move(pMesh));
 	}
 
 
-	int countD = 0;
-	int countS = 0;
-	int countN = 0;
-	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
-		aiMaterial* material = scene->mMaterials[materialIndex];
-		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
-			countD++;
-		}
-		if (material->GetTextureCount(aiTextureType_SPECULAR) != 0) {
-			countS++;
-		}
-		if (material->GetTextureCount(aiTextureType_HEIGHT) != 0 || material->GetTextureCount(aiTextureType_NORMALS) != 0) {
-			countN++;
-		}
-	}
-
-
+	
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		std::unique_ptr<Material> pMaterial = std::make_unique<Material>();
 		pMaterial->Initialize(ModelCommon::GetInstance()->GetDxCommon());
@@ -249,6 +244,8 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 	const aiScene* scene = importer.ReadFile(filePach.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); //メッシュがないのは対応しない
 
+
+
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
@@ -257,6 +254,8 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 
 		pMesh->meshIndex = meshIndex;
 
+		Vector3 min = { 100 };
+		Vector3 max = { -100 };
 		pMesh->vertices.resize(mesh->mNumVertices);
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& position = mesh->mVertices[vertexIndex];
@@ -266,7 +265,13 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 			pMesh->vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
 			pMesh->vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
 			pMesh->vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
+
+
+			min = Min(min, pMesh->vertices[vertexIndex].position.xyz());
+			max = Max(max, pMesh->vertices[vertexIndex].position.xyz());
 		}
+		pMesh->SetMin(min);
+		pMesh->SetMax(max);
 
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
@@ -432,6 +437,37 @@ Animation Model::LoadAnimationFile(const std::string& directoryPath, const std::
 
 #pragma endregion // 読み込み系
 
+
+Model::ModelData  Model::CreatePlane(const std::string& tex)
+{
+	Model::ModelData modelData;
+	
+
+	std::unique_ptr<Material> pMaterial = std::make_unique<Material>();
+	pMaterial->Initialize(ModelCommon::GetInstance()->GetDxCommon());
+	pMaterial->tex_.diffuseFilePath = tex;
+	modelData.material.push_back(std::move(pMaterial));
+
+
+	std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
+	pMesh->vertices.push_back({ .position = {1.0f,1.0f,0.0f,1.0f} ,.texcoord = {0.0f,0.0f},.normal = {0.0f,0.0f,1.0f } });	// 左上
+	pMesh->vertices.push_back({ .position = {-1.0f,1.0f,0.0f,1.0f} ,.texcoord = {1.0f,0.0f},.normal = {0.0f,0.0f,1.0f } });	// 右上
+	pMesh->vertices.push_back({ .position = {1.0f,-1.0f,0.0f,1.0f} ,.texcoord = {0.0f,1.0f},.normal = {0.0f,0.0f,1.0f } });	// 左下
+	pMesh->vertices.push_back({ .position = {1.0f,-1.0f,0.0f,1.0f} ,.texcoord = {0.0f,1.0f},.normal = {0.0f,0.0f,1.0f } });	// 左下
+	pMesh->vertices.push_back({ .position = {-1.0f,1.0f,0.0f,1.0f} ,.texcoord = {1.0f,0.0f},.normal = {0.0f,0.0f,1.0f } });	// 右上
+	pMesh->vertices.push_back({ .position = {-1.0f,-1.0f,0.0f,1.0f} ,.texcoord = {1.0f,1.0f},.normal = {0.0f,0.0f,1.0f } });	// 右下
+	
+	pMesh->GenerateIndices2(); // thisは省略可能
+
+	
+	pMesh->Initialize(ModelCommon::GetInstance()->GetDxCommon());
+	
+	modelData.mesh.push_back(std::move(pMesh));
+
+	modelData.skinClusterData = {};
+	modelData.rootNode = {};
+	return modelData;
+}
 
 
 

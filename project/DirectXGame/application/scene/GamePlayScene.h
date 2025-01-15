@@ -28,6 +28,7 @@
 
 #include "DirectXGame/engine/collider/CollisionManager.h"
 #include"DirectXGame/engine/3d/LightCommon.h"
+#include "DirectXGame/engine/effect/Trail/TrailEffect.h"
 
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
@@ -114,6 +115,9 @@ private:
 
 	Object3d tail;
 	Object3d sky;
+
+	TrailEffect* trailEffect_;
+	bool flag33;
 
 	int count = 0;
 

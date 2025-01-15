@@ -21,6 +21,10 @@
 #include"DirectXGame/engine/effect/Particle/ParticleEmitter.h"
 #include"DirectXGame/engine/effect/Ocean/OceanManager.h"
 #include"DirectXGame/engine/effect/Thunder/ThunderManager.h"
+//#include"DirectXGame/engine/effect/Trail/TrailEffect.h"
+#include"DirectXGame/engine/effect/Trail/TrailEffectManager.h"
+#include"DirectXGame/engine/Primitive/PrimitiveCommon.h"
+
 
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/Camera/CameraCommon.h"
@@ -90,6 +94,8 @@ protected:
 	//
 	ThunderManager* thunderManager = nullptr;
 
+	TrailEffectManager* trailEffectManager_ = nullptr;
+
 	ParticleManager* particleManager_ = nullptr;
 	
 	ParticleEmitter* emitter = nullptr;
@@ -100,6 +106,7 @@ protected:
 
 	SkinningConmmon* skinningCommon = nullptr;
 
+	PrimitiveCommon* primitiveCommon = nullptr;
 	// シーンファクトリー
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_;
 };

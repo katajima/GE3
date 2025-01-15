@@ -42,6 +42,8 @@ void Object3d::Initialize()
 
 void Object3d::Update()
 {
+	preMat_ = mat_;
+
 	Matrix4x4 localMatrix = MakeIdentity4x4();
 	// モデルが存在する場合
 	if (model) {
@@ -54,7 +56,6 @@ void Object3d::Update()
 	
 
 	if (parent_) {
-		
 			mat_ =  Multiply(mat_, parent_->mat_);
 	}
 

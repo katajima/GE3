@@ -35,28 +35,73 @@ void Mesh::Initialize(DirectXCommon* dxcommon)
 
 }
 
-void Mesh::UpdateVertexBuffer()
-{
-	// 頂点データのサイズを計算
-	size_t bufferSize = sizeof(VertexData) * vertices.size();
+void Mesh::UpdateVertexBuffer() {
+	if (vertexResource) {
+		// バッファサイズを確認
+		size_t requiredSize = sizeof(VertexData) * vertices.size();
+		D3D12_RESOURCE_DESC desc = vertexResource->GetDesc();
+		if (requiredSize > desc.Width) {
+			// バッファが不足している場合、再割り当て
+			vertexResource.Reset();
 
-	// バッファを更新するためにマッピング
-	void* pData;
-	vertexResource->Map(0, nullptr, &pData);
-	memcpy(pData, vertices.data(), bufferSize);
-	vertexResource->Unmap(0, nullptr);
+			D3D12_HEAP_PROPERTIES heapProps = {};
+			heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+			D3D12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(requiredSize);
+			HRESULT hr = dxCommon_->GetDevice()->CreateCommittedResource(
+				&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexResource));
+
+			if (FAILED(hr)) {
+				// エラー処理
+				return;
+			}
+
+			// バッファビューの更新
+			vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+			vertexBufferView.SizeInBytes = UINT(requiredSize);
+			vertexBufferView.StrideInBytes = sizeof(VertexData);
+		}
+
+		// データのコピー
+		VertexData* data;
+		vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&data));
+		memcpy(data, vertices.data(), requiredSize);
+		vertexResource->Unmap(0, nullptr);
+	}
 }
 
 void Mesh::UpdateIndexBuffer()
 {
-	// インデックスデータのサイズを計算
-	size_t bufferSize = sizeof(uint32_t) * indices.size();
+	if (indexResource) {
+		// バッファサイズを確認
+		size_t requiredSize = sizeof(uint32_t) * indices.size();
+		D3D12_RESOURCE_DESC desc = indexResource->GetDesc();
+		if (requiredSize > desc.Width) {
+			// バッファが不足している場合、再割り当て
+			indexResource.Reset();
 
-	// バッファを更新するためにマッピング
-	void* pData;
-	indexResource->Map(0, nullptr, &pData);
-	memcpy(pData, indices.data(), bufferSize);
-	indexResource->Unmap(0, nullptr);
+			D3D12_HEAP_PROPERTIES heapProps = {};
+			heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+			D3D12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(requiredSize);
+			HRESULT hr = dxCommon_->GetDevice()->CreateCommittedResource(
+				&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&indexResource));
+
+			if (FAILED(hr)) {
+				// エラー処理
+				return;
+			}
+
+			// バッファビューの更新
+			indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
+			indexBufferView.SizeInBytes = UINT(requiredSize);
+
+		}
+		// データのコピー
+		uint32_t* data;
+		indexResource->Map(0, nullptr, reinterpret_cast<void**>(&data));
+		memcpy(data, vertices.data(), requiredSize);
+		indexResource->Unmap(0, nullptr);
+	}
+
 }
 
 void Mesh::GetCommandList()
@@ -105,3 +150,4 @@ void Mesh::GenerateIndices2()
 		}
 	}
 }
+

@@ -6,6 +6,7 @@ void Player::BehaviorRootInitialize()
 {
 	workAttack.parameter = 0;
 	
+	flag33 = false;
 }
 
 void Player::BehaviorRootUpdate()
@@ -43,6 +44,8 @@ void Player::BehaviorAttackInitialize()
 	AttackTypes();
 
 	AttackTypeInit(workAttack.comboIndex);
+
+	
 }
 
 void Player::BehaviorAttackUpdate()
@@ -105,11 +108,17 @@ void Player::BehaviorDieUpdate()
 		//Move();
 
 		if (++specialAttack.time % 10 == 0) {
+			specialAttack.clock *= -1;
 			while (index_b < lockedOnEnemies.size())
 			{
 				auto bullet = std::make_unique<PlayerBullet>();
 				bullet->SetIndex(index_b);
-				bullet->Initialize(objectBase_.GetWorldPosition(), camera_);
+				if (specialAttack.clock == 1) {
+					bullet->Initialize(injectionLeftObj_.GetWorldPosition(), camera_);
+				}
+				else {
+					bullet->Initialize(injectionRightObj_.GetWorldPosition(), camera_);
+				}
 				bullet->SetEnemy(lockedOnEnemies[index_b]);
 				bullet->SetPlayer(this);
 				bullet->SetParent(objectBase_.parent_);

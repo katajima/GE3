@@ -270,6 +270,15 @@
     <ClCompile Include="DirectXGame\engine\effect\Trail\TrailEffect.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="DirectXGame\engine\effect\Trail\TrailEffectManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXGame\engine\Primitive\Primitive.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXGame\engine\Primitive\PrimitiveCommon.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -282,6 +291,7 @@
     <None Include="resources\shaders\Thunder\Thunder.hlsli" />
     <None Include="resources\shaders\Skining\SkinningObject3d.hlsli" />
     <None Include="resources\shaders\Object3D\Light.hlsli" />
+    <None Include="resources\shaders\Trail\Trail.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl" />
@@ -302,6 +312,8 @@
     <FxCompile Include="resources\shaders\Thunder\Thunder.VS.hlsl" />
     <FxCompile Include="resources\shaders\Skining\SkinningObject3d.VS.hlsl" />
     <FxCompile Include="resources\shaders\Skining\SkinningObject3d.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Trail\Trail.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Trail\Trail.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imgui.h">
@@ -536,6 +548,15 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DirectXGame\engine\effect\Trail\TrailEffect.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXGame\engine\effect\Trail\TrailEffectManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXGame\engine\Primitive\Primitive.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXGame\engine\Primitive\PrimitiveCommon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

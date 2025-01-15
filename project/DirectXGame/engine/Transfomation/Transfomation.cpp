@@ -22,16 +22,6 @@ void Transfomation::Update(Model* model, Camera* camera, Matrix4x4& local, Matri
 	Matrix4x4 worldViewProjectionMatrix{};
 
 	if (camera) {
-
-		//const Matrix4x4& viewMatrix = camera->GetViewMatrix();
-		//const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix();
-
-		//// カメラデータの更新
-		//Vector3 cameraFront(viewMatrix.m[0][2], viewMatrix.m[1][2], viewMatrix.m[2][2]);
-		//cameraData->normal = Normalize(cameraFront); // 必要なら正規化
-		//cameraData->worldPosition = camera->transform_.translate;
-
-
 		// WVP計算
 		Matrix4x4 worldViewProjectionMatrix{};
 

@@ -1,10 +1,14 @@
 #pragma once
+#include "Vector3.h"
 
 struct Vector4 final {
 	float x;
 	float y;
 	float z;
 	float w;
+
+	Vector3 xyz() { return Vector3{ x,y,z }; }
+
 
 	// == 演算子のオーバーロード
 	bool operator==(const Vector4& other) const {

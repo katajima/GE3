@@ -39,7 +39,9 @@ public:
 	
 	// setter
 	 void SetModel(Model* model) { this->model = model; }
-	Model* GetModel() { return model; }
+	 Model* GetModel() const { return model; }
+	// void SetModelData(Model::ModelData modeldata);
+
 	 void SetModel(const std::string& filePath);
 	void SetCamera(Camera* camera) { this->camera = camera; }
 	Vector3 GetWorldPosition() const {
@@ -50,8 +52,19 @@ public:
 		worldPos.z = mat_.m[3][2];
 		return worldPos;
 	};
+	Vector3 GetPreWorldPosition() const {
+		// ワールド座標を入れる
+		Vector3 worldPos;
+		worldPos.x = preMat_.m[3][0];
+		worldPos.y = preMat_.m[3][1];
+		worldPos.z = preMat_.m[3][2];
+		return worldPos;
+	};
 
 	Vector2 GetScreenPosition();
+	
+	Mesh* GetMesh(int index) { return model->modelData.mesh[index].get(); }
+	Material* GetMaterial(int index) { return model->modelData.material[index].get(); }
 
 private:
 	// 各コマンドリスト
@@ -71,8 +84,11 @@ public:
 	Transform transform;
 	// モデル
 	Model* model = nullptr;
-	// マトリックス
+	// マトリックス(現在)
 	Matrix4x4 mat_;
+	// マトリックス(過去)
+	Matrix4x4 preMat_;
+
 	// 親となるワールド変換へのポインタ
 	const Object3d* parent_ = nullptr;
 };

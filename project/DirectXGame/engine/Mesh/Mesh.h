@@ -15,6 +15,12 @@ using namespace Microsoft::WRL;
 class Mesh
 {
 public:	
+	enum class Primitive {
+
+
+	};
+
+
 	struct VertexData {
 	Vector4 position;
 	Vector2 texcoord;
@@ -55,10 +61,22 @@ public:
 	// インデクスデータ生成
 	void GenerateIndices2();
 
+	Vector3 GetMin() const { return min_; }
+	Vector3 GetMax() const { return max_; }
+
+	Vector3 GetMiddle() const { return Vector3{ (max_.x + min_.x) / 2, (max_.y + min_.y) / 2, (max_.z + min_.z) / 2}; }
+
+	void SetMin(const Vector3& min) { min_ = min; }
+	void SetMax(const Vector3& max) { max_ = max; }
 
 public:
 	std::vector<VertexData> vertices;
 	std::vector<uint32_t> indices; // 追加：インデックスデータ
+	std::vector<float> verticesTimer; // 追加：インデックスデータ
+	std::vector<float> indicesTimer; // 追加：インデックスデータ
+
+	float maxTime = 0.2f;
+
 
 	uint32_t meshIndex = 0;
 private:
@@ -75,6 +93,9 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 
 	uint32_t* indexData;
+
+	Vector3 min_;
+	Vector3 max_;
 
 };
 

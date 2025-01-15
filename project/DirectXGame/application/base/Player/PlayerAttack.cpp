@@ -10,10 +10,14 @@ void Player::Attack()
 	switch (workAttack.type)
 	{
 	case AttackType::kNormal:
+		if (workAttack.parameter >= 5) {
+			flag33 = true;
+		}
 		if (workAttack.comboIndex == 0) {
 			if (workAttack.parameter >= 1) {
 				k = 0.1f;
 				weapon_->GetObject3D().transform.rotate.x += DegreesToRadians(8);
+				
 			}
 		}if (workAttack.comboIndex == 1) {
 			if (workAttack.parameter >= 1) {
@@ -46,7 +50,12 @@ void Player::Attack()
 		if (objectBase_.transform.translate.y > groundY) {
 			workAttack.attackAll.max_t++;
 		}
-		
+		if (workAttack.parameter >= 5) {
+			flag33 = true;
+		}
+
+
+
 		if (graVelo <= 0) {
 			ty += 4;
 			float r_t = ty / (float)workAttack.attackAll.max_t;
@@ -62,7 +71,9 @@ void Player::Attack()
 
 		break;
 	case AttackType::kDash:
-		
+		if (workAttack.parameter >= 5) {
+			flag33 = true;
+		}
 
 
 		
@@ -131,8 +142,10 @@ void Player::SetAttackCombo(WrokAttack& work)
 			// コンボフラグをリセット
 			work.comboNext = false;
 			work.key.IsAttack = false;
+			flag33 = false;
 		}
 		else {
+			flag33 = false;
 			behaviorRequest_ = Behavior::kRoot;
 		}
 	}
@@ -201,22 +214,25 @@ void Player::AttackTypeInit(int comboIndex)
 
 			weapon_->SetRad(5.5f);
 
-			workAttack.attackAll.max_t = 20;
-			
-			ty = 0;
-			graVelo = 1;
+			//if (comboIndex == 0) {
+				workAttack.attackAll.max_t = 20;
+				ty = 0;
+				graVelo = 1;
+				weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 20,0,0 });
+				Vector3 move(0, 0, k);
+				// 速度ベクトルを自機の向きに合わせて回転させる
+				move = TransformNormal(move, objectBase_.mat_);
+				workAttack.velocity = move;
+			//}
+			if (comboIndex == 1) {
+				// 建築予定
+				//ヒットした敵を上にあげ五回程度切り込み
 
 
-			weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 20,0,0 });
-
-
-			Vector3 move(0, 0, k);
-
-			// 速度ベクトルを自機の向きに合わせて回転させる
-			move = TransformNormal(move, objectBase_.mat_);
-
-
-			workAttack.velocity = move;
+			}
+			if (comboIndex == 2) {
+			//	behaviorRequest_ = Behavior::kRoot;
+			}
 			
 			break;
 		case AttackType::kDash:
@@ -225,7 +241,7 @@ void Player::AttackTypeInit(int comboIndex)
 			weapon_->SetRad(3.0f);
 
 			workAttack.attackAll.max_t = 20;
-			weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 90,0,0 });
+			weapon_->GetObject3D().transform.rotate = DegreesToRadians({89,0,0 });
 
 			workAttack.pos.end = objectReticle_.GetWorldPosition();
 

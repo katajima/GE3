@@ -50,14 +50,28 @@ void TestScene::Initialize()
 
 	test = a.Conjugate();
 
-	
+
 
 	sphere1.Initialize();
 	sphere1.SetModel("Sphere.obj");
 	sphere1.SetCamera(camera.get());
 	sphere1.transform.translate = { 2,0,-10 };
 	sphere1.transform.scale = scale1;
-	
+
+
+	sphereStr.Initialize();
+	sphereStr.parent_ = &sphere1;
+	sphereStr.transform.translate.y = sphere1.GetMesh(0)->GetMin().y;
+
+	sphereEnd.Initialize();
+	sphereEnd.parent_ = &sphere1;
+	sphereEnd.transform.translate.y = sphere1.GetMesh(0)->GetMax().y;
+
+
+
+
+
+
 	ball1.mass = 2.0f;
 	ball1.rad = scale1;
 	ball1.velocity = 0;
@@ -73,25 +87,53 @@ void TestScene::Initialize()
 	ball2.velocity = 0;
 
 
-	setVelo.z = 0.2f;
+	setVelo.z = 0.6f;
 
 	ocean_.Initialize(Vector2{ 30,30 });
 	ocean_.SetCamera(camera.get());
 	ocean_.transform.rotate.x = DegreesToRadians(-90);
-	ocean_.material->color.w = 0.3f;
+	ocean_.material->color.w = 1.0f;
 
 
 	sprite.Initialize("resources/Texture/uvChecker.png");
 	sprite.SetPosition({ 0,0 });
 	sprite.SetColor({ 1,1,1,0.1f });
-	
+
 	lineDraw_.Initialize();
 	lineDraw_.SetCamera(camera.get());
 	lineDraw2_.Initialize();
 	lineDraw2_.SetCamera(camera.get());
 
-	camera->transform_.translate = { 0,500,0 };
-	camera->transform_.rotate = { DegreesToRadians(90),0,0 };
+	trailEffect_ = std::make_unique<TrailEffect>();
+	trailEffect_->Initialize("resources/Texture/aaa.png", 4.0f);
+	trailEffect_->SetCamera(camera.get());
+	trailEffect_->SetObject(&sphere1);
+
+
+	flag33 = false;
+
+	cons.centar = { 0,0,0 };
+	cons.rotate = { 0,0,0 };
+	cons.size = { 0.3f,0.3f,0.3f };
+	cons.count = 10;
+	cons.lifeTime = 1.3f;
+	cons.color = { 0.2f,0.2f,0.2f,1.0f };
+	cons.velocity = { 1.0f,1.0f,10.0f };
+	cons.renge = { -Vector3{1.5f,1.5f,1.5f},Vector3{1.5f,1.5f,1.5f} };
+	cons.renge = { -Vector3{2.5f,2.5f,2.5f},Vector3{2.5f,2.5f,2.5f} };
+
+
+	ParticleManager::GetInstance()->SetObject("cc", sphere1);
+	ParticleManager::GetInstance()->SetCamera(camera.get());
+
+
+	rotate_ = { 0,0,0 };
+
+
+	primitive = std::make_unique<Primitive>();
+	primitive->Initialize(Primitive::ShapeType::None, "resources/Texture/uvChecker.png",{1,1,1,1});
+	primitive->SetCamera(camera.get());
+	primitive->transform.rotate.y = DegreesToRadians(180);
 }
 
 void TestScene::Finalize()
@@ -100,14 +142,74 @@ void TestScene::Finalize()
 
 void TestScene::Update()
 {
+	cons.velocity = -ball1.velocity.Normalize() * 10;
+	cons.color = { 0.2f,0.2f,0.2f,1.0f };
+	cons.size = { 0.5f,0.5f,0.5f };
+	cons.renge = { -Vector3{3.0f,3.0f,3.0f},Vector3{3.0f,3.0f,3.0f} };
+	ParticleManager::GetInstance()->Emit("cc","const", cons);
+	cons.color = { 0.0f,0.0f,0.0f,1.0f };
+	cons.size = { 0.7f,0.7f,0.7f };
+	cons.renge = { -Vector3{2.0f,2.0f,2.0f},Vector3{2.0f,2.0f,2.0f} };
+	ParticleManager::GetInstance()->Emit("cc","const", cons);
+	cons.velocity = -ball1.velocity.Normalize() * 15;
+	cons.color = { 1.0f,0.5f,0.0f,1.0f };
+	cons.size = { 0.3f,0.3f,0.3f };
+	cons.renge = { -Vector3{2.0f,2.0f,2.0f},Vector3{2.0f,2.0f,2.0f} };
+	ParticleManager::GetInstance()->Emit("cc", "const", cons);
+	cons.color = { 1.0f,0.0f,0.0f,1.0f };
+	cons.renge = { -Vector3{1.5f,1.5f,1.5f},Vector3{1.5f,1.5f,1.5f} };
+	ParticleManager::GetInstance()->Emit("cc", "const", cons);
+
+
 	sphere1.transform.scale = scale1;
 	sphere2.transform.scale = scale2;
 	ball1.rad = scale1;
 	ball2.rad = scale2;
+	
+	if (ball1.velocity.Length() != 0) {
+		flag33 = true;
+	}
+	else {
+		flag33 = false;
+	}
+	flag33 = true;
+
 
 	
 
+	trailEffect_->Update(flag33,sphereStr,sphereEnd);
+	
+	ImGui::Begin("trail");
+	ImGui::Checkbox("frag", &flag33);
+	ImGui::DragFloat3("rotate", &sphere1.transform.rotate.x,0.01f);
+	ImGui::DragFloat3("rotateSpeed", &rotate_.x,0.01f);
+	ImGui::DragFloat("maxTime", &trailEffect_->GetMesh()->maxTime, 0.01f);
+	int ii = (int)trailEffect_->mesh->vertices.size();
+	ImGui::InputInt("vertice", &ii);
+	//for (int i = 0; i < trailEffect_->mesh->vertices.size(); i++) {
+	////char* str =  std::to_string(i);
 
+	//	ImGui::InputFloat3("pos", &trailEffect_->mesh->vertices[i].position.x);
+	//	ImGui::InputFloat2("tex", &trailEffect_->mesh->vertices[i].texcoord.x);
+	//}
+
+	ImGui::End();
+	
+	ImGui::Begin("test");
+	Vector3 max = sphere1.model->modelData.mesh[0]->GetMax();
+	ImGui::InputFloat3("max", &max.x);
+	Vector3 min = sphere1.model->modelData.mesh[0]->GetMin();
+	ImGui::InputFloat3("min", &min.x);
+	Vector3 midddle = sphere1.model->modelData.mesh[0]->GetMiddle();
+	ImGui::InputFloat3("midddle", &midddle.x);
+	Vector3 mat_ = sphere1.GetWorldPosition();
+	ImGui::InputFloat3("mat_", &mat_.x);
+	Vector3 mat2_ = sphere1.GetPreWorldPosition();
+	ImGui::InputFloat3("preMat_", &mat2_.x);
+
+	Vector2 a =  ball1.velocity.xy();
+	ImGui::InputFloat2("xy", &a.x);
+	ImGui::End();
 	
 
 	ImGui::Begin("MT4");
@@ -297,14 +399,15 @@ void TestScene::Update()
 	//
 	//	
 	//
-	//	if (ImGui::CollapsingHeader("Gizmos")) {
-	//		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
-	//		ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
-	//		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
-	//		ImGuiManager::GetInstance()->RenderGizmo2(walk, *camera.get(), "walk");
-	//		ImGuiManager::GetInstance()->RenderGizmo2(multiMesh, *camera.get(), "multiMesh");
-	//
-	//	}
+		if (ImGui::CollapsingHeader("Gizmos")) {
+			ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
+			ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
+			ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
+			ImGuiManager::GetInstance()->RenderGizmo2(walk, *camera.get(), "walk");
+			ImGuiManager::GetInstance()->RenderGizmo2(multiMesh, *camera.get(), "multiMesh");
+			ImGuiManager::GetInstance()->RenderGizmo2(sphere1, *camera.get(), "sphere1");
+	
+		}
 		if (ImGui::CollapsingHeader("Camera")) {
 			ImGui::DragFloat3("Translate", &camera->transform_.translate.x, 0.1f);
 			ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x, 0.01f);
@@ -357,6 +460,8 @@ void TestScene::Update()
 	sphere1.transform.translate += ball1.velocity;
 	sphere2.transform.translate += ball2.velocity;
 
+	sphere1.transform.rotate += rotate_;
+
 	// 球の位置を取得
 	Vector3 position1 = sphere1.transform.translate;
 	Vector3 position2 = sphere2.transform.translate;
@@ -372,6 +477,21 @@ void TestScene::Update()
 		auto result = ComputeCollisionVelocities(ball1.mass, ball1.velocity, ball2.mass, ball2.velocity, refrect, normal.Normalize());
 		ball1.velocity = result.first;
 		ball2.velocity = result.second;
+
+		rotate_.x = ball1.velocity.Normalize().Length() /10;
+	}
+
+	if (sphere1.transform.translate.x > 30 || -30 > sphere1.transform.translate.x) {
+		ball1.velocity.x *= -1.0f;
+	}
+	if (sphere1.transform.translate.z > 30 || -30 > sphere1.transform.translate.z) {
+		ball1.velocity.z *= -1.0f;
+	}
+	if (sphere2.transform.translate.x > 30 || -30 > sphere2.transform.translate.x) {
+		ball2.velocity.x *= -1.0f;
+	}
+	if (sphere2.transform.translate.z > 30 || -30 > sphere2.transform.translate.z) {
+		ball2.velocity.z *= -1.0f;
 	}
 
 
@@ -380,16 +500,16 @@ void TestScene::Update()
 
 	
 
+	primitive->Update();
 
-
-	//walk.UpdateSkinning();
+	walk.UpdateSkinning();
 	mm.Update();
 	mm2.UpdateAnimation();
 	multiMesh.Update();
 	tail.Update();
 
 
-	//ocean_.Update();
+	ocean_.Update();
 
 	sprite.Update();
 
@@ -397,26 +517,33 @@ void TestScene::Update()
 	sphere1.Update();
 	sphere2.Update();
 
+	sphereEnd.Update();
+	sphereStr.Update();
+
 	lineDraw_.Update();
 	lineDraw2_.Update();
+
+	
 }
 
 void TestScene::Draw3D()
 {
+	
+	primitive->Draw();
 
-
-	walk.DrawSkinning();
-	walk.DrawLine();
-	tail.Draw();
+	//walk.DrawSkinning();
+	//walk.DrawLine();
+	//tail.Draw();
 	//multiMesh.Draw();
 	//mm.Draw();
 	//mm2.Draw();
 
-
+	//ocean_.Draw();
 
 	sphere1.Draw();
 	sphere2.Draw();
 
+	trailEffect_->Draw();
 
 	//ocean_.Draw();
 	if (ball1.velocity.Length() == 0) {

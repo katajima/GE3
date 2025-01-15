@@ -13,6 +13,7 @@ void MyGame::Initialize()
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
 	SceneManager::GetInstance()->ChangeScene("TEST");
+	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -129,6 +130,10 @@ void MyGame::InitializeResource()
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/aa2.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/aaa.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/aaaa.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/aaaaa.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/aaaaaa.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/aa3.png");
 	for (int i = 0; i < 10; i++) {
 		std::string label = "resources/Texture/num/" + std::to_string(i) + ".png";

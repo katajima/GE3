@@ -22,13 +22,37 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	objectReticle_.parent_ = &objectBase_;
 	objectReticle_.transform.translate = { 0,0,30 };
 
-
+	// 体
 	objectBody_.Initialize();
 	objectBody_.SetCamera(camera_);
 	objectBody_.SetModel("AnimatedCube.gltf");
 	objectBody_.parent_ = &objectBase_;
 	objectBody_.model->modelData.material[0]->shininess_ = 10000;
 
+
+
+	// 左ミサイル発射口
+	injectionLeftObj_.Initialize();
+	injectionLeftObj_.SetCamera(camera_);
+	injectionLeftObj_.SetModel("AnimatedCube.gltf");
+	injectionLeftObj_.parent_ = &objectBase_;
+	injectionLeftObj_.transform.translate = { -2.5f,1.0f,-1.5f };
+
+	injectionLeftObj_.transform.scale = { 0.75f,1.25f,1.0f };
+
+	// 右ミサイル発射口
+	injectionRightObj_.Initialize();
+	injectionRightObj_.SetCamera(camera_);
+	injectionRightObj_.SetModel("AnimatedCube.gltf");
+	injectionRightObj_.parent_ = &objectBase_;
+	injectionRightObj_.transform.translate = { 2.5,1.0f,-1.5f };
+
+	injectionRightObj_.transform.scale = { 0.75f,1.25f,1.0f };
+
+
+
+
+	// 影
 	objectSha_.Initialize();
 	objectSha_.SetCamera(camera_);
 	objectSha_.SetModel("plane.obj");
@@ -45,7 +69,17 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	weapon_->GetObject3D().transform.translate = { 0,0.5f,0.5f };
 	weapon_->SetOffset({ 0,5.0f,0.5f });
 	weapon_->SetPlayer(this);
-	//weapon_->SetPlayer()
+	
+
+	weaponStr.Initialize();
+	weaponStr.parent_ = &weapon_->GetObject3D();
+	weaponStr.transform.translate = {0,weapon_->GetObject3D().GetMesh(0)->GetMax().y ,0};
+		
+
+	weaponEnd.Initialize();
+	weaponEnd.parent_ = &weapon_->GetObject3D();
+	weaponEnd.transform.translate = { 0,weapon_->GetObject3D().GetMesh(0)->GetMin().y ,0 };
+	weaponEnd.transform.translate = { 0,2 ,0 };
 
 	//particleManager_ = ParticleManager::GetInstance();
 	ParticleManager::GetInstance()->CreateParticleGroup("dust", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera_);
@@ -65,12 +99,22 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	HpBer_->SetColor({ 0,1,0,1 });
 	HpBer_->SetPosition({ 100,650 });
 
+
+
+	trailEffect_ = std::make_unique<TrailEffect>();
+	"resources/Texture/uvChecker.png";
+	trailEffect_->Initialize("resources/Texture/uvChecker.png",0.2f,Vector4{1,0,0,0.5f});
+	trailEffect_->SetCamera(camera);
+	trailEffect_->SetObject(&weapon_->GetObject3D());
+	
+	flag33 = false;
 }
 
 void Player::Update()
 {
 
 	Gravity();
+	trailEffect_->Update(flag33, weaponStr, weaponEnd);
 
 	if (isAlive) {
 		if (behaviorRequest_) {
@@ -161,12 +205,47 @@ void Player::Update()
 
 	objectSha_.transform.scale = scale;
 
+	ImGui::Begin("trail");
+	Vector3 min = weapon_->GetObject3D().GetMesh(0)->GetMin();
+	ImGui::InputFloat3("min", &min.x);
+	Vector3 max = weapon_->GetObject3D().GetMesh(0)->GetMax();
+	ImGui::InputFloat3("max", &max.x);
+	
+	Vector3 str =weaponStr.GetWorldPosition();
+	ImGui::InputFloat3("str", &str.x);
+	str =weaponStr.GetPreWorldPosition();
+	ImGui::InputFloat3("strpre", &str.x);
 
-	//emitter_->Update();
 
+	Vector3 end = weaponEnd.GetWorldPosition();
+	ImGui::InputFloat3("end", &end.x);
+	end = weaponEnd.GetPreWorldPosition();
+	ImGui::InputFloat3("endpre", &end.x);
+
+	ImGui::Checkbox("frag", &flag33);
+	int ii = (int)trailEffect_->mesh->vertices.size();
+	ImGui::InputInt("vertice", &ii);
+	//for (int i = 0; i < trailEffect_->mesh->vertices.size(); i++) {
+	//	//char* str =  std::to_string(i);
+
+	//	ImGui::InputFloat3("pos", &trailEffect_->mesh->vertices[i].position.x);
+	//	ImGui::InputFloat2("tex", &trailEffect_->mesh->vertices[i].texcoord.x);
+	//}
+	
+	ImGui::End();
+
+	
+	
 	objectBase_.Update();
 	objectBody_.Update();
 	weapon_->Update();
+
+	injectionLeftObj_.Update();
+	injectionRightObj_.Update();
+
+	weaponStr.Update();
+	weaponEnd.Update();
+
 	objectReticle_.Update();
 	objectSha_.Update();
 
@@ -186,10 +265,13 @@ void Player::Draw()
 			break;
 		case Behavior::kAttack: // 攻撃行動更新
 			weapon_->Draw();
+			
 			break;
 		case Behavior::kJump:
 			break;
 		case Behavior::kDie:
+			injectionLeftObj_.Draw();
+			injectionRightObj_.Draw();
 			break;
 		}
 
@@ -197,7 +279,7 @@ void Player::Draw()
 		objectBody_.Draw();
 		objectSha_.Draw();
 	}
-
+	
 	for (const auto& bullet : playerBullet_) {
 		bullet->Draw();
 	}
@@ -206,11 +288,10 @@ void Player::Draw()
 void Player::DrawP()
 {
 
+	trailEffect_->Draw();
 	for (const auto& bullet : playerBullet_) {
-	//	bullet->DrawP();
+		bullet->DrawP();
 	}
-	//ParticleManager::GetInstance()->GetInstance()->Draw();
-	
 }
 
 void Player::Draw2D()

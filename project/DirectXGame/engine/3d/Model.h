@@ -76,7 +76,9 @@ public:
 	void MoveVertices(const Vector3& offset);
 
 	static Node ReadNode(aiNode* node);
-	
+public:
+
+
 	// Objファイルのデータ
 	ModelData modelData;
 private:
@@ -103,6 +105,9 @@ public:
 	
 	//
 	static SkinCluster CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData);
+public:
+	static ModelData CreatePlane(const std::string& tex);
+
 
 };
 

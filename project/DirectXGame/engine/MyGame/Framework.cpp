@@ -57,6 +57,12 @@ void Framework::Initialize()
 	//thunderManager = ThunderManager::GetInstance();
 	//thunderManager->Initialize(dxCommon.get());
 
+	trailEffectManager_ = TrailEffectManager::GetInstance();
+	trailEffectManager_->Initialize(dxCommon.get());
+
+	primitiveCommon = PrimitiveCommon::GetInstance();
+	primitiveCommon->Initialize(dxCommon.get());
+
 	//ライト
 	lightCommon = LightCommon::GetInstance();
 	lightCommon->Initialize();
@@ -85,6 +91,9 @@ void Framework::Finalize()
 
 	oceanManager_->Finalize();
 
+	trailEffectManager_->Finalize();
+
+	primitiveCommon->Finalize();
 
 	cameraCommon->Finalize();
 	

@@ -83,6 +83,8 @@ void GamePlayScene::Initialize()
 
 
 
+	
+
 	// 衝突マネージャの生成
 	collisionManager_ = std::make_unique<CollisionManager>();
 	collisionManager_->Initialize();
@@ -128,14 +130,14 @@ void GamePlayScene::InitializeResources()
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
 
-	for (int j = 0; j < 3; j++) {
-		for (int i = 0; i < 10; i++) {
-			numSprites[j][i] = std::make_unique<Sprite>();
-			std::string str = "resources/Texture/num/" + std::to_string(i) + ".png";
-			numSprites[j][i]->Initialize(str, false);
-			//numSprites[j][i]->SetPosition(Vector2{ float(50 * i), 100 });
-		}
-	}
+	//for (int j = 0; j < 3; j++) {
+	//	for (int i = 0; i < 10; i++) {
+	//		numSprites[j][i] = std::make_unique<Sprite>();
+	//		std::string str = "resources/Texture/num/" + std::to_string(i) + ".png";
+	//		numSprites[j][i]->Initialize(str, false);
+	//		//numSprites[j][i]->SetPosition(Vector2{ float(50 * i), 100 });
+	//	}
+	//}
 
 	float xpos = 1050;
 	Vector2 scale{ 75,75 };
@@ -324,7 +326,7 @@ void GamePlayScene::ApplyGlobalVariables()
 
 	for (int j = 0; j < 3; j++) {
 		for (int i = 0; i < 10; i++) {
-			numSprites[j][i]->SetPosition(numpos[j]);
+			//numSprites[j][i]->SetPosition(numpos[j]);
 		}
 	}
 
@@ -431,7 +433,7 @@ void GamePlayScene::Update()
 	//}
 	//emitter_->Update();
 
-
+		
 
 	/// レールカメラ
 	// カメラの回転を設定
@@ -447,24 +449,11 @@ void GamePlayScene::Update()
 	else {
 #ifdef _DEBUG
 
-		/*if (Input::GetInstance()->IsPushKey(DIK_UP)) {
-			cameraDebugT.z += 0.5f;
-		}
-		else if (Input::GetInstance()->IsPushKey(DIK_DOWN)) {
-			cameraDebugT.z -= 0.5f;
-		}
-		if (Input::GetInstance()->IsPushKey(DIK_RIGHT)) {
-			cameraDebugT.x += 0.5f;
-		}
-		else if (Input::GetInstance()->IsPushKey(DIK_LEFT)) {
-			cameraDebugT.x -= 0.5f;
-		}
-		if (Input::GetInstance()->IsPushKey(DIK_O)) {
-			cameraDebugT.y += 0.5f;
-		}
-		else if (Input::GetInstance()->IsPushKey(DIK_L)) {
-			cameraDebugT.y -= 0.5f;
-		}*/
+		
+
+
+
+
 #endif // _DEBUG
 		camera->transform_.rotate = cameraDebugR;
 		camera->transform_.translate = cameraDebugT;
@@ -526,7 +515,7 @@ void GamePlayScene::Draw3D()
 
 	////3Dオブジェクトの描画
 
-
+	
 	player_->Draw();
 
 	// 敵
@@ -536,11 +525,11 @@ void GamePlayScene::Draw3D()
 
 
 	// パーティクル
-	//player_->DrawP();
-	for (int i = 0; i < enemys_.size(); i++) {
-		//enemys_[i]->DrawP();
-	}
+	player_->DrawP();
+
 	ParticleManager::GetInstance()->GetInstance()->Draw();
+
+
 
 	// 当たり判定の表示
 	collisionManager_->Draw();
@@ -566,9 +555,9 @@ void GamePlayScene::Draw2D()
 		int digit = (static_cast<int>(adsbhads) / static_cast<int>(pow(10, j))) % 10;
 
 		// 桁に対応する数字を描画
-		numSprites[j][digit]->SetPosition(numpos[j]);
-		numSprites[j][digit]->Update();
-		numSprites[j][digit]->Draw();
+		//numSprites[j][digit]->SetPosition(numpos[j]);
+		//numSprites[j][digit]->Update();
+		//numSprites[j][digit]->Draw();
 	}
 
 
