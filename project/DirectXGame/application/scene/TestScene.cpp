@@ -131,7 +131,7 @@ void TestScene::Initialize()
 
 
 	primitive = std::make_unique<Primitive>();
-	primitive->Initialize(Primitive::ShapeType::Torus, "resources/Texture/uvChecker.png",{1,1,1,1});
+	primitive->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png",{1,1,1,1});
 	Primitive::AnimationPlane anime{};
 	anime.height = 1;
 	anime.width = 1;
@@ -144,14 +144,15 @@ void TestScene::Initialize()
 	//primitive->SetParametar(anime);
 	primitive->SetCamera(camera.get());
 	primitive->transform.translate.x = -10;
-	
+	primitive->SetName("cube1");
 	lineDraw3_.Initialize();
 	lineDraw3_.SetCamera(camera.get());
 	
 	for (int i = 0; i < 1; i++) {
 		auto primi = std::make_unique<Primitive>();
 		if(i == 0)
-			primi->Initialize(Primitive::ShapeType::Circle, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+			primi->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+			primi->SetName("cube2");
 		if(i == 1)
 			primi->Initialize(Primitive::ShapeType::Circle, "resources/Texture/uvChecker.png", { 1,1,1,1 });
 		if(i == 2)
@@ -179,7 +180,8 @@ void TestScene::Initialize()
 
 	
 
-
+	segment_.end   = { 1,1,1 };
+	segment_.origin = { 0,0,0 };
 
 }
 
@@ -226,6 +228,12 @@ void TestScene::Update()
 
 	trailEffect_->Update(flag33,sphereStr,sphereEnd);
 	
+	ImGui::Begin("segment");
+	ImGui::DragFloat3("origin", &segment_.origin.x);
+	//if()
+	ImGui::DragFloat3("end", &segment_.end.x);
+	ImGui::End();
+
 	ImGui::Begin("trail");
 	ImGui::Checkbox("frag", &flag33);
 	ImGui::DragFloat3("rotate", &sphere1.transform.rotate.x,0.01f);
@@ -235,16 +243,7 @@ void TestScene::Update()
 	ImGui::InputInt("vertice", &ii);
 	ImGui::End();
 	
-	ImGui::Begin("Primitive");
-	ImGui::DragFloat3("pos",&primitive->transform.translate.x,0.1f);
-	ImGui::DragFloat3("rotate", &primitive->transform.rotate.x, 0.01f);
-	ImGui::DragFloat3("scale",&primitive->transform.scale.x,0.1f);
-	int i = (int)primitive->GetMesh()->vertices.size();
-	ImGui::InputInt("index", &i);
-	//ImGui::DragFloat3("pos2",&primitive2->transform.translate.x,0.1f);
-	//ImGui::DragFloat3("rotate2", &primitive2->transform.rotate.x, 0.01f);
-	//ImGui::DragFloat3("scale2",&primitive2->transform.scale.x,0.1f);
-	ImGui::End();
+	
 	
 
 	
@@ -386,6 +385,62 @@ void TestScene::Update()
 
 
 
+
+	
+
+	OBB obb{};
+	obb.center = primitives[0]->transform.translate;
+	obb.size = primitives[0]->GetCubeSize();
+	Vector3 rotate = primitives[0]->transform.rotate;
+	
+	Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(rotate.x), Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z)));
+
+	obb.orientations[0].x = rotateMatrix.m[0][0];
+	obb.orientations[0].y = rotateMatrix.m[0][1];
+	obb.orientations[0].z = rotateMatrix.m[0][2];
+
+	obb.orientations[1].x = rotateMatrix.m[1][0];
+	obb.orientations[1].y = rotateMatrix.m[1][1];
+	obb.orientations[1].z = rotateMatrix.m[1][2];
+
+	obb.orientations[2].x = rotateMatrix.m[2][0];
+	obb.orientations[2].y = rotateMatrix.m[2][1];
+	obb.orientations[2].z = rotateMatrix.m[2][2];
+
+	OBB obb1{};
+	obb1.center = primitive->transform.translate;
+	obb1.size = primitive->GetCubeSize();
+	
+	rotate = primitive->transform.rotate;
+	rotateMatrix = Multiply(MakeRotateXMatrix(rotate.x), Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z)));
+	
+	obb1.orientations[0].x = rotateMatrix.m[0][0];
+	obb1.orientations[0].y = rotateMatrix.m[0][1];
+	obb1.orientations[0].z = rotateMatrix.m[0][2];
+
+	obb1.orientations[1].x = rotateMatrix.m[1][0];
+	obb1.orientations[1].y = rotateMatrix.m[1][1];
+	obb1.orientations[1].z = rotateMatrix.m[1][2];
+
+	obb1.orientations[2].x = rotateMatrix.m[2][0];
+	obb1.orientations[2].y = rotateMatrix.m[2][1];
+	obb1.orientations[2].z = rotateMatrix.m[2][2];
+
+
+	if (IsCollision(obb, obb1)) {
+		primitive->SetColor(Vector4{ 1,0,0,1 });
+	}
+	else {
+		primitive->SetColor(Vector4{ 1,1,1,1 });
+	}
+	
+
+
+
+
+
+
+
 	for (int i = 0; i < primitives.size(); i++) {
 		primitives[i]->Update();
 	}
@@ -415,16 +470,17 @@ void TestScene::Update()
 
 	lineDraw_.Update();
 	lineDraw2_.Update();
-	lineDraw3_.SetTransform(primitive->transform);
+	//lineDraw3_.SetTransform(primitive->transform);
 	lineDraw3_.Update();
 
-	
+
+
 }
 
 void TestScene::Draw3D()
 {
 	for (int i = 0; i < primitives.size(); i++) {
-		//primitives[i]->Draw();
+		primitives[i]->Draw();
 	}
 
 	primitive->Draw();
@@ -455,7 +511,7 @@ void TestScene::Draw3D()
 	lineDraw2_.Draw3D(sphere2.transform.translate, sphere2.transform.translate + (ball2.velocity.Normalize() * 10), { 1,0,0,1 });
 
 
-	lineDraw3_.DrawMeshLine(primitive->GetMesh());
+	lineDraw3_.Draw3D(segment_.origin,segment_.end,{1,1,1,1});
 }
 
 void TestScene::Draw2D()

@@ -62,8 +62,12 @@ struct Ray
 //線分
 struct Segment
 {
+	
 	Vector3 origin; //!<始点
-	Vector3 diff;   //!<終点への差分ベクトル
+	Vector3 end;
+	Vector3 diff() const {
+		return end - origin;
+	}
 };
 //三角形
 struct Triangle
@@ -103,11 +107,13 @@ struct ConicalPendulum {
 
 };
 
+// カプセル
 struct  Capsule
 {
 	Segment segment;
 	float radius;
 };
+
 
 struct OBB {
 	Vector3 center;

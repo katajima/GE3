@@ -41,6 +41,7 @@ Matrix4x4 Subtract(const Matrix4x4& m1, const Matrix4x4& m2);
 float Dot(const Vector3& v1, const Vector3& v2);
 
 float Length(const Vector3& v);
+float LengthSquared(const Vector3& v);
 float Length(const float& v);
 
 float Clamp(float t);
@@ -128,6 +129,16 @@ bool IsCollision(const AABB& aabb, const Segment& segment);
 bool IsCollision(const Sphere& sphere, const Segment& segment);
 //
 bool IsCollision(const OBB& obb, const Sphere& sphere);
+//
+bool IsCollision(const OBB& obb, const Segment& segment);
+bool IsCollision(const OBB& obb, const Line& line); 
+bool IsCollision(const OBB& obb, const Ray& ray);
+//
+bool IsCollision(const OBB& obb0, const OBB& obb1);
+// 
+bool IsCollision(const Capsule& cap0, const Capsule& cap1);
+
+float SegmentClosestDistanceSq(const Segment& seg0, const Segment& seg1);
 //
 bool IsPointInsideAABB(const Vector3& point, const AABB& aabb);
 //

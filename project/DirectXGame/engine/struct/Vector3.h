@@ -111,6 +111,22 @@ struct Vector3 final {
 
 		return result;
 	};
+	float LengthSq() const {
+		return x * x + y * y + z * z;
+	}
+	// ベクトルの要素ごとの絶対値
+	Vector3 Abs() const {
+		return { std::abs(x), std::abs(y), std::abs(z) };
+	}
+
+	// ベクトルのクロス積（外積）
+	Vector3 Cross(const Vector3& other) const {
+		return {
+			y * other.z - z * other.y,
+			z * other.x - x * other.z,
+			x * other.y - y * other.x
+		};
+	}
 };
 
 static Vector3 Lerp(const Vector3& a, const Vector3& b, float t) {

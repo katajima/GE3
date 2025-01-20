@@ -15,9 +15,11 @@
 #include"DirectXGame/engine/Mesh/Mesh.h"
 #include"DirectXGame/engine/Material/Material.h"
 #include "DirectXGame/engine/Transfomation/Transfomation.h"
+#include"DirectXGame/engine/Line/Line.h"
 
+#include "DirectXGame/engine/collider/Collider.h"
 
-class Primitive
+class Primitive : public Collider
 {
 public:
 	enum class ShapeType
@@ -57,10 +59,17 @@ public:
 
 	Mesh* GetMesh() { return mesh.get(); }
 
+	// 衝突を検出したら呼び出されるコールバック関数
+	void OnCollision([[maybe_unused]] Collider* other) override;
+
+	virtual Vector3 GetCenterPosition() const;
+
 private:
 	void MeshInitialize();
 
 	void MeshUpdate();
+
+	void MeshUpdateImGui();
 private:
 
 	// 2D
@@ -91,7 +100,7 @@ private:
 	// 3D
 
 	// 立方体
-	void CreateCube();
+	void CreateCube(Vector3 size);
 	// 球
 	void CreateSphere(float radius, int latitudeSegments, int longitudeSegments, bool isTopBased);
 	// 円柱
@@ -107,6 +116,8 @@ private:
 	//
 	void CreateSpring(float length, float width, float height, int turns, int segments, float thickness);
 
+public:
+	void SetColor(const Vector4& color) { material->color = color; }
 
 public:
 
@@ -147,17 +158,42 @@ public:
 			return !(*this == other);
 		}
 	};
+
+	struct Cube 
+	{
+		Vector3 size = { 1,1,1 };
+	};
+	struct  Sphere
+	{
+
+	};
+
+	Cube cube;
+	Cube oCube;
+
 public: //セッター
 	void SetParametar(const AnimationPlane& primi) { anime = primi; };
 
+	void SetName(const std::string str) { name_ = str; };
 
+	void SetCollider();
+
+public: // ゲッター
+	Vector3 GetCubeSize() const { return cube.size; };
+
+	float GetRad() const { return radius_; }
 private:
 	// カメラ
 	Camera* camera_ = nullptr;
 
+	std::unique_ptr <LineDraw> line_;
+
 	std::unique_ptr<Mesh> mesh;
 	std::unique_ptr<Material> material;
 	std::unique_ptr<Transfomation> transfomation = nullptr;
+
+	// 名前
+	std::string name_ = "primitive";
 
 	// 図形タイプ
 	ShapeType type_;

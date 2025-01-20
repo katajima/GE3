@@ -100,6 +100,8 @@ private:
 	LineDraw lineDraw2_;
 	LineDraw lineDraw3_;
 
+	Segment segment_;
+
 	Ocean ocean_;
 
 	Vector3 str;

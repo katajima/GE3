@@ -33,6 +33,10 @@ void Primitive::Initialize(ShapeType type, const std::string& tex, const Vector4
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 	mat_.Identity();
+
+	line_ = std::make_unique<LineDraw>();
+	line_->Initialize();
+
 }
 
 void Primitive::Update()
@@ -42,10 +46,28 @@ void Primitive::Update()
 	mat_ = MakeAffineMatrix(transform.scale, Vector3(transform.rotate), transform.translate);
 
 
+	MeshUpdateImGui();
 
 	MeshUpdate();
 
 	transfomation->Update(camera_, mat_);
+
+	line_->SetCamera(camera_);
+	line_->SetTransform(transform);
+	line_->Update();
+}
+
+
+
+void Primitive::OnCollision(Collider* other)
+{
+}
+
+Vector3 Primitive::GetCenterPosition() const
+{
+
+	return mat_.GetWorldPosition();
+
 }
 
 void Primitive::MeshInitialize()
@@ -85,7 +107,7 @@ void Primitive::MeshInitialize()
 		CreateCross(10, 5);
 		break;
 	case Primitive::ShapeType::Cube:
-		CreateCube();
+		CreateCube({ 1,1,1 });
 		break;
 	case Primitive::ShapeType::Sphere:
 		CreateSphere(3.0f, 16, 16, false);
@@ -122,7 +144,6 @@ void Primitive::MeshUpdate()
 	oCross_.armLength = cross_.armLength;
 	oCross_.armWidth = cross_.armWidth;
 
-	ImGui::Begin("Primitive");
 	switch (type_)
 	{
 	case Primitive::ShapeType::None:
@@ -130,25 +151,12 @@ void Primitive::MeshUpdate()
 	case Primitive::ShapeType::Plane:
 		break;
 	case Primitive::ShapeType::AnimationPlane:
-		oAnime = anime;
-
-		if (ImGui::CollapsingHeader("AnimationPlane")) {
-			ImGui::Checkbox("flag", &anime.flag);
-			ImGui::Checkbox("isLoop", &anime.isLoop);
-			ImGui::Checkbox("isUV", &anime.isUV);
-			ImGui::DragInt("num", &anime.num);
-			ImGui::DragInt("count", &anime.count);
-			ImGui::DragFloat("interval", &anime.interval, 0.01f);
-			ImGui::DragFloat("width", &anime.width, 0.01f);
-			ImGui::DragFloat("height", &anime.height, 0.01f);
-			ImGui::DragFloat2("direction", &anime.direction.x, 0.01f);
-		}
-		CreateAnimationPlane(anime.flag,anime.isLoop,anime.isUV ,anime.num, anime.count, anime.interval, anime.width, anime.height, anime.direction);
+		CreateAnimationPlane(anime.flag, anime.isLoop, anime.isUV, anime.num, anime.count, anime.interval, anime.width, anime.height, anime.direction);
 		if (anime.flag) {
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
-		
+
 		break;
 	case Primitive::ShapeType::Triangle:
 		break;
@@ -156,14 +164,6 @@ void Primitive::MeshUpdate()
 
 		break;
 	case Primitive::ShapeType::Star:
-		if (ImGui::CollapsingHeader("Star")) {
-			ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-			ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-			ImGui::DragInt("segments_", &segments_);
-			if (segments_ <= 3) {
-				segments_ = 3;
-			}
-		}
 		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_)) {
 			CreateStar(innerRadius_, outerRadius_, segments_);
 			mesh->UpdateVertexBuffer();
@@ -171,21 +171,6 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Crescent:
-		if (ImGui::CollapsingHeader("Crescent")) {
-			ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-			ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-			ImGui::DragFloat("distance", &distance_);
-			ImGui::DragInt("segments", &segments_);
-			if (segments_ <= 8) {
-				segments_ = 8;
-			}
-			if (distance_ <= 0) {
-				distance_ = 0.0001f;
-			}
-			if (innerRadius_ >= outerRadius_) {
-				innerRadius_ = outerRadius_;
-			}
-		}
 		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_) || (oDistance_ != distance_)) {
 			CreateCrescent(innerRadius_, outerRadius_, distance_, segments_);
 			mesh->UpdateVertexBuffer();
@@ -193,14 +178,6 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Ring:
-		if (ImGui::CollapsingHeader("Ring")) {
-			ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-			ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-			ImGui::DragInt("segments_", &segments_);
-			if (segments_ <= 5) {
-				segments_ = 5;
-			}
-		}
 		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_)) {
 			CreateRing(innerRadius_, outerRadius_, segments_);
 			mesh->UpdateVertexBuffer();
@@ -210,11 +187,6 @@ void Primitive::MeshUpdate()
 	case Primitive::ShapeType::Arrow:
 		break;
 	case Primitive::ShapeType::Cross:
-
-		if (ImGui::CollapsingHeader("Cross")) {
-			ImGui::DragFloat("armLength", &cross_.armLength, 0.1f);
-			ImGui::DragFloat("armWidth", &cross_.armWidth, 0.1f);
-		}
 		if ((oCross_.armWidth != cross_.armWidth) || (oCross_.armLength != cross_.armLength)) {
 			CreateCross(cross_.armLength, cross_.armWidth);
 			mesh->UpdateVertexBuffer();
@@ -222,18 +194,15 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Cube:
+		if (oCube.size != cube.size) {
+			CreateCube(cube.size);
+			mesh->UpdateVertexBuffer();
+			mesh->UpdateIndexBuffer();
+		}
 		break;
 	case Primitive::ShapeType::Sphere:
 		break;
 	case Primitive::ShapeType::Cylinder:
-		if (ImGui::CollapsingHeader("Cylinder")) {
-			ImGui::DragFloat("height", &height_, 0.1f);
-			ImGui::DragFloat("radius", &radius_, 0.1f);
-			ImGui::DragInt("segments", &segments_);
-			if (segments_ <= 5) {
-				segments_ = 5;
-			}
-		}
 		if ((oHeight_ != height_) || (oRadius_ != radius_) || (oSegments_ != segments_)) {
 			CreateCylinder(height_, radius_, segments_);
 			mesh->UpdateVertexBuffer();
@@ -241,35 +210,13 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Tube:
-		if (ImGui::CollapsingHeader("Tube")) {
-			ImGui::DragFloat("height", &height_, 0.1f);
-			ImGui::DragFloat("radius", &radius_, 0.1f);
-			ImGui::DragInt("segments", &segments_);
-			if (segments_ <= 3) {
-				segments_ = 3;
-			}
-
-
-		}
 		if ((oHeight_ != height_) || (oRadius_ != radius_) || (oSegments_ != segments_) || (oInnerRadius_ || innerRadius_)) {
 			CreateTube(radius_, innerRadius_, height_, segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
-
-
 		break;
 	case Primitive::ShapeType::Pyramid:
-		if (ImGui::CollapsingHeader("Pyramid")) {
-			ImGui::DragFloat("height", &height_, 0.1f);
-			ImGui::DragFloat("radius", &radius_, 0.1f);
-			ImGui::DragInt("segments", &segments_);
-			if (segments_ <= 3) {
-				segments_ = 3;
-			}
-
-
-		}
 		if ((oHeight_ != height_) || (oRadius_ != radius_) || (oSegments_ != segments_)) {
 			CreatePyramid(radius_, height_, segments_);
 			mesh->UpdateVertexBuffer();
@@ -277,18 +224,6 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Torus:
-		if (ImGui::CollapsingHeader("Torus")) {
-			ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-			ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-			ImGui::DragInt("tubeSegments", &tubeSegments_);
-			ImGui::DragInt("segments", &segments_);
-			if (segments_ <= 3) {
-				segments_ = 3;
-			}
-			if (tubeSegments_ <= 3) {
-				tubeSegments_ = 3;
-			}
-		}
 		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_) || (oTubeSegments_ != tubeSegments_)) {
 			CreateTorus(innerRadius_, outerRadius_, tubeSegments_, segments_);
 			mesh->UpdateVertexBuffer();
@@ -296,28 +231,6 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Spring:
-		oSpring.height = spring.height;
-		oSpring.length = spring.length;
-		oSpring.width = spring.width;
-		oSpring.segments = spring.segments;
-		oSpring.spacing = spring.spacing;
-		oSpring.turns = spring.turns;
-		oSpring.thickness = spring.thickness;
-
-
-		if (ImGui::CollapsingHeader("Spring")) {
-			ImGui::DragFloat("height", &spring.height, 0.1f);
-			ImGui::DragFloat("width", &spring.width, 0.1f);
-			ImGui::DragFloat("spacing", &spring.spacing, 0.1f);
-			ImGui::DragFloat("length", &spring.length, 0.1f);
-			ImGui::DragInt("turns", &spring.turns, 0.1f);
-			ImGui::DragFloat("thickness", &spring.thickness, 0.1f);
-			ImGui::DragInt("segments", &spring.segments);
-			if (spring.segments <= 3) {
-				spring.segments = 3;
-			}
-
-		}
 		if ((oSpring.height != spring.height) || (oSpring.width != spring.width) ||
 			(oSpring.spacing != spring.spacing) || (oSpring.length != spring.length) ||
 			(oSpring.segments != spring.segments) || (oSpring.turns != spring.turns) || (oSpring.thickness != spring.thickness)) {
@@ -329,8 +242,177 @@ void Primitive::MeshUpdate()
 	default:
 		break;
 	}
-	ImGui::End();
+}
 
+void Primitive::MeshUpdateImGui()
+{
+	ImGui::Begin("Primitive");
+	if (ImGui::CollapsingHeader(name_.c_str())) {
+		std::string str = name_ + "_translate";
+		ImGui::DragFloat3(str.c_str(), &transform.translate.x, 0.1f);
+		str = name_ + "_rotate";
+		ImGui::DragFloat3(str.c_str(), &transform.rotate.x, 0.01f);
+		str = name_ + "_scale";
+		ImGui::DragFloat3(str.c_str(), &transform.scale.x, 0.1f);
+		int i = (int)mesh->vertices.size();
+		ImGui::InputInt("index2", &i);
+		switch (type_)
+		{
+		case Primitive::ShapeType::None:
+			break;
+		case Primitive::ShapeType::Plane:
+			break;
+		case Primitive::ShapeType::AnimationPlane:
+			oAnime = anime;
+
+			if (ImGui::CollapsingHeader("AnimationPlane")) {
+				ImGui::Checkbox("flag", &anime.flag);
+				ImGui::Checkbox("isLoop", &anime.isLoop);
+				ImGui::Checkbox("isUV", &anime.isUV);
+				ImGui::DragInt("num", &anime.num);
+				ImGui::DragInt("count", &anime.count);
+				ImGui::DragFloat("interval", &anime.interval, 0.01f);
+				ImGui::DragFloat("width", &anime.width, 0.01f);
+				ImGui::DragFloat("height", &anime.height, 0.01f);
+				ImGui::DragFloat2("direction", &anime.direction.x, 0.01f);
+			}
+
+			break;
+		case Primitive::ShapeType::Triangle:
+			break;
+		case Primitive::ShapeType::Circle:
+
+			break;
+		case Primitive::ShapeType::Star:
+			if (ImGui::CollapsingHeader("Star")) {
+				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
+				ImGui::DragInt("segments_", &segments_);
+				if (segments_ <= 3) {
+					segments_ = 3;
+				}
+			}
+
+			break;
+		case Primitive::ShapeType::Crescent:
+			if (ImGui::CollapsingHeader("Crescent")) {
+				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
+				ImGui::DragFloat("distance", &distance_);
+				ImGui::DragInt("segments", &segments_);
+				if (segments_ <= 8) {
+					segments_ = 8;
+				}
+				if (distance_ <= 0) {
+					distance_ = 0.0001f;
+				}
+				if (innerRadius_ >= outerRadius_) {
+					innerRadius_ = outerRadius_;
+				}
+			}
+
+			break;
+		case Primitive::ShapeType::Ring:
+			if (ImGui::CollapsingHeader("Ring")) {
+				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
+				ImGui::DragInt("segments_", &segments_);
+				if (segments_ <= 5) {
+					segments_ = 5;
+				}
+			}
+
+			break;
+		case Primitive::ShapeType::Arrow:
+			break;
+		case Primitive::ShapeType::Cross:
+
+			if (ImGui::CollapsingHeader("Cross")) {
+				ImGui::DragFloat("armLength", &cross_.armLength, 0.1f);
+				ImGui::DragFloat("armWidth", &cross_.armWidth, 0.1f);
+			}
+
+			break;
+		case Primitive::ShapeType::Cube:
+			oCube = cube;
+
+			ImGui::DragFloat3("size", &cube.size.x, 0.1f);
+
+			break;
+		case Primitive::ShapeType::Sphere:
+			break;
+		case Primitive::ShapeType::Cylinder:
+			if (ImGui::CollapsingHeader("Cylinder")) {
+				ImGui::DragFloat("height", &height_, 0.1f);
+				ImGui::DragFloat("radius", &radius_, 0.1f);
+				ImGui::DragInt("segments", &segments_);
+				if (segments_ <= 5) {
+					segments_ = 5;
+				}
+			}
+
+			break;
+		case Primitive::ShapeType::Tube:
+			if (ImGui::CollapsingHeader("Tube")) {
+				ImGui::DragFloat("height", &height_, 0.1f);
+				ImGui::DragFloat("radius", &radius_, 0.1f);
+				ImGui::DragInt("segments", &segments_);
+				if (segments_ <= 3) {
+					segments_ = 3;
+				}
+
+
+			}
+
+			break;
+		case Primitive::ShapeType::Pyramid:
+			if (ImGui::CollapsingHeader("Pyramid")) {
+				ImGui::DragFloat("height", &height_, 0.1f);
+				ImGui::DragFloat("radius", &radius_, 0.1f);
+				ImGui::DragInt("segments", &segments_);
+				if (segments_ <= 3) {
+					segments_ = 3;
+				}
+			}
+
+			break;
+		case Primitive::ShapeType::Torus:
+			if (ImGui::CollapsingHeader("Torus")) {
+				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
+				ImGui::DragInt("tubeSegments", &tubeSegments_);
+				ImGui::DragInt("segments", &segments_);
+				if (segments_ <= 3) {
+					segments_ = 3;
+				}
+				if (tubeSegments_ <= 3) {
+					tubeSegments_ = 3;
+				}
+			}
+
+			break;
+		case Primitive::ShapeType::Spring:
+			oSpring = spring;
+
+			if (ImGui::CollapsingHeader("Spring")) {
+				ImGui::DragFloat("height", &spring.height, 0.1f);
+				ImGui::DragFloat("width", &spring.width, 0.1f);
+				ImGui::DragFloat("spacing", &spring.spacing, 0.1f);
+				ImGui::DragFloat("length", &spring.length, 0.1f);
+				ImGui::DragInt("turns", &spring.turns, 0.1f);
+				ImGui::DragFloat("thickness", &spring.thickness, 0.1f);
+				ImGui::DragInt("segments", &spring.segments);
+				if (spring.segments <= 3) {
+					spring.segments = 3;
+				}
+
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	ImGui::End();
 }
 
 void Primitive::Draw()
@@ -353,6 +435,8 @@ void Primitive::Draw()
 
 		PrimitiveCommon::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
 	}
+
+	line_->DrawMeshLine(mesh.get());
 }
 
 
@@ -375,7 +459,7 @@ void Primitive::CreatePlane()
 	mesh->indices.push_back(3);
 }
 
-void Primitive::CreateAnimationPlane(bool flag,bool isLoop, bool isUV,int num, int count, float interval, float width, float height, const Vector2& direction) {
+void Primitive::CreateAnimationPlane(bool flag, bool isLoop, bool isUV, int num, int count, float interval, float width, float height, const Vector2& direction) {
 	if (!flag) {
 		mesh->vertices.clear();
 		mesh->indices.clear();
@@ -391,7 +475,7 @@ void Primitive::CreateAnimationPlane(bool flag,bool isLoop, bool isUV,int num, i
 		return;
 	}
 
-	
+
 	// ベースのオフセット
 	Vector2 baseOffset = { direction.x * width, direction.y * height };
 
@@ -400,7 +484,7 @@ void Primitive::CreateAnimationPlane(bool flag,bool isLoop, bool isUV,int num, i
 	float u;
 	float v;
 	if (direction.x == 0) {
-		u = 1 * width* (count)*num;
+		u = 1 * width * (count)*num;
 	}
 	else {
 		u = direction.x * width * (count)*num;
@@ -411,13 +495,13 @@ void Primitive::CreateAnimationPlane(bool flag,bool isLoop, bool isUV,int num, i
 	else {
 		v = direction.y * height * (count)*num;
 	}
-	
+
 
 	if (0 >= timer_) {
 		for (int j = 0; j < num; ++j) {
 			float offsetX, offsetY;
 
-			
+
 
 			if (count_ == 0) {
 				if (j == 0) {
@@ -434,12 +518,12 @@ void Primitive::CreateAnimationPlane(bool flag,bool isLoop, bool isUV,int num, i
 				offsetY = direction.y * height * ((count_)*num + j);
 			}
 
-			
-			Vector2 uv1 = { (offsetX - width) / 2 / u,(offsetY + height) / 2 /v};
-			Vector2 uv2 = { (offsetX + width) / 2 / u,(offsetY + height) / 2 /v};
-			Vector2 uv3 = { (offsetX + width) / 2 / u,(offsetY - height) / 2 /v};
-			Vector2 uv4 = { (offsetX - width) / 2 / u,(offsetY - height) / 2 /v};
-			
+
+			Vector2 uv1 = { (offsetX - width) / 2 / u,(offsetY + height) / 2 / v };
+			Vector2 uv2 = { (offsetX + width) / 2 / u,(offsetY + height) / 2 / v };
+			Vector2 uv3 = { (offsetX + width) / 2 / u,(offsetY - height) / 2 / v };
+			Vector2 uv4 = { (offsetX - width) / 2 / u,(offsetY - height) / 2 / v };
+
 			// 頂点データの生成
 			if (!isUV) {
 				mesh->vertices.push_back({ .position = {offsetX - width / 2.0f, offsetY + height / 2.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
@@ -807,8 +891,12 @@ void Primitive::CreateCross(float armLength, float armWidth) {
 
 
 // 立方体
-void Primitive::CreateCube()
+void Primitive::CreateCube(Vector3 sizes)
 {
+	// 既存の頂点とインデックスをクリア
+	mesh->vertices.clear();
+	mesh->indices.clear();
+
 	// 各面の法線
 	Vector3 normals[] = {
 		{ 0.0f,  0.0f,  1.0f}, // 前面
@@ -819,20 +907,22 @@ void Primitive::CreateCube()
 		{-1.0f,  0.0f,  0.0f}  // 左側面
 	};
 
+	Vector3 size = sizes * 1.0f;
+
 	// 各面の頂点座標 (1つの面に4頂点)
 	Vector4 positions[][4] = {
 		// 前面
-		{{ 1.0f,  1.0f,  1.0f, 1.0f}, {-1.0f,  1.0f,  1.0f, 1.0f}, { 1.0f, -1.0f,  1.0f, 1.0f}, {-1.0f, -1.0f,  1.0f, 1.0f}},
+		{{ size.x,  size.y,  size.z, 1.0f}, {-size.x,  size.y,  size.z, 1.0f}, { size.x, -size.y,  size.z, 1.0f}, {-size.x, -size.y,  size.z, 1.0f}},
 		// 背面
-		{{ 1.0f,  1.0f, -1.0f, 1.0f}, { 1.0f, -1.0f, -1.0f, 1.0f}, {-1.0f,  1.0f, -1.0f, 1.0f}, {-1.0f, -1.0f, -1.0f, 1.0f}},
+		{{ size.x,  size.y, -size.z, 1.0f}, { size.x, -size.y, -size.z, 1.0f}, {-size.x,  size.y, -size.z, 1.0f}, {-size.x, -size.y, -size.z, 1.0f}},
 		// 上面
-		{{ 1.0f,  1.0f, -1.0f, 1.0f}, {-1.0f,  1.0f, -1.0f, 1.0f}, { 1.0f,  1.0f,  1.0f, 1.0f}, {-1.0f,  1.0f,  1.0f, 1.0f}},
+		{{ size.x,  size.y, -size.z, 1.0f}, {-size.x,  size.y, -size.z, 1.0f}, { size.x,  size.y,  size.z, 1.0f}, {-size.x,  size.y,  size.z, 1.0f}},
 		// 底面
-		{{ 1.0f, -1.0f,  1.0f, 1.0f}, {-1.0f, -1.0f,  1.0f, 1.0f}, { 1.0f, -1.0f, -1.0f, 1.0f}, {-1.0f, -1.0f, -1.0f, 1.0f}},
+		{{ size.x, -size.y,  size.z, 1.0f}, {-size.x, -size.y,  size.z, 1.0f}, { size.x, -size.y, -size.z, 1.0f}, {-size.x, -size.y, -size.z, 1.0f}},
 		// 右側面
-		{{ 1.0f,  1.0f, -1.0f, 1.0f}, { 1.0f,  1.0f,  1.0f, 1.0f}, { 1.0f, -1.0f, -1.0f, 1.0f}, { 1.0f, -1.0f,  1.0f, 1.0f}},
+		{{ size.x,  size.y, -size.z, 1.0f}, { size.x,  size.y,  size.z, 1.0f}, { size.x, -size.y, -size.z, 1.0f}, { size.x, -size.y,  size.z, 1.0f}},
 		// 左側面
-		{{-1.0f,  1.0f,  1.0f, 1.0f}, {-1.0f,  1.0f, -1.0f, 1.0f}, {-1.0f, -1.0f,  1.0f, 1.0f}, {-1.0f, -1.0f, -1.0f, 1.0f}}
+		{{-size.x,  size.y,  size.z, 1.0f}, {-size.x,  size.y, -size.z, 1.0f}, {-size.x, -size.y,  size.z, 1.0f}, {-size.x, -size.y, -size.z, 1.0f}}
 	};
 
 	// 各面のUV座標
@@ -864,8 +954,6 @@ void Primitive::CreateCube()
 
 		vertexOffset += 4; // 次の面に移動
 	}
-
-
 }
 
 // 球
@@ -1306,4 +1394,11 @@ void Primitive::CreateSpring(float length, float width, float height, int turns,
 			}
 		}
 	}
+}
+
+void Primitive::SetCollider()
+{
+	Collider::Initialize(camera_);
+
+
 }

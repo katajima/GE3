@@ -11,3 +11,11 @@ enum class CollisionTypeIdDef : uint32_t {
 	kEnemyWeapon,
 	kEnemyWeapon2,
 };
+
+enum class ColliderType
+{
+	Sphere,
+	Capsule,
+	Box,
+	Mesh,
+};

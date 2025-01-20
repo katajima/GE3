@@ -72,6 +72,9 @@ float Length(const Vector3& v) {
 
 	return result;
 };
+float LengthSquared(const Vector3& v) {
+	return v.x * v.x + v.y * v.y + v.z * v.z;
+}
 float Length(const float& v) {
 	float result;
 
@@ -646,14 +649,12 @@ Vector3 Project(const Vector3& v1, const Vector3& v2)
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment)
 {
 	Vector3 result{};
-	Vector3 d = {
-		segment.diff.x - segment.origin.x,
-		segment.diff.y - segment.origin.y,
-		segment.diff.z - segment.origin.z };
+	Vector3 d = segment.diff();
 	Vector3 v = {
 		point.x - segment.origin.x,
 		point.y - segment.origin.y,
-		point.z - segment.origin.z };
+		point.z - segment.origin.z 
+	};
 
 
 	float dot = Dot(d, d);
@@ -740,7 +741,7 @@ bool IsCollision(const Sphere& sphere, const Plane& plane)
 //衝突判定(線と平面)
 bool IsCollision(const Segment& segment, const Plane& plane)
 {
-	Vector3 diff = Subtract(segment.diff, segment.origin);
+	Vector3 diff = segment.diff();
 
 
 	//まず垂直判定を行うために、法線と線の内積を求める
@@ -761,7 +762,7 @@ bool IsCollision(const Segment& segment, const Plane& plane)
 
 //三角形と線の衝突判定
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
-	Vector3 diff = Subtract(segment.diff, segment.origin);
+	Vector3 diff = segment.diff();
 
 
 	//三点の位置から平面を求める
@@ -838,7 +839,7 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere)
 bool IsCollision(const AABB& aabb, const Segment& segment)
 {
 	//点がAABB内にあるなら
-	if (IsPointInsideAABB(segment.origin, aabb) || IsPointInsideAABB(segment.diff, aabb)) {
+	if (IsPointInsideAABB(segment.origin, aabb) || IsPointInsideAABB(segment.end, aabb)) {
 
 		return true;
 	}
@@ -848,7 +849,7 @@ bool IsCollision(const AABB& aabb, const Segment& segment)
 	planeY1.nomal = { 0,1,0 };
 	planeZ1.nomal = { 0,0,1 };
 
-	Vector3 diff = Subtract(segment.diff, segment.origin);
+	Vector3 diff = segment.diff();
 
 	float dotX = Dot(planeX1.nomal, diff);
 	float dotY = Dot(planeY1.nomal, diff);
@@ -904,10 +905,10 @@ bool IsCollision(const AABB& aabb, const Segment& segment)
 //
 bool IsCollision(const Sphere& sphere, const Segment& segment) {
 	Vector3 m = Subtract(segment.origin, sphere.center);
-	Vector3 segEnd = Add(segment.origin, segment.diff);
+	//Vector3 segEnd = Add(segment.origin, segment.diff);
 
 	// 線分の方向ベクトル
-	Vector3 d = segment.diff;
+	Vector3 d = segment.diff();
 	float a = Dot(d, d);
 
 	// 線分の長さがゼロの場合（無効な線分）
@@ -936,11 +937,64 @@ bool IsCollision(const Sphere& sphere, const Segment& segment) {
 }
 bool IsCollision(const OBB& obb, const Sphere& sphere)
 {
+	// OBBのローカル座標系に球の中心を変換
+	Vector3 d = sphere.center - obb.center;
+	Vector3 closestPoint = obb.center;
+
+	for (int i = 0; i < 3; ++i) {
+		float distance = Dot(d, obb.orientations[i]);
+		float clampedDistance;
+		if (i == 0) {
+			clampedDistance = std::max(-obb.size.x, std::min(distance, obb.size.x));
+		}
+		else if (i == 1) {
+			clampedDistance = std::max(-obb.size.y, std::min(distance, obb.size.y));
+		}
+		else {
+			clampedDistance = std::max(-obb.size.z, std::min(distance, obb.size.z));
+		}
+		closestPoint += obb.orientations[i] * clampedDistance;
+	}
 
 
-	
-	return false;
+	// 球の中心と最近接点の距離を比較
+	float distSquared = LengthSquared(sphere.center - closestPoint);
+	return distSquared <= (sphere.radius * sphere.radius);
 }
+
+// OBB Segment
+// OBBとSegmentの衝突判定
+// OBBとSegmentの衝突判定
+bool IsCollision(const OBB& obb, const Segment& segment) {
+	// OBBの各軸に対して投影を行い、交差を確認
+	for (int i = 0; i < 3; ++i) {
+		// OBBの軸ベクトル
+		Vector3 axis = obb.orientations[i].Normalize();
+
+		// セグメントの始点・終点の投影
+		float projStart = axis.Dot(segment.origin);
+		float projEnd = axis.Dot(segment.end);
+
+		// 線分の投影範囲
+		float minSegment = std::min(projStart, projEnd);
+		float maxSegment = std::max(projStart, projEnd);
+
+		// OBBのサイズに基づく投影範囲
+		float obbCenterProjection = axis.Dot(obb.center);
+		float obbHalfSize = std::abs(obb.size.x * axis.x) +
+			std::abs(obb.size.y * axis.y) +
+			std::abs(obb.size.z * axis.z);
+		float obbMin = obbCenterProjection - obbHalfSize;
+		float obbMax = obbCenterProjection + obbHalfSize;
+
+		// 交差判定 (分離軸定理)
+		if (maxSegment < obbMin || minSegment > obbMax) {
+			return false; // 交差しない
+		}
+	}
+	return true; // 交差する
+}
+
 //
 Vector3 Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {
@@ -973,6 +1027,150 @@ Vector3 Reflect(const Vector3& input, const Vector3& normal)
 	result.y = input.y - normal.y * (2 * dotProduct);
 	result.z = input.z - normal.z * (2 * dotProduct);
 	return result;
+}
+
+// 分離軸定理による OBB vs OBB の衝突判定
+bool IsCollision(const OBB& obb0, const OBB& obb1) {
+	const Vector3* A = obb0.orientations; // OBB0の軸ベクトル
+	const Vector3* B = obb1.orientations; // OBB1の軸ベクトル
+
+	Vector3 T = obb1.center - obb0.center; // OBB0からOBB1の中心位置ベクトル
+	T = Vector3(T.Dot(A[0]), T.Dot(A[1]), T.Dot(A[2])); // OBB0の座標系に変換
+
+	constexpr float EPSILON = std::numeric_limits<float>::epsilon();
+
+	float ra, rb;
+	float R[3][3], AbsR[3][3];
+
+	// 回転行列の計算と絶対値の取得
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			R[i][j] = A[i].Dot(B[j]);
+			AbsR[i][j] = std::abs(R[i][j]) + EPSILON;  // 数値誤差対策
+		}
+	}
+
+	// 1. Aの各軸を分離軸としてチェック
+	for (int i = 0; i < 3; ++i) {
+		ra = obb0.size.x * std::abs(A[i].x) + obb0.size.y * std::abs(A[i].y) + obb0.size.z * std::abs(A[i].z);
+		rb = obb1.size.x * AbsR[i][0] + obb1.size.y * AbsR[i][1] + obb1.size.z * AbsR[i][2];
+
+		if (std::abs(T.Dot(A[i])) > ra + rb) return false;
+	}
+
+	// 2. Bの各軸を分離軸としてチェック
+	for (int i = 0; i < 3; ++i) {
+		ra = obb0.size.x * AbsR[0][i] + obb0.size.y * AbsR[1][i] + obb0.size.z * AbsR[2][i];
+		rb = obb1.size.x * std::abs(B[i].x) + obb1.size.y * std::abs(B[i].y) + obb1.size.z * std::abs(B[i].z);
+
+		if (std::abs(T.Dot(B[i])) > ra + rb) return false;
+	}
+
+	// 3. Aの各軸とBの各軸のクロス積（9軸）を分離軸としてチェック
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			ra = obb0.size.y * AbsR[(i + 1) % 3][j] + obb0.size.z * AbsR[(i + 2) % 3][j];
+			rb = obb1.size.y * AbsR[i][(j + 1) % 3] + obb1.size.z * AbsR[i][(j + 2) % 3];
+
+			float t;
+			if (i == 0) {
+				t = std::abs(T.y * R[2][j] - T.z * R[1][j]);
+			}
+			else if (i == 1) {
+				t = std::abs(T.z * R[0][j] - T.x * R[2][j]);
+			}
+			else { // i == 2
+				t = std::abs(T.x * R[1][j] - T.y * R[0][j]);
+			}
+
+			if (t > ra + rb) return false;
+		}
+	}
+
+	// すべての軸で分離がない場合、衝突あり
+	return true;
+}
+// カプセルたち
+bool IsCollision(const Capsule& cap0, const Capsule& cap1)
+{
+	float distanceSq = SegmentClosestDistanceSq(cap0.segment, cap1.segment);
+	float radiusSum = cap0.radius + cap1.radius;
+	return distanceSq <= radiusSum * radiusSum;
+}
+
+
+
+
+float SegmentClosestDistanceSq(const Segment& seg0, const Segment& seg1) {
+	Vector3 u = seg0.diff();
+	Vector3 v = seg1.diff();
+	Vector3 w = seg0.origin - seg1.origin;
+
+	float a = u.Dot(u); // seg0の長さの2乗
+	float b = u.Dot(v);
+	float c = v.Dot(v); // seg1の長さの2乗
+	float d = u.Dot(w);
+	float e = v.Dot(w);
+
+	float denom = a * c - b * b;
+	float sN, sD = denom;
+	float tN, tD = denom;
+
+	// デノミネーターがゼロの場合（平行な場合）、近似値をとる
+	if (denom < 1e-6f) {
+		sN = 0.0f;
+		sD = 1.0f;
+		tN = e;
+		tD = c;
+	}
+	else {
+		sN = (b * e - c * d);
+		tN = (a * e - b * d);
+
+		if (sN < 0.0f) {
+			sN = 0.0f;
+			tN = e;
+			tD = c;
+		}
+		else if (sN > sD) {
+			sN = sD;
+			tN = e + b;
+			tD = c;
+		}
+	}
+
+	if (tN < 0.0f) {
+		tN = 0.0f;
+		if (-d < 0.0f) {
+			sN = 0.0f;
+		}
+		else if (-d > a) {
+			sN = sD;
+		}
+		else {
+			sN = -d;
+			sD = a;
+		}
+	}
+	else if (tN > tD) {
+		tN = tD;
+		if ((-d + b) < 0.0f) {
+			sN = 0.0f;
+		}
+		else if ((-d + b) > a) {
+			sN = sD;
+		}
+		else {
+			sN = (-d + b);
+			sD = a;
+		}
+	}
+
+	float sc = (std::abs(sN) < 1e-6f ? 0.0f : sN / sD);
+	float tc = (std::abs(tN) < 1e-6f ? 0.0f : tN / tD);
+
+	Vector3 dP = w + (u * sc) - (v * tc);
+	return dP.LengthSq();
 }
 
 bool IsPointInsideAABB(const Vector3& point, const AABB& aabb) {
