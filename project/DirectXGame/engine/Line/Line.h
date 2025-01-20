@@ -7,7 +7,11 @@
 #include<cstdint>
 #include<wrl.h>
 
+#include"DirectXGame/engine/Mesh/Mesh.h"
+
 class LineCommon;
+
+
 
 class LineDraw
 {
@@ -20,18 +24,19 @@ public:
 
 	void SetCamera(Camera* camera) { this->camera = camera; }
 
+	void SetMatrix(const Matrix4x4& mat) { mat_ = mat; };
+	void SetTransform(const Transform tra) { transform = tra; };
 
+	void DrawMeshLine(Mesh* mesh);
 
 private:
 	Camera* camera = nullptr;
 
 	LineCommon* lineCommon_ = nullptr;
 
-	// 頂点データ
-	struct VertexData {
+	std::unique_ptr<Mesh> mesh_;
 
-		Vector4 position;
-	};
+	
 	//マテリアルデータ
 	struct Material {
 		Vector4 color;
@@ -42,16 +47,9 @@ private:
 		Matrix4x4 WVP;
 		Matrix4x4 World;
 	};
+	Matrix4x4 mat_;
 
-	// バッファリソース
-	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
-	Microsoft::WRL::ComPtr < ID3D12Resource> indexResource;
-	// バッファリソース内のデータを指すポインタ
-	VertexData* vertexData = nullptr;
-
-	//バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-	D3D12_INDEX_BUFFER_VIEW indexBufferView;
+	
 	Microsoft::WRL::ComPtr < ID3D12Resource> materialResource;
 	Material* materialData;
 

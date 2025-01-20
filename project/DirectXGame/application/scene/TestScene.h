@@ -98,6 +98,7 @@ private:
 
 	LineDraw lineDraw_;
 	LineDraw lineDraw2_;
+	LineDraw lineDraw3_;
 
 	Ocean ocean_;
 
@@ -114,6 +115,8 @@ private:
 	std::unique_ptr<TrailEffect> trailEffect_;
 
 	std::unique_ptr<Primitive> primitive;
+	std::unique_ptr<Primitive> primitive2;
+	std::vector<std::unique_ptr<Primitive>> primitives;
 
 	bool flag33;
 };

@@ -108,3 +108,9 @@ struct  Capsule
 	Segment segment;
 	float radius;
 };
+
+struct OBB {
+	Vector3 center;
+	Vector3 orientations[3];
+	Vector3 size;
+};

@@ -11,6 +11,7 @@ void Mesh::Initialize(DirectXCommon* dxcommon)
 {
 	dxCommon_ = dxcommon;
 
+	//if (vertices.size() != 0) {
 	vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * vertices.size());
 
 	// リソースの先頭のアドレスを作成する
@@ -20,13 +21,41 @@ void Mesh::Initialize(DirectXCommon* dxcommon)
 
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
+	//}
+	//if (indices.size() != 0) {
+		// インデクスリソース
+	indexResource = dxCommon_->CreateBufferResource(sizeof(uint32_t) * indices.size());
+
+	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
+	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
+
+	indexData = nullptr;
+	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	std::memcpy(indexData, indices.data(), sizeof(uint32_t) * indices.size());
+	//}
+}
+
+void Mesh::InitializeLine(DirectXCommon* dxcommon)
+{
+	dxCommon_ = dxcommon;
+
+	vertexResource = dxCommon_->CreateBufferResource(sizeof(LineVertexData) * verticesline.size());
+
+	// リソースの先頭のアドレスを作成する
+	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	vertexBufferView.SizeInBytes = UINT(sizeof(LineVertexData) * verticesline.size());
+	vertexBufferView.StrideInBytes = sizeof(LineVertexData);
+
+	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	std::memcpy(vertexData, verticesline.data(), sizeof(LineVertexData) * verticesline.size());
 
 
 	// インデクスリソース
 	indexResource = dxCommon_->CreateBufferResource(sizeof(uint32_t) * indices.size());
 
 	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
-	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) *indices.size());
+	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * indices.size());
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
 
 	indexData = nullptr;
@@ -69,6 +98,41 @@ void Mesh::UpdateVertexBuffer() {
 	}
 }
 
+void Mesh::UpdateLineVertexBuffer()
+{
+	if (vertexResource) {
+		// バッファサイズを確認
+		size_t requiredSize = sizeof(LineVertexData) * verticesline.size();
+		D3D12_RESOURCE_DESC desc = vertexResource->GetDesc();
+		if (requiredSize > desc.Width) {
+			// バッファが不足している場合、再割り当て
+			vertexResource.Reset();
+
+			D3D12_HEAP_PROPERTIES heapProps = {};
+			heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+			D3D12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(requiredSize);
+			HRESULT hr = dxCommon_->GetDevice()->CreateCommittedResource(
+				&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexResource));
+
+			if (FAILED(hr)) {
+				// エラー処理
+				return;
+			}
+
+			// バッファビューの更新
+			vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+			vertexBufferView.SizeInBytes = UINT(requiredSize);
+			vertexBufferView.StrideInBytes = sizeof(LineVertexData);
+		}
+
+		// データのコピー
+		LineVertexData* data;
+		vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&data));
+		memcpy(data, verticesline.data(), requiredSize);
+		vertexResource->Unmap(0, nullptr);
+	}
+}
+
 void Mesh::UpdateIndexBuffer()
 {
 	if (indexResource) {
@@ -98,7 +162,7 @@ void Mesh::UpdateIndexBuffer()
 		// データのコピー
 		uint32_t* data;
 		indexResource->Map(0, nullptr, reinterpret_cast<void**>(&data));
-		memcpy(data, vertices.data(), requiredSize);
+		memcpy(data, indices.data(), requiredSize);
 		indexResource->Unmap(0, nullptr);
 	}
 
@@ -127,10 +191,10 @@ void Mesh::GetCommandList(const D3D12_VERTEX_BUFFER_VIEW& vbv)
 
 void Mesh::GenerateIndices2()
 {
-	
+
 	indices.clear();
 
-	
+
 	// ハッシュマップで頂点の重複を管理
 	std::unordered_map<Mesh::VertexData, uint32_t, VertexHash> vertexMap;
 

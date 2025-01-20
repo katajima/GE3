@@ -934,6 +934,13 @@ bool IsCollision(const Sphere& sphere, const Segment& segment) {
 
 	return false;
 }
+bool IsCollision(const OBB& obb, const Sphere& sphere)
+{
+
+
+	
+	return false;
+}
 //
 Vector3 Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {

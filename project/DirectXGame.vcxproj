@@ -149,6 +149,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\MyGame\Framework.cpp" />
     <ClCompile Include="DirectXGame\engine\MyGame\MyGame.cpp" />
     <ClCompile Include="DirectXGame\engine\Primitive\Primitive.cpp" />
+    <ClCompile Include="DirectXGame\engine\PSO\PSOManager.cpp" />
     <ClCompile Include="DirectXGame\engine\scene\SceneManager.cpp" />
     <ClCompile Include="DirectXGame\engine\Skinning\Skinning.cpp" />
     <ClCompile Include="DirectXGame\engine\struct\Matrix4x4.cpp" />
@@ -375,6 +376,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\math\ProbabilityUtils.h" />
     <ClInclude Include="DirectXGame\engine\Mesh\Mesh.h" />
     <ClInclude Include="DirectXGame\engine\Primitive\Primitive.h" />
+    <ClInclude Include="DirectXGame\engine\PSO\PSOManager.h" />
     <ClInclude Include="DirectXGame\engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="DirectXGame\engine\scene\BaseScene.h" />
     <ClInclude Include="DirectXGame\application\scene\GamePlayScene.h" />

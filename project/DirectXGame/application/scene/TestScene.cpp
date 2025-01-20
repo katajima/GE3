@@ -103,7 +103,7 @@ void TestScene::Initialize()
 	lineDraw_.SetCamera(camera.get());
 	lineDraw2_.Initialize();
 	lineDraw2_.SetCamera(camera.get());
-
+	
 	trailEffect_ = std::make_unique<TrailEffect>();
 	trailEffect_->Initialize("resources/Texture/aaa.png", 4.0f);
 	trailEffect_->SetCamera(camera.get());
@@ -131,9 +131,56 @@ void TestScene::Initialize()
 
 
 	primitive = std::make_unique<Primitive>();
-	primitive->Initialize(Primitive::ShapeType::None, "resources/Texture/uvChecker.png",{1,1,1,1});
+	primitive->Initialize(Primitive::ShapeType::Torus, "resources/Texture/uvChecker.png",{1,1,1,1});
+	Primitive::AnimationPlane anime{};
+	anime.height = 1;
+	anime.width = 1;
+	anime.interval = 1;
+	anime.direction.x = 1;
+	anime.count = 15;
+	anime.num = 1;
+	anime.isLoop = false;
+	anime.isUV = false;
+	//primitive->SetParametar(anime);
 	primitive->SetCamera(camera.get());
-	primitive->transform.rotate.y = DegreesToRadians(180);
+	primitive->transform.translate.x = -10;
+	
+	lineDraw3_.Initialize();
+	lineDraw3_.SetCamera(camera.get());
+	
+	for (int i = 0; i < 1; i++) {
+		auto primi = std::make_unique<Primitive>();
+		if(i == 0)
+			primi->Initialize(Primitive::ShapeType::Circle, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 1)
+			primi->Initialize(Primitive::ShapeType::Circle, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 2)
+			primi->Initialize(Primitive::ShapeType::Crescent, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 3)
+			primi->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 4)
+			primi->Initialize(Primitive::ShapeType::Pyramid, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 5)
+			primi->Initialize(Primitive::ShapeType::Ring, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 6)
+			primi->Initialize(Primitive::ShapeType::Sphere, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 7)
+			primi->Initialize(Primitive::ShapeType::Plane, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 8)
+			primi->Initialize(Primitive::ShapeType::Tube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		if(i == 9)
+			primi->Initialize(Primitive::ShapeType::Cylinder, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+		
+		primi->SetCamera(camera.get());
+		primi->transform.translate.x = float(i * 10);
+
+		primitives.push_back(std::move(primi));
+	}
+
+	
+
+
+
 }
 
 void TestScene::Finalize()
@@ -186,178 +233,21 @@ void TestScene::Update()
 	ImGui::DragFloat("maxTime", &trailEffect_->GetMesh()->maxTime, 0.01f);
 	int ii = (int)trailEffect_->mesh->vertices.size();
 	ImGui::InputInt("vertice", &ii);
-	//for (int i = 0; i < trailEffect_->mesh->vertices.size(); i++) {
-	////char* str =  std::to_string(i);
-
-	//	ImGui::InputFloat3("pos", &trailEffect_->mesh->vertices[i].position.x);
-	//	ImGui::InputFloat2("tex", &trailEffect_->mesh->vertices[i].texcoord.x);
-	//}
-
 	ImGui::End();
 	
-	ImGui::Begin("test");
-	Vector3 max = sphere1.model->modelData.mesh[0]->GetMax();
-	ImGui::InputFloat3("max", &max.x);
-	Vector3 min = sphere1.model->modelData.mesh[0]->GetMin();
-	ImGui::InputFloat3("min", &min.x);
-	Vector3 midddle = sphere1.model->modelData.mesh[0]->GetMiddle();
-	ImGui::InputFloat3("midddle", &midddle.x);
-	Vector3 mat_ = sphere1.GetWorldPosition();
-	ImGui::InputFloat3("mat_", &mat_.x);
-	Vector3 mat2_ = sphere1.GetPreWorldPosition();
-	ImGui::InputFloat3("preMat_", &mat2_.x);
-
-	Vector2 a =  ball1.velocity.xy();
-	ImGui::InputFloat2("xy", &a.x);
+	ImGui::Begin("Primitive");
+	ImGui::DragFloat3("pos",&primitive->transform.translate.x,0.1f);
+	ImGui::DragFloat3("rotate", &primitive->transform.rotate.x, 0.01f);
+	ImGui::DragFloat3("scale",&primitive->transform.scale.x,0.1f);
+	int i = (int)primitive->GetMesh()->vertices.size();
+	ImGui::InputInt("index", &i);
+	//ImGui::DragFloat3("pos2",&primitive2->transform.translate.x,0.1f);
+	//ImGui::DragFloat3("rotate2", &primitive2->transform.rotate.x, 0.01f);
+	//ImGui::DragFloat3("scale2",&primitive2->transform.scale.x,0.1f);
 	ImGui::End();
 	
 
-	ImGui::Begin("MT4");
-	if (ImGui::TreeNode("MT4_01_01")) {
-		ImGui::Text("01_01");
-		Vector3 axis = Normalize({ 1.0f,1.0f,1.0f });
-		float angle = 0.44f;
-		Matrix4x4 rotate;
-		Matrix4x4 aa = rotate.MakeRotateAxisAngle(axis, angle);
-		ImGui::Text("rotateMatrix0");
-		ImGui::InputFloat4("mat[0][~]", aa.m[0]);
-		ImGui::InputFloat4("mat[1][~]", aa.m[1]);
-		ImGui::InputFloat4("mat[2][~]", aa.m[2]);
-		ImGui::InputFloat4("mat[3][~]", aa.m[3]);
-		ImGui::TreePop();
-	}
-	ImGui::Separator();
-	if (ImGui::TreeNode("MT4_01_02")) {
-		ImGui::Text("01_02");
-		Vector3 floam0 = (Vector3{ 1.0f,0.7f,0.5f });
-		Vector3 to0 = -floam0;
-		Vector3 floam1 = (Vector3{ -0.6f,0.9f,0.2f });
-		Vector3 to1 = (Vector3{ 0.4f,0.7f,-0.5f });
-		Matrix4x4 rotateMatrix0 = DirectionToDirection((Vector3{ 1.0f,0.0f,0.0f }), (Vector3{ -1.0f,0.0f,0.0f }));
-		Matrix4x4 rotateMatrix1 = DirectionToDirection(floam0, to0);
-		Matrix4x4 rotateMatrix2 = DirectionToDirection(floam1, to1);
-
-		ImGui::Text("rotateMatrix0");
-		ImGui::InputFloat4("mat[0][~]", rotateMatrix0.m[0]);
-		ImGui::InputFloat4("mat[1][~]", rotateMatrix0.m[1]);
-		ImGui::InputFloat4("mat[2][~]", rotateMatrix0.m[2]);
-		ImGui::InputFloat4("mat[3][~]", rotateMatrix0.m[3]);
-		ImGui::Text("rotateMatrix1");
-		ImGui::InputFloat4("mat[0][~]", rotateMatrix1.m[0]);
-		ImGui::InputFloat4("mat[1][~]", rotateMatrix1.m[1]);
-		ImGui::InputFloat4("mat[2][~]", rotateMatrix1.m[2]);
-		ImGui::InputFloat4("mat[3][~]", rotateMatrix1.m[3]);
-		ImGui::Text("rotateMatrix2");
-		ImGui::InputFloat4("mat[0][~]", rotateMatrix2.m[0]);
-		ImGui::InputFloat4("mat[1][~]", rotateMatrix2.m[1]);
-		ImGui::InputFloat4("mat[2][~]", rotateMatrix2.m[2]);
-		ImGui::InputFloat4("mat[3][~]", rotateMatrix2.m[3]);
-		ImGui::TreePop();
-	}
-	ImGui::Separator();
-	if (ImGui::TreeNode("MT4_01_03")) {
-		ImGui::Text("01_03");
-		Quaternion q1 = { 2.0f,3.0f,4.0f,1.0f };
-		Quaternion q2 = { 1.0f,3.0f,5.0f,2.0f };
-		Quaternion identity = identity.IdentityQuaternion();
-		Quaternion conj = q1.Conjugate();
-		Quaternion inv = Inverse(q1);
-		Quaternion normal = q1.Normalize();
-		Quaternion mull1 = q1 * q2;
-		Quaternion mull2 = q2 * q1;
-		float norm = q1.Norm();
-		ImGui::InputFloat4("Identity", &identity.x, "%.2f");
-		ImGui::InputFloat4("Conjugate", &conj.x, "%.2f");
-		ImGui::InputFloat4("Inverse", &inv.x, "%.2f");
-		ImGui::InputFloat4("Normalize", &normal.x, "%.2f");
-		ImGui::InputFloat4("Multiply(q1,q2)", &mull1.x, "%.2f");
-		ImGui::InputFloat4("Multiply(q2,q1)", &mull2.x, "%.2f");
-		ImGui::InputFloat("Norm", &norm);
-		ImGui::TreePop();
-	}
-	ImGui::Separator();
-	if (ImGui::TreeNode("MT4_01_04")) {
-		ImGui::Text("01_04");
-		Quaternion rotation = rotation.MakeQuaternion({ 1.0f,0.4f,-0.2f }, 0.45f);
-		Vector3 point = { 2.1f,-0.9f,1.3f };
-		Matrix4x4 rotateMatrix = rotation.MakeRotateMatrix();
-		Vector3 rotateByQuaternion = rotation.RotateVector(point);
-		Vector3 rotateByMatrix = Transforms(point, rotateMatrix);
-		ImGui::InputFloat4("rotation", &rotation.x, "%.2f");
-		ImGui::Text("rotateMatrix");
-		ImGui::InputFloat4("mat[0][~]", rotateMatrix.m[0]);
-		ImGui::InputFloat4("mat[1][~]", rotateMatrix.m[1]);
-		ImGui::InputFloat4("mat[2][~]", rotateMatrix.m[2]);
-		ImGui::InputFloat4("mat[3][~]", rotateMatrix.m[3]);
-		ImGui::InputFloat3("rotateByQuaternion", &rotateByQuaternion.x, "%.2f");
-		ImGui::InputFloat3("rotateByMatrix", &rotateByMatrix.x, "%.2f");
-		ImGui::TreePop();
-	}
-	ImGui::Separator();
-	if (ImGui::TreeNode("MT4_01_05")) {
-		ImGui::Text("01_05");
-
-		// rotation0 と rotation1 を初期化
-		Quaternion rotation0 = rotation0.MakeQuaternion({ 0.71f, 0.71f, 0.0f }, 0.3f);
-		Quaternion rotation1 = rotation1.MakeQuaternion({ 0.71f, 0.0f, 0.71f }, 0.3141592f);
-
-		// Slerp 関数を使用して補間クォータニオンを計算
-		Quaternion interpolate0 = Slerp(rotation0, rotation1, 0.0f);
-		Quaternion interpolate1 = Slerp(rotation0, rotation1, 0.3f);
-		Quaternion interpolate2 = Slerp(rotation0, rotation1, 0.5f);
-		Quaternion interpolate3 = Slerp(rotation0, rotation1, 0.7f);
-		Quaternion interpolate4 = Slerp(rotation0, rotation1, 1.0f);
-
-		// ImGui でクォータニオンを表示
-		ImGui::InputFloat4("interpolate0 Slerp(q0,q1,0.0f)", &interpolate0.x, "%.2f");
-		ImGui::InputFloat4("interpolate1 Slerp(q0,q1,0.3f)", &interpolate1.x, "%.2f");
-		ImGui::InputFloat4("interpolate2 Slerp(q0,q1,0.5f)", &interpolate2.x, "%.2f");
-		ImGui::InputFloat4("interpolate3 Slerp(q0,q1,0.7f)", &interpolate3.x, "%.2f");
-		ImGui::InputFloat4("interpolate4 Slerp(q0,q1,1.0f)", &interpolate4.x, "%.2f");
-
-		ImGui::TreePop();
-	}
-	ImGui::Separator();
-	if (ImGui::TreeNode("MT4_01_05_EX")) {
-		ImGui::Text("01_05_EX");
-		Quaternion rotation0 = rotation0.MakeQuaternion({ 0.71f, 0.71f,0.0f }, 0.3f);
-		Quaternion rotation1 = { -rotation0.x,-rotation0.y,-rotation0.z,-rotation0.w };
-		Quaternion interpolate0 = Slerp(rotation0, rotation1, 0.0f);
-		Quaternion interpolate1 = Slerp(rotation0, rotation1, 0.3f);
-		Quaternion interpolate2 = Slerp(rotation0, rotation1, 0.5f);
-		Quaternion interpolate3 = Slerp(rotation0, rotation1, 0.7f);
-		Quaternion interpolate4 = Slerp(rotation0, rotation1, 1.0f);
-
-		ImGui::InputFloat4("interpolate0 Sleap(q0,q1,0.0f)", &interpolate0.x, "%.2f");
-		ImGui::InputFloat4("interpolate1 Sleap(q0,q1,0.3f)", &interpolate1.x, "%.2f");
-		ImGui::InputFloat4("interpolate2 Sleap(q0,q1,0.5f)", &interpolate2.x, "%.2f");
-		ImGui::InputFloat4("interpolate3 Sleap(q0,q1,0.7f)", &interpolate3.x, "%.2f");
-		ImGui::InputFloat4("interpolate4 Sleap(q0,q1,1.0f)", &interpolate4.x, "%.2f");
-		ImGui::TreePop();
-	}
-	ImGui::Separator();
-	if (ImGui::TreeNode("MT4_02_01_EX")) {
-		ImGui::Text("02_01_EX");
-		ImGui::Text("reset velo R key");
-		ImGui::Text("reset pos,velo T key");
-		ImGui::Text("start SPACE key");
-		
-		ImGui::DragFloat("refrect", &refrect, 0.1f);
-		ImGui::DragFloat3("setVelo", &setVelo.x, 0.01f);
-		ImGui::Separator();
-		ImGui::DragFloat("ball1.mass", &ball1.mass);
-		ImGui::DragFloat("ball1.rad", &scale1,0.1f);
-		ImGui::InputFloat3("ball1.velocity", &ball1.velocity.x, "%.2f");
-		ImGui::DragFloat3("ball1.pos", &sphere1.transform.translate.x, 0.1f);
-		ImGui::Separator();
-		ImGui::DragFloat("ball2.mass", &ball2.mass);
-		ImGui::DragFloat("ball2.rad", &scale2, 0.1f);
-		ImGui::InputFloat3("ball2.velocity", &ball2.velocity.x, "%.2f");
-		ImGui::DragFloat3("ball2.pos", &sphere2.transform.translate.x, 0.1f);
-
-		ImGui::TreePop();
-	}
-	ImGui::End();
+	
 
 
 	
@@ -496,11 +386,14 @@ void TestScene::Update()
 
 
 
-
+	for (int i = 0; i < primitives.size(); i++) {
+		primitives[i]->Update();
+	}
 
 	
 
 	primitive->Update();
+	//primitive2->Update();
 
 	walk.UpdateSkinning();
 	mm.Update();
@@ -522,14 +415,20 @@ void TestScene::Update()
 
 	lineDraw_.Update();
 	lineDraw2_.Update();
+	lineDraw3_.SetTransform(primitive->transform);
+	lineDraw3_.Update();
 
 	
 }
 
 void TestScene::Draw3D()
 {
-	
+	for (int i = 0; i < primitives.size(); i++) {
+		//primitives[i]->Draw();
+	}
+
 	primitive->Draw();
+	//primitive2->Draw();
 
 	//walk.DrawSkinning();
 	//walk.DrawLine();
@@ -554,6 +453,9 @@ void TestScene::Draw3D()
 		lineDraw_.Draw3D(sphere1.transform.translate, sphere1.transform.translate + (ball1.velocity.Normalize() * 10), { 1,0,0,1 });
 	}
 	lineDraw2_.Draw3D(sphere2.transform.translate, sphere2.transform.translate + (ball2.velocity.Normalize() * 10), { 1,0,0,1 });
+
+
+	lineDraw3_.DrawMeshLine(primitive->GetMesh());
 }
 
 void TestScene::Draw2D()

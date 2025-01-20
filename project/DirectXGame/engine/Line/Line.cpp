@@ -11,38 +11,12 @@ void LineDraw::Initialize()
 	//this->camera = lineCommon_->GetDefaltCamera();
 
 
-
-
-
-	vertexResource = lineCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData)*2);
-
-	// リソースの先頭のアドレスを作成する
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData)*2);
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	vertexData = nullptr;
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-
-	vertexData[0] = { 0,0,0,0 };
-	vertexData[1] = { 0,0,0,0 };
-
-	
-
-// インデクスリソース
-	indexResource = lineCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 2); // 2つのインデックス
-
-	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
-	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * 2);
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT; // インデックスフォーマット
-
-	// インデックスデータを設定
-	//uint32_t indices[] = { 0, 1 }; // 始点と終点を示す
-	uint32_t* indexData = nullptr;
-	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	indexData[0] = 0;
-	indexData[1] = 1;
-	//std::memcpy(indexData, indices, sizeof(uint32_t) * 2); // 正しいインデックスをコピー
+	mesh_ = std::make_unique<Mesh>();
+	mesh_->verticesline.push_back({ 0,0,0,0 });
+	mesh_->verticesline.push_back({ 0,0,0,0 });
+	mesh_->indices.push_back({ 0 });
+	mesh_->indices.push_back({ 1 });
+	mesh_->InitializeLine(LineCommon::GetInstance()->GetDxCommon());
 
 
 	// マテリアル
@@ -52,7 +26,7 @@ void LineDraw::Initialize()
 
 	//今回は赤を書き込んで見る //白
 	*materialData = Material({ 1.0f, 0.0f, 0.0f, 1.0f }); //RGBA
-	
+
 	//トランスフォーム
 	transformationMatrixResource = lineCommon_->GetDxCommon()->CreateBufferResource(sizeof(TransfomationMatrix));
 
@@ -66,6 +40,8 @@ void LineDraw::Initialize()
 
 	//transform変数を作る
 	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+
+	mat_.Identity();
 }
 
 void LineDraw::Update()
@@ -73,7 +49,7 @@ void LineDraw::Update()
 
 
 	// ワールド行列を作成（線の位置、スケール、回転を表す）
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 	// カメラがある場合はビュー行列とプロジェクション行列を適用
 	if (camera) {
@@ -81,17 +57,17 @@ void LineDraw::Update()
 		const Matrix4x4& projectionMatrix = camera->GetProjectionMatrix(); // カメラのプロジェクション行列
 
 		// WVP行列を作成: World * View * Projection
-		Matrix4x4 worldViewMatrix = Multiply(worldMatrix, viewMatrix);  // World * View
+		Matrix4x4 worldViewMatrix = Multiply(mat_, viewMatrix);  // World * View
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldViewMatrix, projectionMatrix); // World * View * Projection
 
 		// WVP行列とワールド行列をシェーダに送る
-		transfomationMatrixData->World = worldMatrix;
+		transfomationMatrixData->World = mat_;
 		transfomationMatrixData->WVP = worldViewProjectionMatrix;
 	}
 	else {
 		// カメラがない場合はワールド行列のみ適用
-		transfomationMatrixData->World = worldMatrix;
-		transfomationMatrixData->WVP = worldMatrix;  // WVP行列はワールド行列と同じ
+		transfomationMatrixData->World = mat_;
+		transfomationMatrixData->WVP = mat_;  // WVP行列はワールド行列と同じ
 	}
 
 
@@ -102,8 +78,16 @@ void LineDraw::Draw3D(const Vector3& p1, const Vector3& p2, const Vector4& color
 	LineCommon::GetInstance()->DrawCommonSetting();
 
 	// 頂点データの設定
-	vertexData[0].position = { p1.x, p1.y, p1.z, 1.0f }; // w = 1.0f (位置ベクトル)
-	vertexData[1].position = { p2.x, p2.y, p2.z, 1.0f };
+	mesh_->UpdateLineVertexBuffer();
+	mesh_->UpdateIndexBuffer();
+
+	mesh_->verticesline[0].position = { p1.x, p1.y, p1.z, 1.0f };
+	mesh_->verticesline[1].position = { p2.x, p2.y, p2.z, 1.0f };
+
+	mesh_->indices[0] = 0;
+	mesh_->indices[1] = 1;
+
+
 
 	// マテリアルの色を設定
 	materialData->color = color;
@@ -113,12 +97,43 @@ void LineDraw::Draw3D(const Vector3& p1, const Vector3& p2, const Vector4& color
 	// マテリアルのバインド
 	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 
-	// 頂点バッファの設定
-	lineCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
-	// インデックスバッファの設定
-	lineCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
+
+	mesh_->GetCommandList();
 
 	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
-	lineCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(2, 1, 0, 0, 0);
+	lineCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh_->indices.size()), 1, 0, 0, 0);
 
+}
+
+void LineDraw::DrawMeshLine(Mesh* mesh)
+{
+	LineCommon::GetInstance()->DrawCommonSetting();
+	
+	// 頂点データの設定
+	mesh_->UpdateLineVertexBuffer();
+	mesh_->UpdateIndexBuffer();
+
+	mesh_->verticesline.clear();
+	mesh_->indices.clear();
+
+	for (int i = 0; i < mesh->vertices.size(); i++) {
+		mesh_->verticesline.push_back({ mesh->vertices[i].position });
+	}
+	for (int i = 0; i < mesh->indices.size(); i++) {
+		mesh_->indices.push_back({ mesh->indices[i] });
+	}
+
+	// 頂点データの設定
+	mesh_->UpdateLineVertexBuffer();
+	mesh_->UpdateIndexBuffer();
+
+	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
+	// マテリアルのバインド
+	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+
+
+	mesh_->GetCommandList();
+
+	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
+	lineCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh_->indices.size()), 1, 0, 0, 0);
 }

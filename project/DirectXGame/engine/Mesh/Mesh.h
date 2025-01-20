@@ -15,17 +15,16 @@ using namespace Microsoft::WRL;
 class Mesh
 {
 public:	
-	enum class Primitive {
-
-
-	};
-
-
+	
 	struct VertexData {
 	Vector4 position;
 	Vector2 texcoord;
 	Vector3 normal;
 	};
+	struct LineVertexData {
+	Vector4 position;
+	};
+
 
 	// カスタムハッシュ関数
 	struct VertexHash {
@@ -45,10 +44,15 @@ public:
 			std::hash<float>()(vertex.texcoord.x);
 	}
 
+	// 通常用
 	void Initialize(DirectXCommon* dxcommon);
 	
+	// ライン用
+	void InitializeLine(DirectXCommon* dxcommon);
 
 	void UpdateVertexBuffer();
+
+	void UpdateLineVertexBuffer();
 
 	void UpdateIndexBuffer();
 
@@ -71,6 +75,7 @@ public:
 
 public:
 	std::vector<VertexData> vertices;
+	std::vector<LineVertexData> verticesline;
 	std::vector<uint32_t> indices; // 追加：インデックスデータ
 	std::vector<float> verticesTimer; // 追加：インデックスデータ
 	std::vector<float> indicesTimer; // 追加：インデックスデータ

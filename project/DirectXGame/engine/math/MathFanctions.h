@@ -127,6 +127,8 @@ bool IsCollision(const AABB& aabb, const Segment& segment);
 // 線分と球の衝突判定 
 bool IsCollision(const Sphere& sphere, const Segment& segment);
 //
+bool IsCollision(const OBB& obb, const Sphere& sphere);
+//
 bool IsPointInsideAABB(const Vector3& point, const AABB& aabb);
 //
 Vector3 Perpendicular(const Vector3& vector);
