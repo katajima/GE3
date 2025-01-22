@@ -4,6 +4,8 @@
 void Player::Attack()
 {
 	workAttack.parameter++;
+	//workAttack.parameter += MyGame;
+
 	float t = static_cast<float>(workAttack.parameter) / workAttack.attackAll.max_t;
 	
 	float k = 0.5f;
@@ -170,10 +172,9 @@ void Player::AttackTypeInit(int comboIndex)
 {
 	objectBase_.Update();
 	objectReticle_.Update();
-
 	workAttack.pos.str = objectBase_.GetWorldPosition();
-	
 	weapon_->ContactRecordClear();
+
 	// スピード
 	const float k = 0.5f;
 

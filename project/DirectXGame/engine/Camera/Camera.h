@@ -54,10 +54,11 @@ private:
 	Vector3 debugShakeDirectionRange_ = {0.1f,0.1f,0.1f};
 #endif // _DEBUG
 
-
-
-public:
 	
+public:
+	static bool isShake_;
+
+
 	float fovY_ = 0.45f;
 	float aspect_ = float(1280) / float(720);
 	float nearClip_ = 0.1f;

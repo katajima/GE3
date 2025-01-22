@@ -91,6 +91,8 @@ public:
 
 	// 親となるワールド変換へのポインタ
 	const Object3d* parent_ = nullptr;
+
+
 };
 
 

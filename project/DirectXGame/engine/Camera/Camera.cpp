@@ -3,7 +3,7 @@
 #include <DirectXGame/engine/3d/Object3d.h>
 #include "DirectXGame/engine/MyGame/MyGame.h"
 
-
+bool Camera::isShake_ = false;
 
 Camera& Camera::GetInstance()
 {
@@ -64,7 +64,7 @@ void Camera::UpdateMatrix() {
 
 	if (shakeTime_ > 0) {
 		// Reduce shake time
-		shakeTime_ -= MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+		shakeTime_ -= MyGame::GameTime();
 
 		// Generate random shake offset within the direction range
 		float xOffset = static_cast<float>(rand()) / RAND_MAX * shakeDirectionRange_.x;

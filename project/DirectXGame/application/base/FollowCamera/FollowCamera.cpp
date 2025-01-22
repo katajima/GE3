@@ -62,6 +62,11 @@ void FollowCamera::Update()
 		// 座標をコピーしてオフセット分ずらす
 		camera_.transform_.translate = Add(target_->transform.translate, offset);
 	}
+
+	if (Camera::isShake_) {
+		camera_.SetShake(0.2f, { 0.1f,0.3f,0.1f });
+	}
+
 	//ビュー行列の更新
 	camera_.UpdateMatrix();
 }

@@ -104,7 +104,7 @@ void PlayerBullet::Update()
 		switch (phase_)
 		{
 		case 0:
-			count += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+			count += MyGame::GameTime();
 
 			t = count;
 
@@ -112,7 +112,7 @@ void PlayerBullet::Update()
 
 			norm =  randPosSky - str;
 			
-			velocity_ = norm * MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+			velocity_ = norm * MyGame::GameTime();
 
 			if (t >= 1) {
 				t = 0;
@@ -122,7 +122,7 @@ void PlayerBullet::Update()
 
 			break;
 		case 1:
-			count += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+			count += MyGame::GameTime();
 			if (count >= max_count)
 			{
 				Vector3 pos = enemy_->GetObject3D().GetWorldPosition();
@@ -133,7 +133,7 @@ void PlayerBullet::Update()
 				velocity_ = pos2;
 				velocity_.y = 0;
 
-				object_.transform.translate += velocity_ * MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+				object_.transform.translate += velocity_ * MyGame::GameTime();
 
 				if (5 >= DistanceXZ(object_.GetWorldPosition(), enemy_->GetObject3D().GetWorldPosition())) {
 					phase_++;
@@ -145,12 +145,12 @@ void PlayerBullet::Update()
 			}
 			break;
 		case 2:
-			count += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+			count += MyGame::GameTime();
 			if (count >= max_count)
 			{
 				velocity_ = tragetPos * 3;
 				
-				object_.transform.translate += velocity_ * MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;;
+				object_.transform.translate += velocity_ * MyGame::GameTime();
 			}
 
 			if (2.5f >= object_.GetWorldPosition().y) {

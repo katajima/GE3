@@ -421,6 +421,8 @@ void GamePlayScene::UpdateImGui()
 // 更新処理
 void GamePlayScene::Update()
 {
+	Camera::isShake_ = false;
+
 	// 調整項目
 	ApplyGlobalVariables();
 
@@ -469,6 +471,7 @@ void GamePlayScene::Update()
 		camera->viewMatrix_ = followCamera_->GetViewProjection().viewMatrix_;
 		camera->projectionMatrix_ = followCamera_->GetViewProjection().projectionMatrix_;
 
+		
 		// 必要に応じて行列を更新
 		//camera->UpdateMatrix();
 	}

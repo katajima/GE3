@@ -19,7 +19,7 @@ void Player::BehaviorRootUpdate()
 
 	
 
-	recastTime += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+	recastTime += MyGame::GameTime();
 	if (workAttack.key.IsAttack) {
 		if (recastTime >= MaxRecastTime) {
 			behaviorRequest_ = Behavior::kAttack;
@@ -91,7 +91,7 @@ void Player::BehaviorDieUpdate()
 	switch (specialAttack.phese)
 	{
 	case 0:
-		specialAttack.time += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+		specialAttack.time += MyGame::GameTime();
 		// 移動
 		Move();
 
@@ -107,7 +107,7 @@ void Player::BehaviorDieUpdate()
 		// 弾を発射
 		// 移動
 		//Move();
-		specialAttack.time += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+		specialAttack.time += MyGame::GameTime();
 		time = int(specialAttack.time * 60);
 		if (time % 10 == 0) {
 			specialAttack.clock *= -1;

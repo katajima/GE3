@@ -44,7 +44,7 @@ void ParticleManager::DrawCommonSetting()
 
 void ParticleManager::Update()
 {
-	kDeltaTime = MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+	kDeltaTime = MyGame::GameTime();
 
 	// カメラ設定
 	Transform cameraTransform{

@@ -78,6 +78,8 @@ public:
 public:
 	static float const kDeltaTime_;
 	static float kTimeSpeed_;
+	static float GameTime() { return kDeltaTime_ * kTimeSpeed_; };
+
 private:
 	std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
 

@@ -154,7 +154,7 @@ void Enemy::Move() {
 	if (Distance(player_->GetCenterPosition(), object_.GetWorldPosition()) >= 5) {
 
 		// 移動
-		object_.transform.translate = Add(object_.transform.translate, moveDirection * MyGame::kDeltaTime_ * MyGame::kTimeSpeed_  );
+		object_.transform.translate = Add(object_.transform.translate, moveDirection * MyGame::GameTime());
 	}
 }
 
