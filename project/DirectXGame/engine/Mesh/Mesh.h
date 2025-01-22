@@ -11,6 +11,7 @@ using namespace Microsoft::WRL;
 #include<d3d12.h>
 #include<dxgi1_6.h>
 
+//#include "DirectXGame/engine/base/ImGuiManager.h"
 
 class Mesh
 {
@@ -24,6 +25,8 @@ public:
 	struct LineVertexData {
 	Vector4 position;
 	};
+
+	
 
 
 	// カスタムハッシュ関数
@@ -73,12 +76,26 @@ public:
 	void SetMin(const Vector3& min) { min_ = min; }
 	void SetMax(const Vector3& max) { max_ = max; }
 
+	static bool IsSegmentCollision(const Mesh& mesh, const Vector3& worldPos, const Segment& segment);
+
+
+
+	static bool IsCapsuleCollision(const Mesh& mesh, const Vector3& worldPos, const Capsule& capsule);
+
+
+
+	static void SetTriangleImGui(const Mesh& mesh,const std::string name, const Vector3& worldPos = {});
+
 public:
 	std::vector<VertexData> vertices;
 	std::vector<LineVertexData> verticesline;
 	std::vector<uint32_t> indices; // 追加：インデックスデータ
 	std::vector<float> verticesTimer; // 追加：インデックスデータ
 	std::vector<float> indicesTimer; // 追加：インデックスデータ
+
+	std::vector<Triangle> triangle;
+
+
 
 	float maxTime = 0.2f;
 

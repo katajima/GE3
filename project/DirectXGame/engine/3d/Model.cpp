@@ -147,6 +147,8 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3); // 三角形のみサポート
+			//Mesh::triangle
+			Triangle triangle;
 			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
 				uint32_t vertexIndex = face.mIndices[element];
 				aiVector3D& position = mesh->mVertices[vertexIndex];
@@ -163,10 +165,13 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 				vertex.normal.x *= -1.0f;
 				pMesh->vertices.push_back(vertex);
 
+				triangle.vertices[element] = vertex.position.xyz();
 				
 				min = Min(min, vertex.position.xyz());
 				max = Max(max, vertex.position.xyz());
 			}
+			// 三角ポリゴン
+			pMesh->triangle.push_back(std::move(triangle));
 		}
 
 		pMesh->SetMin(min);
@@ -436,39 +441,6 @@ Animation Model::LoadAnimationFile(const std::string& directoryPath, const std::
 }
 
 #pragma endregion // 読み込み系
-
-
-Model::ModelData  Model::CreatePlane(const std::string& tex)
-{
-	Model::ModelData modelData;
-	
-
-	std::unique_ptr<Material> pMaterial = std::make_unique<Material>();
-	pMaterial->Initialize(ModelCommon::GetInstance()->GetDxCommon());
-	pMaterial->tex_.diffuseFilePath = tex;
-	modelData.material.push_back(std::move(pMaterial));
-
-
-	std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
-	pMesh->vertices.push_back({ .position = {1.0f,1.0f,0.0f,1.0f} ,.texcoord = {0.0f,0.0f},.normal = {0.0f,0.0f,1.0f } });	// 左上
-	pMesh->vertices.push_back({ .position = {-1.0f,1.0f,0.0f,1.0f} ,.texcoord = {1.0f,0.0f},.normal = {0.0f,0.0f,1.0f } });	// 右上
-	pMesh->vertices.push_back({ .position = {1.0f,-1.0f,0.0f,1.0f} ,.texcoord = {0.0f,1.0f},.normal = {0.0f,0.0f,1.0f } });	// 左下
-	pMesh->vertices.push_back({ .position = {1.0f,-1.0f,0.0f,1.0f} ,.texcoord = {0.0f,1.0f},.normal = {0.0f,0.0f,1.0f } });	// 左下
-	pMesh->vertices.push_back({ .position = {-1.0f,1.0f,0.0f,1.0f} ,.texcoord = {1.0f,0.0f},.normal = {0.0f,0.0f,1.0f } });	// 右上
-	pMesh->vertices.push_back({ .position = {-1.0f,-1.0f,0.0f,1.0f} ,.texcoord = {1.0f,1.0f},.normal = {0.0f,0.0f,1.0f } });	// 右下
-	
-	pMesh->GenerateIndices2(); // thisは省略可能
-
-	
-	pMesh->Initialize(ModelCommon::GetInstance()->GetDxCommon());
-	
-	modelData.mesh.push_back(std::move(pMesh));
-
-	modelData.skinClusterData = {};
-	modelData.rootNode = {};
-	return modelData;
-}
-
 
 
 SkinCluster Model::CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData)

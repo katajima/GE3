@@ -46,6 +46,10 @@ float Length(const float& v);
 
 float Clamp(float t);
 float Clamp(float t, float min, float max);
+
+float Clamp3(float value, float min, float max);
+
+
 //
 float Distance(const Vector3& point1, const Vector3& point2);
 
@@ -118,6 +122,8 @@ bool IsCollision(const Sphere& sphere, const Plane& plane);
 bool IsCollision(const Segment& segment, const Plane& plane);
 //三角形と線の衝突判定
 bool IsCollision(const Triangle& triangle, const Segment& segment);
+//三角形とカプセルの衝突判定
+bool IsCollision(const Triangle& triangle, const Capsule& capsule);
 //四角形と四角形の衝突判定
 bool IsCollision(const AABB& aabb1, const AABB& aabb2);
 //四角形と球の衝突判定
@@ -137,6 +143,18 @@ bool IsCollision(const OBB& obb, const Ray& ray);
 bool IsCollision(const OBB& obb0, const OBB& obb1);
 // 
 bool IsCollision(const Capsule& cap0, const Capsule& cap1);
+
+Vector3 ClosestPointSegmentTriangle(const Segment& segment, const Triangle& triangle);
+
+Vector3 ClosestPointSegmentSegment(const Segment& seg1, const Segment& seg2, Vector3 currentClosest = {});
+
+Vector3 ClosestPointSegment(const Segment& segment, const Vector3& point);
+
+Vector3 ClosestPointOnPlane(const Plane& plane, const Vector3& point);
+
+float PointLineDistanceSquared(const Vector3& point, const Vector3& a, const Vector3& b);
+
+float SegmentSegmentDistanceSquared(const Segment& seg1, const Segment& seg2);
 
 float SegmentClosestDistanceSq(const Segment& seg0, const Segment& seg1);
 //

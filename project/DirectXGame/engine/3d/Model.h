@@ -106,8 +106,6 @@ public:
 	//
 	static SkinCluster CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData);
 public:
-	static ModelData CreatePlane(const std::string& tex);
-
 
 };
 

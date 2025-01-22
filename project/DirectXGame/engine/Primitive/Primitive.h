@@ -46,7 +46,7 @@ public:
 	
 
 	// 形
-	void Initialize(ShapeType type,const std::string& tex,const Vector4 color = { 1,1,1,1 });
+	void Initialize(ShapeType type,const std::string& tex,const Vector4 color = { 1,1,1,1 },bool isLine = false);
 
 
 	void Update();
@@ -165,7 +165,7 @@ public:
 	};
 	struct  Sphere
 	{
-
+		float radius;
 	};
 
 	Cube cube;
@@ -173,6 +173,7 @@ public:
 
 public: //セッター
 	void SetParametar(const AnimationPlane& primi) { anime = primi; };
+	void SetParametar(const float& primi) { radius_ = primi; };
 
 	void SetName(const std::string str) { name_ = str; };
 
@@ -187,6 +188,7 @@ private:
 	Camera* camera_ = nullptr;
 
 	std::unique_ptr <LineDraw> line_;
+	bool isLine_ = false;
 
 	std::unique_ptr<Mesh> mesh;
 	std::unique_ptr<Material> material;
@@ -208,6 +210,8 @@ private:
 
 	AnimationPlane anime;
 	AnimationPlane oAnime;
+
+	
 
 	float innerRadius_ = 2.0f;
 	float outerRadius_ = 5.0f;

@@ -134,7 +134,7 @@ void Enemy::Draw2D()
 void Enemy::Move() {
 
 	// 回転と移動量の設定
-	const float kMoveSpeed = 0.1f; // 移動速度
+	const float kMoveSpeed = 6.0f; // 移動速度
 	// worldTransformBase_.rotation_.y += 0.00f; // 一定量のY軸回転
 
 	// 向いている方向への移動ベクトルの計算
@@ -154,7 +154,7 @@ void Enemy::Move() {
 	if (Distance(player_->GetCenterPosition(), object_.GetWorldPosition()) >= 5) {
 
 		// 移動
-		object_.transform.translate = Add(object_.transform.translate, moveDirection);
+		object_.transform.translate = Add(object_.transform.translate, moveDirection * MyGame::kDeltaTime_ * MyGame::kTimeSpeed_  );
 	}
 }
 

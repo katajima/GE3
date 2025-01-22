@@ -1,6 +1,7 @@
 #include "MyGame.h"
 
-
+const float MyGame::kDeltaTime_ = 1.0f / 60.0f;
+float MyGame::kTimeSpeed_ = 1.0f;
 
 void MyGame::Initialize()
 {
@@ -12,8 +13,8 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	SceneManager::GetInstance()->ChangeScene("TEST");
-	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	///SceneManager::GetInstance()->ChangeScene("TEST");
+	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -66,10 +67,13 @@ void MyGame::Update()
 	// FPS表示用ウィジェット
 	ImGui::Begin("engine");
 	ImGui::Text("FPS: %.2f", fps);
+	ImGui::DragFloat("TimeScale", &kTimeSpeed_,0.01f);
 	ImGui::End();
 
 #endif // _DEBUG
 
+	//kDeltaTime_.
+	
 	// グローバル変数の更新
 	GlobalVariables::GetInstance()->Update();
 
@@ -125,7 +129,7 @@ void MyGame::Draw()
 
 void MyGame::InitializeResource()
 {
-	ParticleManager::GetInstance()->SetCamera(Camera::GetInstance());
+	ParticleManager::GetInstance()->SetCamera(&Camera::GetInstance());
 
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
@@ -160,6 +164,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("grass.gltf", "grass2");
 	ModelManager::GetInstance()->LoadModel("renga.gltf", "renga",{10,10});
 	ModelManager::GetInstance()->LoadModel("Ground.obj", "Ground");
+	ModelManager::GetInstance()->LoadModel("stair.obj");
 
 
 

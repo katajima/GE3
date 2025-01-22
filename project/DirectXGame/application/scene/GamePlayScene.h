@@ -64,6 +64,7 @@ public:
 	void CheckAllCollisions();
 
 
+
 private:
 
 	void InitializeResources();
@@ -76,7 +77,27 @@ private:
 
 	
 	void PlaceObjectsOnCurve(const std::vector<Vector3>& controlPoints, float spacing);
+private:
+	// 振るまい
+	enum class Behavior {
+		kPhase1,	// フェーズ１
+		kPhase2,	// フェーズ２
+	};
 
+	//振るまい
+	Behavior behavior_ = Behavior::kPhase1;
+	// 次の振るまいリクエスト
+	std::optional<Behavior> behaviorRequest_ = std::nullopt;
+	
+	//
+	void BehaviorPhase1Initialize();
+	//
+	void BehaviorPhase1Update();
+	//
+	void BehaviorPhase2Initialize();
+	//
+	void BehaviorPhase2Update();
+	
 private:
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
@@ -140,9 +161,6 @@ private:
 	std::unique_ptr<Sprite> text_hit;
 	std::unique_ptr<Sprite> text_clera;
 	std::unique_ptr<Sprite> text_over;
-
-
-
 
 };
 

@@ -85,7 +85,7 @@ private:
 	BallLLL ball2;
 
 	Vector3 setVelo;
-	float scale1 = 5;
+	float scale1 = 1;
 	float scale2 = 7;
 	float refrect = 1.0f;
 	Object3d sphere1;
@@ -104,13 +104,13 @@ private:
 
 	Ocean ocean_;
 
-	Vector3 str;
-	Vector3 end;
-	//確認用
-	Quaternion a = {2.0f,3.0f,4.0f,1.0f};
-	Quaternion b = {1.0f,3.0f,5.0f,2.0f};
-	
-	Quaternion test{};
+	std::unique_ptr<Primitive> primitiveCup1[2];
+	std::unique_ptr<Primitive> primitiveCup2[2];
+	Capsule cup1;
+	Capsule cup2;
+
+	Vector3 testPos;
+	float offset = 1;
 
 	Sprite sprite;
 

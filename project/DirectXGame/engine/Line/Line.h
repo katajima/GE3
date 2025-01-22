@@ -29,6 +29,8 @@ public:
 
 	void DrawMeshLine(Mesh* mesh);
 
+	void DrawCapselLine(const Vector3& torans ,const Capsule& capsure);
+
 private:
 	Camera* camera = nullptr;
 

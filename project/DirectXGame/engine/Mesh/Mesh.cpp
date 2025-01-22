@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include "DirectXGame/engine/base/ImGuiManager.h"
+
 // 頂点を比較するためのオペレーター
 bool operator==(const Mesh::VertexData& v1, const Mesh::VertexData& v2) {
 	return v1.position == v2.position &&
@@ -214,4 +216,50 @@ void Mesh::GenerateIndices2()
 		}
 	}
 }
+
+bool Mesh::IsSegmentCollision(const Mesh& mesh, const Vector3& worldPos, const Segment& segment)
+{
+	for (size_t i = 0; i < mesh.triangle.size(); i++) {
+		const Triangle& tria = mesh.triangle[i];
+		Triangle offsetTri = tria.OffsetVector3(worldPos);
+
+		if (IsCollision(offsetTri, segment)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Mesh::IsCapsuleCollision(const Mesh& mesh, const Vector3& worldPos, const Capsule& capsule)
+{
+	for (size_t i = 0; i < mesh.triangle.size(); i++) {
+		const Triangle& tria = mesh.triangle[i];
+		Triangle offsetTri = tria.OffsetVector3(worldPos);
+
+		if (IsCollision(offsetTri, capsule)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Mesh::SetTriangleImGui(const Mesh& mesh, const std::string name, const Vector3& worldPos)
+{
+
+	ImGui::Begin(name.c_str());
+	std::string str;
+	for (size_t i = 0; i < mesh.triangle.size(); i++) {
+		str = "triangle" + std::to_string(i);
+		std::string str2;
+		for (size_t j = 0; j < 3;j++) {
+			str2 = str + "_" + std::to_string(j);
+			Vector3 tri = mesh.triangle[i].vertices[j] + worldPos;
+			ImGui::InputFloat3(str2.c_str(), &tri.x);
+		}
+	}
+	
+	ImGui::End();
+
+}
+
 

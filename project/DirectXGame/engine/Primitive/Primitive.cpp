@@ -2,11 +2,13 @@
 
 #include"PrimitiveCommon.h"
 
-void Primitive::Initialize(ShapeType type, const std::string& tex, const Vector4 color)
+void Primitive::Initialize(ShapeType type, const std::string& tex, const Vector4 color, bool isLine)
 {
 	mesh = std::make_unique<Mesh>();
 
 	type_ = type;
+
+	isLine_ = isLine;
 
 	MeshInitialize();
 
@@ -201,6 +203,12 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Sphere:
+		if ((oRadius_ != radius_)){
+			CreateSphere(radius_, 16, 16, false);
+			mesh->UpdateVertexBuffer();
+			mesh->UpdateIndexBuffer();
+		}
+
 		break;
 	case Primitive::ShapeType::Cylinder:
 		if ((oHeight_ != height_) || (oRadius_ != radius_) || (oSegments_ != segments_)) {
@@ -340,6 +348,11 @@ void Primitive::MeshUpdateImGui()
 
 			break;
 		case Primitive::ShapeType::Sphere:
+			oRadius_ = radius_;
+			//if (ImGui::CollapsingHeader("Sphere")) {
+				ImGui::DragFloat("radius", &radius_, 0.1f);
+			//}
+
 			break;
 		case Primitive::ShapeType::Cylinder:
 			if (ImGui::CollapsingHeader("Cylinder")) {
@@ -435,7 +448,7 @@ void Primitive::Draw()
 
 		PrimitiveCommon::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
 	}
-
+	if(isLine_)
 	line_->DrawMeshLine(mesh.get());
 }
 

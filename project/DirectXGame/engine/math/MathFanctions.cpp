@@ -105,6 +105,10 @@ float Clamp(float t, float min, float max) {
 
 	return t;
 }
+float Clamp3(float value, float min, float max) {
+	return (std::max)(min, (std::min)(value, max));
+}
+
 float Distance(const Vector3& point1, const Vector3& point2)
 {
 	float dx = point1.x - point2.x;
@@ -710,32 +714,9 @@ bool IsCollision(const Sphere& s1, const Sphere& s2)
 //衝突判定(球と平面)
 bool IsCollision(const Sphere& sphere, const Plane& plane)
 {
-	//フラグ
-	//float isDistance = false;
-
-	Vector3 dis = Normalize(plane.nomal);
+	Vector3 dis = Normalize(plane.normal);
 
 	float distance = Dot(sphere.center, dis) - plane.distance;
-	//float d = plane.distance;
-
-	//法線と平面上の任意の1点から求める
-	//float d = Dot(sphere.center,plane.nomal) - plane.distance;
-
-	//float k = Dot(plane.nomal, sphere.center) - d;
-
-	//float kLength = Length(k);
-
-	//K = kLength;
-
-	//if (kLength <= sphere.radius) {
-	//	isDistance = true;
-	//}
-	//else {
-	//	isDistance = false;
-	//}
-	//return isDistance;
-
-
 	return std::abs(distance) < sphere.radius;
 }
 //衝突判定(線と平面)
@@ -745,14 +726,14 @@ bool IsCollision(const Segment& segment, const Plane& plane)
 
 
 	//まず垂直判定を行うために、法線と線の内積を求める
-	float dot = Dot(plane.nomal, diff);
+	float dot = Dot(plane.normal, diff);
 
 	// 垂直=平行であるので、衝突しているはずがない
 	if (dot == 0.0f) {
 		return false;
 	}
 
-	float t = (plane.distance - Dot(segment.origin, plane.nomal)) / dot;
+	float t = (plane.distance - Dot(segment.origin, plane.normal)) / dot;
 
 	if (t >= 0.0f && t <= 1.0f) {
 		return true;
@@ -764,51 +745,151 @@ bool IsCollision(const Segment& segment, const Plane& plane)
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
 	Vector3 diff = segment.diff();
 
-
-	//三点の位置から平面を求める
+	// 三角形の平面を取得
 	Plane plane = PlaneFromPoints(triangle.vertices[0], triangle.vertices[1], triangle.vertices[2]);
 
+	float dot = Dot(plane.normal, diff);
 
-	float dot = Dot(plane.nomal, diff);
-
-	// 垂直=平行であるので、衝突しているはずがない
-	if (dot == 0.0f) {
+	// 平行チェック（浮動小数点誤差を考慮）
+	if (fabs(dot) < 1e-6f) {
 		return false;
 	}
 
-	float t = (plane.distance - Dot(segment.origin, plane.nomal)) / dot;
+	float t = -(Dot(segment.origin, plane.normal) + plane.distance) / dot;
 
+	// tが線分の範囲 [0, 1] にない場合、衝突なし
+	if (t < 0.0f || t > 1.0f) {
+		return false;
+	}
 
-	Vector3 p = { segment.origin.x + t * diff.x, segment.origin.y + t * diff.y, segment.origin.z + t * diff.z };
+	// 衝突点を求める
+	Vector3 p = segment.origin + diff * t;
 
-	Vector3 v01 = Subtract(triangle.vertices[0], triangle.vertices[1]);
-	Vector3 v12 = Subtract(triangle.vertices[1], triangle.vertices[2]);
-	Vector3 v20 = Subtract(triangle.vertices[2], triangle.vertices[0]);
+	Vector3 v01 = triangle.vertices[1] - triangle.vertices[0];
+	Vector3 v12 = triangle.vertices[2] - triangle.vertices[1];
+	Vector3 v20 = triangle.vertices[0] - triangle.vertices[2];
 
-	Vector3 v0p = Subtract(triangle.vertices[0], p);
-	Vector3 v1p = Subtract(triangle.vertices[1], p);
-	Vector3 v2p = Subtract(triangle.vertices[2], p);
+	Vector3 v0p = p - triangle.vertices[0];
+	Vector3 v1p = p - triangle.vertices[1];
+	Vector3 v2p = p - triangle.vertices[2];
 
-	Vector3 cross01 = Cross(v01, v1p);
-	Vector3 cross12 = Cross(v12, v2p);
-	Vector3 cross20 = Cross(v20, v0p);
+	Vector3 cross01 = Cross(v01, v0p);
+	Vector3 cross12 = Cross(v12, v1p);
+	Vector3 cross20 = Cross(v20, v2p);
 
+	float dot01 = Dot(cross01, plane.normal);
+	float dot12 = Dot(cross12, plane.normal);
+	float dot20 = Dot(cross20, plane.normal);
 
-	float dot01 = Dot(cross01, plane.nomal);
-	float dot12 = Dot(cross12, plane.nomal);
-	float dot20 = Dot(cross20, plane.nomal);
-
-	if (Dot(cross01, plane.nomal) >= 0.0f &&
-		Dot(cross12, plane.nomal) >= 0.0f &&
-		Dot(cross20, plane.nomal) >= 0.0f) {
-		// 線分の始点と終点が三角形の面のどちら側にあるかを判定
-		if (t >= 0.0f && t <= 1.0f) {
-			return true;
-		}
+	// 浮動小数点誤差に対する閾値を適用して判定
+	const float epsilon = 1e-6f;
+	if (dot01 >= -epsilon && dot12 >= -epsilon && dot20 >= -epsilon) {
+		return true;
 	}
 
 	return false;
 }
+
+//bool IsCollision(const Triangle& triangle, const Capsule& capsule) {
+//	// カプセルの軸線を取得
+//	Segment capsuleSegment = capsule.segment;
+//	float radius = capsule.radius;
+//
+//	// 三角形の最近接点を求める
+//	Vector3 closestPoint = ClosestPointSegmentTriangle(capsuleSegment, triangle);
+//
+//	// カプセルの軸線上の最近接点を求める
+//	Vector3 capsuleClosestPoint = ClosestPointSegment(capsuleSegment, closestPoint);
+//
+//	// カプセル表面との最短距離を計算
+//	float distanceSquared = LengthSquared(Subtract(closestPoint, capsuleClosestPoint));
+//
+//	// 衝突判定：距離がカプセル半径以内であれば衝突
+//	return distanceSquared <= (radius * radius);
+//}
+
+// 点と線分間の距離の二乗を求める関数
+float PointLineDistanceSquared(const Vector3& point, const Vector3& a, const Vector3& b)
+{
+	Vector3 ab = b - a;
+	Vector3 ap = point - a;
+	float abLengthSquared = ab.LengthSq();
+
+	if (abLengthSquared == 0.0f) {
+		return ap.LengthSq(); // 線分が点の場合
+	}
+
+	float t = ap.Dot(ab) / abLengthSquared;
+	t = std::max(0.0f, std::min(1.0f, t));
+
+	Vector3 closestPoint = a + ab * t;
+	return (point - closestPoint).LengthSq();
+}
+
+// 線分と線分間の距離の二乗を求める関数
+float SegmentSegmentDistanceSquared(const Segment& seg1, const Segment& seg2)
+{
+	Vector3 u = seg1.diff();
+	Vector3 v = seg2.diff();
+	Vector3 w = seg1.origin - seg2.origin;
+
+	float a = u.Dot(u);  // |u|^2
+	float b = u.Dot(v);
+	float c = v.Dot(v);  // |v|^2
+	float d = u.Dot(w);
+	float e = v.Dot(w);
+
+	float denom = a * c - b * b;
+	float s, t;
+
+	if (denom != 0.0f) {
+		s = (b * e - c * d) / denom;
+		t = (a * e - b * d) / denom;
+		s = std::max(0.0f, std::min(1.0f, s));
+		t = std::max(0.0f, std::min(1.0f, t));
+	}
+	else {
+		s = 0.0f;
+		t = d / b;
+		t = std::max(0.0f, std::min(1.0f, t));
+	}
+
+	Vector3 closestPoint1 = seg1.origin + u * s;
+	Vector3 closestPoint2 = seg2.origin + v * t;
+	return (closestPoint1 - closestPoint2).LengthSq();
+}
+
+// Triangle と Capsule の衝突判定関数
+bool IsCollision(const Triangle& triangle, const Capsule& capsule)
+{
+	// カプセルの半径の二乗
+	float radiusSquared = capsule.radius * capsule.radius;
+
+	// 三角形の各頂点とカプセルの線分との距離を判定
+	for (const Vector3& vertex : triangle.vertices)
+	{
+		if (PointLineDistanceSquared(vertex, capsule.segment.origin, capsule.segment.end) <= radiusSquared)
+		{
+			return true;
+		}
+	}
+
+	// 三角形のエッジとカプセルの線分の距離を判定
+	Segment edge1 = { triangle.vertices[0], triangle.vertices[1] };
+	Segment edge2 = { triangle.vertices[1], triangle.vertices[2] };
+	Segment edge3 = { triangle.vertices[2], triangle.vertices[0] };
+
+	if (SegmentSegmentDistanceSquared(capsule.segment, edge1) <= radiusSquared ||
+		SegmentSegmentDistanceSquared(capsule.segment, edge2) <= radiusSquared ||
+		SegmentSegmentDistanceSquared(capsule.segment, edge3) <= radiusSquared)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
 //
 bool IsCollision(const AABB& aabb1, const AABB& aabb2)
 {
@@ -845,15 +926,15 @@ bool IsCollision(const AABB& aabb, const Segment& segment)
 	}
 
 	Plane planeX1, planeY1, planeZ1;
-	planeX1.nomal = { 1,0,0 };
-	planeY1.nomal = { 0,1,0 };
-	planeZ1.nomal = { 0,0,1 };
+	planeX1.normal = { 1,0,0 };
+	planeY1.normal = { 0,1,0 };
+	planeZ1.normal = { 0,0,1 };
 
 	Vector3 diff = segment.diff();
 
-	float dotX = Dot(planeX1.nomal, diff);
-	float dotY = Dot(planeY1.nomal, diff);
-	float dotZ = Dot(planeZ1.nomal, diff);
+	float dotX = Dot(planeX1.normal, diff);
+	float dotY = Dot(planeY1.normal, diff);
+	float dotZ = Dot(planeZ1.normal, diff);
 
 
 	// 特異点チェック: 線分が軸に平行である場合
@@ -870,13 +951,13 @@ bool IsCollision(const AABB& aabb, const Segment& segment)
 
 	Vector3 tMin, tMax;
 
-	tMin.x = (aabb.min.x - Dot(segment.origin, planeX1.nomal)) / dotX;
-	tMin.y = (aabb.min.y - Dot(segment.origin, planeY1.nomal)) / dotY;
-	tMin.z = (aabb.min.z - Dot(segment.origin, planeZ1.nomal)) / dotZ;
+	tMin.x = (aabb.min.x - Dot(segment.origin, planeX1.normal)) / dotX;
+	tMin.y = (aabb.min.y - Dot(segment.origin, planeY1.normal)) / dotY;
+	tMin.z = (aabb.min.z - Dot(segment.origin, planeZ1.normal)) / dotZ;
 
-	tMax.x = (aabb.max.x - Dot(segment.origin, planeX1.nomal)) / dotX;
-	tMax.y = (aabb.max.y - Dot(segment.origin, planeY1.nomal)) / dotY;
-	tMax.z = (aabb.max.z - Dot(segment.origin, planeZ1.nomal)) / dotZ;
+	tMax.x = (aabb.max.x - Dot(segment.origin, planeX1.normal)) / dotX;
+	tMax.y = (aabb.max.y - Dot(segment.origin, planeY1.normal)) / dotY;
+	tMax.z = (aabb.max.z - Dot(segment.origin, planeZ1.normal)) / dotZ;
 
 
 	Vector3 tNear, tFar;
@@ -1004,20 +1085,31 @@ Vector3 Perpendicular(const Vector3& vector) {
 }
 //
 Plane PlaneFromPoints(const Vector3& p1, const Vector3& p2, const Vector3& p3) {
-	Plane result;
+	Plane result{};
 
-	// ベクトルを計算
+	// 2つのベクトルを求める
 	Vector3 v1 = Subtract(p2, p1);
 	Vector3 v2 = Subtract(p3, p1);
 
-	// 法線を計算
-	result.nomal = Cross(v1, v2);
+	// 法線を計算 (外積)
+	result.normal = Cross(v1, v2);
 
-	// 距離を計算
-	result.distance = Dot(result.nomal, p1);
+	// ゼロベクトルチェック (3点が同一直線上の場合)
+	if (Length(result.normal) == 0.0f) {
+		// 法線が求まらない場合のエラーハンドリング
+		result.normal = { 0.0f, 0.0f, 0.0f };
+		result.distance = 0.0f;
+		return result;
+	}
+
+	// 正規化
+	result.normal = Normalize(result.normal);
+
+	// 平面の距離 D の計算 (符号の修正)
+	result.distance = -Dot(result.normal, p1);
 
 	return result;
-};
+}
 
 Vector3 Reflect(const Vector3& input, const Vector3& normal)
 {
@@ -1098,6 +1190,86 @@ bool IsCollision(const Capsule& cap0, const Capsule& cap1)
 	return distanceSq <= radiusSum * radiusSum;
 }
 
+
+
+Vector3 ClosestPointSegmentTriangle(const Segment& segment, const Triangle& triangle) {
+	// 三角形の3辺を定義
+	Segment edge1 = { triangle.vertices[0], triangle.vertices[1] };
+	Segment edge2 = { triangle.vertices[1], triangle.vertices[2] };
+	Segment edge3 = { triangle.vertices[2], triangle.vertices[0] };
+
+	// 最初に線分の始点を初期最近接点とする
+	Vector3 closest = ClosestPointSegment(segment, triangle.vertices[0]);
+
+	// 三角形のエッジに対して最近接点を更新
+	closest = ClosestPointSegmentSegment(segment, edge1, closest);
+	closest = ClosestPointSegmentSegment(segment, edge2, closest);
+	closest = ClosestPointSegmentSegment(segment, edge3, closest);
+
+	// 三角形の面上の最近接点も考慮（重要）
+	Plane plane = PlaneFromPoints(triangle.vertices[0], triangle.vertices[1], triangle.vertices[2]);
+	Vector3 pointOnPlane = ClosestPointOnPlane(plane, segment.origin);
+	closest = LengthSquared(Subtract(closest, segment.origin)) < LengthSquared(Subtract(pointOnPlane, segment.origin))
+		? closest
+		: pointOnPlane;
+
+	return closest;
+}
+
+Vector3 ClosestPointSegmentSegment(const Segment& seg1, const Segment& seg2, Vector3 currentClosest) {
+	Vector3 u = seg1.diff();
+	Vector3 v = seg2.diff();
+	Vector3 w = Subtract(seg1.origin, seg2.origin);
+
+	float a = Dot(u, u);
+	float b = Dot(u, v);
+	float c = Dot(v, v);
+	float d = Dot(u, w);
+	float e = Dot(v, w);
+
+	float denom = a * c - b * b;
+
+	// ゼロ除算の回避
+	float s = 0.0f, t = 0.0f;
+	if (denom != 0.0f) {
+		s = Clamp3((b * e - c * d) / denom, 0.0f, 1.0f);
+		t = Clamp3((a * e - b * d) / denom, 0.0f, 1.0f);
+	}
+
+	Vector3 closestOnSeg1 = Add(seg1.origin, Multiply(u, s));
+	Vector3 closestOnSeg2 = Add(seg2.origin, Multiply(v, t));
+
+	return LengthSquared(Subtract(closestOnSeg1, closestOnSeg2)) < LengthSquared(Subtract(currentClosest, seg1.origin))
+		? closestOnSeg1
+		: currentClosest;
+}
+
+Vector3 ClosestPointSegment(const Segment& segment, const Vector3& point) {
+	Vector3 diff = segment.diff();
+	float lenSq = Dot(diff, diff);
+
+	if (lenSq == 0.0f) {
+		return segment.origin;  // 線分が点の場合は始点を返す
+	}
+
+	float t = Dot(Subtract(point, segment.origin), diff) / lenSq;
+	t = Clamp3(t, 0.0f, 1.0f);
+
+	return Add(segment.origin, Multiply(diff, t));
+}
+
+Vector3 ClosestPointOnPlane(const Plane& plane, const Vector3& point) {
+	// 平面の法線ベクトル
+	Vector3 normal = plane.normal.Normalize();
+
+	// 点から平面までの距離 d = dot(N, P) - D
+	float distance = Dot(normal, point) - plane.distance;
+
+	// 最近接点を計算: P - d * N
+	Vector3 closestPoint = Subtract(point, Multiply(normal, distance));
+
+	return closestPoint;
+}
 
 
 

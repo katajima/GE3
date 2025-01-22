@@ -127,6 +127,11 @@ struct Vector3 final {
 			x * other.y - y * other.x
 		};
 	}
+
+	/*Vector3 V3_V4(const Vector4& other) {
+		return { x = other.x,y = other.y,z = other.z };
+	}*/
+
 };
 
 static Vector3 Lerp(const Vector3& a, const Vector3& b, float t) {

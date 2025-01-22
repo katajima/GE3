@@ -226,7 +226,7 @@ private:
 
 
 	const uint32_t kNumMaxInstance = 10000;
-	const float kDeltaTime = 1.0f / 60.0f;
+	float kDeltaTime;
 	bool usebillboard = true;
 	bool upData = true;
 	bool upDataWind = false;

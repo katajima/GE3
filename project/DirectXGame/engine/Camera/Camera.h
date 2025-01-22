@@ -16,8 +16,10 @@ class Object3d;
 // カメラ
 class Camera
 {
+private:
+
 public: // メンバ関数
-	static Camera* GetInstance();	
+	static Camera& GetInstance();
 	Camera();
 	//
 	void Initialize();
@@ -42,6 +44,16 @@ public: // メンバ関数
 	const Matrix4x4& GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
+
+	void SetShake(float time,Vector3 diectionRange);
+private:
+	float shakeTime_;
+	Vector3 shakeDirectionRange_;
+#ifdef _DEBUG
+	float debugShakeTime_ = 0.1f;
+	Vector3 debugShakeDirectionRange_ = {0.1f,0.1f,0.1f};
+#endif // _DEBUG
+
 
 
 public:

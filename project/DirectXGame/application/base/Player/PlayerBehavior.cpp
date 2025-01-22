@@ -19,7 +19,7 @@ void Player::BehaviorRootUpdate()
 
 	
 
-	recastTime++;
+	recastTime += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
 	if (workAttack.key.IsAttack) {
 		if (recastTime >= MaxRecastTime) {
 			behaviorRequest_ = Behavior::kAttack;
@@ -38,7 +38,7 @@ void Player::BehaviorRootUpdate()
 void Player::BehaviorAttackInitialize()
 {
 	workAttack.attackAll.t = 0;
-	workAttack.attackAll.max_t = 60;
+	workAttack.attackAll.max_t = 1;
 	workAttack.comboIndex = 0;
 	
 	AttackTypes();
@@ -87,14 +87,15 @@ void Player::BehaviorDieUpdate()
 {
 	AttackKey();
 	int i = 0;
+	int time = 0;
 	switch (specialAttack.phese)
 	{
 	case 0:
-		specialAttack.time++;
+		specialAttack.time += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
 		// 移動
 		Move();
 
-		if (specialAttack.time >= 30) {
+		if (specialAttack.time >= 0.5f) {
 			if (Input::GetInstance()->IsGamePadTriggered(GamePadButton::GAMEPAD_RB)) {
 				specialAttack.phese = 1;
 				specialAttack.time = 0;
@@ -106,17 +107,20 @@ void Player::BehaviorDieUpdate()
 		// 弾を発射
 		// 移動
 		//Move();
-
-		if (++specialAttack.time % 10 == 0) {
+		specialAttack.time += MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+		time = int(specialAttack.time * 60);
+		if (time % 10 == 0) {
 			specialAttack.clock *= -1;
 			while (index_b < lockedOnEnemies.size())
 			{
 				auto bullet = std::make_unique<PlayerBullet>();
 				bullet->SetIndex(index_b);
 				if (specialAttack.clock == 1) {
+					camera_->GetInstance().SetShake(1.3f,{0.2f,0.2f,0.2f});
 					bullet->Initialize(injectionLeftObj_.GetWorldPosition(), camera_);
 				}
 				else {
+					camera_->GetInstance().SetShake(1.3f, { 0.2f,0.2f,0.2f });
 					bullet->Initialize(injectionRightObj_.GetWorldPosition(), camera_);
 				}
 				bullet->SetEnemy(lockedOnEnemies[index_b]);
@@ -137,11 +141,6 @@ void Player::BehaviorDieUpdate()
 	
 			
 		
-
-		for (int i = 0;i< playerBullet_.size(); i++) {
-			
-
-		}
 
 		if (lockedOnEnemies.size() <= playerBullet_.size())
 		{

@@ -111,7 +111,7 @@ void Framework::Update()
 
 	
 	// Windowsのメッセージ処理
-	if (winApp->ProcessMessage()) {
+	if(winApp->ProcessMessage()) {
 		// ゲームループを抜ける
 		endRequst_ = true;
 	};

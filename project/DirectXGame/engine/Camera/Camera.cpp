@@ -1,10 +1,14 @@
 #include "Camera.h"
 #include "DirectXGame/engine/base/WinApp.h"
 #include <DirectXGame/engine/3d/Object3d.h>
-Camera* Camera::GetInstance()
+#include "DirectXGame/engine/MyGame/MyGame.h"
+
+
+
+Camera& Camera::GetInstance()
 {
 	static Camera instance;
-	return &instance;
+	return instance;
 }
 Camera::Camera()
 
@@ -19,7 +23,7 @@ Camera::Camera()
 	, viewProjectionMatrix_(Multiply(viewMatrix_, projectionMatrix_))
 
 {
-	
+
 
 
 }
@@ -42,7 +46,46 @@ void Camera::GetCommandList(int index)
 	dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(index, resource->GetGPUVirtualAddress());
 }
 
+
 void Camera::UpdateMatrix() {
+
+#ifdef _DEBUG
+	ImGui::Begin("camera");
+	ImGui::DragFloat("debugShakeTime", &debugShakeTime_, 0.01f);
+	ImGui::DragFloat3("debugShakeDirectionRange", &debugShakeDirectionRange_.x, 0.1f);
+	ImGui::End();
+
+	if (Input::GetInstance()->IsGamePadTriggered(GamePadButton::GAMEPAD_Up)) {
+		SetShake(debugShakeTime_, debugShakeDirectionRange_);
+	}
+#endif // _DEBUG
+
+
+
+	if (shakeTime_ > 0) {
+		// Reduce shake time
+		shakeTime_ -= MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+
+		// Generate random shake offset within the direction range
+		float xOffset = static_cast<float>(rand()) / RAND_MAX * shakeDirectionRange_.x;
+		float yOffset = static_cast<float>(rand()) / RAND_MAX * shakeDirectionRange_.y;
+		float zOffset = static_cast<float>(rand()) / RAND_MAX * shakeDirectionRange_.z;
+
+		// Create shake offset vector
+		Vector3 shakeOffset(xOffset, yOffset, zOffset);
+
+		Matrix4x4 cameraWorldMatrix = Inverse(viewMatrix_);
+
+		// カメラの向きに基づいて移動方向をワールド座標系に変換
+		Vector3 worldDirection = {
+	   shakeOffset.x * cameraWorldMatrix.m[0][0] + shakeOffset.y * cameraWorldMatrix.m[1][0] + shakeOffset.z * cameraWorldMatrix.m[2][0],
+	   shakeOffset.x * cameraWorldMatrix.m[0][1] + shakeOffset.y * cameraWorldMatrix.m[1][1] + shakeOffset.z * cameraWorldMatrix.m[2][1],
+	   shakeOffset.x * cameraWorldMatrix.m[0][2] + shakeOffset.y * cameraWorldMatrix.m[1][2] + shakeOffset.z * cameraWorldMatrix.m[2][2]
+		};
+
+		// Apply shake offset to the camera's position
+		transform_.translate += worldDirection;
+	}
 
 	// カメラのワールド行列を計算
 	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
@@ -112,6 +155,13 @@ void Camera::LookAt(const Vector3& cameraPosition, const Vector3& targetPosition
 	viewMatrix_ = Inverse(worldMatrix_);
 	projectionMatrix_ = MakePerspectiveFovMatrix(fovY_, aspect_, nearClip_, farClip_);
 	viewProjectionMatrix_ = Multiply(viewMatrix_, projectionMatrix_);
+}
+
+void Camera::SetShake(float time, Vector3 directionRange) {
+	// Initialize shake timer
+	shakeTime_ = time;
+	// Save the direction range for shaking
+	shakeDirectionRange_ = directionRange;
 }
 
 

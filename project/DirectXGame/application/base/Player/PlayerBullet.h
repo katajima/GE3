@@ -92,8 +92,11 @@ private:
 	Vector3 randPosSky;
 	Vector3 posGround;
 	Vector3 str;
-	int count = 0;
+	float count = 0;
+	float max_count = 0.5f;
 	float t;
+
+	Vector3 tragetPos;
 
 
 	// デスフラグ

@@ -29,4 +29,12 @@ struct Vector4 final {
 	Vector4 operator*(const Vector4& other) const {
 		return Vector4{ x * other.x, y * other.y, z * other.z,w * other.w };
 	}
+	//
+	Vector4 operator+(const Vector3& other) const {
+		return Vector4{ x + other.x, y + other.y, z + other.z,w};
+	}
+	//
+	Vector4 operator=(const Vector3& other) const {
+		return Vector4{ other.x, other.y, other.z,w};
+	}
 };

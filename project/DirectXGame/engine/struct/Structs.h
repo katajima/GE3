@@ -41,7 +41,7 @@ struct Sphere {
 
 //平面
 struct Plane {
-	Vector3 nomal;  //!< 法線
+	Vector3 normal;  //!< 法線
 	float distance; //!< 距離 
 };
 
@@ -73,6 +73,23 @@ struct Segment
 struct Triangle
 {
 	Vector3 vertices[3]; // !頂点
+
+	// +=オペレーターのオーバーロード 
+	Triangle& operator+=(const Vector3& offset) { 
+		for (auto& vertex : vertices) { 
+			vertex += offset; 
+		} 
+		return *this; 
+	}
+
+	Triangle OffsetVector3(const Vector3& offset) const {
+		Triangle result = *this;  // コピーを作成
+		for (auto& vertex : result.vertices) {
+			vertex += offset;
+		}
+		return result;
+	}
+
 };
 
 //ばね
@@ -108,7 +125,7 @@ struct ConicalPendulum {
 };
 
 // カプセル
-struct  Capsule
+struct Capsule
 {
 	Segment segment;
 	float radius;

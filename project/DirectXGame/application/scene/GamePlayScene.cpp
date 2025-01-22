@@ -123,6 +123,7 @@ void GamePlayScene::InitializeCamera()
 
 	cameraObj_.Initialize();
 }
+
 // 各オブジェクトやスプライトなどの初期化
 void GamePlayScene::InitializeResources()
 {
@@ -426,13 +427,38 @@ void GamePlayScene::Update()
 	// ImGuiの更新
 	UpdateImGui();
 
+
+
+	if (behaviorRequest_) {
+		// ふるまいを変更する
+		behavior_ = behaviorRequest_.value();
+		// 各ふるまいごとの初期化を実行
+		switch (behavior_) {
+		case Behavior::kPhase1: // フェーズ１
+			BehaviorPhase1Initialize();
+			break;
+		case Behavior::kPhase2: // フェーズ２
+			BehaviorPhase2Initialize();
+			break;
+		}
+		// ふるまいリクエストリセット
+		behaviorRequest_ = std::nullopt;
+	}
+	switch (behavior_) {
+	case Behavior::kPhase1: // フェーズ１
+		BehaviorPhase1Update();
+		break;
+	case Behavior::kPhase2: // フェーズ２
+		BehaviorPhase2Update();
+		break;
+	}
+
 	// プレイヤー
 	//if (player_->GetAlive()) {
 		player_->Update();
 		player_->LockOn(enemys_);
 	//}
-	//emitter_->Update();
-
+	
 		
 
 	/// レールカメラ
@@ -448,12 +474,6 @@ void GamePlayScene::Update()
 	}
 	else {
 #ifdef _DEBUG
-
-		
-
-
-
-
 #endif // _DEBUG
 		camera->transform_.rotate = cameraDebugR;
 		camera->transform_.translate = cameraDebugT;
@@ -465,14 +485,7 @@ void GamePlayScene::Update()
 	ParticleManager::GetInstance()->SetCamera(&followCamera_->GetViewProjection());
 
 
-	// 敵
-	count = 0;
-	for (int i = 0; i < enemys_.size(); i++) {
-		enemys_[i]->Update();
-		if (!enemys_[i]->GetAlive()) {
-			count++;
-		}
-	}
+	
 
 
 
@@ -492,6 +505,33 @@ void GamePlayScene::Update()
 }
 
 #pragma endregion //更新関係
+
+#pragma region BehaviorPhase
+
+void GamePlayScene::BehaviorPhase1Initialize()
+{
+}
+
+void GamePlayScene::BehaviorPhase1Update()
+{
+	// 敵
+	count = 0;
+	for (int i = 0; i < enemys_.size(); i++) {
+		enemys_[i]->Update();
+		if (!enemys_[i]->GetAlive()) {
+			count++;
+		}
+	}
+}
+
+void GamePlayScene::BehaviorPhase2Initialize()
+{
+}
+
+void GamePlayScene::BehaviorPhase2Update()
+{
+}
+#pragma endregion // フェーズ
 
 
 #pragma region 

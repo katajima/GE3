@@ -48,12 +48,13 @@ void TestScene::Initialize()
 	walk.transform.translate = { 0,10,0 };
 	walk.transform.scale = { 20,20,20 };
 
-	test = a.Conjugate();
+
+
 
 
 
 	sphere1.Initialize();
-	sphere1.SetModel("Sphere.obj");
+	sphere1.SetModel("stair.obj");
 	sphere1.SetCamera(camera.get());
 	sphere1.transform.translate = { 2,0,-10 };
 	sphere1.transform.scale = scale1;
@@ -103,7 +104,7 @@ void TestScene::Initialize()
 	lineDraw_.SetCamera(camera.get());
 	lineDraw2_.Initialize();
 	lineDraw2_.SetCamera(camera.get());
-	
+
 	trailEffect_ = std::make_unique<TrailEffect>();
 	trailEffect_->Initialize("resources/Texture/aaa.png", 4.0f);
 	trailEffect_->SetCamera(camera.get());
@@ -131,7 +132,7 @@ void TestScene::Initialize()
 
 
 	primitive = std::make_unique<Primitive>();
-	primitive->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png",{1,1,1,1});
+	primitive->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
 	Primitive::AnimationPlane anime{};
 	anime.height = 1;
 	anime.width = 1;
@@ -147,41 +148,80 @@ void TestScene::Initialize()
 	primitive->SetName("cube1");
 	lineDraw3_.Initialize();
 	lineDraw3_.SetCamera(camera.get());
-	
+
 	for (int i = 0; i < 1; i++) {
 		auto primi = std::make_unique<Primitive>();
-		if(i == 0)
+		if (i == 0)
 			primi->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-			primi->SetName("cube2");
-		if(i == 1)
+		primi->SetName("cube2");
+		if (i == 1)
 			primi->Initialize(Primitive::ShapeType::Circle, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 2)
+		if (i == 2)
 			primi->Initialize(Primitive::ShapeType::Crescent, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 3)
+		if (i == 3)
 			primi->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 4)
+		if (i == 4)
 			primi->Initialize(Primitive::ShapeType::Pyramid, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 5)
+		if (i == 5)
 			primi->Initialize(Primitive::ShapeType::Ring, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 6)
+		if (i == 6)
 			primi->Initialize(Primitive::ShapeType::Sphere, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 7)
+		if (i == 7)
 			primi->Initialize(Primitive::ShapeType::Plane, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 8)
+		if (i == 8)
 			primi->Initialize(Primitive::ShapeType::Tube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		if(i == 9)
+		if (i == 9)
 			primi->Initialize(Primitive::ShapeType::Cylinder, "resources/Texture/uvChecker.png", { 1,1,1,1 });
-		
+
 		primi->SetCamera(camera.get());
 		primi->transform.translate.x = float(i * 10);
 
 		primitives.push_back(std::move(primi));
 	}
 
+
+
+	segment_.end = { 1,1,1 };
+	segment_.origin = { 0,0,0 };
+
+	testPos = { 0,0,0 };
+
+	offset = 0.1f;
+
+	cup1.radius = 0.1f;
+	cup1.segment.origin = {testPos.x,offset,testPos.z};
+	cup1.segment.end = { testPos.x,-offset,testPos.z };
+	cup2.radius = 3.0f;
+	cup2.segment.origin = { 10,1,1 };
+	cup2.segment.end = { 15,1,1 };
+
+
 	
 
-	segment_.end   = { 1,1,1 };
-	segment_.origin = { 0,0,0 };
+	primitiveCup1[0] = std::make_unique<Primitive>();
+	primitiveCup1[0]->Initialize(Primitive::ShapeType::Sphere, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+	primitiveCup1[0]->SetCamera(camera.get());
+	primitiveCup1[0]->SetParametar(cup1.radius);
+	primitiveCup1[0]->SetName("cup1_o");
+	primitiveCup1[1] = std::make_unique<Primitive>();
+	primitiveCup1[1]->Initialize(Primitive::ShapeType::Sphere, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+	primitiveCup1[1]->SetCamera(camera.get());
+	primitiveCup1[1]->SetParametar(cup1.radius);
+	primitiveCup1[1]->SetName("cup1_e");
+
+	primitiveCup2[0] = std::make_unique<Primitive>();
+	primitiveCup2[0]->Initialize(Primitive::ShapeType::Sphere, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+	primitiveCup2[0]->SetCamera(camera.get());
+	primitiveCup2[0]->SetParametar(cup2.radius);
+	primitiveCup2[0]->SetName("cup2_o");
+
+	primitiveCup2[1] = std::make_unique<Primitive>();
+	primitiveCup2[1]->Initialize(Primitive::ShapeType::Sphere, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+	primitiveCup2[1]->SetCamera(camera.get());
+	primitiveCup2[1]->SetParametar(cup2.radius);
+	primitiveCup2[1]->SetName("cup2_e");
+
+
 
 }
 
@@ -191,65 +231,42 @@ void TestScene::Finalize()
 
 void TestScene::Update()
 {
-	cons.velocity = -ball1.velocity.Normalize() * 10;
-	cons.color = { 0.2f,0.2f,0.2f,1.0f };
-	cons.size = { 0.5f,0.5f,0.5f };
-	cons.renge = { -Vector3{3.0f,3.0f,3.0f},Vector3{3.0f,3.0f,3.0f} };
-	ParticleManager::GetInstance()->Emit("cc","const", cons);
-	cons.color = { 0.0f,0.0f,0.0f,1.0f };
-	cons.size = { 0.7f,0.7f,0.7f };
-	cons.renge = { -Vector3{2.0f,2.0f,2.0f},Vector3{2.0f,2.0f,2.0f} };
-	ParticleManager::GetInstance()->Emit("cc","const", cons);
-	cons.velocity = -ball1.velocity.Normalize() * 15;
-	cons.color = { 1.0f,0.5f,0.0f,1.0f };
-	cons.size = { 0.3f,0.3f,0.3f };
-	cons.renge = { -Vector3{2.0f,2.0f,2.0f},Vector3{2.0f,2.0f,2.0f} };
-	ParticleManager::GetInstance()->Emit("cc", "const", cons);
-	cons.color = { 1.0f,0.0f,0.0f,1.0f };
-	cons.renge = { -Vector3{1.5f,1.5f,1.5f},Vector3{1.5f,1.5f,1.5f} };
-	ParticleManager::GetInstance()->Emit("cc", "const", cons);
-
-
-	sphere1.transform.scale = scale1;
-	sphere2.transform.scale = scale2;
-	ball1.rad = scale1;
-	ball2.rad = scale2;
-	
-	if (ball1.velocity.Length() != 0) {
-		flag33 = true;
-	}
-	else {
-		flag33 = false;
-	}
-	flag33 = true;
-
-
 	
 
-	trailEffect_->Update(flag33,sphereStr,sphereEnd);
-	
+
+
+	trailEffect_->Update(flag33, sphereStr, sphereEnd);
+
 	ImGui::Begin("segment");
 	ImGui::DragFloat3("origin", &segment_.origin.x);
 	//if()
 	ImGui::DragFloat3("end", &segment_.end.x);
 	ImGui::End();
-
-	ImGui::Begin("trail");
-	ImGui::Checkbox("frag", &flag33);
-	ImGui::DragFloat3("rotate", &sphere1.transform.rotate.x,0.01f);
-	ImGui::DragFloat3("rotateSpeed", &rotate_.x,0.01f);
-	ImGui::DragFloat("maxTime", &trailEffect_->GetMesh()->maxTime, 0.01f);
-	int ii = (int)trailEffect_->mesh->vertices.size();
-	ImGui::InputInt("vertice", &ii);
+	
+	ImGui::Begin("cupsele1");
+	
+	ImGui::DragFloat3("testPos", &testPos.x, 0.1f);
+	ImGui::DragFloat3("origin", &cup1.segment.origin.x);
+	ImGui::DragFloat3("end", &cup1.segment.end.x);
+	ImGui::DragFloat("end", &cup1.radius);
 	ImGui::End();
-	
-	
-	
+	ImGui::Begin("cupsele2");
+	ImGui::DragFloat3("origin", &cup2.segment.origin.x);
+	ImGui::DragFloat3("end", &cup2.segment.end.x);
+	ImGui::DragFloat("end", &cup2.radius);
+	ImGui::End();
 
 	
 
+	if(Input::GetInstance()->IsTriggerKey(DIK_0)){
+		walk.transform.rotate.y += DegreesToRadians(1);
+	}
 
-	
+
+
+
+
+
 
 
 	if (Input::GetInstance()->IsPushKey(DIK_A)) {
@@ -272,8 +289,6 @@ void TestScene::Update()
 	}
 
 
-	//LightCommon::GetInstance()->GetPointLight(0).intensity = 1.0f;
-
 	camera->UpdateMatrix();
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
@@ -288,44 +303,44 @@ void TestScene::Update()
 	//
 	//	
 	//
-		if (ImGui::CollapsingHeader("Gizmos")) {
-			ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
-			ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
-			ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
-			ImGuiManager::GetInstance()->RenderGizmo2(walk, *camera.get(), "walk");
-			ImGuiManager::GetInstance()->RenderGizmo2(multiMesh, *camera.get(), "multiMesh");
-			ImGuiManager::GetInstance()->RenderGizmo2(sphere1, *camera.get(), "sphere1");
-	
+	if (ImGui::CollapsingHeader("Gizmos")) {
+		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
+		ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
+		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
+		ImGuiManager::GetInstance()->RenderGizmo2(walk, *camera.get(), "walk");
+		ImGuiManager::GetInstance()->RenderGizmo2(multiMesh, *camera.get(), "multiMesh");
+		ImGuiManager::GetInstance()->RenderGizmo2(sphere1, *camera.get(), "sphere1");
+
+	}
+	if (ImGui::CollapsingHeader("Camera")) {
+		ImGui::DragFloat3("Translate", &camera->transform_.translate.x, 0.1f);
+		ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x, 0.01f);
+		ImGui::Checkbox("flag", &flag);
+		if (ImGui::Button("cameraPos")) {
+			camera->transform_.translate = { 0,20,-175 };
+			camera->transform_.rotate = { 0,0,0 };
 		}
-		if (ImGui::CollapsingHeader("Camera")) {
-			ImGui::DragFloat3("Translate", &camera->transform_.translate.x, 0.1f);
-			ImGui::DragFloat3("Rotate", &camera->transform_.rotate.x, 0.01f);
-			ImGui::Checkbox("flag", &flag);
-			if (ImGui::Button("cameraPos")) {
-				camera->transform_.translate = { 0,20,-175 };
-				camera->transform_.rotate = { 0,0,0 };
-			}
-			if (ImGui::Button("cameraPos2")) {
-				camera->transform_.translate = { -30,10,-140 };
-				camera->transform_.rotate = { 0,0,0 };
-			}
-			if (ImGui::Button("cameraPos3")) {
-				camera->transform_.translate = { 0,500,0 };
-				camera->transform_.rotate = { DegreesToRadians(90),0,0 };
-			}
-			if (ImGui::Button("cameraPos4")) {
-				camera->transform_.translate = { 0,60,-220 };
-				camera->transform_.rotate = { DegreesToRadians(10),0,0 };
-			}
-			if (ImGui::Button("cameraPos5")) {
-				camera->transform_.translate = { 0,60,220 };
-				camera->transform_.rotate = { DegreesToRadians(10),DegreesToRadians(180),0};
-			}
-	
-	
+		if (ImGui::Button("cameraPos2")) {
+			camera->transform_.translate = { -30,10,-140 };
+			camera->transform_.rotate = { 0,0,0 };
 		}
-	
-		ImGui::End();
+		if (ImGui::Button("cameraPos3")) {
+			camera->transform_.translate = { 0,500,0 };
+			camera->transform_.rotate = { DegreesToRadians(90),0,0 };
+		}
+		if (ImGui::Button("cameraPos4")) {
+			camera->transform_.translate = { 0,60,-220 };
+			camera->transform_.rotate = { DegreesToRadians(10),0,0 };
+		}
+		if (ImGui::Button("cameraPos5")) {
+			camera->transform_.translate = { 0,60,220 };
+			camera->transform_.rotate = { DegreesToRadians(10),DegreesToRadians(180),0 };
+		}
+
+
+	}
+
+	ImGui::End();
 	//#endif
 
 	if (Input::GetInstance()->IsTriggerKey(DIK_SPACE)) {
@@ -344,111 +359,61 @@ void TestScene::Update()
 		sphere2.transform.translate = { 0, 0, 10 };
 	}
 
-
-	 // 球の速度を更新
-	sphere1.transform.translate += ball1.velocity;
-	sphere2.transform.translate += ball2.velocity;
-
-	sphere1.transform.rotate += rotate_;
-
-	// 球の位置を取得
-	Vector3 position1 = sphere1.transform.translate;
-	Vector3 position2 = sphere2.transform.translate;
-
-	// 球の半径（仮に1.0fとします）
-	//float radius = 1.0f;
-	// 衝突の検出
-	Vector3 distance = position2 - position1;
-	if (distance.Length() <= ball1.rad + ball2.rad) {
-		// 衝突検出時の処理
-		Vector3 normal = sphere1.transform.translate - sphere2.transform.translate;
-		normal.Normalize();
-		auto result = ComputeCollisionVelocities(ball1.mass, ball1.velocity, ball2.mass, ball2.velocity, refrect, normal.Normalize());
-		ball1.velocity = result.first;
-		ball2.velocity = result.second;
-
-		rotate_.x = ball1.velocity.Normalize().Length() /10;
-	}
-
-	if (sphere1.transform.translate.x > 30 || -30 > sphere1.transform.translate.x) {
-		ball1.velocity.x *= -1.0f;
-	}
-	if (sphere1.transform.translate.z > 30 || -30 > sphere1.transform.translate.z) {
-		ball1.velocity.z *= -1.0f;
-	}
-	if (sphere2.transform.translate.x > 30 || -30 > sphere2.transform.translate.x) {
-		ball2.velocity.x *= -1.0f;
-	}
-	if (sphere2.transform.translate.z > 30 || -30 > sphere2.transform.translate.z) {
-		ball2.velocity.z *= -1.0f;
-	}
-
-
-
-
-	
-
-	OBB obb{};
-	obb.center = primitives[0]->transform.translate;
-	obb.size = primitives[0]->GetCubeSize();
-	Vector3 rotate = primitives[0]->transform.rotate;
-	
-	Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(rotate.x), Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z)));
-
-	obb.orientations[0].x = rotateMatrix.m[0][0];
-	obb.orientations[0].y = rotateMatrix.m[0][1];
-	obb.orientations[0].z = rotateMatrix.m[0][2];
-
-	obb.orientations[1].x = rotateMatrix.m[1][0];
-	obb.orientations[1].y = rotateMatrix.m[1][1];
-	obb.orientations[1].z = rotateMatrix.m[1][2];
-
-	obb.orientations[2].x = rotateMatrix.m[2][0];
-	obb.orientations[2].y = rotateMatrix.m[2][1];
-	obb.orientations[2].z = rotateMatrix.m[2][2];
-
-	OBB obb1{};
-	obb1.center = primitive->transform.translate;
-	obb1.size = primitive->GetCubeSize();
-	
-	rotate = primitive->transform.rotate;
-	rotateMatrix = Multiply(MakeRotateXMatrix(rotate.x), Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z)));
-	
-	obb1.orientations[0].x = rotateMatrix.m[0][0];
-	obb1.orientations[0].y = rotateMatrix.m[0][1];
-	obb1.orientations[0].z = rotateMatrix.m[0][2];
-
-	obb1.orientations[1].x = rotateMatrix.m[1][0];
-	obb1.orientations[1].y = rotateMatrix.m[1][1];
-	obb1.orientations[1].z = rotateMatrix.m[1][2];
-
-	obb1.orientations[2].x = rotateMatrix.m[2][0];
-	obb1.orientations[2].y = rotateMatrix.m[2][1];
-	obb1.orientations[2].z = rotateMatrix.m[2][2];
-
-
-	if (IsCollision(obb, obb1)) {
-		primitive->SetColor(Vector4{ 1,0,0,1 });
+	if (Mesh::IsCapsuleCollision(*sphere1.GetMesh(0),sphere1.GetWorldPosition(), cup1)) {
+		sphere1.GetMaterial(0)->color = { 1,0,0,1 };
 	}
 	else {
-		primitive->SetColor(Vector4{ 1,1,1,1 });
+		sphere1.GetMaterial(0)->color = { 1,1,1,1 };
 	}
+
+
+
+
+	primitiveCup1[0]->transform.translate = cup1.segment.origin;
+	primitiveCup1[1]->transform.translate = cup1.segment.end;
+
+	primitiveCup1[0]->SetParametar(cup1.radius);
+	primitiveCup1[1]->SetParametar(cup1.radius);
+	primitiveCup1[0]->transform.scale = cup1.radius * 0.33f;
+	primitiveCup1[1]->transform.scale = cup1.radius * 0.33f;
+
+	primitiveCup2[0]->transform.translate = cup2.segment.origin;
+	primitiveCup2[1]->transform.translate = cup2.segment.end;
 	
+	//primitiveCup2[0]->SetParametar(cup2.radius);
+	//primitiveCup2[1]->SetParametar(cup2.radius);
+
+	cup1.segment.origin = { testPos.x,testPos.y + offset,testPos.z };
+	cup1.segment.end = { testPos.x,testPos.y - offset,testPos.z };
+
+
+	/*if (IsCollision(cup1,cup2)) {
+		primitiveCup1[0]->SetColor(Vector4{1,0,0,1});
+		primitiveCup1[1]->SetColor(Vector4{1,0,0,1});
+	}
+	else {
+		primitiveCup1[0]->SetColor(Vector4{ 1,1,1,1 });
+		primitiveCup1[1]->SetColor(Vector4{ 1,1,1,1 });
+	}*/
 
 
 
 
 
 
+	primitiveCup1[0]->Update();
+	primitiveCup1[1]->Update();
+
+	primitiveCup2[0]->Update();
+	primitiveCup2[1]->Update();
 
 	for (int i = 0; i < primitives.size(); i++) {
 		primitives[i]->Update();
 	}
 
-	
+
 
 	primitive->Update();
-	//primitive2->Update();
 
 	walk.UpdateSkinning();
 	mm.Update();
@@ -470,7 +435,6 @@ void TestScene::Update()
 
 	lineDraw_.Update();
 	lineDraw2_.Update();
-	//lineDraw3_.SetTransform(primitive->transform);
 	lineDraw3_.Update();
 
 
@@ -480,13 +444,21 @@ void TestScene::Update()
 void TestScene::Draw3D()
 {
 	for (int i = 0; i < primitives.size(); i++) {
-		primitives[i]->Draw();
+	//	primitives[i]->Draw();
 	}
 
-	primitive->Draw();
+	//primitive->Draw();
+
+
+	primitiveCup1[0]->Draw();
+	primitiveCup1[1]->Draw();
+
+	//primitiveCup2[0]->Draw();
+	//primitiveCup2[1]->Draw();
+
 	//primitive2->Draw();
 
-	//walk.DrawSkinning();
+	walk.DrawSkinning();
 	//walk.DrawLine();
 	//tail.Draw();
 	//multiMesh.Draw();
@@ -496,7 +468,7 @@ void TestScene::Draw3D()
 	//ocean_.Draw();
 
 	sphere1.Draw();
-	sphere2.Draw();
+	//sphere2.Draw();
 
 	trailEffect_->Draw();
 
@@ -510,8 +482,9 @@ void TestScene::Draw3D()
 	}
 	lineDraw2_.Draw3D(sphere2.transform.translate, sphere2.transform.translate + (ball2.velocity.Normalize() * 10), { 1,0,0,1 });
 
+//	lineDraw3_.DrawCapselLine(testPos,cup1);
 
-	lineDraw3_.Draw3D(segment_.origin,segment_.end,{1,1,1,1});
+	//lineDraw3_.Draw3D(segment_.origin, segment_.end, { 1,1,1,1 });
 }
 
 void TestScene::Draw2D()

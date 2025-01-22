@@ -2,6 +2,9 @@
 #include "DirectXGame/engine/base/TextureManager.h"
 #include "imgui.h"
 
+
+#include"DirectXGame/engine/MyGame/MyGame.h"
+
 ParticleManager* ParticleManager::instance = nullptr;
 
 ParticleManager* ParticleManager::GetInstance()
@@ -41,6 +44,8 @@ void ParticleManager::DrawCommonSetting()
 
 void ParticleManager::Update()
 {
+	kDeltaTime = MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+
 	// カメラ設定
 	Transform cameraTransform{
 		{1.0f, 1.0f, 1.0f},

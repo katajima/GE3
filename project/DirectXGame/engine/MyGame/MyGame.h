@@ -54,6 +54,7 @@
 #include"Framework.h"
 
 #include "DirectXGame/application/scene/SceneFactory.h"
+#include "DirectXGame/engine/struct/DeltaTime.h"
 
 
 class  MyGame : public Framework
@@ -74,10 +75,15 @@ public:
 
 	void InitializeResource();
 
+public:
+	static float const kDeltaTime_;
+	static float kTimeSpeed_;
 private:
 	std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
 
 	float fps = 0.0f;
+	
+	//static const DeltaTime kDeltaTime_;
 	
 private:
 	// ゲーム終了フラグ

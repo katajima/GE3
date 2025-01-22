@@ -137,3 +137,51 @@ void LineDraw::DrawMeshLine(Mesh* mesh)
 	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
 	lineCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh_->indices.size()), 1, 0, 0, 0);
 }
+
+void LineDraw::DrawCapselLine(const Vector3& torans ,const Capsule& capsure)
+{
+	LineCommon::GetInstance()->DrawCommonSetting();
+
+	// 頂点データの設定
+	mesh_->UpdateLineVertexBuffer();
+	mesh_->UpdateIndexBuffer();
+
+	mesh_->verticesline.clear();
+	mesh_->indices.clear();
+
+	// ラインカプセル生成
+	int numSegments = 16;
+	for (int i = 0; i < numSegments; ++i)
+	{
+		float theta = i * 2.0f * 3.141592653589793f / numSegments;
+		float x = capsure.radius * cos(theta);
+		float z = capsure.radius * sin(theta);
+		Vector3 ori = capsure.segment.origin + torans;
+		Vector3 end = capsure.segment.end + torans;
+
+
+		mesh_->verticesline.push_back({ ori.x + x, ori.y, ori.z + z });
+		mesh_->verticesline.push_back({ end.x + x, end.y, end.z + z });
+
+		int nextIndex = (i + 1) % numSegments;
+		mesh_->indices.push_back(i * 2);
+		mesh_->indices.push_back(nextIndex * 2);
+		mesh_->indices.push_back(i * 2 + 1);
+		mesh_->indices.push_back(nextIndex * 2 + 1);
+	}
+
+
+	// 頂点データの設定
+	mesh_->UpdateLineVertexBuffer();
+	mesh_->UpdateIndexBuffer();
+
+	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
+	// マテリアルのバインド
+	lineCommon_->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+
+
+	mesh_->GetCommandList();
+
+	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
+	lineCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh_->indices.size()), 1, 0, 0, 0);
+}

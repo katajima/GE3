@@ -21,6 +21,10 @@
 
 #include "DirectXGame/engine/effect/Trail/TrailEffect.h"
 
+#include "DirectXGame/engine/struct/DeltaTime.h"
+
+#include "DirectXGame/engine/MyGame/MyGame.h"
+
 ///< summary>
 /// 自キャラ
 ///</summary>
@@ -92,8 +96,8 @@ private: //Behavior
 public: // 攻撃関係
 	struct Parameter
 	{
-		int t;
-		int max_t;
+		float t;
+		float max_t;
 	};
 	struct AttackKeyFlag
 	{
@@ -147,7 +151,7 @@ private: // 攻撃関係
 		//
 		// ヒットカウント
 		int hitCount = 0;
-		int hitTime = 0;
+		float hitTime = 0;
 	};
 	WrokAttack workAttack{};
 	
@@ -160,7 +164,7 @@ private: // 攻撃関係
 		// フェーズ
 		int phese = 0;
 		// 時間
-		int time = 0;
+		float time = 0;
 		// 
 		int max; 
 		// クロック
@@ -191,8 +195,8 @@ private: // 攻撃関係
 		float swingSpeed;
 	};
 	// 攻撃再発動時間
-	int recastTime = 0;
-	const int MaxRecastTime = 50;
+	float recastTime = 0;
+	const float MaxRecastTime = 1.0f;
 
 	// 攻撃キー入力
 	void AttackKey();
@@ -278,6 +282,8 @@ public:
 
 private:
 
+	//DeltaTime deltaTime_;
+
 private:  // パラメータ
 	
 	uint32_t maxHp = 100;
@@ -329,10 +335,10 @@ private:
 	float attackParameter_;
 
 	// 浮遊サイクル<frame>
-	int floatingPeriod = 120;
+	//int floatingPeriod = 120;
 
 	// 浮遊の振幅<m>
-	float floatingAmplitude = 1.0f;
+	//float floatingAmplitude = 1.0f;
 	
 	
 	float speed;

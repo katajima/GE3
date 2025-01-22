@@ -112,6 +112,9 @@ void Player::Initialize(Vector3 position, Camera* camera)
 
 void Player::Update()
 {
+	
+
+	//deltaTime_.Update();
 
 	Gravity();
 	trailEffect_->Update(flag33, weaponStr, weaponEnd);
@@ -190,7 +193,7 @@ void Player::Update()
 	if (hp <= 0) {
 		isAlive = false;
 	}
-	workAttack.hitTime--;
+	workAttack.hitTime  -= MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
 	if (workAttack.hitTime <= 0) {
 		workAttack.hitCount = 0;
 	}
@@ -319,7 +322,7 @@ Vector3 Player::GetCenterPosition() const
 
 void Player::Move()
 {
-	speed = 0.3f;
+	speed = 20.0f;
 	velocity_ = { 0,0,0 };
 	isMove = false;
 
@@ -401,9 +404,8 @@ void Player::Move()
 
 		}
 	}
-
 	if (behavior_ == Behavior::kRoot || behavior_ == Behavior::kDie)
-		objectBase_.transform.translate = Add(objectBase_.transform.translate, velocity_);
+		objectBase_.transform.translate = Add(objectBase_.transform.translate, velocity_ * MyGame::kDeltaTime_ * MyGame::kTimeSpeed_);
 
 	if (isMove) {
 		ParticleManager::Constant cons{};
@@ -412,7 +414,7 @@ void Player::Move()
 		cons.size = { 0.3f,0.3f,0.3f };
 		cons.count = 2;
 		cons.lifeTime = 1.0f;
-		cons.velocity = Multiply(-velocity_, 10);
+		cons.velocity = -velocity_;// Multiply(-velocity_, 10);
 		cons.color = { 0.824f, 0.706f, 0.549f,0.5f };
 		cons.renge = { -Vector3{1.4f,0.1f,1.4f},Vector3{1.4f,0.1f,1.4f} };
 		ParticleManager::GetInstance()->Emit("cc", "const", cons);
