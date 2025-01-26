@@ -128,7 +128,7 @@ private: // 攻撃関係
 		// 攻撃ギミックの媒介変数
 		Parameter attackAll; // 攻撃
 		AttackKeyFlag key; // 攻撃方法キー
-		int parameter;
+		float parameter;
 		// 
 		//振るまい
 		AttackType type = AttackType::kNone;

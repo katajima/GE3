@@ -404,9 +404,10 @@ void Player::Move()
 
 		}
 	}
-	if (behavior_ == Behavior::kRoot || behavior_ == Behavior::kDie)
-		objectBase_.transform.translate = Add(objectBase_.transform.translate, velocity_ * MyGame::kDeltaTime_ * MyGame::kTimeSpeed_);
-
+	if (behavior_ == Behavior::kRoot || behavior_ == Behavior::kDie) {
+		objectBase_.transform.translate += velocity_ * MyGame::GameTime();
+		
+	}
 	if (isMove) {
 		ParticleManager::Constant cons{};
 		cons.centar = { 0,-0.5f,0 };
@@ -422,16 +423,19 @@ void Player::Move()
 	
 }
 
-void Player::Gravity()
-{
+void Player::Gravity() {
 	// 移動
-	objectBase_.transform.translate.y += graVelo;
+	velocity_.y = graVelo * MyGame::GameTime();
+
 	// 重力加速度
-	const float kGravityAcceleration = 0.05f;
+	const float kGravityAcceleration = 4.0f;
+
 	// 加速度ベクトル
-	float accelerationVector = -kGravityAcceleration;
+	float accelerationVector = -kGravityAcceleration * MyGame::kDeltaTime_; // 毎フレームのデルタ時間で重力を適用
+
 	// 加速する
 	graVelo += accelerationVector;
+
 	// 着地
 	if (objectBase_.transform.translate.y <= groundY) {
 		objectBase_.transform.translate.y = groundY;
@@ -439,6 +443,7 @@ void Player::Gravity()
 		isJamp = false;
 	}
 }
+
 
 void Player::LockOn(std::vector<std::unique_ptr<Enemy>>& enemys)
 {

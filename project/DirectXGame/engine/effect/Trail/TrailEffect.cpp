@@ -1,6 +1,7 @@
 #include "TrailEffect.h"
 #include "DirectXGame/engine/3d/Object3d.h"
 
+#include "DirectXGame/engine/MyGame/MyGame.h"
 
 void TrailEffect::Initialize(const std::string& tex,float maxtime  ,const Vector4 color)
 {
@@ -91,7 +92,7 @@ void TrailEffect::Update(bool& flag, const Object3d& strM, const Object3d& endM)
 
 	// タイマーの更新
 	for (size_t i = 0; i < mesh->verticesTimer.size(); ++i) {
-		mesh->verticesTimer[i] += 0.016f; // 例としてフレーム時間を加算 (60FPSの想定)
+		mesh->verticesTimer[i] += MyGame::GameTime(); // 例としてフレーム時間を加算 (60FPSの想定)
 	}
 	//for (size_t i = 0; i < mesh->indicesTimer.size(); ++i) {
 	//	mesh->indicesTimer[i] += 0.016f; // 例としてフレーム時間を加算 (60FPSの想定)
