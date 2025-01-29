@@ -152,11 +152,13 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
 
 	ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
+	ModelManager::GetInstance()->LoadModel("a.obj");
 	
 
 	ModelManager::GetInstance()->LoadModelAmime("walk.gltf", "human");
 	ModelManager::GetInstance()->LoadModelAmime("player_bullet.obj", "player_bullet");
 	ModelManager::GetInstance()->LoadModelAmime("Sword.obj", "Sword");
+	ModelManager::GetInstance()->LoadModelAmime("plane.obj", "plane");
 	ModelManager::GetInstance()->LoadModelAmime("sneakWalk.gltf", "human");
 	ModelManager::GetInstance()->LoadModelAmime("AnimatedCube.gltf", "AnimatedCube");
 

@@ -31,7 +31,7 @@ void TestScene::Initialize()
 	mm2.SetCamera(camera.get());
 
 	multiMesh.Initialize();
-	multiMesh.SetModel("multiMaterial.obj");
+	multiMesh.SetModel("plane.obj");
 	multiMesh.transform.translate = { 0,10,20 };
 	multiMesh.transform.rotate.y = DegreesToRadians(180);
 	multiMesh.transform.scale = { 10,10,10 };
@@ -78,9 +78,9 @@ void TestScene::Initialize()
 	ball1.velocity = 0;
 
 	sphere2.Initialize();
-	sphere2.SetModel("Sphere.obj");
+	sphere2.SetModel("a.obj");
 	sphere2.SetCamera(camera.get());
-	sphere2.transform.translate = { 0,0,10 };
+	sphere2.transform.translate = { 0,10,10 };
 	sphere2.transform.scale = scale2;
 
 	ball2.mass = 2.0f;
@@ -132,7 +132,7 @@ void TestScene::Initialize()
 
 
 	primitive = std::make_unique<Primitive>();
-	primitive->Initialize(Primitive::ShapeType::Cube, "resources/Texture/uvChecker.png", { 1,1,1,1 });
+	primitive->Initialize(Primitive::ShapeType::Torus, "resources/Texture/uvChecker.png", { 1,1,1,1 });
 	Primitive::AnimationPlane anime{};
 	anime.height = 1;
 	anime.width = 1;
@@ -144,8 +144,9 @@ void TestScene::Initialize()
 	anime.isUV = false;
 	//primitive->SetParametar(anime);
 	primitive->SetCamera(camera.get());
-	primitive->transform.translate.x = -10;
-	primitive->SetName("cube1");
+	primitive->transform.translate.x = 20;
+	primitive->transform.translate.y = 10;
+	//primitive->SetName("cube1");
 	lineDraw3_.Initialize();
 	lineDraw3_.SetCamera(camera.get());
 
@@ -237,24 +238,7 @@ void TestScene::Update()
 
 	trailEffect_->Update(flag33, sphereStr, sphereEnd);
 
-	ImGui::Begin("segment");
-	ImGui::DragFloat3("origin", &segment_.origin.x);
-	//if()
-	ImGui::DragFloat3("end", &segment_.end.x);
-	ImGui::End();
 	
-	ImGui::Begin("cupsele1");
-	
-	ImGui::DragFloat3("testPos", &testPos.x, 0.1f);
-	ImGui::DragFloat3("origin", &cup1.segment.origin.x);
-	ImGui::DragFloat3("end", &cup1.segment.end.x);
-	ImGui::DragFloat("end", &cup1.radius);
-	ImGui::End();
-	ImGui::Begin("cupsele2");
-	ImGui::DragFloat3("origin", &cup2.segment.origin.x);
-	ImGui::DragFloat3("end", &cup2.segment.end.x);
-	ImGui::DragFloat("end", &cup2.radius);
-	ImGui::End();
 
 	
 
@@ -309,7 +293,8 @@ void TestScene::Update()
 		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
 		ImGuiManager::GetInstance()->RenderGizmo2(walk, *camera.get(), "walk");
 		ImGuiManager::GetInstance()->RenderGizmo2(multiMesh, *camera.get(), "multiMesh");
-		ImGuiManager::GetInstance()->RenderGizmo2(sphere1, *camera.get(), "sphere1");
+		//ImGuiManager::GetInstance()->RenderGizmo2(sphere1, *camera.get(), "sphere1");
+		ImGuiManager::GetInstance()->RenderGizmo2(sphere2, *camera.get(), "sphere1");
 
 	}
 	if (ImGui::CollapsingHeader("Camera")) {
@@ -401,7 +386,7 @@ void TestScene::Update()
 
 
 
-	primitiveCup1[0]->Update();
+	/*primitiveCup1[0]->Update();
 	primitiveCup1[1]->Update();
 
 	primitiveCup2[0]->Update();
@@ -409,7 +394,7 @@ void TestScene::Update()
 
 	for (int i = 0; i < primitives.size(); i++) {
 		primitives[i]->Update();
-	}
+	}*/
 
 
 
@@ -447,11 +432,11 @@ void TestScene::Draw3D()
 	//	primitives[i]->Draw();
 	}
 
-	//primitive->Draw();
+	primitive->Draw();
 
 
-	primitiveCup1[0]->Draw();
-	primitiveCup1[1]->Draw();
+	//primitiveCup1[0]->Draw();
+	//primitiveCup1[1]->Draw();
 
 	//primitiveCup2[0]->Draw();
 	//primitiveCup2[1]->Draw();
@@ -460,27 +445,27 @@ void TestScene::Draw3D()
 
 	walk.DrawSkinning();
 	//walk.DrawLine();
-	//tail.Draw();
-	//multiMesh.Draw();
-	//mm.Draw();
-	//mm2.Draw();
+	tail.Draw();
+	multiMesh.Draw();
+	mm.Draw();
+	mm2.Draw();
 
 	//ocean_.Draw();
 
-	sphere1.Draw();
-	//sphere2.Draw();
+	//sphere1.Draw();
+	sphere2.Draw();
 
 	trailEffect_->Draw();
 
 	//ocean_.Draw();
-	if (ball1.velocity.Length() == 0) {
+	/*if (ball1.velocity.Length() == 0) {
 		lineDraw_.Draw3D(sphere1.transform.translate, sphere1.transform.translate + (setVelo.Normalize() * 10), { 1,1,0,1 });
 
 	}
 	else {
 		lineDraw_.Draw3D(sphere1.transform.translate, sphere1.transform.translate + (ball1.velocity.Normalize() * 10), { 1,0,0,1 });
 	}
-	lineDraw2_.Draw3D(sphere2.transform.translate, sphere2.transform.translate + (ball2.velocity.Normalize() * 10), { 1,0,0,1 });
+	lineDraw2_.Draw3D(sphere2.transform.translate, sphere2.transform.translate + (ball2.velocity.Normalize() * 10), { 1,0,0,1 });*/
 
 //	lineDraw3_.DrawCapselLine(testPos,cup1);
 

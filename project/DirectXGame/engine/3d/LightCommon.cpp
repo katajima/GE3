@@ -37,7 +37,7 @@ void LightCommon::Initialize()
 	//今回は赤を書き込んで見る //白
 	pointLightData[0] = PointLight({1.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,-10.0f});
 	pointLightData[0].radius = 10.0f;
-	pointLightData[0].intensity = 1.0f;
+	pointLightData[0].intensity = 10.0f;
 	pointLightData[0].lig = 0.2f;
 	pointLightData[0].isLight = true;
 	pointLightData[1] = PointLight({0.0f,1.0f,1.0f,1.0f}, {0.0f,-1.0f,10.0f});
@@ -54,7 +54,8 @@ void LightCommon::Initialize()
 	for (int i = 0; i < spotMax; i++) {
 		spotLightData[i] = SpotLight({1.0f,1.0f,1.0f,1.0f}, {2.0f,1.25f,0.0f}, 10.0f, Normalize({-1.0f,-1.0f,0.0f}), 10.0f, 2.0f, std::cos(std::numbers::pi_v<float> / 3.0f), 1.0f);
 		spotLightData[i].position = Vector3(10 * float(i), 0, 10);
-		spotLightData[i].isLight = false;
+		spotLightData[i].intensity = 50.0f;
+		spotLightData[i].isLight = true;
 	}
 
 	//GlobalVariables* globalVariables = GlobalVariables::GetInstance();
