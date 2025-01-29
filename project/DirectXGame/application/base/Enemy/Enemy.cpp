@@ -20,8 +20,8 @@ void Enemy::Initialize(Vector3 position, float HP,Camera*camera)
 	object_.Initialize();
 	object_.SetModel("teapot.obj");
 	object_.SetCamera(camera);
-	object_.transform = { { 1.5f, 1.5f, 1.5f}, { 0, 0, 0}, position };
-	object_.transform.scale = { 2,2,2 };
+	object_.worldtransform_.translate_ = position;
+	object_.worldtransform_.scale_ = { 2,2,2 };
 	
 
 
@@ -30,9 +30,9 @@ void Enemy::Initialize(Vector3 position, float HP,Camera*camera)
 	objectSha_.SetModel("plane.obj");
 	objectSha_.model->modelData.material[0]->tex_.diffuseFilePath = "resources/Texture/aa.png";
 	objectSha_.model->modelData.material[0]->color = { 0.0f,0.0f,0.0f,1 };
-	objectSha_.transform.translate = position;
-	objectSha_.transform.scale = { 4,4,4 };
-	objectSha_.transform.rotate.x = DegreesToRadians(-90);
+	objectSha_.worldtransform_.translate_ = position;
+	objectSha_.worldtransform_.scale_ = { 4,4,4 };
+	objectSha_.worldtransform_.rotate_.x = DegreesToRadians(-90);
 
 
 
@@ -43,7 +43,7 @@ void Enemy::Initialize(Vector3 position, float HP,Camera*camera)
 
 	ParticleManager::GetInstance()->CreateParticleGroup("dame", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera);
 	ParticleManager::GetInstance()->SetPos("dame", { 0,0,0 });
-	ParticleManager::GetInstance()->SetObject("dame", object_);
+	ParticleManager::GetInstance()->SetObject("dame", object_.worldtransform_);
 
 
 	emitter_ = new ParticleEmitter("dame", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
@@ -91,13 +91,13 @@ void Enemy::Update()
 			HitMotion();
 		}
 		// 影
-		objectSha_.transform.translate = object_.transform.translate;
-		objectSha_.transform.translate.y = 0.1f;
+		objectSha_.worldtransform_.translate_ = object_.worldtransform_.translate_;
+		objectSha_.worldtransform_.translate_.y = 0.1f;
 
 		Vector3 scale{};
 		scale = 7;
 
-		objectSha_.transform.scale = scale;
+		objectSha_.worldtransform_.scale_ = scale;
 	}
 
 	//emitter_->Update();
@@ -139,22 +139,22 @@ void Enemy::Move() {
 
 	// 向いている方向への移動ベクトルの計算
 	Vector3 moveDirection = { 0.0f, 0.0f, kMoveSpeed };
-	Matrix4x4 rotationMatrix = MakeRotateYMatrix(object_.transform.rotate.y);
+	Matrix4x4 rotationMatrix = MakeRotateYMatrix(object_.worldtransform_.rotate_.y);
 	moveDirection = TransformNormal(moveDirection, rotationMatrix);
 
 	// ロックオン座標
 	Vector3 lockOnPosition = player_->GetObject3D().GetWorldPosition();
 
 	// 追跡対象からロックオン対象へのベクトル
-	Vector3 sub = Subtract(lockOnPosition, object_.transform.translate);
+	Vector3 sub = Subtract(lockOnPosition, object_.worldtransform_.translate_);
 
 	// Y軸周り角度
-	object_.transform.rotate.y = std::atan2(sub.x, sub.z);
+	object_.worldtransform_.rotate_.y = std::atan2(sub.x, sub.z);
 
 	if (Distance(player_->GetCenterPosition(), object_.GetWorldPosition()) >= 5) {
 
 		// 移動
-		object_.transform.translate = Add(object_.transform.translate, moveDirection * MyGame::GameTime());
+		object_.worldtransform_.translate_ = Add(object_.worldtransform_.translate_, moveDirection * MyGame::GameTime());
 	}
 }
 
@@ -173,22 +173,22 @@ void Enemy::HitMotion()
 
 	// 向いている方向への移動ベクトルの計算
 	Vector3 moveDirection = { 0.0f, 0.0f, kMoveSpeed };
-	Matrix4x4 rotationMatrix = MakeRotateYMatrix(object_.transform.rotate.y);
+	Matrix4x4 rotationMatrix = MakeRotateYMatrix(object_.worldtransform_.rotate_.y);
 	moveDirection = TransformNormal(moveDirection, rotationMatrix);
 
 	// ロックオン座標
 	Vector3 lockOnPosition = player_->GetObject3D().GetWorldPosition();
 
 	// 追跡対象からロックオン対象へのベクトル
-	Vector3 sub = Subtract(lockOnPosition, object_.transform.translate);
+	Vector3 sub = Subtract(lockOnPosition, object_.worldtransform_.translate_);
 
 	// Y軸周り角度
-	object_.transform.rotate.y = std::atan2(sub.x, sub.z);
+	object_.worldtransform_.rotate_.y = std::atan2(sub.x, sub.z);
 
 	//if (Distance(player_->GetCenterPosition(), object_.GetWorldPosition()) >= 10) {
 
 		// 移動
-		object_.transform.translate = Add(object_.transform.translate, moveDirection);
+		object_.worldtransform_.translate_ = Add(object_.worldtransform_.translate_, moveDirection);
 	//}
 }
 

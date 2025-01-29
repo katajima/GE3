@@ -34,7 +34,7 @@ public:
 	// 種別IDの設定
 	void SetTypeID(uint32_t typeID);
 	
-	void SetScale(Vector3 scale) { object.transform.scale = scale; }
+	void SetScale(Vector3 scale) { object.worldtransform_.scale_ = scale; }
 
 private:
 	// 衝突判定

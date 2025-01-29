@@ -22,19 +22,19 @@ void TestScene::Initialize()
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
 	mm.SetModel("building.obj");
-	mm.transform.translate = { 30,1,1 };
+	mm.worldtransform_.translate_ = { 30,1,1 };
 	mm.SetCamera(camera.get());
 	mm2.Initialize();
 	mm2.SetModel("AnimatedCube.gltf");
-	mm2.transform.translate = { -30,10,1 };
-	mm2.transform.scale = { 10,10,10 };
+	mm2.worldtransform_.translate_ = { -30,10,1 };
+	mm2.worldtransform_.scale_ = { 10,10,10 };
 	mm2.SetCamera(camera.get());
 
 	multiMesh.Initialize();
 	multiMesh.SetModel("plane.obj");
-	multiMesh.transform.translate = { 0,10,20 };
-	multiMesh.transform.rotate.y = DegreesToRadians(180);
-	multiMesh.transform.scale = { 10,10,10 };
+	multiMesh.worldtransform_.translate_ = { 0,10,20 };
+	multiMesh.worldtransform_.rotate_.y = DegreesToRadians(180);
+	multiMesh.worldtransform_.scale_ = { 10,10,10 };
 	multiMesh.SetCamera(camera.get());
 
 	tail.Initialize();
@@ -45,8 +45,8 @@ void TestScene::Initialize()
 	walk.Initialize();
 	walk.SetModel("walk.gltf");
 	walk.SetCamera(camera.get());
-	walk.transform.translate = { 0,10,0 };
-	walk.transform.scale = { 20,20,20 };
+	walk.worldtransform_.translate_ = { 0,10,0 };
+	walk.worldtransform_.scale_ = { 20,20,20 };
 
 
 
@@ -56,17 +56,17 @@ void TestScene::Initialize()
 	sphere1.Initialize();
 	sphere1.SetModel("stair.obj");
 	sphere1.SetCamera(camera.get());
-	sphere1.transform.translate = { 2,0,-10 };
-	sphere1.transform.scale = scale1;
+	sphere1.worldtransform_.translate_ = { 2,0,-10 };
+	sphere1.worldtransform_.scale_ = scale1;
 
 
 	sphereStr.Initialize();
-	sphereStr.parent_ = &sphere1;
-	sphereStr.transform.translate.y = sphere1.GetMesh(0)->GetMin().y;
+	sphereStr.worldtransform_.parent_ = &sphere1.worldtransform_;
+	sphereStr.worldtransform_.translate_.y = sphere1.GetMesh(0)->GetMin().y;
 
 	sphereEnd.Initialize();
-	sphereEnd.parent_ = &sphere1;
-	sphereEnd.transform.translate.y = sphere1.GetMesh(0)->GetMax().y;
+	sphereEnd.worldtransform_.parent_ = &sphere1.worldtransform_;
+	sphereEnd.worldtransform_.translate_.y = sphere1.GetMesh(0)->GetMax().y;
 
 
 
@@ -80,8 +80,8 @@ void TestScene::Initialize()
 	sphere2.Initialize();
 	sphere2.SetModel("a.obj");
 	sphere2.SetCamera(camera.get());
-	sphere2.transform.translate = { 0,10,10 };
-	sphere2.transform.scale = scale2;
+	sphere2.worldtransform_.translate_ = { 0,10,10 };
+	sphere2.worldtransform_.scale_ = scale2;
 
 	ball2.mass = 2.0f;
 	ball2.rad = scale2;
@@ -124,7 +124,7 @@ void TestScene::Initialize()
 	cons.renge = { -Vector3{2.5f,2.5f,2.5f},Vector3{2.5f,2.5f,2.5f} };
 
 
-	ParticleManager::GetInstance()->SetObject("cc", sphere1);
+	ParticleManager::GetInstance()->SetObject("cc", sphere1.worldtransform_);
 	ParticleManager::GetInstance()->SetCamera(camera.get());
 
 
@@ -243,7 +243,7 @@ void TestScene::Update()
 	
 
 	if(Input::GetInstance()->IsTriggerKey(DIK_0)){
-		walk.transform.rotate.y += DegreesToRadians(1);
+		walk.worldtransform_.rotate_.y += DegreesToRadians(1);
 	}
 
 
@@ -340,8 +340,8 @@ void TestScene::Update()
 		ball1.velocity = 0.0f;
 		ball2.velocity = 0.0f;
 
-		sphere1.transform.translate = { 2, 0, -10 };
-		sphere2.transform.translate = { 0, 0, 10 };
+		sphere1.worldtransform_.translate_ = { 2, 0, -10 };
+		sphere2.worldtransform_.translate_ = { 0, 0, 10 };
 	}
 
 	if (Mesh::IsCapsuleCollision(*sphere1.GetMesh(0),sphere1.GetWorldPosition(), cup1)) {

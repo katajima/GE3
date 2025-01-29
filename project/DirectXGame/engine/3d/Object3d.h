@@ -12,7 +12,7 @@
 #include"Model.h"
 #include"ModelManager.h"
 #include"DirectXGame/engine/Transfomation/Transfomation.h"
-
+#include "DirectXGame/engine/WorldTransform/WorldTransform.h"
 
 using namespace Microsoft::WRL;
 
@@ -47,17 +47,17 @@ public:
 	Vector3 GetWorldPosition() const {
 		// ワールド座標を入れる
 		Vector3 worldPos;
-		worldPos.x = mat_.m[3][0];
-		worldPos.y = mat_.m[3][1];
-		worldPos.z = mat_.m[3][2];
+		worldPos.x = worldtransform_.worldMat_.m[3][0];
+		worldPos.y = worldtransform_.worldMat_.m[3][1];
+		worldPos.z = worldtransform_.worldMat_.m[3][2];
 		return worldPos;
 	};
 	Vector3 GetPreWorldPosition() const {
 		// ワールド座標を入れる
 		Vector3 worldPos;
-		worldPos.x = preMat_.m[3][0];
-		worldPos.y = preMat_.m[3][1];
-		worldPos.z = preMat_.m[3][2];
+		worldPos.x = worldtransform_.worldPreMat_.m[3][0];
+		worldPos.y = worldtransform_.worldPreMat_.m[3][1];
+		worldPos.z = worldtransform_.worldPreMat_.m[3][2];
 		return worldPos;
 	};
 
@@ -80,17 +80,14 @@ private:
 	bool flag = true;
 	
 public:
-	// トランスフォーム(位置、回転、拡縮)
-	Transform transform;
 	// モデル
 	Model* model = nullptr;
-	// マトリックス(現在)
-	Matrix4x4 mat_;
-	// マトリックス(過去)
-	Matrix4x4 preMat_;
+	
+	WorldTransform worldtransform_;
+
 
 	// 親となるワールド変換へのポインタ
-	const Object3d* parent_ = nullptr;
+	//const Object3d* parent_ = nullptr;
 
 
 };

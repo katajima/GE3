@@ -155,6 +155,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\struct\Matrix4x4.cpp" />
     <ClCompile Include="DirectXGame\engine\struct\Quaternion.cpp" />
     <ClCompile Include="DirectXGame\engine\Transfomation\Transfomation.cpp" />
+    <ClCompile Include="DirectXGame\engine\WorldTransform\WorldTransform.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\ImGuizmo.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
@@ -404,6 +405,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\struct\Vector3.h" />
     <ClInclude Include="DirectXGame\engine\struct\Vector4.h" />
     <ClInclude Include="DirectXGame\engine\Transfomation\Transfomation.h" />
+    <ClInclude Include="DirectXGame\engine\WorldTransform\WorldTransform.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\ImGuizmo.h" />

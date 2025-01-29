@@ -59,7 +59,7 @@ public:
 
 	Object3d& GetObject3D() { return object_; }
 
-	void SetParent(const Object3d* parent) { object_.parent_ = parent; };
+	void SetParent(WorldTransform parent) { object_.worldtransform_.parent_ = &parent; };
 
 private:
 	const Camera* camera_ = nullptr;

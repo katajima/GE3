@@ -60,7 +60,7 @@ void FollowCamera::Update()
 		offset = TransformNormal(offset, matrix2 * matrix);
 
 		// 座標をコピーしてオフセット分ずらす
-		camera_.transform_.translate = Add(target_->transform.translate, offset);
+		camera_.transform_.translate = Add(target_->worldtransform_.translate_, offset);
 	}
 
 	if (Camera::isShake_) {

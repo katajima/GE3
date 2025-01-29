@@ -57,12 +57,12 @@ public:
 	// 3Dオブジェクトの参照を返す（読み取り専用）
 	//const Object3d& GetObjectTrans() const { return object_; }
 
-	Vector3& GetPostion() { return object_.transform.translate; };
+	Vector3& GetPostion() { return object_.worldtransform_.translate_; };
 	float& GetHP() { return HP_; };
 	void AddDamege(float da) { HP_ -= da; };
 
 
-	void SetPostion(Vector3 pos) { object_.transform.translate = pos; }
+	void SetPostion(Vector3 pos) { object_.worldtransform_.translate_ = pos; }
 	uint32_t GetSerialNumber() const { return serialNumber; }
 
 	// 衝突を検出したら呼び出されるコールバック関数

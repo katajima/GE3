@@ -47,22 +47,22 @@ void GamePlayScene::Initialize()
 	tail.Initialize();
 	tail.SetModel("renga.gltf");
 	tail.SetCamera(camera.get());
-	tail.transform.scale = { 10,10,10 };
+	tail.worldtransform_.scale_ = { 10,10,10 };
 
 	sky.Initialize();
 	sky.SetModel("skydome.obj");
 	sky.SetCamera(camera.get());
-	sky.transform.scale = { 10,10,10 };
+	sky.worldtransform_.scale_ = { 10,10,10 };
 	sky.model->modelData.material[0]->enableLighting_ = false;
 
 	//particleManager_ = ParticleManager::GetInstance();
 	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"),true);
 	ParticleManager::GetInstance()->SetPos("cc", { 0,0,0 });
-	ParticleManager::GetInstance()->SetObject("cc", player_->GetObject3D());
+	ParticleManager::GetInstance()->SetObject("cc", player_->GetObject3D().worldtransform_);
 	
 	ParticleManager::GetInstance()->CreateParticleGroup("Slash", "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"));
 	ParticleManager::GetInstance()->SetPos("Slash", { 0,0,0 });
-	ParticleManager::GetInstance()->SetObject("Slash", player_->GetWeapon()->GetObject3D());
+	ParticleManager::GetInstance()->SetObject("Slash", player_->GetWeapon()->GetObject3D().worldtransform_);
 	
 	
 
@@ -299,11 +299,11 @@ void GamePlayScene::LoadLevelData()
 			newObject->SetModel(model);
 			newObject->SetCamera(camera.get());
 			// 座標 
-			newObject->transform.translate = objectData.position;
+			newObject->worldtransform_.translate_ = objectData.position;
 			// 回転角 
-			newObject->transform.rotate = objectData.rotation;
+			newObject->worldtransform_.rotate_ = objectData.rotation;
 			// 大きさ
-			newObject->transform.scale = objectData.scale;
+			newObject->worldtransform_.scale_ = objectData.scale;
 			// 配列に登録
 			objects.push_back(newObject);
 		}
@@ -554,7 +554,7 @@ void GamePlayScene::Finalize()
 void GamePlayScene::Draw3D()
 {
 	sky.Draw();
-	tail.Draw();
+	//tail.Draw();
 
 	////3Dオブジェクトの描画
 

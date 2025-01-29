@@ -70,7 +70,7 @@ void Player::BehaviorAttackUpdate()
 	float k = 2.5f;
 	Vector3 move(0, 0, k);
 	// 速度ベクトルを自機の向きに合わせて回転させる
-	move = TransformNormal(move, weapon_->GetObject3D().mat_);
+	move = TransformNormal(move, weapon_->GetObject3D().worldtransform_.worldMat_);
 
 	slash.velocity = move;
 	slash.renge = { -Vector3{0.1f,0.2f,0.1f},Vector3{0.1f,0.2f,0.1f} };
@@ -125,7 +125,7 @@ void Player::BehaviorDieUpdate()
 				}
 				bullet->SetEnemy(lockedOnEnemies[index_b]);
 				bullet->SetPlayer(this);
-				bullet->SetParent(objectBase_.parent_);
+				bullet->SetParent(objectBase_.worldtransform_);
 				
 				
 

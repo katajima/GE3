@@ -81,7 +81,7 @@ void ParticleManager::Update()
 					ImGui::Checkbox("isAlpha", &group.isAlpha);
 					ImGui::Checkbox("isLine", &group.isLine);
 					ImGui::Separator(); // 水平線を引く
-					ImGui::DragFloat3("center", &group.emiter.object.transform.translate.x, 0.1f);
+					ImGui::DragFloat3("center", &group.emiter.worldtransform.translate_.x, 0.1f);
 					ImGui::DragFloat3("renge.max", &group.emiter.renge.max.x, 0.1f);
 					ImGui::DragFloat3("renge.min", &group.emiter.renge.min.x, 0.1f);
 					ImGui::Separator(); // 水平線を引く
@@ -143,7 +143,7 @@ void ParticleManager::Update()
 			billboardMatrix.m[3][2] = 0.0f;
 
 			
-			group.emiter.object.Update();
+			group.emiter.worldtransform.Update();
 
 			for (size_t i = 0; i < 24; i += 2) {
 				group.line_[i]->Update();
@@ -175,7 +175,7 @@ void ParticleManager::Update()
 					// ワールド行列を計算
 					Matrix4x4 worldMatrix;
 					if (group.usebillboard) {
-						Matrix4x4 mat = group.emiter.object.mat_;
+						Matrix4x4 mat = group.emiter.worldtransform.worldMat_;
 						
 						worldMatrix = Multiply(Multiply(MakeScaleMatrix((*particleIterator).transform.scale), billboardMatrix), MakeTranslateMatrix((*particleIterator).transform.translate));
 							
@@ -392,7 +392,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.emiter.count = 10;
 
 
-	particleGroup.emiter.object.Initialize();
+	particleGroup.emiter.worldtransform.Initialize();
 	
 	for (int i = 0; i < 24; i++) {
 		auto line = std::make_unique<LineDraw>();
@@ -496,7 +496,7 @@ void ParticleManager::DrawAABB()
 			Vector4 color = { 1, 1, 1, 1 }; // 白色
 			for (size_t i = 0; i < 24; i += 2) {
 				group.line_.emplace_back(std::make_unique<LineDraw>());
-				group.line_[i]->Draw3D(Add(lines[i], group.emiter.object.GetWorldPosition()), Add(lines[i + 1], group.emiter.object.GetWorldPosition()), color);
+				group.line_[i]->Draw3D(Add(lines[i], group.emiter.worldtransform.worldMat_.GetWorldPosition()), Add(lines[i + 1], group.emiter.worldtransform.worldMat_.GetWorldPosition()), color);
 			}
 #endif // _DEBUG
 		}
@@ -505,13 +505,13 @@ void ParticleManager::DrawAABB()
 
 void ParticleManager::SetPos(const std::string name, const Vector3& position)
 {
-	particleGroups[name].emiter.object.transform.translate = position;
+	particleGroups[name].emiter.worldtransform.translate_ = position;
 }
 
 
-void ParticleManager::SetObject(const std::string name, Object3d& obj)
+void ParticleManager::SetObject(const std::string name, WorldTransform& obj)
 {
-	particleGroups[name].emiter.object.parent_ = &obj;
+	particleGroups[name].emiter.worldtransform.parent_ = &obj;
 }
 
 void ParticleManager::CreateRootSignature()
@@ -782,7 +782,6 @@ void ParticleManager::RandParticle(const std::string name, const Vector3& positi
 	std::uniform_real_distribution<float> distributionSizeY(particleGroup.emiter.size.min.y, particleGroup.emiter.size.max.y);
 	std::uniform_real_distribution<float> distributionSizeZ(particleGroup.emiter.size.min.z, particleGroup.emiter.size.max.z);
 
-	particleGroup.emiter.object;
 	
 	// パーティクル
 	for (uint32_t t = 0; t < particleGroup.emiter.count; ++t) {
@@ -802,9 +801,9 @@ void ParticleManager::RandParticle(const std::string name, const Vector3& positi
 		};
 		newParticle.transform.translate =
 		{
-			particleGroup.emiter.object.GetWorldPosition().x + distributionX(randomEngine_),
-			particleGroup.emiter.object.GetWorldPosition().y + distributionY(randomEngine_),
-			particleGroup.emiter.object.GetWorldPosition().z + distributionZ(randomEngine_)
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().x + distributionX(randomEngine_),
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().y + distributionY(randomEngine_),
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().z + distributionZ(randomEngine_)
 		};
 		newParticle.color =
 		{
@@ -846,8 +845,8 @@ void ParticleManager::ConstantParticle(const std::string name, const Constant& c
 	//std::uniform_real_distribution<float> distTime(particleGroup.emiter.lifeTime.min, particleGroup.emiter.lifeTime.max);
 
 	
-	particleGroup.emiter.object.transform.translate = cons.centar;
-	particleGroup.emiter.object.Update();
+	particleGroup.emiter.worldtransform.translate_ = cons.centar;
+	particleGroup.emiter.worldtransform.Update();
 	// パーティクル
 	for (uint32_t t = 0; t < particleGroup.emiter.count; ++t) {
 		Particle newParticle;
@@ -856,9 +855,9 @@ void ParticleManager::ConstantParticle(const std::string name, const Constant& c
 		newParticle.transform.rotate = cons.rotate;
 		newParticle.transform.translate = 
 		{
-			particleGroup.emiter.object.GetWorldPosition().x + distributionX(randomEngine_),
-			particleGroup.emiter.object.GetWorldPosition().y + distributionY(randomEngine_),
-			particleGroup.emiter.object.GetWorldPosition().z + distributionZ(randomEngine_)
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().x + distributionX(randomEngine_),
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().y + distributionY(randomEngine_),
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().z + distributionZ(randomEngine_)
 		};
 		newParticle.color = cons.color;
 
@@ -894,8 +893,8 @@ void ParticleManager::ConstantParticle2(const std::string name, const Constant& 
 	//std::uniform_real_distribution<float> distTime(particleGroup.emiter.lifeTime.min, particleGroup.emiter.lifeTime.max);
 
 	
-	particleGroup.emiter.object.transform.translate = cons.centar;
-	particleGroup.emiter.object.Update();
+	particleGroup.emiter.worldtransform.translate_ = cons.centar;
+	particleGroup.emiter.worldtransform.Update();
 	// パーティクル
 	for (uint32_t t = 0; t < particleGroup.emiter.count; ++t) {
 		Particle newParticle;
@@ -904,9 +903,9 @@ void ParticleManager::ConstantParticle2(const std::string name, const Constant& 
 		newParticle.transform.rotate = cons.rotate;
 		newParticle.transform.translate = 
 		{
-			particleGroup.emiter.object.GetWorldPosition().x + distributionX(randomEngine_),
-			particleGroup.emiter.object.GetWorldPosition().y + distributionY(randomEngine_),
-			particleGroup.emiter.object.GetWorldPosition().z + distributionZ(randomEngine_)
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().x + distributionX(randomEngine_),
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().y + distributionY(randomEngine_),
+			particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition().z + distributionZ(randomEngine_)
 		};
 		newParticle.color = cons.color;
 

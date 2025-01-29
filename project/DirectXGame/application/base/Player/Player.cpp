@@ -12,21 +12,21 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	// プレイヤー
 	objectBase_.Initialize();
 	objectBase_.SetCamera(camera_);
-	objectBase_.transform.translate = position;
+	objectBase_.worldtransform_.translate_ = position;
 	objectBase_.Update();
 
 	// レティクル
 	objectReticle_.Initialize();
 	objectReticle_.SetCamera(camera_);
 	objectReticle_.SetModel("enemy.obj");
-	objectReticle_.parent_ = &objectBase_;
-	objectReticle_.transform.translate = { 0,0,30 };
+	objectReticle_.worldtransform_.parent_ = &objectBase_.worldtransform_;
+	objectReticle_.worldtransform_.translate_ = { 0,0,30 };
 
 	// 体
 	objectBody_.Initialize();
 	objectBody_.SetCamera(camera_);
 	objectBody_.SetModel("AnimatedCube.gltf");
-	objectBody_.parent_ = &objectBase_;
+	objectBody_.worldtransform_.parent_ = &objectBase_.worldtransform_;
 	objectBody_.model->modelData.material[0]->shininess_ = 10000;
 
 
@@ -35,19 +35,19 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	injectionLeftObj_.Initialize();
 	injectionLeftObj_.SetCamera(camera_);
 	injectionLeftObj_.SetModel("AnimatedCube.gltf");
-	injectionLeftObj_.parent_ = &objectBase_;
-	injectionLeftObj_.transform.translate = { -2.5f,1.0f,-1.5f };
+	injectionLeftObj_.worldtransform_.parent_ = &objectBase_.worldtransform_;
+	injectionLeftObj_.worldtransform_.translate_ = { -2.5f,1.0f,-1.5f };
 
-	injectionLeftObj_.transform.scale = { 0.75f,1.25f,1.0f };
+	injectionLeftObj_.worldtransform_.scale_= { 0.75f,1.25f,1.0f };
 
 	// 右ミサイル発射口
 	injectionRightObj_.Initialize();
 	injectionRightObj_.SetCamera(camera_);
 	injectionRightObj_.SetModel("AnimatedCube.gltf");
-	injectionRightObj_.parent_ = &objectBase_;
-	injectionRightObj_.transform.translate = { 2.5,1.0f,-1.5f };
+	injectionRightObj_.worldtransform_.parent_ = &objectBase_.worldtransform_;
+	injectionRightObj_.worldtransform_.translate_ = { 2.5,1.0f,-1.5f };
 
-	injectionRightObj_.transform.scale = { 0.75f,1.25f,1.0f };
+	injectionRightObj_.worldtransform_.scale_ = { 0.75f,1.25f,1.0f };
 
 
 
@@ -58,33 +58,33 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	objectSha_.SetModel("plane.obj");
 	objectSha_.model->modelData.material[0]->tex_.diffuseFilePath = "resources/Texture/aa.png";
 	objectSha_.model->modelData.material[0]->color = { 0.9f,0.0f,0.0f,1 };
-	objectSha_.transform.translate = position;
-	objectSha_.transform.scale = { 4,4,4 };
-	objectSha_.transform.rotate.x = DegreesToRadians(-90);
+	objectSha_.worldtransform_.translate_ = position;
+	objectSha_.worldtransform_.scale_ = { 4,4,4 };
+	objectSha_.worldtransform_.rotate_.x = DegreesToRadians(-90);
 
 
 	weapon_ = std::make_unique<playerWeapon>();
 	weapon_->Initialize(camera);
-	weapon_->GetObject3D().parent_ = &objectBase_;
-	weapon_->GetObject3D().transform.translate = { 0,0.5f,0.5f };
+	weapon_->GetObject3D().worldtransform_.parent_ = &objectBase_.worldtransform_;
+	weapon_->GetObject3D().worldtransform_.translate_ = { 0,0.5f,0.5f };
 	weapon_->SetOffset({ 0,5.0f,0.5f });
 	weapon_->SetPlayer(this);
 	
 
 	weaponStr.Initialize();
-	weaponStr.parent_ = &weapon_->GetObject3D();
-	weaponStr.transform.translate = {0,weapon_->GetObject3D().GetMesh(0)->GetMax().y ,0};
+	weaponStr.worldtransform_.parent_ = &weapon_->GetObject3D().worldtransform_;
+	weaponStr.worldtransform_.translate_ = {0,weapon_->GetObject3D().GetMesh(0)->GetMax().y ,0};
 		
 
 	weaponEnd.Initialize();
-	weaponEnd.parent_ = &weapon_->GetObject3D();
-	weaponEnd.transform.translate = { 0,weapon_->GetObject3D().GetMesh(0)->GetMin().y ,0 };
-	weaponEnd.transform.translate = { 0,2 ,0 };
+	weaponEnd.worldtransform_.parent_ = &weapon_->GetObject3D().worldtransform_;
+	weaponEnd.worldtransform_.translate_ = { 0,weapon_->GetObject3D().GetMesh(0)->GetMin().y ,0 };
+	weaponEnd.worldtransform_.translate_ = { 0,2 ,0 };
 
 	//particleManager_ = ParticleManager::GetInstance();
 	ParticleManager::GetInstance()->CreateParticleGroup("dust", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), camera_);
 	ParticleManager::GetInstance()->SetPos("dust", { 0,0,0 });
-	ParticleManager::GetInstance()->SetObject("dust", objectBase_);
+	ParticleManager::GetInstance()->SetObject("dust", objectBase_.worldtransform_);
 
 	
 	emitter_ = new ParticleEmitter("cc", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
@@ -173,17 +173,17 @@ void Player::Update()
 #endif // _DEBUG
 
 
-	if (objectBase_.transform.translate.x > 200) {
-		objectBase_.transform.translate.x = 200;
+	if (objectBase_.worldtransform_.translate_.x > 200) {
+		objectBase_.worldtransform_.translate_.x = 200;
 	}
-	if (objectBase_.transform.translate.x < -200) {
-		objectBase_.transform.translate.x = -200;
+	if (objectBase_.worldtransform_.translate_.x < -200) {
+		objectBase_.worldtransform_.translate_.x = -200;
 	}
-	if (objectBase_.transform.translate.z > 200) {
-		objectBase_.transform.translate.z = 200;
+	if (objectBase_.worldtransform_.translate_.z > 200) {
+		objectBase_.worldtransform_.translate_.z = 200;
 	}
-	if (objectBase_.transform.translate.z < -200) {
-		objectBase_.transform.translate.z = -200;
+	if (objectBase_.worldtransform_.translate_.z < -200) {
+		objectBase_.worldtransform_.translate_.z = -200;
 	}
 
 	if (hp <= 0) {
@@ -196,13 +196,13 @@ void Player::Update()
 
 
 	// 影
-	objectSha_.transform.translate = objectBase_.transform.translate;
-	objectSha_.transform.translate.y = 0.1f;
+	objectSha_.worldtransform_.translate_ = objectBase_.worldtransform_.translate_;
+	objectSha_.worldtransform_.translate_.y = 0.1f;
 
 	Vector3 scale{};
-	scale = std::abs((std::min)((objectSha_.transform.translate.y + 9.0f / objectBase_.transform.translate.y), 6.0f));
+	scale = std::abs((std::min)((objectSha_.worldtransform_.translate_.y + 9.0f / objectBase_.worldtransform_.translate_.y), 6.0f));
 
-	objectSha_.transform.scale = scale;
+	objectSha_.worldtransform_.scale_ = scale;
 
 	ImGui::Begin("trail");
 	Vector3 min = weapon_->GetObject3D().GetMesh(0)->GetMin();
@@ -356,7 +356,7 @@ void Player::Move()
 			//velocity_ = TransformNormal(velocity_, rotateMatrixY);
 			//
 			if (velocity_.Length() != 0) {
-				objectBase_.transform.rotate.y = std::atan2(velocity_.x, velocity_.z);
+				objectBase_.worldtransform_.rotate_.y = std::atan2(velocity_.x, velocity_.z);
 			}
 
 
@@ -434,8 +434,8 @@ void Player::Gravity() {
 
 	AddMove();
 	// 着地
-	if (objectBase_.transform.translate.y <= groundY) {
-		objectBase_.transform.translate.y = groundY;
+	if (objectBase_.worldtransform_.translate_.y <= groundY) {
+		objectBase_.worldtransform_.translate_.y = groundY;
 		graVelo = 0;
 		isJamp = false;
 	}
@@ -443,7 +443,7 @@ void Player::Gravity() {
 
 void Player::AddMove()
 {
-	objectBase_.transform.translate += velocity_ * MyGame::GameTime();
+	objectBase_.worldtransform_.translate_ += velocity_ * MyGame::GameTime();
 }
 
 

@@ -77,7 +77,7 @@ Vector3 playerWeapon::GetCenterPosition() const
 {
 	const Vector3 ofset = offset;
 	// ワールド座標に変換
-	Vector3 worldPos = Transforms(ofset, objectWeapon_.mat_);
+	Vector3 worldPos = Transforms(ofset, objectWeapon_.worldtransform_.worldMat_);
 
 	return worldPos;
 }

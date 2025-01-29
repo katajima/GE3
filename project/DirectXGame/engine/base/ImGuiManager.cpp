@@ -111,16 +111,16 @@ void ImGuiManager::RenderGizmo2(Object3d& obj, const Camera& camera, const char*
 				&camera.GetProjectionMatrix().m[0][0],
 				mCurrentGizmoOperation,
 				mCurrentGizmoMode,
-				&obj.mat_.m[0][0]);
+				&obj.worldtransform_.worldMat_.m[0][0]);
 
 
 			if (isManipulated) {
 				std::cout << "Manipulate succeeded" << std::endl; // オブジェクトの行列を取得 
 				float translation[3], rotation[3], scale[3];
-				ImGuizmo::DecomposeMatrixToComponents(&obj.mat_.m[0][0], translation, rotation, scale);
-				obj.transform.translate = Vector3(translation[0], translation[1], translation[2]);
-				obj.transform.rotate = Vector3(DegreesToRadians(rotation[0]), DegreesToRadians(rotation[1]), DegreesToRadians(rotation[2]));
-				obj.transform.scale = Vector3(scale[0], scale[1], scale[2]);
+				ImGuizmo::DecomposeMatrixToComponents(&obj.worldtransform_.worldMat_.m[0][0], translation, rotation, scale);
+				obj.worldtransform_.translate_ = Vector3(translation[0], translation[1], translation[2]);
+				obj.worldtransform_.rotate_ = Vector3(DegreesToRadians(rotation[0]), DegreesToRadians(rotation[1]), DegreesToRadians(rotation[2]));
+				obj.worldtransform_.scale_ = Vector3(scale[0], scale[1], scale[2]);
 				std::cout << "Translation: " << translation[0] << ", " << translation[1] << ", " << translation[2] << std::endl;
 				std::cout << "Rotation: " << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << std::endl;
 				std::cout << "Scale: " << scale[0] << ", " << scale[1] << ", " << scale[2] << std::endl;
@@ -174,14 +174,14 @@ void ImGuiManager::RenderGizmo2(Object3d& obj, const Camera& camera, const char*
 				std::cout << "ImGuizmo is using" << std::endl;
 				// オブジェクトの行列を取得
 				float translation[3], rotation[3], scale[3];
-				ImGuizmo::DecomposeMatrixToComponents(&obj.mat_.m[0][0], translation, rotation, scale);
+				ImGuizmo::DecomposeMatrixToComponents(&obj.worldtransform_.worldMat_.m[0][0], translation, rotation, scale);
 				Vector3 matrixTranslation = { translation[0], translation[1], translation[2] };
 				Vector3 matrixRotation = { rotation[0], rotation[1], rotation[2] };
 				Vector3 matrixScale = { scale[0], scale[1], scale[2] };
 				ImGui::InputFloat3("Tr", &matrixTranslation.x);
 				ImGui::InputFloat3("Rt", &matrixRotation.x);
 				ImGui::InputFloat3("Sc", &matrixScale.x);
-				ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, &obj.mat_.m[0][0]);
+				ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, &obj.worldtransform_.worldMat_.m[0][0]);
 			}
 			else {
 				std::cout << "ImGuizmo is not using" << std::endl;

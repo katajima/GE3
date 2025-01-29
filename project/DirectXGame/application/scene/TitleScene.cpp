@@ -73,7 +73,7 @@ void TitleScene::InitializeResources()
 	tail.Initialize();
 	tail.SetModel("renga.gltf");
 	tail.SetCamera(camera.get());
-	tail.transform.scale = { 10,10,10 };
+	tail.worldtransform_.scale_ = { 10,10,10 };
 
 }
 

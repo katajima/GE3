@@ -32,7 +32,7 @@ void ParticleEmitter::Update()
 	// 全パーティクルグループ内の全パーティクルを処理する
 	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
 		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
-		particleGroup.emiter.object.Update();
+		particleGroup.emiter.worldtransform.Update();
 
 		//particleGroup.emiter.frequencyTime_ += kDeltaTime;
 		//if (particleGroup.emiter.isEmit) {
@@ -66,6 +66,6 @@ void ParticleEmitter::Emit()
 	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
 		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
 
-		ParticleManager::GetInstance()->Emit(particleGroup.name,"rand", particleGroup.emiter.object.GetWorldPosition(), count_);
+		ParticleManager::GetInstance()->Emit(particleGroup.name,"rand", particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition(), count_);
 	}
 }

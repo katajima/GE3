@@ -18,23 +18,23 @@ void Player::Attack()
 		if (workAttack.comboIndex == 0) {
 			if (workAttack.parameter >= 1.0f / 60) {
 				k = 0.1f;
-				weapon_->GetObject3D().transform.rotate.x += DegreesToRadians(8*60) * MyGame::GameTime();
+				weapon_->GetObject3D().worldtransform_.rotate_.x += DegreesToRadians(8*60) * MyGame::GameTime();
 				
 			}
 		}if (workAttack.comboIndex == 1) {
 			if (workAttack.parameter >= 1.0f / 60) {
 				k = 0.3f;
-				weapon_->GetObject3D().transform.rotate.x += DegreesToRadians(8*60) * MyGame::GameTime();
+				weapon_->GetObject3D().worldtransform_.rotate_.x += DegreesToRadians(8*60) * MyGame::GameTime();
 			}
 		}if (workAttack.comboIndex == 2) {
 			if (workAttack.parameter >= 1.0f / 60) {
 				k = 0.4f;
-				weapon_->GetObject3D().transform.rotate.x += DegreesToRadians(16*60) * MyGame::GameTime();
+				weapon_->GetObject3D().worldtransform_.rotate_.x += DegreesToRadians(16*60) * MyGame::GameTime();
 			}
 		}if (workAttack.comboIndex == 3) {
 			if (workAttack.parameter >= 1.0f / 60) {
 				k = 1.5f;
-				weapon_->GetObject3D().transform.rotate.x += DegreesToRadians(16*60) * MyGame::GameTime();
+				weapon_->GetObject3D().worldtransform_.rotate_.x += DegreesToRadians(16*60) * MyGame::GameTime();
 			}
 		}
 
@@ -43,13 +43,13 @@ void Player::Attack()
 			
 			Vector3 move(0, 0, k);
 			// 速度ベクトルを自機の向きに合わせて回転させる
-			move = TransformNormal(move, objectBase_.mat_);
+			move = TransformNormal(move, objectBase_.worldtransform_.worldMat_);
 
-			objectBase_.transform.translate += move;
+			objectBase_.worldtransform_.translate_ += move;
 		}
 		break;
 	case AttackType::kJamp:
-		if (objectBase_.transform.translate.y > groundY) {
+		if (objectBase_.worldtransform_.translate_.y > groundY) {
 			workAttack.attackAll.max_t += MyGame::GameTime();
 		}
 		if (workAttack.parameter >= 5.0f /60) {
@@ -61,7 +61,7 @@ void Player::Attack()
 		if (graVelo <= 0) {
 			ty += MyGame::GameTime() * 4;
 			float r_t = ty / (float)workAttack.attackAll.max_t;
-			weapon_->GetObject3D().transform.rotate.x = Easing::EaseOut(DegreesToRadians(30), DegreesToRadians(100), r_t);
+			weapon_->GetObject3D().worldtransform_.rotate_.x = Easing::EaseOut(DegreesToRadians(30), DegreesToRadians(100), r_t);
 		
 		}
 		else {
@@ -80,7 +80,7 @@ void Player::Attack()
 
 
 		
-		objectBase_.transform.translate = Easing::EaseOut(workAttack.pos.str, workAttack.pos.end, t);
+		objectBase_.worldtransform_.translate_ = Easing::EaseOut(workAttack.pos.str, workAttack.pos.end, t);
 
 		break;
 	case AttackType::kSpecial:
@@ -193,22 +193,22 @@ void Player::AttackTypeInit(int comboIndex)
 			if (comboIndex == 0) {
 				weapon_->SetRad(2.5f);
 				workAttack.attackAll.max_t = 0.3f;
-				weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 0,0,0 });
+				weapon_->GetObject3D().worldtransform_.rotate_ = DegreesToRadians({ 0,0,0 });
 			}
 			if (comboIndex == 1) {
 				weapon_->SetRad(2.5f);
 				workAttack.attackAll.max_t = 0.3f;
-				weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 0,0,90 });
+				weapon_->GetObject3D().worldtransform_.rotate_ = DegreesToRadians({ 0,0,90 });
 			}
 			if (comboIndex == 2) {
 				weapon_->SetRad(3.5f);
 				workAttack.attackAll.max_t = 0.3f;
-				weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 0,0,-90 });
+				weapon_->GetObject3D().worldtransform_.rotate_ = DegreesToRadians({ 0,0,-90 });
 			}
 			if (comboIndex == 3) {
 				weapon_->SetRad(4.5f);
 				workAttack.attackAll.max_t = 0.3f;
-				weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 0,0,90 });
+				weapon_->GetObject3D().worldtransform_.rotate_ = DegreesToRadians({ 0,0,90 });
 			}
 			break;
 		case AttackType::kJamp:
@@ -222,10 +222,10 @@ void Player::AttackTypeInit(int comboIndex)
 				ty = 0;
 				graVelo = 60.0f;
 				velocity_.y = graVelo;
-				weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 20,0,0 });
+				weapon_->GetObject3D().worldtransform_.rotate_ = DegreesToRadians({ 20,0,0 });
 				Vector3 move(0, 0, k);
 				// 速度ベクトルを自機の向きに合わせて回転させる
-				move = TransformNormal(move, objectBase_.mat_);
+				move = TransformNormal(move, objectBase_.worldtransform_.worldMat_);
 				workAttack.velocity = move;
 			//}
 			if (comboIndex == 1) {
@@ -245,7 +245,7 @@ void Player::AttackTypeInit(int comboIndex)
 			weapon_->SetRad(3.0f);
 
 			workAttack.attackAll.max_t = 0.3f;
-			weapon_->GetObject3D().transform.rotate = DegreesToRadians({89,0,0 });
+			weapon_->GetObject3D().worldtransform_.rotate_ = DegreesToRadians({89,0,0 });
 
 			workAttack.pos.end = objectReticle_.GetWorldPosition();
 

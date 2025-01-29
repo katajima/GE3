@@ -11,7 +11,7 @@ void Collider::Initialize(Camera* camera) {
 void Collider::UpdateWorldTransform() {
 
 	// ワールド座標をワールドトランスフォームに適応
-	object.transform.translate = GetCenterPosition();
+	object.worldtransform_.translate_ = GetCenterPosition();
 
 	object.Update();
 }

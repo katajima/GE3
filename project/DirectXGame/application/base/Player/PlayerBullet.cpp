@@ -13,20 +13,20 @@ void PlayerBullet::Initialize(Vector3 position, Camera* camera)
 	object_.Initialize();
 	object_.SetCamera(camera);
 	object_.SetModel("player_bullet.obj");
-	object_.transform.translate = position;
+	object_.worldtransform_.translate_= position;
 	object_.Update();
 
 	
 	
 
 	// Y軸周り角度(θy)
-	object_.transform.rotate.y = std::atan2(velocity_.x, velocity_.z);
+	object_.worldtransform_.rotate_.y = std::atan2(velocity_.x, velocity_.z);
 	float length = Length(Vector3(velocity_.x, 0, velocity_.z));
 
 	// X軸周り角度(θx)
-	object_.transform.rotate.x = std::atan2(velocity_.y, -length);
+	object_.worldtransform_.rotate_.x = std::atan2(velocity_.y, -length);
 
-	str = object_.transform.translate;
+	str = object_.worldtransform_.translate_;
 
 	phase_ = 0;
 
@@ -63,14 +63,14 @@ void PlayerBullet::Initialize(Vector3 position, Camera* camera)
 
 
 	strin = std::to_string(index_) + "bullet";
-	ParticleManager::GetInstance()->SetObject(strin, object_);
+	ParticleManager::GetInstance()->SetObject(strin, object_.worldtransform_);
 	emitter_ = new ParticleEmitter(strin, Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
 	
 	strin = std::to_string(index_) + "exp";
-	ParticleManager::GetInstance()->SetObject(strin, object_);
+	ParticleManager::GetInstance()->SetObject(strin, object_.worldtransform_);
 	
 	strin2 = std::to_string(index_) + "exp2";
-	ParticleManager::GetInstance()->SetObject(strin2, object_);
+	ParticleManager::GetInstance()->SetObject(strin2, object_.worldtransform_);
 	
 
 	trailEffect_ = std::make_unique<TrailEffect>();
@@ -80,12 +80,12 @@ void PlayerBullet::Initialize(Vector3 position, Camera* camera)
 
 
 	objectStr_.Initialize();
-	objectStr_.parent_ = &object_;
-	objectStr_.transform.translate.y = object_.GetMesh(0)->GetMin().y * 1;
+	objectStr_.worldtransform_.parent_ = &object_.worldtransform_;
+	objectStr_.worldtransform_.translate_.y = object_.GetMesh(0)->GetMin().y * 1;
 
 	objectEnd_.Initialize();
-	objectEnd_.parent_ = &object_;
-	objectEnd_.transform.translate.y = object_.GetMesh(0)->GetMax().y * 1;
+	objectEnd_.worldtransform_.parent_ = &object_.worldtransform_;
+	objectEnd_.worldtransform_.translate_.y = object_.GetMesh(0)->GetMax().y * 1;
 
 }
 
@@ -108,7 +108,7 @@ void PlayerBullet::Update()
 
 			t = count;
 
-			object_.transform.translate = Lerp(str, randPosSky, t);
+			object_.worldtransform_.translate_ = Lerp(str, randPosSky, t);
 
 			norm =  randPosSky - str;
 			
@@ -133,7 +133,7 @@ void PlayerBullet::Update()
 				velocity_ = pos2;
 				velocity_.y = 0;
 
-				object_.transform.translate += velocity_ * MyGame::GameTime();
+				object_.worldtransform_.translate_ += velocity_ * MyGame::GameTime();
 
 				if (5 >= DistanceXZ(object_.GetWorldPosition(), enemy_->GetObject3D().GetWorldPosition())) {
 					phase_++;
@@ -150,7 +150,7 @@ void PlayerBullet::Update()
 			{
 				velocity_ = tragetPos * 3;
 				
-				object_.transform.translate += velocity_ * MyGame::GameTime();
+				object_.worldtransform_.translate_ += velocity_ * MyGame::GameTime();
 			}
 
 			if (2.5f >= object_.GetWorldPosition().y) {
@@ -190,11 +190,11 @@ void PlayerBullet::Update()
 
 	
 	// Y軸周り角度(θy)
-	object_.transform.rotate.y = std::atan2(velocity_.x, velocity_.z);
+	object_.worldtransform_.rotate_.y = std::atan2(velocity_.x, velocity_.z);
 	float length = Length(Vector3(velocity_.x, 0, velocity_.z));
 
 	// X軸周り角度(θx)
-	object_.transform.rotate.x = std::atan2(velocity_.y, -length);
+	object_.worldtransform_.rotate_.x = std::atan2(velocity_.y, -length);
 
 
 	objectStr_.Update();

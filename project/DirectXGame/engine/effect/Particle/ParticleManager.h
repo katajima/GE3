@@ -99,7 +99,8 @@ public:
 		MaxMin<Vector3> rotate;      // 回転 (floatの範囲)
 		MaxMin<float> lifeTime;    // 生存時間 (floatの範囲)
 		MaxMin<Vector3> velocity;  // 速度 (Vector3の範囲)
-		Object3d object;
+		//Object3d object;
+		WorldTransform worldtransform;
 		bool isEmit = false;
 
 		// 定数用
@@ -184,7 +185,7 @@ public:
 	void SetPos(const std::string name,const Vector3& position);
 	
 	
-	void SetObject(const std::string name, Object3d& obj);
+	void SetObject(const std::string name, WorldTransform& obj);
 
 
 private:

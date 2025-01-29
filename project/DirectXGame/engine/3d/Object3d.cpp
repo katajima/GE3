@@ -32,18 +32,15 @@ void Object3d::Initialize()
 
 	transfomation->Initialize(Object3dCommon::GetInstance()->GetDxCommon());
 
-	parent_->mat_.Identity();
+	worldtransform_.Initialize();
+	worldtransform_.translate_.x = {0.00000001f};
 
-	//transform変数を作る
-	transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 }
 
 #pragma region Update
 
 void Object3d::Update()
 {
-	preMat_ = mat_;
-
 	Matrix4x4 localMatrix = MakeIdentity4x4();
 	// モデルが存在する場合
 	if (model) {
@@ -51,16 +48,10 @@ void Object3d::Update()
 		model->modelData.material[0]->GPUData();
 	}
 
-	// ワールド行列の計算
-	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-	
-
-	if (parent_) {
-			mat_ =  Multiply(mat_, parent_->mat_);
-	}
+	worldtransform_.Update();
 
 	// トランスフォームデータ
-	transfomation->Update(model, camera, localMatrix, mat_);
+	transfomation->Update(model, camera, localMatrix, worldtransform_.worldMat_);
 }
 
 void Object3d::UpdateSkinning()
@@ -103,11 +94,10 @@ void Object3d::UpdateSkinning()
 	}
 
 
-	// ワールド行列の計算
-	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+	worldtransform_.Update();
 
 	// トランスフォームデータ
-	transfomation->UpdateSkinning(model, camera, localMatrix, mat_);
+	transfomation->UpdateSkinning(model, camera, localMatrix, worldtransform_.worldMat_);
 }
 
 void Object3d::UpdateAnimation()
@@ -135,12 +125,10 @@ void Object3d::UpdateAnimation()
 		model->modelData.material[0]->GPUData();
 	}
 
-
-	// ワールド行列の計算
-	mat_ = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+	worldtransform_.Update();
 
 	// トランスフォームデータ
-	transfomation->Update(model, camera, localMatrix, mat_);
+	transfomation->Update(model, camera, localMatrix, worldtransform_.worldMat_);
 }
 
 #pragma endregion //更新系
@@ -177,12 +165,12 @@ void Object3d::DrawLine()
 	LineCommon::GetInstance()->DrawCommonSetting();
 
 
-	DrawSkeleton(model->skeleton.joints, model->line_, transform.translate, transform.scale);
+	DrawSkeleton(model->skeleton.joints, model->line_,worldtransform_.translate_,worldtransform_.scale_);
 }
 
 Vector2 Object3d::GetScreenPosition()
 {
-	Vector3 wPos = mat_.GetWorldPosition();
+	Vector3 wPos = worldtransform_.worldMat_.GetWorldPosition();
 
 	// ビューポート行列
 	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, 1280, 720, 0, 1);
@@ -191,6 +179,10 @@ Vector2 Object3d::GetScreenPosition()
 	Matrix4x4 matViewProjectionViewport = Multiply(camera->GetViewMatrix(), Multiply(camera->GetProjectionMatrix(), matViewport));
 
 	Vector3 screenPos;
+
+	if (Length(wPos) == 0) {
+		wPos.z = 0.00000001f;
+	}
 
 	// ワールド→スクリーン座標変換（ここで3Dから2Dになる）
 	screenPos = Transforms(wPos, matViewProjectionViewport);
