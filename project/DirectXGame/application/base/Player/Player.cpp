@@ -113,10 +113,6 @@ void Player::Initialize(Vector3 position, Camera* camera)
 void Player::Update()
 {
 	
-
-	//deltaTime_.Update();
-
-	Gravity();
 	trailEffect_->Update(flag33, weaponStr, weaponEnd);
 
 	if (isAlive) {
@@ -193,7 +189,7 @@ void Player::Update()
 	if (hp <= 0) {
 		isAlive = false;
 	}
-	workAttack.hitTime  -= MyGame::kDeltaTime_ * MyGame::kTimeSpeed_;
+	workAttack.hitTime  -= MyGame::GameTime();
 	if (workAttack.hitTime <= 0) {
 		workAttack.hitCount = 0;
 	}
@@ -237,7 +233,8 @@ void Player::Update()
 	
 	ImGui::End();
 
-	
+
+	Gravity();
 	
 	objectBase_.Update();
 	objectBody_.Update();
@@ -405,7 +402,6 @@ void Player::Move()
 		}
 	}
 	if (behavior_ == Behavior::kRoot || behavior_ == Behavior::kDie) {
-		objectBase_.transform.translate += velocity_ * MyGame::GameTime();
 		
 	}
 	if (isMove) {
@@ -425,23 +421,29 @@ void Player::Move()
 
 void Player::Gravity() {
 	// 移動
-	velocity_.y = graVelo * MyGame::GameTime();
+	//velocity_.y = graVelo;
 
 	// 重力加速度
-	const float kGravityAcceleration = 4.0f;
+	const float kGravityAcceleration = 4.4f;
 
 	// 加速度ベクトル
-	float accelerationVector = -kGravityAcceleration * MyGame::kDeltaTime_; // 毎フレームのデルタ時間で重力を適用
+	float accelerationVector = -kGravityAcceleration; // 毎フレームのデルタ時間で重力を適用
 
 	// 加速する
-	graVelo += accelerationVector;
+	velocity_.y += accelerationVector;
 
+	AddMove();
 	// 着地
 	if (objectBase_.transform.translate.y <= groundY) {
 		objectBase_.transform.translate.y = groundY;
 		graVelo = 0;
 		isJamp = false;
 	}
+}
+
+void Player::AddMove()
+{
+	objectBase_.transform.translate += velocity_ * MyGame::GameTime();
 }
 
 

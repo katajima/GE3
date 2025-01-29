@@ -65,7 +65,8 @@ void Player::Attack()
 		
 		}
 		else {
-			objectBase_.transform.translate += workAttack.velocity * MyGame::GameTime();
+			velocity_.x = workAttack.velocity.x;
+			velocity_.z = workAttack.velocity.z;
 		}
 
 		
@@ -177,7 +178,7 @@ void Player::AttackTypeInit(int comboIndex)
 	weapon_->ContactRecordClear();
 
 	// スピード
-	const float k = 3.0f;
+	const float k = 30.0f;
 
 	if (workAttack.typeRequest_) {
 		// ふるまいを変更する
@@ -220,6 +221,7 @@ void Player::AttackTypeInit(int comboIndex)
 				workAttack.attackAll.max_t = 0.3f;
 				ty = 0;
 				graVelo = 60.0f;
+				velocity_.y = graVelo;
 				weapon_->GetObject3D().transform.rotate = DegreesToRadians({ 20,0,0 });
 				Vector3 move(0, 0, k);
 				// 速度ベクトルを自機の向きに合わせて回転させる

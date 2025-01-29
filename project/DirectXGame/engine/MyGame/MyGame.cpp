@@ -13,8 +13,8 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	SceneManager::GetInstance()->ChangeScene("TEST");
-	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	//SceneManager::GetInstance()->ChangeScene("TEST");
+	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化

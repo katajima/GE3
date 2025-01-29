@@ -229,6 +229,8 @@ private: // 移動
 
 	void Gravity();
 
+	void AddMove();
+
 	float graVelo;
 
 	float groundY = 2;
