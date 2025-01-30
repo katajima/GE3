@@ -1,36 +1,36 @@
 #include"SkinningObject3d.hlsli"
 struct TransformationMatrix
 {
-    float32_t4x4 WVP;
-    float32_t4x4 World;
-    float32_t4x4 WorldInverseTranspose;
+    float4x4 WVP;
+    float4x4 World;
+    float4x4 WorldInverseTranspose;
 };
 ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
 
 
 struct Well
 {
-    float32_t4x4 skeletonSpaceMatrix;
-    float32_t4x4 skeletonSpaceInverseTransposeMatrix;
+    float4x4 skeletonSpaceMatrix;
+    float4x4 skeletonSpaceInverseTransposeMatrix;
 };
 StructuredBuffer<Well> gMatrixPalette : register(t4);
 
 struct VertexShaderInput
 {
-    float32_t4 position : POSITION0;
-    float32_t2 texcoord : TEXCOORD0;
-    float32_t3 normal : NORMAL0;
+    float4 position : POSITION0;
+    float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL0;
     // 追加
     float3 tangent : TANGENT0; // 接ベクトル
     float3 biNormal : BINORMAL0; // 従ベクトル
      // スキニング
-    float32_t4 weight : WEIGHT0;
-    int32_t4 index : INDEX0;
+    float4 weight : WEIGHT0;
+    int4 index : INDEX0;
 };
 struct Skinned
 {
-    float32_t4 position;
-    float32_t3 normal;
+    float4 position;
+    float3 normal;
 };
 Skinned Skinning(VertexShaderInput input)
 {
@@ -62,7 +62,7 @@ VertexShaderOutput main(VertexShaderInput input)
     
     output.position = mul(skinned.position, gTransformationMatrix.WVP);
     output.texcoord = input.texcoord;
-    output.normal = normalize(mul(skinned.normal, (float32_t3x3) gTransformationMatrix.WorldInverseTranspose));
+    output.normal = normalize(mul(skinned.normal, (float3x3) gTransformationMatrix.WorldInverseTranspose));
     output.worldPosition = mul(skinned.position, gTransformationMatrix.World).xyz;
     // 頂点シェーダでの法線、接ベクトル、従ベクトルの変換 
     output.biNormal = normalize(mul((float3x3) gTransformationMatrix.World, (float3) input.biNormal));

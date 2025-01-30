@@ -3,7 +3,7 @@
 
 #include "DirectXGame/engine/MyGame/MyGame.h"
 
-void TrailEffect::Initialize(const std::string& tex,float maxtime  ,const Vector4 color)
+void TrailEffect::Initialize(const std::string& tex,float maxtime  ,const Color color)
 {
 	mesh = std::make_unique<Mesh>();
 

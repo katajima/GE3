@@ -25,7 +25,7 @@ class TrailEffect
 public:
 	
 
-	void Initialize(const std::string& tex, float maxtime , const Vector4 color = {1,1,1,1});
+	void Initialize(const std::string& tex, float maxtime , const Color color = {1,1,1,1});
 
 	
 	void Update(bool& flag, const Object3d& str, const Object3d& end);

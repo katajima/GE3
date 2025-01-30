@@ -46,9 +46,6 @@ void Enemy::Initialize(Vector3 position, float HP,Camera*camera)
 	ParticleManager::GetInstance()->SetObject("dame", object_.worldtransform_);
 
 
-	emitter_ = new ParticleEmitter("dame", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
-
-
 	icon_lockOn = std::make_unique<Sprite>();
 	icon_lockOn->Initialize("resources/Texture/icon/LockOnW.png");
 	icon_lockOn->SetSize(0.10f);

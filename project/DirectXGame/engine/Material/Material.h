@@ -1,6 +1,7 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include"DirectXGame/engine/base/DirectXCommon.h"
+#include "DirectXGame/engine/Color/Color.h"
 
 #include "vector"
 #include<wrl.h>
@@ -25,7 +26,7 @@ public:
 	void LoadTex();
 public:
 	Transform transform;
-	Vector4 color;
+	Color color;
 
 	int32_t enableLighting_ = true;
 	float shininess_;
@@ -50,7 +51,7 @@ private:
 	// GPUに送るデータ
 	struct DataGPU
 	{
-		Vector4 color;
+		Color color;
 		int32_t enableLighting;
 		float padding[3];
 		Matrix4x4 uvTransform;

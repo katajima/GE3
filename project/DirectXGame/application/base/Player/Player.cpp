@@ -87,8 +87,7 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	ParticleManager::GetInstance()->SetObject("dust", objectBase_.worldtransform_);
 
 	
-	emitter_ = new ParticleEmitter("cc", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
-
+	
 
 	
 
@@ -103,7 +102,7 @@ void Player::Initialize(Vector3 position, Camera* camera)
 
 	trailEffect_ = std::make_unique<TrailEffect>();
 	"resources/Texture/uvChecker.png";
-	trailEffect_->Initialize("resources/Texture/uvChecker.png",0.2f,Vector4{1,0,0,0.5f});
+	trailEffect_->Initialize("resources/Texture/uvChecker.png",0.2f, Color{1,0,0,0.5f});
 	trailEffect_->SetCamera(camera);
 	trailEffect_->SetObject(&weapon_->GetObject3D());
 	

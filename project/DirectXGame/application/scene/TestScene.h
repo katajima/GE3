@@ -60,11 +60,6 @@ private:
 	Vector3 cameraDebugR;
 	bool flag = false;
 
-	// 列車のオブジェクト
-
-	
-	//ModelManager* modelm_;
-
 	ParticleManager::Constant cons;
 
 	Object3d mm;
@@ -73,54 +68,8 @@ private:
 	Object3d walk;
 	Object3d multiMesh;
 
-
-	Object3d testObject;
-
-	struct BallLLL {
-		Vector3 velocity;
-		float mass;
-		float rad;
-	}; 
-	BallLLL ball1;
-	BallLLL ball2;
-
-	Vector3 setVelo;
-	float scale1 = 1;
-	float scale2 = 7;
-	float refrect = 1.0f;
-	Object3d sphere1;
-	Object3d sphereStr;
-	Object3d sphereEnd;
-	Object3d sphere2;
-
-
-	Vector3 rotate_;
-
-	LineDraw lineDraw_;
-	LineDraw lineDraw2_;
-	LineDraw lineDraw3_;
-
-	Segment segment_;
-
-	Ocean ocean_;
-
-	std::unique_ptr<Primitive> primitiveCup1[2];
-	std::unique_ptr<Primitive> primitiveCup2[2];
-	Capsule cup1;
-	Capsule cup2;
-
-	Vector3 testPos;
-	float offset = 1;
-
-	Sprite sprite;
-
-	std::unique_ptr<TrailEffect> trailEffect_;
-
-	std::unique_ptr<Primitive> primitive;
-	std::unique_ptr<Primitive> primitive2;
-	std::vector<std::unique_ptr<Primitive>> primitives;
-
-	bool flag33;
+	
+	std::unique_ptr<ParticleEmitter> emitter_  =nullptr;
 };
 
 

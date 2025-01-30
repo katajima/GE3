@@ -79,10 +79,6 @@ void GamePlayScene::Initialize()
 		ParticleManager::GetInstance()->CreateParticleGroup(strin, "resources/Texture/aa.png", ModelManager::GetInstance()->FindModel("plane.obj"),true);
 		ParticleManager::GetInstance()->SetPos(strin, { 0,0,0 });
 	}
-	emitter_ = new ParticleEmitter("cc", Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
-
-
-
 	
 
 	// 衝突マネージャの生成
@@ -571,7 +567,7 @@ void GamePlayScene::Draw3D()
 	player_->DrawP();
 
 	ParticleManager::GetInstance()->GetInstance()->Draw();
-
+	ParticleManager::GetInstance()->GetInstance()->DrawAABB();
 
 
 	// 当たり判定の表示

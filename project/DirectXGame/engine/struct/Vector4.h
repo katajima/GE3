@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector3.h"
+#include "DirectXGame/engine/Color/Color.h"
 
 struct Vector4 final {
 	float x;
@@ -37,4 +38,9 @@ struct Vector4 final {
 	Vector4 operator=(const Vector3& other) const {
 		return Vector4{ other.x, other.y, other.z,w};
 	}
+
+	/*Vector4  operator=(const Color& other) const {
+		return Vector4{ other.r, other.g, other.b,other.a};
+	}*/
+
 };

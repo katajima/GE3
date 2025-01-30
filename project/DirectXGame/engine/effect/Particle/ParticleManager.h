@@ -114,8 +114,7 @@ public:
 	};
 
 	struct Particle
-	{
-		
+	{	
 		Transform transform;
 		Vector3 velocity;
 		Vector4 color;

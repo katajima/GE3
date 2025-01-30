@@ -37,10 +37,6 @@ void PlayerBullet::Initialize(Vector3 position, Camera* camera)
 
 	
 	
-	
-
-	emitter_ = new ParticleEmitter(strin, Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
-
 
 	bullet.centar = { 0,0.0,0 };
 	bullet.rotate = { 0,0,0 };
@@ -64,7 +60,6 @@ void PlayerBullet::Initialize(Vector3 position, Camera* camera)
 
 	strin = std::to_string(index_) + "bullet";
 	ParticleManager::GetInstance()->SetObject(strin, object_.worldtransform_);
-	emitter_ = new ParticleEmitter(strin, Transform{ Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0,0,0) }, 100, 1.0f, 5.0f);
 	
 	strin = std::to_string(index_) + "exp";
 	ParticleManager::GetInstance()->SetObject(strin, object_.worldtransform_);

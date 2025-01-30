@@ -198,9 +198,6 @@
     <ClCompile Include="DirectXGame\application\base\FollowCamera\FollowCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DirectXGame\application\base\Attack\AttackManeger.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="DirectXGame\engine\base\RenderingCommon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -283,6 +280,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="DirectXGame\engine\WorldTransform\WorldTransform.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXGame\engine\Color\Color.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -472,9 +472,6 @@
     <ClInclude Include="DirectXGame\application\base\FollowCamera\FollowCamera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DirectXGame\application\base\Attack\AttackManeger.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="DirectXGame\engine\base\RenderingCommon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -572,6 +569,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DirectXGame\engine\WorldTransform\WorldTransform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXGame\engine\Color\Color.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

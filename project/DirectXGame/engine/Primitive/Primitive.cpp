@@ -2,7 +2,7 @@
 
 #include"PrimitiveCommon.h"
 
-void Primitive::Initialize(ShapeType type, const std::string& tex, const Vector4 color, bool isLine)
+void Primitive::Initialize(ShapeType type, const std::string& tex, const Color color, bool isLine)
 {
 	mesh = std::make_unique<Mesh>();
 

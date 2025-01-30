@@ -10,7 +10,7 @@
 
 
 #include"BasePlayerState.h"
-#include"Attack/AttackManeger.h"
+
 #include"playerWeapon.h"
 
 #include "DirectXGame/engine/effect/Particle/ParticleManager.h"
@@ -327,9 +327,7 @@ private:
 	// 速度
 	Vector3 velocity_ = {};
 	
-	//ParticleManager* particleManager_;
-	ParticleEmitter* emitter_;
-
+	
 	ParticleManager::Constant slash;
 	
 	// 浮遊ギミック媒介変数

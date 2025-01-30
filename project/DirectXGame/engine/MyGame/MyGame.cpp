@@ -13,8 +13,8 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	//SceneManager::GetInstance()->ChangeScene("TEST");
-	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	SceneManager::GetInstance()->ChangeScene("TEST");
+	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -82,8 +82,8 @@ void MyGame::Update()
 
 	SceneManager::GetInstance()->Update();
 	
-	
-	particleManager_->Update();
+	ParticleManager::GetInstance()->Update();
+	//particleManager_->Update();
 	
 	// ImGuiの受付終了
 	imguiManager->End();
@@ -105,7 +105,9 @@ void MyGame::Draw()
 	
 	SceneManager::GetInstance()->Draw3D();
 
-	particleManager_->Draw();
+	ParticleManager::GetInstance()->Draw();
+
+	//particleManager_->Draw();
 
 	//// 2Dオブジェクトの描画準備
 	SpriteCommon::GetInstance()->DrawCommonSetting();
@@ -156,6 +158,7 @@ void MyGame::InitializeResource()
 	
 
 	ModelManager::GetInstance()->LoadModelAmime("walk.gltf", "human");
+	ModelManager::GetInstance()->LoadModelAmime("Women.gltf", "Women");
 	ModelManager::GetInstance()->LoadModelAmime("player_bullet.obj", "player_bullet");
 	ModelManager::GetInstance()->LoadModelAmime("Sword.obj", "Sword");
 	ModelManager::GetInstance()->LoadModelAmime("plane.obj", "plane");
@@ -179,6 +182,7 @@ void MyGame::InitializeResource()
 
 
 	ModelManager::GetInstance()->LoadModel("rail.obj","rail");
+	ModelManager::GetInstance()->LoadModelAmime("Kick.gltf","Kick");
 	ModelManager::GetInstance()->LoadModel("building.obj","building");
 	ModelManager::GetInstance()->LoadModel("Sphere.obj","sphere");
 	ModelManager::GetInstance()->LoadModel("Sphere2.obj","sphere");

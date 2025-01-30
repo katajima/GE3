@@ -107,7 +107,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DirectXGame\application\base\Attack\AttackManeger.cpp" />
     <ClCompile Include="DirectXGame\application\base\Enemy\Enemy.cpp" />
     <ClCompile Include="DirectXGame\application\base\FollowCamera\FollowCamera.cpp" />
     <ClCompile Include="DirectXGame\application\base\Player\BasePlayerState.cpp" />
@@ -129,6 +128,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\engine\collider\Collider.cpp" />
     <ClCompile Include="DirectXGame\engine\collider\CollisionManager.cpp" />
     <ClCompile Include="DirectXGame\engine\collider\ContactRecord.cpp" />
+    <ClCompile Include="DirectXGame\engine\Color\Color.cpp" />
     <ClCompile Include="DirectXGame\engine\effect\Ocean\Ocean.cpp" />
     <ClCompile Include="DirectXGame\engine\effect\Ocean\OceanManager.cpp" />
     <ClCompile Include="DirectXGame\engine\effect\Thunder\Thunder.cpp" />
@@ -346,7 +346,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DirectXGame\application\base\Attack\AttackManeger.h" />
     <ClInclude Include="DirectXGame\application\base\Enemy\Enemy.h" />
     <ClInclude Include="DirectXGame\application\base\FollowCamera\FollowCamera.h" />
     <ClInclude Include="DirectXGame\application\base\Player\BasePlayerState.h" />
@@ -366,6 +365,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\engine\collider\CollisionManager.h" />
     <ClInclude Include="DirectXGame\engine\collider\CollisionTypeIdDef.h" />
     <ClInclude Include="DirectXGame\engine\collider\ContactRecord.h" />
+    <ClInclude Include="DirectXGame\engine\Color\Color.h" />
     <ClInclude Include="DirectXGame\engine\effect\Ocean\Ocean.h" />
     <ClInclude Include="DirectXGame\engine\effect\Ocean\OceanManager.h" />
     <ClInclude Include="DirectXGame\engine\effect\Thunder\Thunder.h" />

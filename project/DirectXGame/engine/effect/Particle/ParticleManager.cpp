@@ -148,8 +148,7 @@ void ParticleManager::Update()
 			for (size_t i = 0; i < 24; i += 2) {
 				group.line_[i]->Update();
 			}
-			//group.material->GPUData();
-
+			
 			for (auto particleIterator = group.particle.begin(); particleIterator != group.particle.end(); )
 			{
 				// パーティクルの寿命をチェック

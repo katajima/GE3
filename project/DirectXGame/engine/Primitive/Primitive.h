@@ -46,7 +46,7 @@ public:
 	
 
 	// 形
-	void Initialize(ShapeType type,const std::string& tex,const Vector4 color = { 1,1,1,1 },bool isLine = false);
+	void Initialize(ShapeType type,const std::string& tex,const Color color = { 1,1,1,1 },bool isLine = false);
 
 
 	void Update();
@@ -117,7 +117,7 @@ private:
 	void CreateSpring(float length, float width, float height, int turns, int segments, float thickness);
 
 public:
-	void SetColor(const Vector4& color) { material->color = color; }
+	void SetColor(const Color& color) { material->color = color; }
 
 public:
 

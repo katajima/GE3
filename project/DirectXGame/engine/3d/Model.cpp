@@ -65,6 +65,10 @@ void Model::InitializeAnime(ModelCommon* modelCommon, const std::string& directo
 	for (auto& material : modelData.material) {
 		material->LoadTex();
 	};
+
+	if (filename == "Kick.gltf") {
+		modelData.mesh[0]->indices;
+	}
 }
 
 #pragma endregion // 初期化
@@ -131,7 +135,10 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 
 	const aiScene* scene = importer.ReadFile(filePach.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); //メッシュがないのは対応しない
-
+	if (!scene) {
+		std::cerr << "Error: " << importer.GetErrorString() << std::endl;
+		return modelData;
+	}
 
 
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {

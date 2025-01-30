@@ -40,8 +40,8 @@ public:// メンバ関数
 	void SetSize(const float& size) { this->size = this->size * size; }
 
 	// 色
-	const Vector4& GetColor() const { return material->color; }
-	void SetColor(const Vector4& color) { material->color = color; }
+	const Color& GetColor() const { return material->color; }
+	void SetColor(const Color& color) { material->color = color; }
 
 	// アンカーポイント
 	const Vector2& GetAnchorPoint() const { return anchorPoint; };

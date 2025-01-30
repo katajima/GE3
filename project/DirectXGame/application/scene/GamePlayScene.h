@@ -131,7 +131,6 @@ private:
 	std::vector<std::unique_ptr<Enemy>> enemys_;
 
 	ParticleManager* particleManager_;
-	ParticleEmitter* emitter_;
 
 
 	Object3d tail;
