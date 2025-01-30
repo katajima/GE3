@@ -101,6 +101,9 @@ public:
 
 
 	uint32_t meshIndex = 0;
+
+
+
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 

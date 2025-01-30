@@ -172,7 +172,7 @@ static Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
         (scale0 * q0_t.w) + (scale1 * q1_t.w)
     };
     result.Normalize(); // 最終結果の正規化
-    return result;
+    return result.Normalize();
 }
 static Quaternion Slerp2(const Quaternion& q0, const Quaternion& q1, float t) {
     Quaternion q0_t = q0, q1_t = q1;

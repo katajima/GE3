@@ -20,7 +20,7 @@ int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std:
 	Joint joint{};
 	joint.name = node.name;
 	joint.localMatrix = node.localMatrix;
-	joint.skeletonSpaceMatrix = MakeIdentity4x4();
+	joint.skeletonSpaceMatrix  = MakeIdentity4x4();
 	joint.transform = node.transform;
 	joint.index = int32_t(joints.size()); // 登録されている数をIndexに
 	joint.parent = parent;

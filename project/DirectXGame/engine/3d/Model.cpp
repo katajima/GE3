@@ -140,6 +140,8 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 		return modelData;
 	}
 
+	modelData.rootNode = ReadNode(scene->mRootNode);
+
 
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
@@ -237,8 +239,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 
 	}
 
-	modelData.rootNode = ReadNode(scene->mRootNode);
-
+	
 	return modelData;
 }
 

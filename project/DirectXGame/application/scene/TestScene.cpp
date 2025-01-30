@@ -21,7 +21,7 @@ void TestScene::Initialize()
 
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
-	mm.SetModel("building.obj");
+	mm.SetModel("multiMaterial.gltf");
 	mm.worldtransform_.translate_ = { 30,1,1 };
 	mm.SetCamera(camera.get());
 	mm2.Initialize();
@@ -44,7 +44,11 @@ void TestScene::Initialize()
 
 	walk.Initialize();
 	//walk.SetModel("Kick.gltf");
-	walk.SetModel("Women.gltf");
+	//walk.SetModel("Hand.gltf");
+	//walk.SetModel("iku.gltf");
+	//walk.SetModel("Man.gltf");
+	//walk.SetModel("Women2.gltf");
+	//walk.SetModel("Women.gltf");
 	//walk.SetModel("walk.gltf");
 	walk.SetCamera(camera.get());
 	walk.worldtransform_.translate_ = { 0,10,0 };
@@ -165,16 +169,15 @@ void TestScene::Update()
 	//tail.GetMaterial(0)->color = GetColorSet(ColorName::BLUE);
 
 
-	ImGui::Begin("asj");
+	/*ImGui::Begin("asj");
 	int i = (int)walk.model->modelData.rootNode.children.size();
 	ImGui::InputInt("child", &i);
 	i = (int)walk.model->skeleton.joints.size();
 	ImGui::InputInt("joint", &i);
-	ImGui::End();
+	ImGui::End();*/
 	
-	//ImGui
-
-	walk.UpdateSkinning();
+	//walk.Update();
+	//walk.UpdateSkinning();
 	mm.Update();
 	mm2.UpdateAnimation();
 	multiMesh.Update();
@@ -185,14 +188,14 @@ void TestScene::Update()
 void TestScene::Draw3D()
 {
 
-	walk.GetMesh(0)->indices;
+	//walk.GetMesh(0)->indices;
 
-	walk.DrawLine();
-	walk.DrawSkinning();
+	//walk.Draw();
+	//walk.DrawLine();
+	//walk.DrawSkinning();
 	
 	tail.Draw();
-	//multiMesh.Draw();
-	//mm.Draw();
+	mm.Draw();
 	//mm2.Draw();
 
 	
