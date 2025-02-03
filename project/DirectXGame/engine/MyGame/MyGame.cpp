@@ -13,8 +13,8 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	//SceneManager::GetInstance()->ChangeScene("TEST");
-	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	SceneManager::GetInstance()->ChangeScene("TEST");
+	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -199,7 +199,21 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
 	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
 	
-	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 
+	primi = std::make_unique<Primitive>();
+	primi->Initialize(Primitive::ShapeType::Torus, "resources/Texture/uvChecker.png");
+	
+	primiPlane = std::make_unique<Primitive>();
+	primiPlane->Initialize(Primitive::ShapeType::Cylinder, "resources/Texture/uvChecker.png");
+
+	ParticleManager::GetInstance()->CreateParticleGroup("test", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+	
+	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+	
+	ParticleManager::GetInstance()->CreateParticleGroup("enemyaaaa", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("teapot.obj"), true);
+
+	ParticleManager::GetInstance()->CreateParticleGroup("primi", "resources/Texture/uvChecker.png", primi.get(), true);
+
+	ParticleManager::GetInstance()->CreateParticleGroup("primiCylinder", "resources/Texture/uvChecker.png", primiPlane.get(), true);
 
 }

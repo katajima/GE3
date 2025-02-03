@@ -87,6 +87,9 @@ private:
 	
 	//static const DeltaTime kDeltaTime_;
 	
+	std::unique_ptr<Primitive> primi = nullptr;
+	std::unique_ptr<Primitive> primiPlane = nullptr;
+
 private:
 	// ゲーム終了フラグ
 	bool endRequst_ = false;

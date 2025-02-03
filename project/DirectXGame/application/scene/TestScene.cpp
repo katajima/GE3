@@ -21,8 +21,9 @@ void TestScene::Initialize()
 
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
-	mm.SetModel("multiMaterial.gltf");
+	mm.SetModel("plane.obj");
 	mm.worldtransform_.translate_ = { 30,1,1 };
+	//mm.worldtransform_.scale_ = { 10,10,10 };
 	mm.SetCamera(camera.get());
 	mm2.Initialize();
 	mm2.SetModel("AnimatedCube.gltf");
@@ -68,15 +69,43 @@ void TestScene::Initialize()
 	cons.renge = { -Vector3{2.5f,2.5f,2.5f},Vector3{2.5f,2.5f,2.5f} };
 
 
-	ParticleManager::GetInstance()->SetObject("cc", tail.worldtransform_);
+	//ParticleManager::GetInstance()->SetObject("test", tail.worldtransform_);
 	ParticleManager::GetInstance()->SetCamera(camera.get());
 
 
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("aaaa","cc");
-	emitter_->GetFrequency() = 1000;
+	trans_.Initialize();
+	trans_.translate_ = { 0,10,0 };
+	//trans_.rotate_ = { 0,DegreesToRadians(180),0};
 
-	emitter_->Update();
+	emitter_ = std::make_unique<ParticleEmitter>();
+	emitter_->Initialize("emitter","primiCylinder",ParticleManager::EmitType::kRandom);
+	emitter_->GetFrequency() = 0.1f;
+	emitter_->SetCount(1);
+	emitter_->SetParent(tail.worldtransform_);
+	emitter_->SetRotateMinMax(-Vector3{1.0f,1.0f,1.0f}, { 1.0f,1.0f,1.0f });
+	emitter_->SetPos({ 0,10,0 });
+	emitter_->SetVelocityMinMax({ -10,5,0 } ,{ 0, 10, 0 });
+	emitter_->SetLifeTimeMinMax(0.1f, 0.1f);
+	emitter_->SetUsebillboard(false);
+	emitter_->SetIsGravity(true);
+	emitter_->SetIsAlpha(true);
+
+	emitterEnemy_ = std::make_unique<ParticleEmitter>();
+	emitterEnemy_->Initialize("emitterPrimi","primi",ParticleManager::EmitType::kRandom);
+	emitterEnemy_->GetFrequency() = 0.1f;
+	emitterEnemy_->SetCount(1);
+	emitterEnemy_->SetParent(mm.worldtransform_);
+	emitterEnemy_->SetPos({ 0,0,0 });
+	emitterEnemy_->SetVelocityMinMax({ -10,20,-10 } ,{ 10, 40, 10 });
+	emitterEnemy_->SetRotateMinMax(-DegreesToRadians(Vector3{90,90,90}), DegreesToRadians(Vector3{ 90,90,90 }));
+	emitterEnemy_->SetRotateVelocityMinMax(-Vector3{0.1f,0.1f,0.1f},{0.1f,0.1f,0.1f});
+	emitterEnemy_->SetLifeTimeMinMax(1, 5);
+	emitterEnemy_->SetIsGravity(true);
+	emitterEnemy_->SetUsebillboard(false);
+	emitterEnemy_->SetIsAlpha(true);
+	emitterEnemy_->SetIsLifeTimeScale(true);
+	emitterEnemy_->SetIsRotateVelocity(true);
+	emitterEnemy_->SetSizeMinMax(Vector3{0.1f,0.1f,0.1f},{ 0.2f,0.2f,0.2f });
 }
 
 void TestScene::Finalize()
@@ -85,8 +114,8 @@ void TestScene::Finalize()
 
 void TestScene::Update()
 {
-	ParticleManager::GetInstance()->SetCamera(camera.get());
-	ParticleManager::GetInstance()->Emit("cc", "const", cons);
+	//ParticleManager::GetInstance()->SetCamera(camera.get());
+	//ParticleManager::GetInstance()->Emit("cc", "const", cons);
 
 
 	if(Input::GetInstance()->IsTriggerKey(DIK_0)){
@@ -94,10 +123,10 @@ void TestScene::Update()
 	}
 
 
+	
 
-
-
-
+	emitter_->Update();
+	emitterEnemy_->Update();
 
 
 	if (Input::GetInstance()->IsPushKey(DIK_A)) {
@@ -122,8 +151,10 @@ void TestScene::Update()
 
 	camera->UpdateMatrix();
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
-
-	
+	ImGui::Begin("trans");
+	ImGui::DragFloat3("translate",&emitter_->transform_.translate_.x,0.1f);
+	ImGui::DragFloat3("rotate",&emitter_->transform_.rotate_.x,0.1f);
+	ImGui::End();
 	ImGui::Begin("engine");
 	
 	

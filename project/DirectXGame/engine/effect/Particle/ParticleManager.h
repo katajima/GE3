@@ -26,6 +26,7 @@ using namespace Microsoft::WRL;
 #include"DirectXGame/engine/Line/Line.h"
 #include"DirectXGame/engine/Line/LineCommon.h"
 #include "DirectXGame/engine/Material/Material.h"
+#include "DirectXGame/engine/Primitive/Primitive.h"
 #include "../../3d/Object3d.h"
 
 
@@ -97,9 +98,11 @@ public:
 		MaxMin<Vector4> color;     // 色 (Vector3の範囲)
 		MaxMin<Vector3> size;        // 大きさ (floatの範囲)
 		MaxMin<Vector3> rotate;      // 回転 (floatの範囲)
+		MaxMin<Vector3> rotateVelocity;// 回転 (floatの範囲)
 		MaxMin<float> lifeTime;    // 生存時間 (floatの範囲)
 		MaxMin<Vector3> velocity;  // 速度 (Vector3の範囲)
-		//Object3d object;
+
+
 		WorldTransform worldtransform;
 		bool isEmit = false;
 
@@ -108,8 +111,7 @@ public:
 
 
 
-		float frequency_;		// < 発生頻度
-		float frequencyTime_;	// < 頻度用時刻
+		
 		float count;
 	};
 
@@ -117,9 +119,13 @@ public:
 	{	
 		Transform transform;
 		Vector3 velocity;
+		Vector3 acceleration;
 		Vector4 color;
 		float lifeTime;
 		float currentTime;
+
+		Transform strtTransform;
+		Vector3 rotateVelocity;
 	};
 	struct AcceleraionField {
 		Vector3 acceleration;
@@ -138,12 +144,16 @@ public:
 		ParticleForGPU* instanceData; // インスタンシングデータを書き込むためのポインタ
 		D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
 		D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
-		Model* model;
+		//Model* model;
+		Mesh* mesh;
 		Emiter emiter;
 		std::vector < std::unique_ptr <LineDraw>> line_;
 		bool usebillboard = true;
 		bool isAlpha = false;
 		bool isLine = true;
+		bool isGravity = false;
+		bool isLifeTimeScale_ = false;
+		bool isRotateVelocity = false;
 		EmitType emitType = EmitType::kRandom; 
 	};
 
@@ -167,15 +177,23 @@ public:
 	void DrawCommonSetting();
 
 	// パーティクルの発生
-	void Emit(const std::string name,const std::string emitName, const Vector3& position, uint32_t count = 0);
+	void Emit(const std::string name,const std::string emitName, EmitType type);
 	void Emit(const std::string name,const std::string emitName, const Constant& cons);
 
 	std::unordered_map<std::string, ParticleGroup>& GetParticleGroups()
 	{
 		return particleGroups;
 	}
+	ParticleGroup& GetParticleGroups(const std::string name)
+	{
+		return particleGroups[name];
+	}
+
+
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model,bool flag = false);
+
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Primitive* primitive, bool flag = false);
 
 	void SetCamera(Camera* camera) { this->camera_ = camera; }
 
@@ -201,7 +219,7 @@ private:
 	void LimitMaxMin();
 
 	// ランダム
-	void RandParticle(const std::string name, const Vector3& position, const int count);
+	void RandParticle(const std::string name);
 
 	// 定数
 	void ConstantParticle(const std::string name, const Constant& cons);
@@ -230,7 +248,7 @@ private:
 
 
 	const uint32_t kNumMaxInstance = 10000;
-	float kDeltaTime;
+	//float kDeltaTime;
 	bool usebillboard = true;
 	bool upData = true;
 	bool upDataWind = false;
@@ -241,15 +259,10 @@ private:
 	Camera* camera_ = nullptr;
 
 	
-	//// バッファリソース
-	Microsoft::WRL::ComPtr < ID3D12Resource> vertexResource;
-	//// バッファリソース内のデータを指すポインタ
-	VertexData* vertexData = nullptr;
-	////バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-	
 	Transform transform;
 
+
+	const float kGravitationalAcceleration = 9.8f;
 	////ルートシグネチャデスク
 	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
 	////ルートシグネチャ

@@ -68,8 +68,13 @@ private:
 	Object3d walk;
 	Object3d multiMesh;
 
-	
+	WorldTransform trans_;
+
 	std::unique_ptr<ParticleEmitter> emitter_  =nullptr;
+
+	std::unique_ptr<ParticleEmitter> emitterEnemy_  =nullptr;
+
+
 };
 
 
