@@ -28,7 +28,7 @@ void GamePlayScene::Initialize()
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 
 
-	for (int i = 0; i < 40; i++) {
+	for (int i = 0; i < 25; i++) {
 		auto enemy = std::make_unique<Enemy>();
 		Vector3 randPos = { float(rand() % 41 - 20),2,float(rand() % 40) };
 		enemy->Initialize(randPos, 50, camera.get());
@@ -36,13 +36,7 @@ void GamePlayScene::Initialize()
 		enemys_.push_back(std::move(enemy));
 	}
 
-	//const char* gropName = "enemys";
-	//GlobalVariables::GetInstance()->CreateGroup(gropName);
-	//for (int i = 0; i < enemys_.size(); i++) {
-	//	std::string label = "Translate " + std::to_string(i);
-	//	//globalVariables->AddItem(gropName, label, enemys_[i]->GetPostion());
-	//}
-
+	
 
 	tail.Initialize();
 	tail.SetModel("renga.gltf");

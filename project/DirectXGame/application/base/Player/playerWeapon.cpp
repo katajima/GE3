@@ -51,6 +51,8 @@ void playerWeapon::OnCollision(Collider* other)
 
 			enemy->Emit();
 
+			MyGame::hitStop(0.04f);
+
 			player_->AddHit();
 			player_->AddSP();
 			player_->SetHitTime();
@@ -62,6 +64,8 @@ void playerWeapon::OnCollision(Collider* other)
 
 			enemy->SetHit();
 			enemy->Emit();
+
+			MyGame::hitStop(0.04f);
 
 			player_->AddHit();
 			player_->AddSP();

@@ -79,6 +79,10 @@ public:
 	static float const kDeltaTime_;
 	static float kTimeSpeed_;
 	static float GameTime() { return kDeltaTime_ * kTimeSpeed_; };
+	static void hitStop(float time) { hitStopTimer = time; };
+	static float hitStopTimer;
+private:
+	void HitStpoTime();
 
 private:
 	std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
@@ -89,6 +93,8 @@ private:
 	
 	std::unique_ptr<Primitive> primi = nullptr;
 	std::unique_ptr<Primitive> primiPlane = nullptr;
+
+	
 
 private:
 	// ゲーム終了フラグ

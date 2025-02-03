@@ -18,7 +18,7 @@ void Enemy::Initialize(Vector3 position, float HP,Camera*camera)
 
 
 	object_.Initialize();
-	object_.SetModel("teapot.obj");
+	object_.SetModel("enemy2.obj");
 	object_.SetCamera(camera);
 	object_.worldtransform_.translate_ = position;
 	object_.worldtransform_.scale_ = { 2,2,2 };
@@ -131,7 +131,7 @@ void Enemy::Draw2D()
 void Enemy::Move() {
 
 	// 回転と移動量の設定
-	const float kMoveSpeed = 6.0f; // 移動速度
+	const float kMoveSpeed = 3.0f; // 移動速度
 	// worldTransformBase_.rotation_.y += 0.00f; // 一定量のY軸回転
 
 	// 向いている方向への移動ベクトルの計算
@@ -224,6 +224,8 @@ void Enemy::OnCollision(Collider* other)
 				}
 
 				contactRecord_.AddHistory(serialNumber);
+
+
 
 				player->AddDamege(10);
 			}

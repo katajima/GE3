@@ -82,7 +82,7 @@ private:
 	// 速度
 	Vector3 velocity_ = {};
 
-	Enemy* enemy_;
+	Enemy* enemy_ = nullptr;
 
 	int phase_= 0;
 

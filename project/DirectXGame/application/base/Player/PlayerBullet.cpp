@@ -13,6 +13,7 @@ void PlayerBullet::Initialize(Vector3 position, Camera* camera)
 	object_.Initialize();
 	object_.SetCamera(camera);
 	object_.SetModel("player_bullet.obj");
+	//object_.SetModel("AnimatedCube.gltf");
 	object_.worldtransform_.translate_= position;
 	object_.Update();
 
@@ -120,9 +121,9 @@ void PlayerBullet::Update()
 			count += MyGame::GameTime();
 			if (count >= max_count)
 			{
-				Vector3 pos = enemy_->GetObject3D().GetWorldPosition();
+				Vector3 pos = enemy_->GetObject3D().GetWorldPosition() - object_.GetWorldPosition();
 
-				pos =  enemy_->GetObject3D().GetWorldPosition() - object_.GetWorldPosition();
+				//pos =  enemy_->GetObject3D().GetWorldPosition() - object_.GetWorldPosition();
 				Vector3 pos2 = pos;
 
 				velocity_ = pos2;

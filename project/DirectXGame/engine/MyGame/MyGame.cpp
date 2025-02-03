@@ -2,6 +2,7 @@
 
 const float MyGame::kDeltaTime_ = 1.0f / 60.0f;
 float MyGame::kTimeSpeed_ = 1.0f;
+float MyGame::hitStopTimer = 0.0f;
 
 void MyGame::Initialize()
 {
@@ -13,8 +14,8 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	SceneManager::GetInstance()->ChangeScene("TEST");
-	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	//SceneManager::GetInstance()->ChangeScene("TEST");
+	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -54,6 +55,8 @@ void MyGame::Update()
 	imguiManager->Begin();
 
 	Framework::Update();
+
+	//HitStpoTime(); // ストップ用
 
 #ifdef _DEBUG
 	auto currentTime = std::chrono::high_resolution_clock::now();
@@ -167,7 +170,7 @@ void MyGame::InitializeResource()
 
 
 
-	ModelManager::GetInstance()->LoadModelAmime("player_bullet.obj", "player_bullet");
+	ModelManager::GetInstance()->LoadModel("player_bullet.obj", "player_bullet");
 	ModelManager::GetInstance()->LoadModelAmime("Sword.obj", "Sword");
 	ModelManager::GetInstance()->LoadModelAmime("plane.obj", "plane");
 	//ModelManager::GetInstance()->LoadModelAmime("sneakWalk.gltf", "human");
@@ -198,6 +201,7 @@ void MyGame::InitializeResource()
 	ModelManager::GetInstance()->LoadModel("Sphere3.obj","sphere");
 	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
 	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
+	ModelManager::GetInstance()->LoadModel("enemy2.obj","enemy2");
 	
 
 	primi = std::make_unique<Primitive>();
@@ -216,4 +220,26 @@ void MyGame::InitializeResource()
 
 	ParticleManager::GetInstance()->CreateParticleGroup("primiCylinder", "resources/Texture/uvChecker.png", primiPlane.get(), true);
 
+}
+
+
+
+void MyGame::HitStpoTime()
+{
+	bool is = false;
+	hitStopTimer -= kDeltaTime_;
+	if (hitStopTimer <= 0.0f) {
+		hitStopTimer = 0.0f;
+	}
+	if (hitStopTimer > 0) {
+		is = true;
+	}
+
+	if (is) {
+		
+		kTimeSpeed_ = 0.4f;
+	}
+	else {
+		kTimeSpeed_ = 1.0f;
+	}
 }
