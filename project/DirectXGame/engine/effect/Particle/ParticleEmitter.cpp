@@ -31,9 +31,16 @@ void ParticleEmitter::Initialize(std::string emitName, std::string particleName)
 	emitName_ = emitName;
 	particleName_ = particleName;
 	transform_.Initialize();
-	count_ = 0;
+	count_ = 1;
 	frequency_ = 1.0f;
 	frequencyTime_ = 0.0f;
+
+	isLifeTimeScale_ = false;	// スケール
+	isLifeTimeAlpha_ = false;	// 透明度
+	isLifeTimeVelocity = false;// 速度
+
+	isGravity = false; // 重力
+	isWindow = false;  // 風
 }
 
 void ParticleEmitter::Update()
@@ -59,7 +66,7 @@ void ParticleEmitter::Update()
 		frequencyTime_ += MyGame::GameTime();
 		if (particleGroup.emiter.isEmit) {
 			if (frequency_ <= frequencyTime_) {
-				//ParticleManager::GetInstance()->Emit();
+				Emit();
 				frequencyTime_ -= frequency_;
 			}
 		}
@@ -85,11 +92,15 @@ void ParticleEmitter::Update()
 
 void ParticleEmitter::Emit()
 {
+	ParticleManager::GetInstance()->Emit(particleName_,"rand", transform_.worldMat_.GetWorldPosition(), count_);
 
-	// 全パーティクルグループ内の全パーティクルを処理する
-	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
-		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
-
-		ParticleManager::GetInstance()->Emit(particleGroup.name, "rand", particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition(), count_);
-	}
+	
+	
+	//	ParticleManager::ParticleGroup& particleGroup = particleGroups[name];
+//	// 全パーティクルグループ内の全パーティクルを処理する
+//	for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
+//		ParticleManager::ParticleGroup& particleGroup = groupPair.second;
+//
+	//	ParticleManager::GetInstance()->Emit(particleGroup.name, "rand", particleGroup.emiter.worldtransform.worldMat_.GetWorldPosition(), count_);
+//	}
 }

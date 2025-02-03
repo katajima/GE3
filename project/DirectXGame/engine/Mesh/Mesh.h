@@ -1,6 +1,7 @@
 #pragma once
 #include"DirectXGame/engine/math/MathFanctions.h"
 #include"DirectXGame/engine/base/DirectXCommon.h"
+#include"DirectXGame/engine/struct/Material.h"
 
 #include "vector"
 #include<wrl.h>
@@ -103,7 +104,7 @@ public:
 	uint32_t meshIndex = 0;
 
 
-
+	MaterialData materialData_;
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 

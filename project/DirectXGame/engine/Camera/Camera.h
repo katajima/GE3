@@ -47,8 +47,8 @@ public: // メンバ関数
 
 	void SetShake(float time,Vector3 diectionRange);
 private:
-	float shakeTime_;
-	Vector3 shakeDirectionRange_;
+	float shakeTime_ = 0;
+	Vector3 shakeDirectionRange_{};
 #ifdef _DEBUG
 	float debugShakeTime_ = 0.1f;
 	Vector3 debugShakeDirectionRange_ = {0.1f,0.1f,0.1f};

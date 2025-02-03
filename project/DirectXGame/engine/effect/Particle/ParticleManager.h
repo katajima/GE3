@@ -185,6 +185,10 @@ public:
 	
 	
 	void SetObject(const std::string name, WorldTransform& obj);
+private: //セット系
+
+	void SetPos();
+
 
 
 private:

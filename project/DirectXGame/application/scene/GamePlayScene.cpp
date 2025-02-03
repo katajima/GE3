@@ -550,7 +550,7 @@ void GamePlayScene::Finalize()
 void GamePlayScene::Draw3D()
 {
 	sky.Draw();
-	//tail.Draw();
+	tail.Draw();
 
 	////3Dオブジェクトの描画
 
@@ -567,7 +567,7 @@ void GamePlayScene::Draw3D()
 	player_->DrawP();
 
 	ParticleManager::GetInstance()->GetInstance()->Draw();
-	ParticleManager::GetInstance()->GetInstance()->DrawAABB();
+	//ParticleManager::GetInstance()->GetInstance()->DrawAABB();
 
 
 	// 当たり判定の表示

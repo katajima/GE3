@@ -25,10 +25,7 @@ public:
 		kSegment,		// Line
 	};
 
-	enum class AAAAAAAAAAAAA;
-
-
-
+	
 
 public:
 	// count: パーティクルの最大生成数を指定する値。frequency: パーティクルの発射間隔を秒単位で指定する値。frequencyTime: 現在の発射間隔の経過時間を追跡する値。
@@ -48,6 +45,22 @@ public: // ゲッター兼セッター
 
 	
 	void SetParent(WorldTransform parent) { transform_.parent_ = &parent; }// 親子付け
+
+	void SetRenge(Vector3 min, Vector3 max) { emitter_.renge.min = min; emitter_.renge.max; }; // 範囲
+
+	void SetColor(Vector4 min, Vector4 max) { emitter_.color.min = min;emitter_.color.max = max; } // カラー
+
+	void SetSize(Vector3 min, Vector3 max) { emitter_.size.min = min; emitter_.size.max = max; } // サイズ
+
+	void SetRotate(Vector3 min, Vector3 max) { emitter_.rotate.min = min; emitter_.rotate.max = max; } // 回転
+
+	void SetLifeTime(float min, float max) { emitter_.lifeTime.min = min;emitter_.lifeTime.max = max; } // 生存時間
+
+	void SetVelocity(Vector3 min, Vector3 max) { emitter_.velocity.min = min;emitter_.velocity.max = max; } // 速度
+
+	void SetCount(uint32_t count) { count_ = count; }; // 出現数
+
+	void SetFrequency(float frequency) { frequency_ = frequency_;} // 頻度
 
 private:
 	EmitType emitType_ = EmitType::kRandom; // 出現方法
@@ -74,6 +87,7 @@ private:
 	std::string particleName_; // パーティクル名
 
 
+	ParticleManager::Emiter emitter_;
 
 };
 

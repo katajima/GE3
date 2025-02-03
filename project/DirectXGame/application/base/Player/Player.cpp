@@ -1,5 +1,8 @@
 #include "Player.h"
 #include "Enemy/Enemy.h"
+
+#include "assert.h"
+
 void Player::Initialize(Vector3 position, Camera* camera)
 {
 	Collider::Initialize(camera);
@@ -21,6 +24,9 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	objectReticle_.SetModel("enemy.obj");
 	objectReticle_.worldtransform_.parent_ = &objectBase_.worldtransform_;
 	objectReticle_.worldtransform_.translate_ = { 0,0,30 };
+
+	//assert(objectBody_ != nullptr);
+	//assert(objectBase_ != nullptr);
 
 	// 体
 	objectBody_.Initialize();
@@ -203,6 +209,7 @@ void Player::Update()
 
 	objectSha_.worldtransform_.scale_ = scale;
 
+#ifdef _DEBUG
 	ImGui::Begin("trail");
 	Vector3 min = weapon_->GetObject3D().GetMesh(0)->GetMin();
 	ImGui::InputFloat3("min", &min.x);
@@ -231,6 +238,7 @@ void Player::Update()
 	//}
 	
 	ImGui::End();
+#endif // _DEBUG
 
 
 	Gravity();

@@ -13,8 +13,8 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	SceneManager::GetInstance()->ChangeScene("TEST");
-	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	//SceneManager::GetInstance()->ChangeScene("TEST");
+	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -151,10 +151,10 @@ void MyGame::InitializeResource()
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
 
 
-	ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
+	//ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
 
-	ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
-	//ModelManager::GetInstance()->LoadModel("a.obj");
+	//ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
+	ModelManager::GetInstance()->LoadModel("a.obj");
 	
 
 	//ModelManager::GetInstance()->LoadModelAmime("walk.gltf", "human");
@@ -167,11 +167,11 @@ void MyGame::InitializeResource()
 
 
 
-	/*ModelManager::GetInstance()->LoadModelAmime("player_bullet.obj", "player_bullet");
+	ModelManager::GetInstance()->LoadModelAmime("player_bullet.obj", "player_bullet");
 	ModelManager::GetInstance()->LoadModelAmime("Sword.obj", "Sword");
 	ModelManager::GetInstance()->LoadModelAmime("plane.obj", "plane");
-	ModelManager::GetInstance()->LoadModelAmime("sneakWalk.gltf", "human");
-	ModelManager::GetInstance()->LoadModelAmime("AnimatedCube.gltf", "AnimatedCube");*/
+	//ModelManager::GetInstance()->LoadModelAmime("sneakWalk.gltf", "human");
+	ModelManager::GetInstance()->LoadModelAmime("AnimatedCube.gltf", "AnimatedCube");
 
 	ModelManager::GetInstance()->LoadModel("grass.obj", "grass");
 	ModelManager::GetInstance()->LoadModel("grass.gltf", "grass2");
@@ -183,7 +183,7 @@ void MyGame::InitializeResource()
 
 	ModelManager::GetInstance()->LoadModel("plane.obj", "plane");
 	ModelManager::GetInstance()->LoadModel("axis.obj", "axis");
-	//ModelManager::GetInstance()->LoadModel("multiMesh.obj", "multiMesh");
+	ModelManager::GetInstance()->LoadModel("multiMesh.obj", "multiMesh");
 
 
 	ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
@@ -191,13 +191,13 @@ void MyGame::InitializeResource()
 
 
 
-	/*ModelManager::GetInstance()->LoadModel("rail.obj","rail");
+	ModelManager::GetInstance()->LoadModel("rail.obj","rail");
 	ModelManager::GetInstance()->LoadModel("building.obj","building");
 	ModelManager::GetInstance()->LoadModel("Sphere.obj","sphere");
 	ModelManager::GetInstance()->LoadModel("Sphere2.obj","sphere");
 	ModelManager::GetInstance()->LoadModel("Sphere3.obj","sphere");
 	ModelManager::GetInstance()->LoadModel("skydome.obj", "skydome");
-	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");*/
+	ModelManager::GetInstance()->LoadModel("enemy.obj","enemy");
 	
 	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 
