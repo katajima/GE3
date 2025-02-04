@@ -161,5 +161,7 @@ private:
 	std::unique_ptr<Sprite> text_clera;
 	std::unique_ptr<Sprite> text_over;
 
+	std::unique_ptr<ParticleEmitter> emit_;
+
 };
 

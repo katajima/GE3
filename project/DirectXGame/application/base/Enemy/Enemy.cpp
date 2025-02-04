@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "imgui.h"
 #include "Player/Player.h"
+#include "DirectXGame/application/base/FollowCamera/FollowCamera.h"
 
 uint32_t Enemy::nextSerialNumber = 0;
 
@@ -58,14 +59,14 @@ void Enemy::Initialize(Vector3 position, float HP, Camera* camera)
 	hpBer_ = std::make_unique<Sprite>();
 	hpBer_->Initialize("resources/Texture/Image.png");
 	//hpBer_->SetSize(0.10f);
-	hpBer_->SetColor({ 1,0,0,1 });
+	hpBer_->SetColor({ 1,0,0,0.7f });
 	hpBer_->SetPosition({ -100,650 });
 	hpBer_->SetAnchorPoint({ 0.5f,0.0f });
 
 	backHpBer_ = std::make_unique<Sprite>();
 	backHpBer_->Initialize("resources/Texture/Image.png");
 	//backHpBer_->SetSize(0.10f);
-	backHpBer_->SetColor({ 0.1f,0.1f,0.1f,1 });
+	backHpBer_->SetColor({ 0.1f,0.1f,0.1f,0.7f });
 	backHpBer_->SetPosition({ -100,650 });
 	backHpBer_->SetAnchorPoint({ 0.5f,0.0f });
 
@@ -253,16 +254,19 @@ void Enemy::Emit()
 
 	if (dirac == 0) {
 		hitEmit_->SetVelocityMinMax(-Vector3{ 5,5,0 }, { 5, 5, 0 });
+		traiEmit_->SetVelocityMinMax(-Vector3{ 5,5,0 }, { 5, 5, 0 });
 	}
 	else if (dirac == 1) {
 		hitEmit_->SetVelocityMinMax(-Vector3{ 0,5,5 }, { 0, 5, 5 });
+		traiEmit_->SetVelocityMinMax(-Vector3{ 0,5,5 }, { 0, 5, 5 });
 	}
 	else {
 		hitEmit_->SetVelocityMinMax(-Vector3{ 5,0,5 }, { 5, 0, 5 });
+		traiEmit_->SetVelocityMinMax(-Vector3{ 5,0,5 }, { 5, 0, 5 });
 	}
 
 	hitEmit_->Update();
-
+	traiEmit_->Update();
 }
 
 void Enemy::OnCollision(Collider* other)
@@ -284,7 +288,7 @@ void Enemy::OnCollision(Collider* other)
 
 				contactRecord_.AddHistory(serialNumber);
 
-
+				followCamera_->GetViewProjection().SetShake(0.1f,{1.5f,1.5f,1.5f });
 
 				player->AddDamege(10);
 			}
@@ -374,6 +378,21 @@ void Enemy::InitParticle()
 	starEmit_->SetUsebillboard(false);
 	starEmit_->SetSizeMinMax(Vector3{ 1.6f,1.6f,1.6f }, { 1.8f,1.8f,1.8f });
 	starEmit_->SetColorMinMax({ 0.424f, 0.404f, 0.431f }, { 0.424f, 0.404f, 0.431f });
+
+	traiEmit_ = std::make_unique<ParticleEmitter>();
+	traiEmit_->Initialize("dust", "hitTrai", ParticleManager::EmitType::kRandom);
+	traiEmit_->GetFrequency() = 0.0f;
+	traiEmit_->SetCount(5);
+	traiEmit_->SetParent(object_.worldtransform_);
+	traiEmit_->SetPos({ 0,0.0f,0.0f });
+	traiEmit_->SetRotateMinMax(-DegreesToRadians({ 180,180,180 }), DegreesToRadians({ 180,180,180 }));
+	traiEmit_->SetVelocityMinMax({ 0,0,0 }, { 0, 0, 0 });
+	traiEmit_->SetLifeTimeMinMax(0.2f, 0.2f);
+	traiEmit_->SetIsAlpha(true);
+	traiEmit_->SetUsebillboard(false);
+	traiEmit_->SetSizeMinMax(Vector3{ 1.6f,1.6f,1.6f }, { 1.8f,1.8f,1.8f });
+	traiEmit_->SetColorMinMax({ 1, 0, 0 }, { 1, 1, 0 });
+	traiEmit_->SetRengeMinMax(Vector3{-5,-5,-5},Vector3{5,5,5});
 
 	hitEmit_ = std::make_unique<ParticleEmitter>();
 	hitEmit_->Initialize("dust", "hit", ParticleManager::EmitType::kRandom);

@@ -247,7 +247,7 @@ private:
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 
-	const uint32_t kNumMaxInstance = 10000;
+	const uint32_t kNumMaxInstance = 12000;
 	//float kDeltaTime;
 	bool usebillboard = true;
 	bool upData = true;

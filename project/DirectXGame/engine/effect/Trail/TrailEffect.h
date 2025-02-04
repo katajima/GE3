@@ -29,6 +29,7 @@ public:
 
 	
 	void Update(bool& flag, const Object3d& str, const Object3d& end);
+	//void Update(bool& flag, const WorldTransform& str, const WorldTransform& end);
 
 	void Draw();
 

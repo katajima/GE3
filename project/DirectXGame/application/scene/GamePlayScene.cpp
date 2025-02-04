@@ -33,6 +33,7 @@ void GamePlayScene::Initialize()
 		Vector3 randPos = { float(rand() % 41 - 20),2,float(rand() % 40) };
 		enemy->Initialize(randPos, 100, camera.get());
 		enemy->SetPlayer(player_.get());
+		enemy->SetFollowCamera(followCamera_.get());
 		enemys_.push_back(std::move(enemy));
 	}
 
@@ -214,8 +215,17 @@ void GamePlayScene::InitializeResources()
 	numpos[1] = { xpos + (50 * 1),100 };
 	numpos[0] = { xpos + (50 * 2),100 };
 
-
-
+	emit_ = std::make_unique<ParticleEmitter>();
+	emit_->Initialize("groundRtttight", "dustt", ParticleManager::EmitType::kRandom);
+	emit_->GetFrequency() = 0.5f;
+	emit_->SetCount(200);
+	emit_->SetPos({ 200,40,200 });
+	emit_->SetVelocityMinMax(-Vector3{0.2f,0.2f,0.2f }, { 0.2f, 0.2f, 0.2f });
+	emit_->SetLifeTimeMinMax(10.4f, 10.7f);
+	emit_->SetIsAlpha(true);
+	emit_->SetSizeMinMax(Vector3{ 0.2f,0.2f,0.2f }, { 0.2f,0.2f,0.2f });
+	emit_->SetColorMinMax({ 0.604f, 0.384f, 0.161f }, { 0.604f, 0.384f, 0.161f });
+	emit_->SetRengeMinMax({-400,-100,-400}, { 400,100,400 });
 }
 // 
 void GamePlayScene::LoadLevelData()
@@ -485,7 +495,7 @@ void GamePlayScene::Update()
 	// タイル
 	tail.Update();
 	sky.Update();
-
+	emit_->Update();
 	// デバック表示用にワールドトランスフォームを更新
 	collisionManager_->UpdateWorldTransform();
 

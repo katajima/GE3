@@ -13,6 +13,7 @@
 #include"DirectXGame/engine/2d/Sprite.h"
 
 class Player;
+class FollowCamera;
 
 class Enemy : public Collider
 {
@@ -86,6 +87,8 @@ public:
 
 	void Shake();
 
+	void SetFollowCamera(FollowCamera* followCamera) { followCamera_ = followCamera; }
+
 private:
 
 	void InitParticle();
@@ -137,12 +140,15 @@ private:
 	std::unique_ptr<ParticleEmitter> groundLeftEmit_ = nullptr;
 
 	std::unique_ptr<ParticleEmitter> starEmit_ = nullptr;
+	std::unique_ptr<ParticleEmitter> traiEmit_ = nullptr;
 	std::unique_ptr<ParticleEmitter> hitEmit_ = nullptr;
 	std::unique_ptr<ParticleEmitter> dustEmit_ = nullptr;
 
 	float hitStopTimer;
 	float kHitStopTimer;
 	float timeSpeed_ = 1.0f;
+
+	FollowCamera* followCamera_;
 };
 
 

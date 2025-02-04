@@ -63,6 +63,8 @@ public:
 
 	Vector2 GetScreenPosition();
 	
+	bool IsInFrustum(const Matrix4x4& viewProjectionMatrix, const Vector3& position);
+
 	Mesh* GetMesh(int index) { return model->modelData.mesh[index].get(); }
 	Material* GetMaterial(int index) { return model->modelData.material[index].get(); }
 

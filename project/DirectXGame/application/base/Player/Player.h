@@ -277,7 +277,7 @@ public:
 	void AddHit() { workAttack.hitCount++; };
 	void AddSP() { specialAttack.specialGauge++; };
 
-	void SetHitTime() { workAttack.hitTime = 90; }
+	void SetHitTime() { workAttack.hitTime = 1.5f; }
 
 	// 弾リストを取得
 	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() const { return playerBullet_; }

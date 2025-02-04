@@ -85,6 +85,7 @@ void Player::BehaviorDieInitialize()
 
 void Player::BehaviorDieUpdate()
 {
+	velocity_ = {};
 	AttackKey();
 	int i = 0;
 	int time = 0;

@@ -210,6 +210,9 @@ void MyGame::InitializeResource()
 	primi = std::make_unique<Primitive>();
 	primi->Initialize(Primitive::ShapeType::Torus, "resources/Texture/uvChecker.png");
 	
+	primiTrai = std::make_unique<Primitive>();
+	primiTrai->Initialize(Primitive::ShapeType::Triangle, "resources/Texture/Image.png");
+	
 	primiPlane = std::make_unique<Primitive>();
 	primiPlane->Initialize(Primitive::ShapeType::Cylinder, "resources/Texture/uvChecker.png");
 
@@ -226,9 +229,12 @@ void MyGame::InitializeResource()
 	
 	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 	ParticleManager::GetInstance()->CreateParticleGroup("hitStar", "resources/Texture/Image.png", primiStar.get(), true);
+	ParticleManager::GetInstance()->CreateParticleGroup("hitTrai", "resources/Texture/Image.png", primiTrai.get(), true);
 	ParticleManager::GetInstance()->CreateParticleGroup("hit", "resources/Texture/hit.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 	ParticleManager::GetInstance()->CreateParticleGroup("enemyGround", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 	ParticleManager::GetInstance()->CreateParticleGroup("enemyDust", "resources/Texture/dust.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+	
+	ParticleManager::GetInstance()->CreateParticleGroup("dustt", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 	
 	ParticleManager::GetInstance()->CreateParticleGroup("enemyaaaa", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("teapot.obj"), true);
 

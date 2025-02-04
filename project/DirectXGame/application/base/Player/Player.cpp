@@ -138,7 +138,6 @@ void Player::Initialize(Vector3 position, Camera* camera)
 
 void Player::Update()
 {
-	
 	trailEffect_->Update(flag33, weaponStr, weaponEnd);
 
 	if (isAlive) {
