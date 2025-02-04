@@ -28,10 +28,10 @@ void GamePlayScene::Initialize()
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 
 
-	for (int i = 0; i < 25; i++) {
+	for (int i = 0; i < 15; i++) {
 		auto enemy = std::make_unique<Enemy>();
 		Vector3 randPos = { float(rand() % 41 - 20),2,float(rand() % 40) };
-		enemy->Initialize(randPos, 50, camera.get());
+		enemy->Initialize(randPos, 100, camera.get());
 		enemy->SetPlayer(player_.get());
 		enemys_.push_back(std::move(enemy));
 	}
@@ -121,14 +121,14 @@ void GamePlayScene::InitializeResources()
 	Object3dCommon::GetInstance()->SetDefaltCamera(camera.get());
 
 
-	//for (int j = 0; j < 3; j++) {
-	//	for (int i = 0; i < 10; i++) {
-	//		numSprites[j][i] = std::make_unique<Sprite>();
-	//		std::string str = "resources/Texture/num/" + std::to_string(i) + ".png";
-	//		numSprites[j][i]->Initialize(str, false);
-	//		//numSprites[j][i]->SetPosition(Vector2{ float(50 * i), 100 });
-	//	}
-	//}
+	for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < 10; i++) {
+			numSprites[j][i] = std::make_unique<Sprite>();
+			std::string str = "resources/Texture/num/" + std::to_string(i) + ".png";
+			numSprites[j][i]->Initialize(str, false);
+			//numSprites[j][i]->SetPosition(Vector2{ float(50 * i), 100 });
+		}
+	}
 
 	float xpos = 1050;
 	Vector2 scale{ 75,75 };
@@ -317,7 +317,7 @@ void GamePlayScene::ApplyGlobalVariables()
 
 	for (int j = 0; j < 3; j++) {
 		for (int i = 0; i < 10; i++) {
-			//numSprites[j][i]->SetPosition(numpos[j]);
+			numSprites[j][i]->SetPosition(numpos[j]);
 		}
 	}
 
@@ -588,9 +588,9 @@ void GamePlayScene::Draw2D()
 		int digit = (static_cast<int>(adsbhads) / static_cast<int>(pow(10, j))) % 10;
 
 		// 桁に対応する数字を描画
-		//numSprites[j][digit]->SetPosition(numpos[j]);
-		//numSprites[j][digit]->Update();
-		//numSprites[j][digit]->Draw();
+		numSprites[j][digit]->SetPosition(numpos[j]);
+		numSprites[j][digit]->Update();
+		numSprites[j][digit]->Draw();
 	}
 
 

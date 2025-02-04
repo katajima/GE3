@@ -168,8 +168,21 @@ public:
 		float radius;
 	};
 
+	struct Star 
+	{
+		float innerRadius_ = 2.0f;
+		float outerRadius_ = 5.0f;
+		int segments_ = 5;
+	};
+
+
+private:
+
 	Cube cube;
 	Cube oCube;
+
+	Star star;
+	Star oStar;
 
 public: //セッター
 	void SetParametar(const AnimationPlane& primi) { anime = primi; };
@@ -178,6 +191,8 @@ public: //セッター
 	void SetName(const std::string str) { name_ = str; };
 
 	void SetCollider();
+
+	void SetStar(Star& _star);
 
 public: // ゲッター
 	Vector3 GetCubeSize() const { return cube.size; };

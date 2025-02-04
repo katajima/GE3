@@ -44,36 +44,38 @@ void playerWeapon::OnCollision(Collider* other)
 		if (player_->GetAttackType() == Player::AttackType::kJamp && player_->GetObject3D().GetWorldPosition().y <= 2) {
 
 			contactRecord_.AddHistory(serialNumber);
+			if (enemy->GetAlive()) {
+				enemy->AddDamege(10);
 
-			enemy->AddDamege(10);
+				enemy->SetHit();
 
-			enemy->SetHit();
 
-			enemy->Emit();
+				enemy->Emit();
 
-			MyGame::hitStop(0.04f);
+				enemy->hitStop(0.2f);
 
-			player_->AddHit();
-			player_->AddSP();
-			player_->SetHitTime();
+
+				player_->AddHit();
+				player_->AddSP();
+				player_->SetHitTime();
+			}
 		}
 		else if (player_->GetAttackType() != Player::AttackType::kJamp) {
 			contactRecord_.AddHistory(serialNumber);
 
-			enemy->AddDamege(10);
+			if (enemy->GetAlive()) {
+				enemy->AddDamege(10);
 
-			enemy->SetHit();
-			enemy->Emit();
+				enemy->SetHit();
+				enemy->Emit();
 
-			MyGame::hitStop(0.04f);
+				enemy->hitStop(0.1f);
 
-			player_->AddHit();
-			player_->AddSP();
-			player_->SetHitTime();
+				player_->AddHit();
+				player_->AddSP();
+				player_->SetHitTime();
+			}
 		}
-		
-
-		
 	}
 }
 

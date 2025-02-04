@@ -78,6 +78,19 @@ public:
 
 	void SetLockOn(bool lock) { isLockOn = lock; }
 
+	float Timer() const;
+	void hitStop(float time) {
+		hitStopTimer = time;
+		kHitStopTimer = time;
+	};
+
+	void Shake();
+
+private:
+
+	void InitParticle();
+
+	void HitStpoTime();
 
 	// シリアルナンバー
 	uint32_t serialNumber = 0;
@@ -86,7 +99,7 @@ public:
 	ContactRecord contactRecord_;
 
 	bool hit = false;
-	int count = 0;
+	float count = 0;
 
 	bool isLockOn = false;
 
@@ -95,26 +108,41 @@ private:
 	Object3d object_;
 	Object3d objectSha_;
 
+	WorldTransform transBase_;
+	
+	Vector3 oldPos_;
+
 	Player* player_;
 
 	// 生死
 	bool isAlive_ = true;
 
 	float HP_;
-
+	float MaxHP_;
 	
 
 	// 移動
 	Vector3 velocity_;
 
-	//ParticleManager* particleManager_;
-	ParticleEmitter* emitter_;
-
+	
 	ParticleManager::Constant dame;
 
 
 	std::unique_ptr<Sprite> icon_lockOn;
+	std::unique_ptr<Sprite> hpBer_;
+	std::unique_ptr<Sprite> backHpBer_;
 
+
+	std::unique_ptr<ParticleEmitter> groundRightEmit_ = nullptr;
+	std::unique_ptr<ParticleEmitter> groundLeftEmit_ = nullptr;
+
+	std::unique_ptr<ParticleEmitter> starEmit_ = nullptr;
+	std::unique_ptr<ParticleEmitter> hitEmit_ = nullptr;
+	std::unique_ptr<ParticleEmitter> dustEmit_ = nullptr;
+
+	float hitStopTimer;
+	float kHitStopTimer;
+	float timeSpeed_ = 1.0f;
 };
 
 

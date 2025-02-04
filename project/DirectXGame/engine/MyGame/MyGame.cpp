@@ -152,6 +152,9 @@ void MyGame::InitializeResource()
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/Image.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/dust.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/hit.png");
+	TextureManager::GetInstance()->LoadTexture("resources/Texture/text/max.png");
 
 
 	//ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
@@ -210,9 +213,22 @@ void MyGame::InitializeResource()
 	primiPlane = std::make_unique<Primitive>();
 	primiPlane->Initialize(Primitive::ShapeType::Cylinder, "resources/Texture/uvChecker.png");
 
+	primiStar = std::make_unique<Primitive>();
+	primiStar->Initialize(Primitive::ShapeType::Star, "resources/Texture/Image.png");
+	Primitive::Star star;
+	star.innerRadius_ = 1.0f;
+	star.outerRadius_ = 7.0f;
+	star.segments_ = 4;
+	primiStar->SetStar(star);
+	primiStar->SetName("star");
+	primiStar->Update();
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 	
 	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+	ParticleManager::GetInstance()->CreateParticleGroup("hitStar", "resources/Texture/Image.png", primiStar.get(), true);
+	ParticleManager::GetInstance()->CreateParticleGroup("hit", "resources/Texture/hit.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+	ParticleManager::GetInstance()->CreateParticleGroup("enemyGround", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+	ParticleManager::GetInstance()->CreateParticleGroup("enemyDust", "resources/Texture/dust.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 	
 	ParticleManager::GetInstance()->CreateParticleGroup("enemyaaaa", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("teapot.obj"), true);
 

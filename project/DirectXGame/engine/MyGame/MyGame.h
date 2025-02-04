@@ -93,6 +93,7 @@ private:
 	
 	std::unique_ptr<Primitive> primi = nullptr;
 	std::unique_ptr<Primitive> primiPlane = nullptr;
+	std::unique_ptr<Primitive> primiStar = nullptr;
 
 	
 

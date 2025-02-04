@@ -227,16 +227,17 @@ void PlayerBullet::OnCollision(Collider* other)
 		
 		contactRecord_.AddHistory(serialNumber);
 
-		enemy->AddDamege(10);
+		if (enemy->GetAlive()) {
 
-		enemy->SetHit();
+			enemy->AddDamege(30);
 
-		enemy->Emit();
+			enemy->SetHit();
 
-		player_->AddHit();
-		player_->SetHitTime();
+			enemy->Emit();
 
-		
+			player_->AddHit();
+			player_->SetHitTime();
+		}
 	}
 	
 }

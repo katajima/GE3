@@ -104,6 +104,27 @@ void Player::Initialize(Vector3 position, Camera* camera)
 	HpBer_->SetColor({ 0,1,0,1 });
 	HpBer_->SetPosition({ 100,650 });
 
+	SpecailBer_ = std::make_unique<Sprite>();
+	SpecailBer_->Initialize("resources/Texture/Image.png");
+	SpecailBer_->SetSize({ 50,-float(specialAttack.specialGauge) });
+	SpecailBer_->SetColor({ 0,0,1,1 });
+	SpecailBer_->SetPosition({ 40,650 });
+
+	textMax_ = std::make_unique<Sprite>();
+	textMax_->Initialize("resources/Texture/text/max.png");
+	//textMax_->SetSize({ 50,-float(specialAttack.specialGauge) });
+	textMax_->SetColor({ 1,0,0,1 });
+	textMax_->SetPosition({ 45,350 });
+	textMax_->SetRotation(DegreesToRadians(-30));
+	textMax_->SetAnchorPoint({0.5f,0.5f});
+	textMax_->SetSize(0.25f);
+
+	textRB_ = std::make_unique<Sprite>();
+	textRB_->Initialize("resources/Texture/icon/RB.png");
+	textRB_->SetColor({ 1,1,1,1 });
+	textRB_->SetPosition({ 1280 /2,550 });
+	textRB_->SetAnchorPoint({0.5f,0.5f});
+	textRB_->SetSize(0.02f);
 
 
 	trailEffect_ = std::make_unique<TrailEffect>();
@@ -161,6 +182,7 @@ void Player::Update()
 	}
 	if (specialAttack.specialGauge >= specialAttack.max) {
 		specialAttack.isSpecial = true;
+		specialAttack.specialGauge = specialAttack.max;
 	}
 	else {
 		specialAttack.isSpecial = false;
@@ -306,6 +328,23 @@ void Player::Draw2D()
 	HpBer_->SetSize({ 50,-float(hp) * 2 });
 	HpBer_->Update();
 	HpBer_->Draw();
+
+	SpecailBer_->SetSize({ 50,-float(specialAttack.specialGauge) * 2 * 2.5f });
+	SpecailBer_->Update();
+	SpecailBer_->Draw();
+
+	if (specialAttack.isSpecial) {
+		
+		
+		textMax_->Update();
+		textMax_->Draw();
+	};
+
+	if (isTextRB_) {
+		textRB_->Update();
+		textRB_->Draw();
+	}
+
 }
 
 void Player::OnCollision(Collider* other)
@@ -417,7 +456,7 @@ void Player::Move()
 		cons.rotate = { 0,0,0 };
 		cons.size = { 0.3f,0.3f,0.3f };
 		cons.count = 2;
-		cons.lifeTime = 1.0f;
+		cons.lifeTime = 0.3f;
 		cons.velocity = -velocity_;// Multiply(-velocity_, 10);
 		cons.color = { 0.824f, 0.706f, 0.549f,0.5f };
 		cons.renge = { -Vector3{1.4f,0.1f,1.4f},Vector3{1.4f,0.1f,1.4f} };
@@ -450,6 +489,7 @@ void Player::Gravity() {
 
 void Player::AddMove()
 {
+	if(isAlive)
 	objectBase_.worldtransform_.translate_ += velocity_ * MyGame::GameTime();
 }
 

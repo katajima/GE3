@@ -57,6 +57,8 @@ public: // ゲッター兼セッター
 	
 	void SetIsRotateVelocity(bool is) { isRotateVelocity = is; } // 回転速度
 
+	void SetIsAll(bool billboard, bool alpha, bool gravity, bool isLifeTimeScale, bool rotateVelocity);
+
 	// ランダム用
 	void SetRengeMinMax(Vector3 min, Vector3 max) { emitter_.renge.min = min; emitter_.renge.max; }; // 範囲
 
@@ -72,6 +74,7 @@ public: // ゲッター兼セッター
 
 	void SetRotateVelocityMinMax(Vector3 min, Vector3 max) { emitter_.rotateVelocity.min = min;emitter_.rotateVelocity.max = max; } // 速度
 
+	
 	// 定数用
 	//void SetColorMinMax(Vector4 min, Vector4 max) { emitter_.color.min = min; emitter_.color.max = max; } // カラー
 

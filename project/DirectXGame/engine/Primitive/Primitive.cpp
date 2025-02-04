@@ -48,7 +48,7 @@ void Primitive::Update()
 	mat_ = MakeAffineMatrix(transform.scale, Vector3(transform.rotate), transform.translate);
 
 
-	MeshUpdateImGui();
+	//MeshUpdateImGui();
 
 	MeshUpdate();
 
@@ -166,8 +166,8 @@ void Primitive::MeshUpdate()
 
 		break;
 	case Primitive::ShapeType::Star:
-		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_)) {
-			CreateStar(innerRadius_, outerRadius_, segments_);
+		if ((oStar.innerRadius_ != star.innerRadius_) || (oStar.outerRadius_ != star.outerRadius_) || (oStar.segments_ != star.segments_)) {
+			CreateStar(star.innerRadius_, star.outerRadius_, star.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
@@ -203,7 +203,7 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Sphere:
-		if ((oRadius_ != radius_)){
+		if ((oRadius_ != radius_)) {
 			CreateSphere(radius_, 16, 16, false);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
@@ -293,11 +293,11 @@ void Primitive::MeshUpdateImGui()
 			break;
 		case Primitive::ShapeType::Star:
 			if (ImGui::CollapsingHeader("Star")) {
-				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-				ImGui::DragInt("segments_", &segments_);
-				if (segments_ <= 3) {
-					segments_ = 3;
+				ImGui::DragFloat("innerRadius", &star.innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &star.outerRadius_, 0.1f);
+				ImGui::DragInt("segments_", &star.segments_);
+				if (star.segments_ <= 3) {
+					star.segments_ = 3;
 				}
 			}
 
@@ -350,7 +350,7 @@ void Primitive::MeshUpdateImGui()
 		case Primitive::ShapeType::Sphere:
 			oRadius_ = radius_;
 			//if (ImGui::CollapsingHeader("Sphere")) {
-				ImGui::DragFloat("radius", &radius_, 0.1f);
+			ImGui::DragFloat("radius", &radius_, 0.1f);
 			//}
 
 			break;
@@ -448,8 +448,8 @@ void Primitive::Draw()
 
 		PrimitiveCommon::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
 	}
-	if(isLine_)
-	line_->DrawMeshLine(mesh.get());
+	if (isLine_)
+		line_->DrawMeshLine(mesh.get());
 }
 
 
@@ -1413,5 +1413,11 @@ void Primitive::SetCollider()
 {
 	Collider::Initialize(camera_);
 
+
+}
+
+void Primitive::SetStar(Star& _star)
+{
+	star = _star;
 
 }

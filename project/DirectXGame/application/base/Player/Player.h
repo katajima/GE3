@@ -323,6 +323,10 @@ private:
 	uint32_t serialNumber = 0;
 
 	std::unique_ptr<Sprite> HpBer_;
+	std::unique_ptr<Sprite> SpecailBer_;
+	std::unique_ptr<Sprite> textMax_;
+	std::unique_ptr<Sprite> textRB_;
+	bool isTextRB_ = false;
 
 	// 速度
 	Vector3 velocity_ = {};

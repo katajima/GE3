@@ -129,3 +129,12 @@ void ParticleEmitter::SetParent(WorldTransform& parent)
 	//emitter_.worldtransform.parent_ = &parent;
 	//ParticleManager::GetInstance()->GetParticleGroups(particleName_).emiter.worldtransform.parent_ = &parent;
 }
+
+void ParticleEmitter::SetIsAll(bool billboard, bool alpha, bool gravity, bool isLifeTimeScale, bool rotateVelocity)
+{
+	usebillboard = billboard;
+	isAlpha = alpha;
+	isGravity = gravity;
+	isLifeTimeScale_ = isLifeTimeScale;
+	isRotateVelocity = rotateVelocity;
+}
