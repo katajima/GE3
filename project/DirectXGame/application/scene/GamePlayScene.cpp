@@ -37,7 +37,7 @@ void GamePlayScene::Initialize()
 		enemys_.push_back(std::move(enemy));
 	}
 
-	
+	 
 
 	tail.Initialize();
 	tail.SetModel("renga.gltf");
