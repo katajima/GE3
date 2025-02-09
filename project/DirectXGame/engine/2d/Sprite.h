@@ -21,6 +21,9 @@ public:// メンバ関数
 	void Initialize(std::string textureFilePath, bool isTexLoad = true);
 	// 更新
 	void Update();
+	// アニメーション
+	void UpdateAmimetion(float time);
+
 	// 描画
 	void Draw();
 
@@ -60,6 +63,15 @@ public:// メンバ関数
 	// テクスチャ切り出し座標
 	const Vector2& GetTextureSize() const { return textureSize; };
 	void SetTextureSize(const Vector2& textureSize) { this->textureSize = textureSize; }
+
+	// アニメサイズ
+	void SetAnimeSize(const Vector2& animeSize) { animeSize_ = animeSize; }
+	// アニメ切り替え数
+	void SetMaxAnimeNum(const Vector2& animeNum) { maxAnimeNum_ = animeNum; }
+	// ピクセル補間
+	void SetIsPixelInterpolation(bool is) { isPixelInterpolation_ = is; }
+
+
 private:
 
 	// テクスチャサイズをイメージに合わせる
@@ -123,5 +135,14 @@ private:
 
 
 	std::string textureFilePath_;
+
+	//
+	Vector2 maxAnimeNum_;
+	Vector2 animeNum_;
+	float animeTime_;
+	Vector2 animeSize_;
+
+	bool isPixelInterpolation_ = true;
+
 };
 

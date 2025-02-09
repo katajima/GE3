@@ -186,7 +186,7 @@
     <ClCompile Include="externals\imgui\ImGuizmo.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DirectXGame\engine\3d\LightCommon.cpp">
+    <ClCompile Include="DirectXGame\engine\Light\LightCommon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="DirectXGame\application\base\Player\Player.cpp">
@@ -460,7 +460,7 @@
     <ClInclude Include="DirectXGame\engine\struct\Light.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DirectXGame\engine\3d\LightCommon.h">
+    <ClInclude Include="DirectXGame\engine\Light\LightCommon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DirectXGame\application\base\Player\Player.h">

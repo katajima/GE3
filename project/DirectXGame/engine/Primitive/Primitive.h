@@ -119,7 +119,18 @@ private:
 public:
 	void SetColor(const Color& color) { material->color = color; }
 
+	template<typename T>
+	void SetParameter(const T& parame);
+
 public:
+	template<typename T>
+	struct Parameter
+	{
+		T parameter;
+	};
+
+	Parameter<Spring> spring_;
+
 
 	struct ShapeCross {
 		float armLength;
@@ -254,3 +265,8 @@ public:
 	Transform transform;
 };
 
+template<typename T>
+inline void Primitive::SetParameter(const T& parame)
+{
+	//std::is_same<T, Spring>;
+}

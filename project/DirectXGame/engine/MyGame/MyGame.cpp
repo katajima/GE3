@@ -14,8 +14,8 @@ void MyGame::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	
-	//SceneManager::GetInstance()->ChangeScene("TEST");
-	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	SceneManager::GetInstance()->ChangeScene("TEST");
+	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 	//
 	//Camera::GetInstance();
 	// リソース初期化
@@ -113,8 +113,6 @@ void MyGame::Draw()
 	//particleManager_->Draw();
 
 	//// 2Dオブジェクトの描画準備
-	SpriteCommon::GetInstance()->DrawCommonSetting();
-
 	SceneManager::GetInstance()->Draw2D();
 	
 	///

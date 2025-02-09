@@ -14,9 +14,20 @@ void TestScene::Initialize()
 	InitializeResources();
 
 
-
-
-
+	sprite_ = std::make_unique<Sprite>();
+	sprite_->Initialize("resources/Texture/uvChecker.png",false);
+	sprite_->SetTextureSize({64,64});
+	sprite_->SetSize({64,64});
+	sprite_->SetAnimeSize({ 64,64 });
+	sprite_->SetMaxAnimeNum({ 8,8 });
+	sprite2_ = std::make_unique<Sprite>();
+	sprite2_->Initialize("resources/Texture/uvChecker.png", false);
+	sprite2_->SetIsPixelInterpolation(false);
+	sprite2_->SetPosition({512,0});
+	sprite2_->SetTextureSize({ 64,64 });
+	sprite2_->SetSize({ 64,64 });
+	sprite2_->SetAnimeSize({ 64,64 });
+	sprite2_->SetMaxAnimeNum({ 8,8 });
 
 
 	// 列車オブジェクトを unique_ptr で作成
@@ -44,13 +55,6 @@ void TestScene::Initialize()
 	tail.model->modelData.material[0]->shininess_ = 1000.0f;
 
 	walk.Initialize();
-	//walk.SetModel("Kick.gltf");
-	//walk.SetModel("Hand.gltf");
-	//walk.SetModel("iku.gltf");
-	//walk.SetModel("Man.gltf");
-	//walk.SetModel("Women2.gltf");
-	//walk.SetModel("Women.gltf");
-	//walk.SetModel("walk.gltf");
 	walk.SetCamera(camera.get());
 	walk.worldtransform_.translate_ = { 0,10,0 };
 	walk.worldtransform_.scale_ = { 20,20,20 };
@@ -75,8 +79,7 @@ void TestScene::Initialize()
 
 	trans_.Initialize();
 	trans_.translate_ = { 0,10,0 };
-	//trans_.rotate_ = { 0,DegreesToRadians(180),0};
-
+	
 	emitter_ = std::make_unique<ParticleEmitter>();
 	emitter_->Initialize("emitter","primiCylinder",ParticleManager::EmitType::kRandom);
 	emitter_->GetFrequency() = 0.1f;
@@ -114,9 +117,7 @@ void TestScene::Finalize()
 
 void TestScene::Update()
 {
-	//ParticleManager::GetInstance()->SetCamera(camera.get());
-	//ParticleManager::GetInstance()->Emit("cc", "const", cons);
-
+	
 
 	if(Input::GetInstance()->IsTriggerKey(DIK_0)){
 		walk.worldtransform_.rotate_.y += DegreesToRadians(1);
@@ -151,6 +152,19 @@ void TestScene::Update()
 
 	camera->UpdateMatrix();
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
+
+	ImGui::Begin("sprite");
+	Vector2 size = sprite_->GetSize();
+	ImGui::DragFloat2("size", &size.x);
+	sprite_->SetSize(size);
+	size = sprite2_->GetSize();
+	ImGui::DragFloat2("size2", &size.x);
+	sprite2_->SetSize(size);
+	ImGui::End();
+
+
+
+
 	ImGui::Begin("trans");
 	ImGui::DragFloat3("translate",&emitter_->transform_.translate_.x,0.1f);
 	ImGui::DragFloat3("rotate",&emitter_->transform_.rotate_.x,0.1f);
@@ -195,17 +209,7 @@ void TestScene::Update()
 	}
 
 	ImGui::End();
-	//#endif
-
-	//tail.GetMaterial(0)->color = GetColorSet(ColorName::BLUE);
-
-
-	/*ImGui::Begin("asj");
-	int i = (int)walk.model->modelData.rootNode.children.size();
-	ImGui::InputInt("child", &i);
-	i = (int)walk.model->skeleton.joints.size();
-	ImGui::InputInt("joint", &i);
-	ImGui::End();*/
+	
 	
 	//walk.Update();
 	//walk.UpdateSkinning();
@@ -235,7 +239,15 @@ void TestScene::Draw3D()
 
 void TestScene::Draw2D()
 {
-	
+	sprite_->UpdateAmimetion(0.05f);
+	//sprite_->Update();
+	sprite_->Draw();
+
+	sprite2_->UpdateAmimetion(0.05f);
+	//sprite2_->Update();
+	sprite2_->Draw();
+
+
 }
 
 void TestScene::InitializeResources()

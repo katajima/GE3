@@ -18,7 +18,7 @@ using namespace Microsoft::WRL;
 #include"DirectXGame/engine/base/DirectXCommon.h"
 #include"DirectXGame/engine/base/SrvManager.h"
 #include"DirectXGame/engine/Camera/Camera.h"
-#include"DirectXGame/engine/3d/LightCommon.h"
+#include"DirectXGame/engine/Light/LightCommon.h"
 #include"DirectXGame/engine/Transfomation/Transfomation.h"
 #include"DirectXGame/engine/Material/Material.h"
 

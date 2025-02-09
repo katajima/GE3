@@ -8,7 +8,7 @@
 #include "DirectXGame/engine/input/Input.h"
 #include "DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/3d/Object3dCommon.h"
-#include"DirectXGame/engine/3d/LightCommon.h"
+#include"DirectXGame/engine/Light/LightCommon.h"
 #include"DirectXGame/engine/2d/SpriteCommon.h"
 #include"DirectXGame/engine/2d/Sprite.h"
 
@@ -74,6 +74,8 @@ private:
 
 	std::unique_ptr<ParticleEmitter> emitterEnemy_  =nullptr;
 
+	std::unique_ptr<Sprite> sprite_ = nullptr;
+	std::unique_ptr<Sprite> sprite2_ = nullptr;
 
 };
 

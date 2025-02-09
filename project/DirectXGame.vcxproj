@@ -118,7 +118,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DirectXGame\application\GlobalVariables\GlobalVariables.cpp" />
     <ClCompile Include="DirectXGame\application\scene\SceneFactory.cpp" />
     <ClCompile Include="DirectXGame\application\scene\TestScene.cpp" />
-    <ClCompile Include="DirectXGame\engine\3d\LightCommon.cpp" />
+    <ClCompile Include="DirectXGame\engine\Light\LightCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\Animation\Animation.cpp" />
     <ClCompile Include="DirectXGame\engine\base\RenderingCommon.cpp" />
     <ClCompile Include="DirectXGame\engine\base\RtvManeger.cpp" />
@@ -357,7 +357,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DirectXGame\application\scene\TestScene.h" />
     <ClInclude Include="DirectXGame\engine\Animation\Animation.h" />
     <ClInclude Include="DirectXGame\engine\base\LevelData.h" />
-    <ClInclude Include="DirectXGame\engine\3d\LightCommon.h" />
+    <ClInclude Include="DirectXGame\engine\Light\LightCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\RenderingCommon.h" />
     <ClInclude Include="DirectXGame\engine\base\RtvManeger.h" />
     <ClInclude Include="DirectXGame\engine\Camera\CameraCommon.h" />

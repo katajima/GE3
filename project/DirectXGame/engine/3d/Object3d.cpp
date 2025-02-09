@@ -20,7 +20,7 @@
 
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include"DirectXGame/engine/Animation/Animation.h"
-#include"LightCommon.h"
+#include"DirectXGame/engine/Light/LightCommon.h"
 #include"DirectXGame/engine/Line/Line.h"
 
 

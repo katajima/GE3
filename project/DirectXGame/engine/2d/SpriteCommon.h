@@ -20,12 +20,23 @@ public:// メンバ関数
 	DirectXCommon* GetDxCommon() const { return dxCommon_; }
 
 	void DrawCommonSetting();
+	void DrawCommonSetting2();
 
 private:// メンバ関数
 	// ルートシグネチャの作成
 	void CreateRootSignature();
+
+	// ルートシグネチャの作成
+	void CreateRootSignature2();
+
+
+
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
+
+	void CreateGraphicsPipeline2();
+
+
 
 private:// メンバ変数
 	DirectXCommon* dxCommon_;
@@ -34,8 +45,12 @@ private:// メンバ変数
 	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
 	//ルートシグネチャ
 	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
+	//ルートシグネチャ
+	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature2;
 	// グラフィックスパイプラインステート
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
+	// グラフィックスパイプラインステート
+	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState2 = nullptr;
 
 };
 

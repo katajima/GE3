@@ -2,6 +2,7 @@
 #include"SpriteCommon.h"
 #include <iostream>
 #include"DirectXGame/engine/base/TextureManager.h"
+#include"DirectXGame/engine/MyGame/MyGame.h"
 
 void Sprite::Initialize(std::string textureFilePath,bool isTexLoad)
 {
@@ -33,7 +34,13 @@ void Sprite::Initialize(std::string textureFilePath,bool isTexLoad)
 
 	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
 	
-	
+	indexData[0] = 0;
+	indexData[1] = 1;
+	indexData[2] = 2;
+	indexData[3] = 1;
+	indexData[4] = 3;
+	indexData[5] = 2;
+
 	// マテリアル
 	material = std::make_unique<Material>();
 	material->Initialize(SpriteCommon::GetInstance()->GetDxCommon());
@@ -46,12 +53,6 @@ void Sprite::Initialize(std::string textureFilePath,bool isTexLoad)
 	// トランスフォーム
 	transfomation = std::make_unique<Transfomation>();
 	transfomation->Initialize(SpriteCommon::GetInstance()->GetDxCommon());
-
-
-	/*TextureManager::GetInstance()->LoadTexture(textureFilePath);
-
-	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);*/
-
 
 
 	transform.scale = { size.x,size.y,1.0f };
@@ -113,8 +114,6 @@ void Sprite::Update()
 	float tex_top = textureLeftTop.y / metadata.height;
 	float tex_bottom = (textureLeftTop.y + textureSize.y) / metadata.height;
 
-	//AdjusttextureSize();
-
 	// 1枚目の三角形
 	vertexData[0].position = { left,bottom,0.0f,1.0f };//左下
 	vertexData[0].texcoord = { tex_left,tex_bottom };
@@ -132,14 +131,7 @@ void Sprite::Update()
 	vertexData[3].texcoord = { tex_right,tex_top };
 	vertexData[3].normal = { 0.0f,0.0f,-1.0f };
 
-	indexData[0] = 0;		
-	indexData[1] = 1;		
-	indexData[2] = 2;
-	indexData[3] = 1;		
-	indexData[4] = 3;		
-	indexData[5] = 2;
-
-
+	
 	//transform変数を作る
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	////透視射影行列
@@ -154,8 +146,39 @@ void Sprite::Update()
 	material->GPUData();
 }
 
+void Sprite::UpdateAmimetion(float time)
+{
+	animeTime_ += MyGame::GameTime();
+
+	if (animeTime_ >= time) {
+		textureLeftTop.x += animeSize_.x;
+		animeNum_.x++;
+
+		if (animeNum_.x >= maxAnimeNum_.x) {
+			textureLeftTop.x = 0;
+			animeNum_.x = 0;
+			
+			textureLeftTop.y += animeSize_.y;
+			animeNum_.y++;
+
+			if (animeNum_.y >= maxAnimeNum_.y) {
+				textureLeftTop.y = 0;
+				animeNum_.y = 0;
+			}
+		}
+		animeTime_ = 0;
+	}
+	Update();
+}
+
 void Sprite::Draw()
 {
+	if (isPixelInterpolation_) {
+		SpriteCommon::GetInstance()->DrawCommonSetting();
+	}
+	else {
+		SpriteCommon::GetInstance()->DrawCommonSetting2();
+	}
 	material->GetCommandListMaterial(0);
 
 	material->GetCommandListTexture(2,2,2);

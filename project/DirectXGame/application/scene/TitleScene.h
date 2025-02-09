@@ -8,7 +8,7 @@
 #include "DirectXGame/engine/input/Input.h"
 #include "DirectXGame/engine/audio/Audio.h"
 #include"DirectXGame/engine/3d/Object3dCommon.h"
-#include"DirectXGame/engine/3d/LightCommon.h"
+#include"DirectXGame/engine/Light/LightCommon.h"
 #include"DirectXGame/engine/2d/Sprite.h"
 #include"DirectXGame/engine/base/ImGuiManager.h"
 #include "DirectXGame/engine/effect/Particle/ParticleManager.h"

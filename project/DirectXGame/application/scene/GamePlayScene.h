@@ -27,7 +27,7 @@
 #include "DirectXGame/engine/effect/Particle/ParticleEmitter.h"
 
 #include "DirectXGame/engine/collider/CollisionManager.h"
-#include"DirectXGame/engine/3d/LightCommon.h"
+#include"DirectXGame/engine/Light/LightCommon.h"
 #include "DirectXGame/engine/effect/Trail/TrailEffect.h"
 
 // ゲームプレイシーン

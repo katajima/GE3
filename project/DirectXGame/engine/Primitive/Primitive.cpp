@@ -4,6 +4,10 @@
 
 void Primitive::Initialize(ShapeType type, const std::string& tex, const Color color, bool isLine)
 {
+	
+	//std::is_same<T,>
+
+
 	mesh = std::make_unique<Mesh>();
 
 	type_ = type;
