@@ -21,6 +21,19 @@ class Object3dCommon;
 class Object3d
 {
 public:
+	enum class ObjectType {
+		UvInterpolation_MODE_SOLID_BACK,
+		NoUvInterpolation_MODE_SOLID_BACK,
+		UvInterpolation_MODE_WIREFRAME_BACK,
+		NoUvInterpolation_MODE_WIREFRAME_BACK,
+
+		UvInterpolation_MODE_SOLID_NONE,
+		NoUvInterpolation_MODE_SOLID_NONE,
+		UvInterpolation_MODE_WIREFRAME_NONE,
+		NoUvInterpolation_MODE_WIREFRAME_NONE,
+	};
+
+
 	// 初期化
 	void Initialize();
 	// 更新(アニメーション無し)
@@ -31,9 +44,9 @@ public:
 	void UpdateAnimation();
 	
 	// 描画通常
-	void Draw();
+	void Draw(ObjectType type = {});
 	// 描画スキニング用
-	void DrawSkinning();
+	void DrawSkinning(ObjectType type = {});
 	// 描画ライン
 	void DrawLine();
 	
@@ -71,6 +84,10 @@ public:
 private:
 	// 各コマンドリスト
 	void DrawSetting();
+
+	//
+	void ObjectTypeDiscrimination(ObjectType type);
+
 
 private:
 	// カメラ

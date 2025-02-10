@@ -8,6 +8,16 @@ using namespace Microsoft::WRL;
 class SpriteCommon
 {
 public:// メンバ関数
+	enum class PSOType {
+
+		UvInterpolation_MODE_SOLID,
+		NoUvInterpolation_MODE_SOLID,
+		UvInterpolation_MODE_WIREFRAME,
+		NoUvInterpolation_MODE_WIREFRAME,
+
+	};
+
+
 	static SpriteCommon* instance;
 
 	static SpriteCommon* GetInstance();
@@ -19,24 +29,20 @@ public:// メンバ関数
 
 	DirectXCommon* GetDxCommon() const { return dxCommon_; }
 
-	void DrawCommonSetting();
-	void DrawCommonSetting2();
-
+	void DrawCommonSetting(PSOType type);
+	
 private:// メンバ関数
 	// ルートシグネチャの作成
 	void CreateRootSignature();
 
-	// ルートシグネチャの作成
-	void CreateRootSignature2();
-
-
-
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
+	
 
-	void CreateGraphicsPipeline2();
+	void Blob(D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature);
 
-
+	void GraphicsPipelineState(Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature,Microsoft::WRL::ComPtr < ID3D12PipelineState>& graphicsPipelineState
+		,D3D12_RASTERIZER_DESC rasterizerDesc, D3D12_BLEND_DESC blendDesc);
 
 private:// メンバ変数
 	DirectXCommon* dxCommon_;
@@ -44,14 +50,12 @@ private:// メンバ変数
 	//ルートシグネチャデスク
 	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
 	//ルートシグネチャ
-	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
-	//ルートシグネチャ
-	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature2;
+	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature[2];
 	// グラフィックスパイプラインステート
-	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
-	// グラフィックスパイプラインステート
-	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState2 = nullptr;
+	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState[4];
+	
 
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
 };
 
 

@@ -216,7 +216,7 @@ void MyGame::InitializeResource()
 
 	primiStar = std::make_unique<Primitive>();
 	primiStar->Initialize(Primitive::ShapeType::Star, "resources/Texture/Image.png");
-	Primitive::Star star;
+	ShapeParameter::Star star;
 	star.innerRadius_ = 1.0f;
 	star.outerRadius_ = 7.0f;
 	star.segments_ = 4;

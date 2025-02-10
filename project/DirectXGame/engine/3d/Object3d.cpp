@@ -135,9 +135,9 @@ void Object3d::UpdateAnimation()
 
 #pragma region Draw
 
-void Object3d::Draw()
+void Object3d::Draw(ObjectType type)
 {
-	Object3dCommon::GetInstance()->DrawCommonSetting();
+	ObjectTypeDiscrimination(type);
 
 	DrawSetting();
 
@@ -148,9 +148,9 @@ void Object3d::Draw()
 
 }
 
-void Object3d::DrawSkinning()
+void Object3d::DrawSkinning(ObjectType type)
 {
-	SkinningConmmon::GetInstance()->DrawCommonSetting();
+	ObjectTypeDiscrimination(type);
 
 	DrawSetting();
 
@@ -232,6 +232,41 @@ void Object3d::DrawSetting()
 	transfomation->GetCommandList(1);
 
 	camera->GetCommandList(4);
+}
+
+void Object3d::ObjectTypeDiscrimination(ObjectType type)
+{
+	switch (type)
+	{
+	case Object3d::ObjectType::UvInterpolation_MODE_SOLID_BACK:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::UvInterpolation_MODE_SOLID_BACK);
+		break;
+	case Object3d::ObjectType::NoUvInterpolation_MODE_SOLID_BACK:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::NoUvInterpolation_MODE_SOLID_BACK);
+		break;
+	case Object3d::ObjectType::UvInterpolation_MODE_WIREFRAME_BACK:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::UvInterpolation_MODE_WIREFRAME_BACK);
+		break;
+	case Object3d::ObjectType::NoUvInterpolation_MODE_WIREFRAME_BACK:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::NoUvInterpolation_MODE_WIREFRAME_BACK);
+		break;
+	case Object3d::ObjectType::UvInterpolation_MODE_SOLID_NONE:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::UvInterpolation_MODE_SOLID_NONE);
+		break;
+	case Object3d::ObjectType::NoUvInterpolation_MODE_SOLID_NONE:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::NoUvInterpolation_MODE_SOLID_NONE);
+		break;
+	case Object3d::ObjectType::UvInterpolation_MODE_WIREFRAME_NONE:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::UvInterpolation_MODE_WIREFRAME_NONE);
+		break;
+	case Object3d::ObjectType::NoUvInterpolation_MODE_WIREFRAME_NONE:
+		Object3dCommon::GetInstance()->DrawCommonSetting(Object3dCommon::PSOType::NoUvInterpolation_MODE_WIREFRAME_NONE);
+		break;
+	default:
+		break;
+	}
+
+
 }
 
 #pragma endregion // 描画系

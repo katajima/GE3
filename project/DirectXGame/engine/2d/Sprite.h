@@ -17,6 +17,14 @@ class SpriteCommon;
 class Sprite
 {
 public:// メンバ関数
+	enum class SpriteType {
+		UvInterpolation_MODE_SOLID,
+		NoUvInterpolation_MODE_SOLID,
+		UvInterpolation_MODE_WIREFRAME,
+		NoUvInterpolation_MODE_WIREFRAME,
+	};
+
+
 	// 初期化
 	void Initialize(std::string textureFilePath, bool isTexLoad = true);
 	// 更新
@@ -25,7 +33,7 @@ public:// メンバ関数
 	void UpdateAmimetion(float time);
 
 	// 描画
-	void Draw();
+	void Draw(SpriteType type = {});
 
 	///位置
 	// getter
@@ -77,11 +85,12 @@ private:
 	// テクスチャサイズをイメージに合わせる
 	void AdjusttextureSize();
 
-
+	void SpriteTypeDiscrimination(SpriteType type);
 
 private:
 	SpriteCommon* spriteCommon_ = nullptr;
 
+	
 	//頂点データ
 	struct VertexData {
 

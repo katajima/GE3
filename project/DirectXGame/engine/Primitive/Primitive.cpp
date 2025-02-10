@@ -140,15 +140,13 @@ void Primitive::MeshInitialize()
 
 void Primitive::MeshUpdate()
 {
-
-	oInnerRadius_ = innerRadius_;
-	oOuterRadius_ = outerRadius_;
-	oSegments_ = segments_;
-	oTubeSegments_ = tubeSegments_;
-	oRadius_ = radius_;
-	oHeight_ = height_;
-	oCross_.armLength = cross_.armLength;
-	oCross_.armWidth = cross_.armWidth;
+	oCross_ = cross_;
+	oStar = star;
+	oCrescent = crescent;
+	oRing = ring;
+	oSphere = sphere;
+	oCylinder = cylinder;
+	oPyramid = pyramid;
 
 	switch (type_)
 	{
@@ -170,22 +168,22 @@ void Primitive::MeshUpdate()
 
 		break;
 	case Primitive::ShapeType::Star:
-		if ((oStar.innerRadius_ != star.innerRadius_) || (oStar.outerRadius_ != star.outerRadius_) || (oStar.segments_ != star.segments_)) {
+		if ((oStar!= star)) {
 			CreateStar(star.innerRadius_, star.outerRadius_, star.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
 		break;
 	case Primitive::ShapeType::Crescent:
-		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_) || (oDistance_ != distance_)) {
-			CreateCrescent(innerRadius_, outerRadius_, distance_, segments_);
+		if ((oCrescent != crescent)) {
+			CreateCrescent(crescent.innerRadius_, crescent.outerRadius_, crescent.distance_, crescent.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
 		break;
 	case Primitive::ShapeType::Ring:
-		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_)) {
-			CreateRing(innerRadius_, outerRadius_, segments_);
+		if ((oRing!= ring)) {
+			CreateRing(ring.innerRadius_, ring.outerRadius_, ring.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
@@ -207,37 +205,37 @@ void Primitive::MeshUpdate()
 		}
 		break;
 	case Primitive::ShapeType::Sphere:
-		if ((oRadius_ != radius_)) {
-			CreateSphere(radius_, 16, 16, false);
+		if ((sphere != oSphere)) {
+			CreateSphere(sphere.radius_, 16, 16, false);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
 
 		break;
 	case Primitive::ShapeType::Cylinder:
-		if ((oHeight_ != height_) || (oRadius_ != radius_) || (oSegments_ != segments_)) {
-			CreateCylinder(height_, radius_, segments_);
+		if ((oCylinder != cylinder)) {
+			CreateCylinder(cylinder.height_, cylinder.radius_, cylinder.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
 		break;
 	case Primitive::ShapeType::Tube:
-		if ((oHeight_ != height_) || (oRadius_ != radius_) || (oSegments_ != segments_) || (oInnerRadius_ || innerRadius_)) {
-			CreateTube(radius_, innerRadius_, height_, segments_);
+		if ((oTube != tube)) {
+			CreateTube(tube.radius_, tube.innerRadius_, tube.height_, tube.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
 		break;
 	case Primitive::ShapeType::Pyramid:
-		if ((oHeight_ != height_) || (oRadius_ != radius_) || (oSegments_ != segments_)) {
-			CreatePyramid(radius_, height_, segments_);
+		if ((oPyramid != pyramid)) {
+			CreatePyramid(pyramid.radius_, pyramid.height_, pyramid.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
 		break;
 	case Primitive::ShapeType::Torus:
-		if ((oInnerRadius_ != innerRadius_) || (oOuterRadius_ != outerRadius_) || (oSegments_ != segments_) || (oTubeSegments_ != tubeSegments_)) {
-			CreateTorus(innerRadius_, outerRadius_, tubeSegments_, segments_);
+		if ((torus != oTorus)) {
+			CreateTorus(torus.innerRadius_, torus.outerRadius_, torus.tubeSegments_, torus.segments_);
 			mesh->UpdateVertexBuffer();
 			mesh->UpdateIndexBuffer();
 		}
@@ -308,29 +306,29 @@ void Primitive::MeshUpdateImGui()
 			break;
 		case Primitive::ShapeType::Crescent:
 			if (ImGui::CollapsingHeader("Crescent")) {
-				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-				ImGui::DragFloat("distance", &distance_);
-				ImGui::DragInt("segments", &segments_);
-				if (segments_ <= 8) {
-					segments_ = 8;
+				ImGui::DragFloat("innerRadius", &crescent.innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &crescent.outerRadius_, 0.1f);
+				ImGui::DragFloat("distance", &crescent.distance_);
+				ImGui::DragInt("segments", &crescent.segments_);
+				if (crescent.segments_ <= 8) {
+					crescent.segments_ = 8;
 				}
-				if (distance_ <= 0) {
-					distance_ = 0.0001f;
+				if (crescent.distance_ <= 0) {
+					crescent.distance_ = 0.0001f;
 				}
-				if (innerRadius_ >= outerRadius_) {
-					innerRadius_ = outerRadius_;
+				if (crescent.innerRadius_ >= crescent.outerRadius_) {
+					crescent.innerRadius_ = crescent.outerRadius_;
 				}
 			}
 
 			break;
 		case Primitive::ShapeType::Ring:
 			if (ImGui::CollapsingHeader("Ring")) {
-				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-				ImGui::DragInt("segments_", &segments_);
-				if (segments_ <= 5) {
-					segments_ = 5;
+				ImGui::DragFloat("innerRadius", &ring.innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &ring.outerRadius_, 0.1f);
+				ImGui::DragInt("segments_", &ring.segments_);
+				if (ring.segments_ <= 5) {
+					ring.segments_ = 5;
 				}
 			}
 
@@ -352,30 +350,29 @@ void Primitive::MeshUpdateImGui()
 
 			break;
 		case Primitive::ShapeType::Sphere:
-			oRadius_ = radius_;
 			//if (ImGui::CollapsingHeader("Sphere")) {
-			ImGui::DragFloat("radius", &radius_, 0.1f);
+			ImGui::DragFloat("radius", &sphere.radius_, 0.1f);
 			//}
 
 			break;
 		case Primitive::ShapeType::Cylinder:
 			if (ImGui::CollapsingHeader("Cylinder")) {
-				ImGui::DragFloat("height", &height_, 0.1f);
-				ImGui::DragFloat("radius", &radius_, 0.1f);
-				ImGui::DragInt("segments", &segments_);
-				if (segments_ <= 5) {
-					segments_ = 5;
+				ImGui::DragFloat("height", &cylinder.height_, 0.1f);
+				ImGui::DragFloat("radius", &cylinder.radius_, 0.1f);
+				ImGui::DragInt("segments", &cylinder.segments_);
+				if (cylinder.segments_ <= 5) {
+					cylinder.segments_ = 5;
 				}
 			}
 
 			break;
 		case Primitive::ShapeType::Tube:
 			if (ImGui::CollapsingHeader("Tube")) {
-				ImGui::DragFloat("height", &height_, 0.1f);
-				ImGui::DragFloat("radius", &radius_, 0.1f);
-				ImGui::DragInt("segments", &segments_);
-				if (segments_ <= 3) {
-					segments_ = 3;
+				ImGui::DragFloat("height", &tube.height_, 0.1f);
+				ImGui::DragFloat("radius", &tube.radius_, 0.1f);
+				ImGui::DragInt("segments", &tube.segments_);
+				if (tube.segments_ <= 3) {
+					tube.segments_ = 3;
 				}
 
 
@@ -384,26 +381,26 @@ void Primitive::MeshUpdateImGui()
 			break;
 		case Primitive::ShapeType::Pyramid:
 			if (ImGui::CollapsingHeader("Pyramid")) {
-				ImGui::DragFloat("height", &height_, 0.1f);
-				ImGui::DragFloat("radius", &radius_, 0.1f);
-				ImGui::DragInt("segments", &segments_);
-				if (segments_ <= 3) {
-					segments_ = 3;
+				ImGui::DragFloat("height", &pyramid.height_, 0.1f);
+				ImGui::DragFloat("radius", &pyramid.radius_, 0.1f);
+				ImGui::DragInt("segments", &pyramid.segments_);
+				if (pyramid.segments_ <= 3) {
+					pyramid.segments_ = 3;
 				}
 			}
 
 			break;
 		case Primitive::ShapeType::Torus:
 			if (ImGui::CollapsingHeader("Torus")) {
-				ImGui::DragFloat("innerRadius", &innerRadius_, 0.1f);
-				ImGui::DragFloat("outerRadius", &outerRadius_, 0.1f);
-				ImGui::DragInt("tubeSegments", &tubeSegments_);
-				ImGui::DragInt("segments", &segments_);
-				if (segments_ <= 3) {
-					segments_ = 3;
+				ImGui::DragFloat("innerRadius", &torus.innerRadius_, 0.1f);
+				ImGui::DragFloat("outerRadius", &torus.outerRadius_, 0.1f);
+				ImGui::DragInt("tubeSegments", &torus.tubeSegments_);
+				ImGui::DragInt("segments", &torus.segments_);
+				if (torus.segments_ <= 3) {
+					torus.segments_ = 3;
 				}
-				if (tubeSegments_ <= 3) {
-					tubeSegments_ = 3;
+				if (torus.tubeSegments_ <= 3) {
+					torus.tubeSegments_ = 3;
 				}
 			}
 
@@ -1420,8 +1417,9 @@ void Primitive::SetCollider()
 
 }
 
-void Primitive::SetStar(Star& _star)
+void Primitive::SetStar(ShapeParameter::Star& _star)
 {
 	star = _star;
-
 }
+
+

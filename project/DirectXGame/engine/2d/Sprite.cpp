@@ -4,17 +4,17 @@
 #include"DirectXGame/engine/base/TextureManager.h"
 #include"DirectXGame/engine/MyGame/MyGame.h"
 
-void Sprite::Initialize(std::string textureFilePath,bool isTexLoad)
+void Sprite::Initialize(std::string textureFilePath, bool isTexLoad)
 {
 
 	textureFilePath_ = textureFilePath;
 	// 引数で受け取ってメンバ変数にする
 	this->spriteCommon_ = SpriteCommon::GetInstance();
-	
+
 	vertexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * 4);
-	
+
 	indexResource = spriteCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 6);
-	
+
 	//リソースの先頭のアドレスを作成する
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点6つの分のサイズ
@@ -33,7 +33,7 @@ void Sprite::Initialize(std::string textureFilePath,bool isTexLoad)
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
 	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	
+
 	indexData[0] = 0;
 	indexData[1] = 1;
 	indexData[2] = 2;
@@ -131,14 +131,14 @@ void Sprite::Update()
 	vertexData[3].texcoord = { tex_right,tex_top };
 	vertexData[3].normal = { 0.0f,0.0f,-1.0f };
 
-	
+
 	//transform変数を作る
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	////透視射影行列
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::GetClientWidth()), float(WinApp::GetClientHeight()), 0.0f, 100.0f);
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-	
+
 	// トランスフォーム
 	transfomation->UpdateSprite(worldViewProjectionMatrix);
 
@@ -157,7 +157,7 @@ void Sprite::UpdateAmimetion(float time)
 		if (animeNum_.x >= maxAnimeNum_.x) {
 			textureLeftTop.x = 0;
 			animeNum_.x = 0;
-			
+
 			textureLeftTop.y += animeSize_.y;
 			animeNum_.y++;
 
@@ -171,19 +171,15 @@ void Sprite::UpdateAmimetion(float time)
 	Update();
 }
 
-void Sprite::Draw()
+void Sprite::Draw(SpriteType type)
 {
-	if (isPixelInterpolation_) {
-		SpriteCommon::GetInstance()->DrawCommonSetting();
-	}
-	else {
-		SpriteCommon::GetInstance()->DrawCommonSetting2();
-	}
+	SpriteTypeDiscrimination(type);
+	
 	material->GetCommandListMaterial(0);
 
-	material->GetCommandListTexture(2,2,2);
+	material->GetCommandListTexture(2, 2, 2);
 
-	
+
 	//vertexBufferViewSprite
 	spriteCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); //VBVを設定
 
@@ -192,9 +188,9 @@ void Sprite::Draw()
 	//トランスフォームMatrixResource
 	transfomation->GetCommandList(1);
 
-	
+
 	spriteCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
-	
+
 }
 
 void Sprite::AdjusttextureSize()
@@ -206,4 +202,27 @@ void Sprite::AdjusttextureSize()
 	textureSize.y = static_cast<float>(metadata.height);
 	// 画像サイズをテクスチャサイズに合わせる
 	size = textureSize;
+}
+
+void Sprite::SpriteTypeDiscrimination(SpriteType type)
+{
+	switch (type)
+	{
+	case Sprite::SpriteType::UvInterpolation_MODE_SOLID:
+		SpriteCommon::GetInstance()->DrawCommonSetting(SpriteCommon::PSOType::UvInterpolation_MODE_SOLID);
+		break;
+	case Sprite::SpriteType::NoUvInterpolation_MODE_SOLID:
+		SpriteCommon::GetInstance()->DrawCommonSetting(SpriteCommon::PSOType::NoUvInterpolation_MODE_SOLID);
+		break;
+	case Sprite::SpriteType::UvInterpolation_MODE_WIREFRAME:
+		SpriteCommon::GetInstance()->DrawCommonSetting(SpriteCommon::PSOType::UvInterpolation_MODE_WIREFRAME);
+		break;
+	case Sprite::SpriteType::NoUvInterpolation_MODE_WIREFRAME:
+		SpriteCommon::GetInstance()->DrawCommonSetting(SpriteCommon::PSOType::UvInterpolation_MODE_WIREFRAME);
+		break;
+	default:
+		break;
+	}
+
+	
 }

@@ -19,6 +19,193 @@
 
 #include "DirectXGame/engine/collider/Collider.h"
 
+
+
+
+namespace ShapeParameter {
+
+	struct ShapeCross {
+		float armLength;
+		float armWidth;
+	};
+
+	struct Spring
+	{
+		float length = 1;
+		float width = 1;
+		float height = 1;
+		int segments = 3;
+		float spacing = 1;
+		int turns = 3;
+		float thickness = 2;
+	};
+
+	struct AnimationPlane {
+		bool flag;
+		bool isLoop;
+		bool isUV;
+		int num;
+		int count;
+		float interval;
+		float width;
+		float height;
+		Vector2 direction;
+
+		// == オペレーター
+		bool operator==(const AnimationPlane& other) const {
+			return flag == other.flag && num == other.num && count == other.count && interval == other.interval && width == other.width && height == other.height && direction == other.direction;
+		}
+
+		// != オペレーター
+		bool operator!=(const AnimationPlane& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct Cube
+	{
+		Vector3 size = { 1,1,1 };
+	};
+
+	struct  Sphere
+	{
+		float radius;
+	};
+
+	struct Star
+	{
+		float innerRadius_ = 2.0f;
+		float outerRadius_ = 5.0f;
+		int segments_ = 5;
+
+
+		// == オペレーター
+		bool operator==(const Star& other) const {
+			return innerRadius_ == other.innerRadius_ && outerRadius_ == other.outerRadius_ && segments_ == other.segments_;
+		}
+
+		// != オペレーター
+		bool operator!=(const Star& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct Crescent
+	{
+		float innerRadius_;
+		float outerRadius_;
+		int segments_;
+		float distance_;
+
+		// == オペレーター
+		bool operator==(const Crescent& other) const {
+			return innerRadius_ == other.innerRadius_ && outerRadius_ == other.outerRadius_ && segments_ == other.segments_ && distance_ == other.distance_;
+		}
+
+		// != オペレーター
+		bool operator!=(const Crescent& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct Ring {
+		float innerRadius_;
+		float outerRadius_;
+		int segments_;
+
+		// == オペレーター
+		bool operator==(const Ring& other) const {
+			return innerRadius_ == other.innerRadius_ && outerRadius_ == other.outerRadius_ && segments_ == other.segments_;
+		}
+
+		// != オペレーター
+		bool operator!=(const Ring& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct SphereShep {
+		float radius_;
+
+		// == オペレーター
+		bool operator==(const SphereShep& other) const {
+			return radius_ == other.radius_;
+		}
+
+		// != オペレーター
+		bool operator!=(const SphereShep& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct Cylinder {
+		float radius_;
+		float height_;
+		int segments_;
+
+		// == オペレーター
+		bool operator==(const Cylinder& other) const {
+			return radius_ == other.radius_ && height_ == other.height_ && segments_ == other.segments_;
+		}
+
+		// != オペレーター
+		bool operator!=(const Cylinder& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct Tube {
+		float radius_;
+		float innerRadius_;
+		float height_;
+		int segments_;
+
+		// == オペレーター
+		bool operator==(const Tube& other) const {
+			return innerRadius_ == other.innerRadius_ && radius_ == other.radius_ && segments_ == other.segments_ && height_ == other.height_;
+		}
+
+		// != オペレーター
+		bool operator!=(const Tube& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct Pyramid {
+		float radius_;
+		float height_;
+		int segments_;
+
+		// == オペレーター
+		bool operator==(const Pyramid& other) const {
+			return radius_ == other.radius_ && segments_ == other.segments_ && height_ == other.height_;
+		}
+
+		// != オペレーター
+		bool operator!=(const Pyramid& other) const {
+			return !(*this == other);
+		}
+	};
+
+	struct Torus {
+		float innerRadius_;
+		float outerRadius_;
+		int segments_;
+		int tubeSegments_;
+
+
+		// == オペレーター
+		bool operator==(const Torus& other) const {
+			return innerRadius_ == other.innerRadius_ && segments_ == other.segments_ && outerRadius_ == other.outerRadius_ && tubeSegments_ == other.tubeSegments_;
+		}
+
+		// != オペレーター
+		bool operator!=(const Torus& other) const {
+			return !(*this == other);
+		}
+	};
+}
+
 class Primitive : public Collider
 {
 public:
@@ -129,86 +316,61 @@ public:
 		T parameter;
 	};
 
-	Parameter<Spring> spring_;
-
-
-	struct ShapeCross {
-		float armLength;
-		float armWidth;
-	};
-
-	struct Spring
-	{
-		float length = 1;
-		float width = 1;
-		float height = 1;
-		int segments = 3;
-		float spacing = 1;
-		int turns = 3;
-		float thickness = 2;
-	};
-
-	struct AnimationPlane {
-		bool flag;
-		bool isLoop;
-		bool isUV;
-		int num;
-		int count;
-		float interval;
-		float width;
-		float height;
-		Vector2 direction;
-
-		// == オペレーター
-		bool operator==(const AnimationPlane& other) const {
-			return flag == other.flag  && num == other.num && count == other.count && interval == other.interval && width == other.width && height == other.height && direction == other.direction;
-		}
-
-		// != オペレーター
-		bool operator!=(const AnimationPlane& other) const {
-			return !(*this == other);
-		}
-	};
-
-	struct Cube 
-	{
-		Vector3 size = { 1,1,1 };
-	};
-	struct  Sphere
-	{
-		float radius;
-	};
-
-	struct Star 
-	{
-		float innerRadius_ = 2.0f;
-		float outerRadius_ = 5.0f;
-		int segments_ = 5;
-	};
-
+	//
 
 private:
 
-	Cube cube;
-	Cube oCube;
+	ShapeParameter::Cube cube;
+	ShapeParameter::Cube oCube;
 
-	Star star;
-	Star oStar;
+	ShapeParameter::Star star;
+	ShapeParameter::Star oStar;
+
+	ShapeParameter::Crescent crescent;
+	ShapeParameter::Crescent oCrescent;
+
+	ShapeParameter::Ring ring;
+	ShapeParameter::Ring oRing;
+
+	ShapeParameter::ShapeCross cross_;
+	ShapeParameter::ShapeCross oCross_;
+
+	ShapeParameter::Spring spring;
+	ShapeParameter::Spring oSpring;
+
+	ShapeParameter::AnimationPlane anime;
+	ShapeParameter::AnimationPlane oAnime;
+
+	ShapeParameter::SphereShep sphere;
+	ShapeParameter::SphereShep oSphere;
+
+	ShapeParameter::Cylinder cylinder;
+	ShapeParameter::Cylinder oCylinder;
+
+	ShapeParameter::Tube tube;
+	ShapeParameter::Tube oTube;
+
+	ShapeParameter::Pyramid pyramid;
+	ShapeParameter::Pyramid oPyramid;
+
+	ShapeParameter::Torus torus;
+	ShapeParameter::Torus oTorus;
+
 
 public: //セッター
-	void SetParametar(const AnimationPlane& primi) { anime = primi; };
-	void SetParametar(const float& primi) { radius_ = primi; };
+	void SetParametar(const ShapeParameter::AnimationPlane& primi) { anime = primi; };
+	//void SetParametar(const float& primi) { radius_ = primi; };
 
 	void SetName(const std::string str) { name_ = str; };
 
 	void SetCollider();
 
-	void SetStar(Star& _star);
+	void SetStar(ShapeParameter::Star& _star);
 
 public: // ゲッター
 	Vector3 GetCubeSize() const { return cube.size; };
 
-	float GetRad() const { return radius_; }
+	//float GetRad() const { return radius_; }
 private:
 	// カメラ
 	Camera* camera_ = nullptr;
@@ -227,34 +389,8 @@ private:
 	ShapeType type_;
 
 	
-	ShapeCross cross_;
-	ShapeCross oCross_;
 	
 
-	Spring spring;
-	Spring oSpring;
-
-	AnimationPlane anime;
-	AnimationPlane oAnime;
-
-	
-
-	float innerRadius_ = 2.0f;
-	float outerRadius_ = 5.0f;
-	int tubeSegments_ = 5;
-	int segments_ = 5;
-	float height_ = 2.0f;
-	float radius_ = 3.0f;
-	float distance_  = 8.0f;
-
-
-	float oInnerRadius_ = 2.0f;
-	float oOuterRadius_ = 5.0f;
-	int oTubeSegments_ = 5;
-	int oSegments_ = 5;
-	float oHeight_ = 2.0f;
-	float oRadius_ = 3.0f;
-	float oDistance_ = 2.0f;
 
 
 	float timer_ = 0.0f;

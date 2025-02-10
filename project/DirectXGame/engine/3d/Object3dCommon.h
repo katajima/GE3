@@ -5,6 +5,19 @@
 class Object3dCommon
 {
 public:
+	enum class PSOType {
+
+		UvInterpolation_MODE_SOLID_BACK,
+		NoUvInterpolation_MODE_SOLID_BACK,
+		UvInterpolation_MODE_WIREFRAME_BACK,
+		NoUvInterpolation_MODE_WIREFRAME_BACK,
+		
+		UvInterpolation_MODE_SOLID_NONE,
+		NoUvInterpolation_MODE_SOLID_NONE,
+		UvInterpolation_MODE_WIREFRAME_NONE,
+		NoUvInterpolation_MODE_WIREFRAME_NONE,
+	};
+
 	static Object3dCommon* instance;
 
 	static Object3dCommon* GetInstance();
@@ -17,7 +30,7 @@ public:
 
 	DirectXCommon* GetDxCommon() const { return dxCommon_; }
 
-	void DrawCommonSetting();
+	void DrawCommonSetting(PSOType type);
 
 	void SetDefaltCamera(Camera* camera) { this->defaultCamera = camera; }
 
@@ -30,6 +43,12 @@ private:
 	void CreateRootSignature();
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
+
+	void Blob(D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature);
+
+	void GraphicsPipelineState(Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature, Microsoft::WRL::ComPtr < ID3D12PipelineState>& graphicsPipelineState
+		, D3D12_RASTERIZER_DESC rasterizerDesc, D3D12_BLEND_DESC blendDesc);
+
 private:// メンバ変数
 	DirectXCommon* dxCommon_;
 
@@ -38,9 +57,9 @@ private:// メンバ変数
 	//ルートシグネチャデスク
 	D3D12_ROOT_SIGNATURE_DESC descriptionSignature{};
 	//ルートシグネチャ
-	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
+	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature[2];
 	// グラフィックスパイプラインステート
-	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
+	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState[8];
 
 };
 

@@ -65,17 +65,17 @@ private:
 	Object3d mm;
 	Object3d mm2;
 	Object3d tail;
-	Object3d walk;
-	Object3d multiMesh;
-
+	
 	WorldTransform trans_;
 
 	std::unique_ptr<ParticleEmitter> emitter_  =nullptr;
 
 	std::unique_ptr<ParticleEmitter> emitterEnemy_  =nullptr;
 
-	std::unique_ptr<Sprite> sprite_ = nullptr;
-	std::unique_ptr<Sprite> sprite2_ = nullptr;
+	std::vector<std::unique_ptr<Sprite>> sprite_;
+	
+	
+	//std::unique_ptr<Sprite> sprite2_ = nullptr;
 
 };
 

@@ -13,26 +13,26 @@ void TestScene::Initialize()
 	// リソース
 	InitializeResources();
 
+	for (int i = 0; i < 4; i++)
+	{
+		auto sprite = std::make_unique<Sprite>();
 
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("resources/Texture/uvChecker.png",false);
-	sprite_->SetTextureSize({64,64});
-	sprite_->SetSize({64,64});
-	sprite_->SetAnimeSize({ 64,64 });
-	sprite_->SetMaxAnimeNum({ 8,8 });
-	sprite2_ = std::make_unique<Sprite>();
-	sprite2_->Initialize("resources/Texture/uvChecker.png", false);
-	sprite2_->SetIsPixelInterpolation(false);
-	sprite2_->SetPosition({512,0});
-	sprite2_->SetTextureSize({ 64,64 });
-	sprite2_->SetSize({ 64,64 });
-	sprite2_->SetAnimeSize({ 64,64 });
-	sprite2_->SetMaxAnimeNum({ 8,8 });
+		sprite->Initialize("resources/Texture/uvChecker.png", false);
+		sprite->SetTextureSize({ 64,64 });
+		sprite->SetSize({ 128,128 });
+		sprite->SetAnimeSize({ 64,64 });
+		sprite->SetMaxAnimeNum({ 8,8 });
+		sprite->SetPosition({ static_cast<float>(i) * (128 + 10) ,0 });
 
+		sprite_.push_back(std::move(sprite));
+	}
+
+
+	
 
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
-	mm.SetModel("plane.obj");
+	mm.SetModel("building.obj");
 	mm.worldtransform_.translate_ = { 30,1,1 };
 	//mm.worldtransform_.scale_ = { 10,10,10 };
 	mm.SetCamera(camera.get());
@@ -42,38 +42,16 @@ void TestScene::Initialize()
 	mm2.worldtransform_.scale_ = { 10,10,10 };
 	mm2.SetCamera(camera.get());
 
-	multiMesh.Initialize();
-	multiMesh.SetModel("plane.obj");
-	multiMesh.worldtransform_.translate_ = { 0,10,20 };
-	multiMesh.worldtransform_.rotate_.y = DegreesToRadians(180);
-	multiMesh.worldtransform_.scale_ = { 10,10,10 };
-	multiMesh.SetCamera(camera.get());
-
+	
 	tail.Initialize();
 	tail.SetModel("renga.gltf");
 	tail.SetCamera(camera.get());
 	tail.model->modelData.material[0]->shininess_ = 1000.0f;
 
-	walk.Initialize();
-	walk.SetCamera(camera.get());
-	walk.worldtransform_.translate_ = { 0,10,0 };
-	walk.worldtransform_.scale_ = { 20,20,20 };
+	
 
 
 
-
-	cons.centar = { 0,0,0 };
-	cons.rotate = { 0,0,0 };
-	cons.size = { 0.3f,0.3f,0.3f };
-	cons.count = 10;
-	cons.lifeTime = 1.3f;
-	cons.color = { 0.2f,0.2f,0.2f,1.0f };
-	cons.velocity = { 1.0f,1.0f,10.0f };
-	cons.renge = { -Vector3{1.5f,1.5f,1.5f},Vector3{1.5f,1.5f,1.5f} };
-	cons.renge = { -Vector3{2.5f,2.5f,2.5f},Vector3{2.5f,2.5f,2.5f} };
-
-
-	//ParticleManager::GetInstance()->SetObject("test", tail.worldtransform_);
 	ParticleManager::GetInstance()->SetCamera(camera.get());
 
 
@@ -119,9 +97,7 @@ void TestScene::Update()
 {
 	
 
-	if(Input::GetInstance()->IsTriggerKey(DIK_0)){
-		walk.worldtransform_.rotate_.y += DegreesToRadians(1);
-	}
+	
 
 
 	
@@ -154,12 +130,13 @@ void TestScene::Update()
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
 	ImGui::Begin("sprite");
+	/*for()
 	Vector2 size = sprite_->GetSize();
 	ImGui::DragFloat2("size", &size.x);
 	sprite_->SetSize(size);
 	size = sprite2_->GetSize();
 	ImGui::DragFloat2("size2", &size.x);
-	sprite2_->SetSize(size);
+	sprite2_->SetSize(size);*/
 	ImGui::End();
 
 
@@ -176,8 +153,6 @@ void TestScene::Update()
 		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
 		ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
 		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
-		ImGuiManager::GetInstance()->RenderGizmo2(walk, *camera.get(), "walk");
-		ImGuiManager::GetInstance()->RenderGizmo2(multiMesh, *camera.get(), "multiMesh");
 		
 	}
 	if (ImGui::CollapsingHeader("Camera")) {
@@ -211,42 +186,35 @@ void TestScene::Update()
 	ImGui::End();
 	
 	
-	//walk.Update();
-	//walk.UpdateSkinning();
 	mm.Update();
 	mm2.UpdateAnimation();
-	multiMesh.Update();
 	tail.Update();
 
 }
 
 void TestScene::Draw3D()
 {
-
-	//walk.GetMesh(0)->indices;
-
-	//walk.Draw();
-	//walk.DrawLine();
-	//walk.DrawSkinning();
-	
 	tail.Draw();
-	mm.Draw();
-	//mm2.Draw();
-
-	
-	
+	mm.Draw(Object3d::ObjectType::NoUvInterpolation_MODE_WIREFRAME_NONE);
+	mm2.Draw(Object3d::ObjectType::UvInterpolation_MODE_SOLID_BACK);
 }
 
 void TestScene::Draw2D()
 {
-	sprite_->UpdateAmimetion(0.05f);
-	//sprite_->Update();
-	sprite_->Draw();
 
-	sprite2_->UpdateAmimetion(0.05f);
-	//sprite2_->Update();
-	sprite2_->Draw();
+	for (int i = 0; i < sprite_.size(); i++) {
+		sprite_[i]->UpdateAmimetion(0.05f);
+		
+	}
+	sprite_[0]->Draw();
+	sprite_[1]->Draw(Sprite::SpriteType::NoUvInterpolation_MODE_SOLID);
+	sprite_[2]->Draw(Sprite::SpriteType::UvInterpolation_MODE_WIREFRAME);
+	sprite_[3]->Draw(Sprite::SpriteType::NoUvInterpolation_MODE_WIREFRAME);
 
+
+	
+
+	
 
 }
 
