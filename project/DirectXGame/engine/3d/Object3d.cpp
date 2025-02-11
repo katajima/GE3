@@ -15,6 +15,7 @@
 #include"DirectXGame/engine/base/TextureManager.h"
 #include"DirectXGame/engine/struct/Structs.h"
 #include"DirectXGame/engine/math/MathFanctions.h"
+#include"DirectXGame/engine/MyGame/MyGame.h"
 
 #include <iostream>
 
@@ -47,6 +48,8 @@ void Object3d::Update()
 		localMatrix = model->modelData.rootNode.localMatrix;
 		model->modelData.material[0]->GPUData();
 	}
+	
+
 
 	worldtransform_.Update();
 
@@ -64,7 +67,7 @@ void Object3d::UpdateSkinning()
 			//ImGui::Begin("Joint Info");
 			//ImGui::Checkbox("flagTime", &flag);
 			if (flag) {
-				model->animationTime += 1.0f / 60.0f; // フレームごとの時間経過を反映
+				model->animationTime += MyGame::GameTime(); // フレームごとの時間経過を反映
 			}
 			model->animationTime = std::fmod(model->animationTime, model->animation.duration);
 			//ImGui::SliderFloat("animationTime", &model->animationTime, 0.0f, model->animation.duration);
@@ -108,7 +111,7 @@ void Object3d::UpdateAnimation()
 		// アニメーションの更新
 		if (model->animation.flag) {
 			if (flag) {
-				model->animationTime += 1.0f / 60.0f; // フレームごとの時間経過を反映
+				model->animationTime += MyGame::GameTime(); // フレームごとの時間経過を反映
 			}
 			model->animationTime = std::fmod(model->animationTime, model->animation.duration);
 			

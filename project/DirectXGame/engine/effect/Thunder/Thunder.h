@@ -20,7 +20,7 @@ using namespace Microsoft::WRL;
 #include"DirectXGame/engine/Camera/Camera.h"
 #include"DirectXGame/engine/Material/Material.h"
 
-#include"DirectXGame/engine/3d/LightCommon.h"
+#include"DirectXGame/engine/Light/LightCommon.h"
 #include<random>
 #include<numbers>
 

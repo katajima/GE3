@@ -65,6 +65,9 @@ private:
 	Object3d mm;
 	Object3d mm2;
 	Object3d tail;
+
+	Object3d multiy;
+
 	
 	WorldTransform trans_;
 

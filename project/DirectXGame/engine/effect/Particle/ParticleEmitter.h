@@ -20,8 +20,6 @@ public:
 		kSegment,		// Line
 	};
 
-	
-
 public:
 	// count: パーティクルの最大生成数を指定する値。frequency: パーティクルの発射間隔を秒単位で指定する値。frequencyTime: 現在の発射間隔の経過時間を追跡する値。
 	//ParticleEmitter(std::string name,Transform transform, uint32_t count, float frequency, float frequencyTime);
@@ -57,6 +55,8 @@ public: // ゲッター兼セッター
 	
 	void SetIsRotateVelocity(bool is) { isRotateVelocity = is; } // 回転速度
 
+	void SetIsBounce(bool is) { isBounce = is; } // 跳ねるか
+
 	void SetIsAll(bool billboard, bool alpha, bool gravity, bool isLifeTimeScale, bool rotateVelocity);
 
 	// ランダム用
@@ -75,18 +75,6 @@ public: // ゲッター兼セッター
 	void SetRotateVelocityMinMax(Vector3 min, Vector3 max) { emitter_.rotateVelocity.min = min;emitter_.rotateVelocity.max = max; } // 速度
 
 	
-	// 定数用
-	//void SetColorMinMax(Vector4 min, Vector4 max) { emitter_.color.min = min; emitter_.color.max = max; } // カラー
-
-	//void SetSize(Vector3 size) { emitter_.cons.size = size; } // サイズ
-
-	//void SetRotate(Vector3 rotate) { emitter_.cons.rotate  = rotate; } // 回転
-
-	//void SetLifeTimeMinMax(float min, float max) { emitter_.lifeTime.min = min; emitter_.lifeTime.max = max; } // 生存時間
-
-	//void SetVelocityMinMax(Vector3 min, Vector3 max) { emitter_.velocity.min = min; emitter_.velocity.max = max; } // 速度
-
-
 	
 private:
 	ParticleManager::EmitType emitType_ = ParticleManager::EmitType::kRandom; // 出現方法
@@ -102,6 +90,7 @@ private:
 	bool isWind = false;  // 風
 	bool usebillboard = true; // ビルボード
 	bool isAlpha = false; // 透明度
+	bool isBounce = false; // 透明度
 
 
 public:

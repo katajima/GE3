@@ -70,9 +70,7 @@ void ParticleEmitter::Update()
 	
 
 	ParticleManager::ParticleGroup& particleGroup = ParticleManager::GetInstance()->GetParticleGroups(particleName_);
-	//// 全パーティクルグループ内の全パーティクルを処理する
-	//for (auto& groupPair : ParticleManager::GetInstance()->GetParticleGroups()) {
-	//	ParticleManager::ParticleGroup& particleGroup = groupPair.second;
+	
 	transform_.Update();
 	emitter_.worldtransform = transform_;
 	particleGroup.emiter.worldtransform = emitter_.worldtransform;
@@ -81,26 +79,18 @@ void ParticleEmitter::Update()
 
 
 	frequencyTime_ += MyGame::GameTime();
-	//if (particleGroup.emiter.isEmit) {
 		if (frequency_ <= frequencyTime_) {
 			Emit();
 			frequencyTime_ -= frequency_;
 		}
-	//}
-	// 各パーティクルの更新
-	//for (auto& particle : particleGroup.particle) {
-	//	// 位置の更新
-	//
-	//	// 寿命の増加
-	//	particle.currentTime += MyGame::GameTime();
-	//}
+	
 
 	// 寿命が尽きたパーティクルを削除する処理
 	particleGroup.particle.remove_if([](const ParticleManager::Particle& p)
 		{
 			return p.currentTime >= p.lifeTime;
 		});
-	//}
+	
 
 	
 }
@@ -112,6 +102,7 @@ void ParticleEmitter::Emit()
 	ParticleManager::GetInstance()->GetParticleGroups(particleName_).isGravity = isGravity; // 重力
 	ParticleManager::GetInstance()->GetParticleGroups(particleName_).isLifeTimeScale_ = isLifeTimeScale_; // 重力
 	ParticleManager::GetInstance()->GetParticleGroups(particleName_).isRotateVelocity = isRotateVelocity; // 回転速度
+	ParticleManager::GetInstance()->GetParticleGroups(particleName_).isBounce = isBounce; // 回転速度
 
 	if (emitType_ == ParticleManager::EmitType::kRandom) {
 		ParticleManager::GetInstance()->GetParticleGroups(particleName_).emiter = emitter_;

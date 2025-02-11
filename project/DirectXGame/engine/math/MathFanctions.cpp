@@ -1129,6 +1129,20 @@ Vector3 Reflect(const Vector3& input, const Vector3& normal)
 	return result;
 }
 
+
+Vector3 Reflect(const Vector3& input, const Vector3& normal, float restitution)
+{
+	// まず normal が正規化されている前提だが、明示的に normalize する場合:
+	Vector3 norm = Normalize(normal);
+
+	// 計算用変数
+	float scale = 2.0f * Dot(input, norm) * restitution;
+
+	// 反射ベクトルの計算
+	return input - norm * scale;
+}
+
+
 // 分離軸定理による OBB vs OBB の衝突判定
 bool IsCollision(const OBB& obb0, const OBB& obb1) {
 	const Vector3* A = obb0.orientations; // OBB0の軸ベクトル

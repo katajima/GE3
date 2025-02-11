@@ -165,7 +165,7 @@ Vector3 Perpendicular(const Vector3& vector);
 Plane PlaneFromPoints(const Vector3& p1, const Vector3& p2, const Vector3& p3);
 //反射ベクトル
 Vector3 Reflect(const Vector3& input, const Vector3& normal);
-
+Vector3 Reflect(const Vector3& input, const Vector3& normal, float restitution);
 
 // 2点間の距離を計算する関数
 float DistanceXZ(const Vector3& a, const Vector3& b);

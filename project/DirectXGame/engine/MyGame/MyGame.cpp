@@ -155,9 +155,9 @@ void MyGame::InitializeResource()
 	TextureManager::GetInstance()->LoadTexture("resources/Texture/text/max.png");
 
 
-	//ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
+	ModelManager::GetInstance()->LoadModel("multiMaterial.gltf", "multiMaterial");
 
-	//ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
+	ModelManager::GetInstance()->LoadModel("multiMaterial.obj", "multiMaterial");
 	ModelManager::GetInstance()->LoadModel("a.obj");
 	
 
@@ -225,7 +225,7 @@ void MyGame::InitializeResource()
 	primiStar->Update();
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "resources/Texture/uvChecker.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
 	
-	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);
+	ParticleManager::GetInstance()->CreateParticleGroup("cc", "resources/Texture/Image.png", ModelManager::GetInstance()->FindModel("plane.obj"), true,{}, ParticleManager::BlendType::MODE_ADD);
 	ParticleManager::GetInstance()->CreateParticleGroup("hitStar", "resources/Texture/Image.png", primiStar.get(), true);
 	ParticleManager::GetInstance()->CreateParticleGroup("hitTrai", "resources/Texture/Image.png", primiTrai.get(), true);
 	ParticleManager::GetInstance()->CreateParticleGroup("hit", "resources/Texture/hit.png", ModelManager::GetInstance()->FindModel("plane.obj"), true);

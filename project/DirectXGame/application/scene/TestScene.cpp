@@ -48,6 +48,10 @@ void TestScene::Initialize()
 	tail.SetCamera(camera.get());
 	tail.model->modelData.material[0]->shininess_ = 1000.0f;
 
+	multiy.Initialize();
+	multiy.SetModel("multiMaterial.gltf");
+	multiy.SetCamera(camera.get());
+	multiy.worldtransform_.scale_ = { 10,10,10 };
 	
 
 
@@ -59,33 +63,34 @@ void TestScene::Initialize()
 	trans_.translate_ = { 0,10,0 };
 	
 	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("emitter","primiCylinder",ParticleManager::EmitType::kRandom);
+	emitter_->Initialize("emitter","cc",ParticleManager::EmitType::kRandom);
 	emitter_->GetFrequency() = 0.1f;
 	emitter_->SetCount(1);
 	emitter_->SetParent(tail.worldtransform_);
 	emitter_->SetRotateMinMax(-Vector3{1.0f,1.0f,1.0f}, { 1.0f,1.0f,1.0f });
 	emitter_->SetPos({ 0,10,0 });
 	emitter_->SetVelocityMinMax({ -10,5,0 } ,{ 0, 10, 0 });
-	emitter_->SetLifeTimeMinMax(0.1f, 0.1f);
-	emitter_->SetUsebillboard(false);
+	emitter_->SetLifeTimeMinMax(1.0f, 2.0f);
+	/*emitter_->SetUsebillboard(false);*/
 	emitter_->SetIsGravity(true);
 	emitter_->SetIsAlpha(true);
 
 	emitterEnemy_ = std::make_unique<ParticleEmitter>();
 	emitterEnemy_->Initialize("emitterPrimi","primi",ParticleManager::EmitType::kRandom);
-	emitterEnemy_->GetFrequency() = 0.1f;
+	emitterEnemy_->GetFrequency() = 1.1f;
 	emitterEnemy_->SetCount(1);
 	emitterEnemy_->SetParent(mm.worldtransform_);
-	emitterEnemy_->SetPos({ 0,0,0 });
-	emitterEnemy_->SetVelocityMinMax({ -10,20,-10 } ,{ 10, 40, 10 });
+	emitterEnemy_->SetPos({ 0,50,0 });
+	emitterEnemy_->SetVelocityMinMax({ -0,20,-5 } ,{ 5, 20, 5 });
 	emitterEnemy_->SetRotateMinMax(-DegreesToRadians(Vector3{90,90,90}), DegreesToRadians(Vector3{ 90,90,90 }));
 	emitterEnemy_->SetRotateVelocityMinMax(-Vector3{0.1f,0.1f,0.1f},{0.1f,0.1f,0.1f});
-	emitterEnemy_->SetLifeTimeMinMax(1, 5);
+	emitterEnemy_->SetLifeTimeMinMax(5, 10);
 	emitterEnemy_->SetIsGravity(true);
 	emitterEnemy_->SetUsebillboard(false);
 	emitterEnemy_->SetIsAlpha(true);
 	emitterEnemy_->SetIsLifeTimeScale(true);
 	emitterEnemy_->SetIsRotateVelocity(true);
+	emitterEnemy_->SetIsBounce(true);
 	emitterEnemy_->SetSizeMinMax(Vector3{0.1f,0.1f,0.1f},{ 0.2f,0.2f,0.2f });
 }
 
@@ -130,13 +135,7 @@ void TestScene::Update()
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
 	ImGui::Begin("sprite");
-	/*for()
-	Vector2 size = sprite_->GetSize();
-	ImGui::DragFloat2("size", &size.x);
-	sprite_->SetSize(size);
-	size = sprite2_->GetSize();
-	ImGui::DragFloat2("size2", &size.x);
-	sprite2_->SetSize(size);*/
+	
 	ImGui::End();
 
 
@@ -153,6 +152,7 @@ void TestScene::Update()
 		ImGuiManager::GetInstance()->RenderGizmo2(mm, *camera.get(), "buil");
 		ImGuiManager::GetInstance()->RenderGizmo2(mm2, *camera.get(), "buil2");
 		ImGuiManager::GetInstance()->RenderGizmo2(tail, *camera.get(), "tail");
+		ImGuiManager::GetInstance()->RenderGizmo2(multiy, *camera.get(), "multiy");
 		
 	}
 	if (ImGui::CollapsingHeader("Camera")) {
@@ -189,14 +189,16 @@ void TestScene::Update()
 	mm.Update();
 	mm2.UpdateAnimation();
 	tail.Update();
-
+	multiy.Update();
 }
 
 void TestScene::Draw3D()
 {
-	tail.Draw();
-	mm.Draw(Object3d::ObjectType::NoUvInterpolation_MODE_WIREFRAME_NONE);
-	mm2.Draw(Object3d::ObjectType::UvInterpolation_MODE_SOLID_BACK);
+	tail.Draw(Object3d::ObjectType::NoUvInterpolation_MODE_SOLID_BACK);
+	mm.Draw(Object3d::ObjectType::NoUvInterpolation_MODE_SOLID_BACK);
+	mm2.Draw(Object3d::ObjectType::NoUvInterpolation_MODE_WIREFRAME_NONE);
+
+	multiy.Draw();
 }
 
 void TestScene::Draw2D()

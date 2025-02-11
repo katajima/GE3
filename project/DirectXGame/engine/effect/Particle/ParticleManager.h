@@ -59,6 +59,7 @@ struct ModelData
 class ParticleManager
 {
 public:
+	
 
 	// 
 	enum class EmitType
@@ -66,7 +67,18 @@ public:
 		kRandom,   // ランダム
 		kConstant, // 定数
 	};
+	enum class RasterizerType
+	{
+		MODE_SOLID_BACK,
+		MODE_SOLID_NONE,
+	};
 
+	enum class BlendType
+	{
+		MODE_ADD,
+		MODE_SUBTRACT,
+		MODE_MUlLIPLY,
+	};
 #pragma region structs
 	template<typename T>
 	struct MaxMin
@@ -154,7 +166,10 @@ public:
 		bool isGravity = false;
 		bool isLifeTimeScale_ = false;
 		bool isRotateVelocity = false;
+		bool isBounce = false;
 		EmitType emitType = EmitType::kRandom; 
+		RasterizerType rasteType;
+		BlendType blendType;
 	};
 
 	
@@ -162,6 +177,8 @@ public:
 #pragma endregion // 構造体
 
 public:
+
+
 	// シングルトンインスタンス
 	static ParticleManager* GetInstance();
 
@@ -174,7 +191,7 @@ public:
 	// 終了
 	void Finalize();
 
-	void DrawCommonSetting();
+	void DrawCommonSetting(RasterizerType rasteType,BlendType blendType);
 
 	// パーティクルの発生
 	void Emit(const std::string name,const std::string emitName, EmitType type);
@@ -191,9 +208,9 @@ public:
 
 
 
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model,bool flag = false);
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model,bool flag = false, RasterizerType rasteType = RasterizerType::MODE_SOLID_BACK, BlendType blendType = BlendType::MODE_ADD);
 
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Primitive* primitive, bool flag = false);
+	void CreateParticleGroup(const std::string name, const std::string textureFilePath, Primitive* primitive, bool flag = false, RasterizerType rasteType = RasterizerType::MODE_SOLID_BACK, BlendType blendType = BlendType::MODE_ADD);
 
 	void SetCamera(Camera* camera) { this->camera_ = camera; }
 
@@ -225,6 +242,17 @@ private:
 	void ConstantParticle(const std::string name, const Constant& cons);
 	// 定数
 	void ConstantParticle2(const std::string name, const Constant& cons);
+
+
+private:
+	void GraphicsPipelineState(Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature, Microsoft::WRL::ComPtr < ID3D12PipelineState>& graphicsPipelineState
+		, D3D12_RASTERIZER_DESC rasterizerDesc, D3D12_BLEND_DESC blendDesc);
+
+	void BlendAdd();
+
+	void BlendSubtract();
+
+	void BlendMuliply();
 
 private:
 	static ParticleManager* instance;
@@ -268,8 +296,12 @@ private:
 	////ルートシグネチャ
 	Microsoft::WRL::ComPtr < ID3D12RootSignature> rootSignature;
 	//// グラフィックスパイプラインステート
-	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState = nullptr;
+	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState[6];
 
+	
+
+	D3D12_BLEND_DESC blendDesc{};
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
 };
 
 

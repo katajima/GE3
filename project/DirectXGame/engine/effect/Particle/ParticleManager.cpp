@@ -31,13 +31,45 @@ void ParticleManager::Finalize()
 	instance = nullptr;
 }
 
-void ParticleManager::DrawCommonSetting()
+void ParticleManager::DrawCommonSetting(RasterizerType rasteType, BlendType blendType)
 {
+	switch (blendType)
+	{
+	case ParticleManager::BlendType::MODE_ADD:
+		if (rasteType == RasterizerType::MODE_SOLID_BACK) {
+			dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState[0].Get());
+		}
+		else {
+			dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState[1].Get());
+		}
+		break;
+	case ParticleManager::BlendType::MODE_SUBTRACT:
+		if (rasteType == RasterizerType::MODE_SOLID_BACK) {
+			dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState[2].Get());
+		}
+		else {
+			dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState[3].Get());
+		}
+		break;
+	case ParticleManager::BlendType::MODE_MUlLIPLY:
+		if (rasteType == RasterizerType::MODE_SOLID_BACK) {
+			dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState[4].Get());
+		}
+		else {
+			dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState[5].Get());
+		}
+		break;
+	default:
+		break;
+	}
+
+
+
+
 	//// RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
 
-	dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get()); //PSOを設定
-
+	
 	//形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
 	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -176,7 +208,12 @@ void ParticleManager::Update()
 				// 経過時間を加算
 				particleIterator->currentTime += MyGame::GameTime();
 
-
+				if (group.isBounce) {
+					if (particleIterator->transform.translate.y < 0) {
+						particleIterator->transform.translate.y = 0;
+						particleIterator->velocity = Reflect(particleIterator->velocity, { 0,1,0 },0.85f);
+					}
+				}
 
 
 				// ワールド行列を計算
@@ -300,8 +337,7 @@ void ParticleManager::LimitMaxMin()
 
 void ParticleManager::Draw()
 {
-	ParticleManager::GetInstance()->DrawCommonSetting();
-
+	
 
 	auto commandList = dxCommon_->GetCommandList();
 
@@ -315,11 +351,13 @@ void ParticleManager::Draw()
 		}
 
 
+		ParticleManager::GetInstance()->DrawCommonSetting(group.rasteType, group.blendType);
+
+
 		group.material->GetCommandListTexture(2);
 
 		commandList->SetGraphicsRootConstantBufferView(0, group.resource->GetGPUVirtualAddress());
-		//commandList->SetGraphicsRootDescriptorTable(0, group.instancingSrvHandleGPU);
-
+		
 		// インスタンシングデータのSRVのDescriptorTableを設定
 		commandList->SetGraphicsRootDescriptorTable(1, group.instancingSrvHandleGPU);
 
@@ -329,7 +367,6 @@ void ParticleManager::Draw()
 		// インスタンシング描画
 		uint32_t instanceCount = (std::min)(group.instanceCount, kNumMaxInstance);
 		commandList->DrawIndexedInstanced(static_cast<UINT>(group.mesh->indices.size()), instanceCount, 0, 0, 0);
-		//commandList->DrawInstanced(static_cast<UINT>(group.mesh->indices.size()), instanceCount, 0, 0);
 	}
 }
 
@@ -362,7 +399,7 @@ void ParticleManager::Emit(const std::string name, const std::string emitName, c
 
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, bool flag)
+void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Model* model, bool flag, RasterizerType rasteType, BlendType blendType)
 {
 	// ランダムエンジンの初期化
 	std::random_device seedGenerator;
@@ -431,11 +468,15 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.instancingSrvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(particleGroup.srvIndex);
 	SrvManager::GetInstance()->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.resource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
 
+	// ブレンド
+	particleGroup.blendType = blendType;
 
+	// ラスタライザ
+	particleGroup.rasteType = rasteType;
 
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Primitive* primitive, bool flag)
+void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, Primitive* primitive, bool flag, RasterizerType rasteType, BlendType blendType)
 {
 	// ランダムエンジンの初期化
 	std::random_device seedGenerator;
@@ -507,16 +548,6 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -667,11 +698,42 @@ void ParticleManager::CreateRootSignature()
 
 void ParticleManager::CreateGraphicsPipeline()
 {
-	HRESULT hr;
 	CreateRootSignature();
+	// RasterizerState(ラスタライザステート)の設定
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
+	BlendAdd();
+	
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	GraphicsPipelineState(rootSignature, graphicsPipelineState[0], rasterizerDesc, blendDesc);
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	GraphicsPipelineState(rootSignature, graphicsPipelineState[1], rasterizerDesc, blendDesc);
+
+	BlendSubtract();
+
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	GraphicsPipelineState(rootSignature, graphicsPipelineState[2], rasterizerDesc, blendDesc);
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	GraphicsPipelineState(rootSignature, graphicsPipelineState[3], rasterizerDesc, blendDesc);
+
+
+	BlendMuliply();
+
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	GraphicsPipelineState(rootSignature, graphicsPipelineState[4], rasterizerDesc, blendDesc);
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	GraphicsPipelineState(rootSignature, graphicsPipelineState[5], rasterizerDesc, blendDesc);
+
+	
+
+}
+
+
+void ParticleManager::GraphicsPipelineState(Microsoft::WRL::ComPtr<ID3D12RootSignature>& _rootSignature, Microsoft::WRL::ComPtr<ID3D12PipelineState>& _graphicsPipelineState, D3D12_RASTERIZER_DESC rasterizerDesc, D3D12_BLEND_DESC blendDesc)
+{
+	HRESULT hr;
 	// InputLayout(インプットレイアウト)
-// VectorShaderへ渡す頂点データがどのようなものかを指定するオブジェクト
+	// VectorShaderへ渡す頂点データがどのようなものかを指定するオブジェクト
 
 
 #pragma region InputLayout
@@ -698,60 +760,6 @@ void ParticleManager::CreateGraphicsPipeline()
 
 #pragma endregion //InputLayout(インプットレイアウト)
 
-
-#pragma region BlendState
-
-
-	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-
-	/*blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;*/
-
-	/*blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;*/
-
-	//blendDesc.RenderTarget[0].BlendEnable = TRUE; blendDesc.RenderTarget[0].LogicOpEnable = FALSE; blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA; blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA; blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD; blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE; blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO; blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD; blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP; blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-#pragma endregion //BlendState(ブレンドステート)
-
-
-#pragma region RasterizerState
-
-	// RasterizerState(ラスタライザステート)の設定
-	// 三角形の内部をピクセルに分解して、PixelShaderを起動することで、この処理の設定
-
-	D3D12_RASTERIZER_DESC rasterizerDesc{};
-
-	//裏面(時計回り)を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-
-	//三角形の中を塗りつぶす
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
-#pragma endregion //(ラスタライザステート)
-
-
 #pragma region CompileShader
 
 	// Shaderをコンパイルする
@@ -772,7 +780,7 @@ void ParticleManager::CreateGraphicsPipeline()
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 
-	graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();// RootSignature
+	graphicsPipelineStateDesc.pRootSignature = _rootSignature.Get();// RootSignature
 
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;// InputLayout
 
@@ -825,10 +833,53 @@ void ParticleManager::CreateGraphicsPipeline()
 
 
 	hr = dxCommon_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
-		IID_PPV_ARGS(&graphicsPipelineState));
+		IID_PPV_ARGS(&_graphicsPipelineState));
 
 	assert(SUCCEEDED(hr));
+}
 
+void ParticleManager::BlendAdd()
+{
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+}
+
+void ParticleManager::BlendSubtract()
+{
+	// 減算ブレンドの設定
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	// RGB の減算ブレンド
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;      // ソースの影響度
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE; // デスティネーションの影響度
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_SUBTRACT;     // 減算
+
+	// アルファブレンドの設定（通常の設定）
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+}
+
+void ParticleManager::BlendMuliply()
+{
+	// 乗算ブレンドの設定
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	// 通常のカラー（RGB）乗算
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;      // 影響なし
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR; // 乗算（DestColor * SrcColor）
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	// アルファブレンドの設定（乗算に影響しない場合はそのまま）
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 
 }
 
@@ -972,7 +1023,6 @@ void ParticleManager::ConstantParticle(const std::string name, const Constant& c
 		particleGroup.particle.push_back(newParticle);
 	}
 }
-
 
 void ParticleManager::ConstantParticle2(const std::string name, const Constant& cons)
 {
