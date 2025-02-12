@@ -30,7 +30,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	}
 
 
-	modelData = LoadOdjFileAssimp(dire, filename, texScale);
+	modelData = LoadOdjFileAssimp(dire, filename);
 
 	for (auto& material : modelData.material) {
 		material->LoadTex();
@@ -95,6 +95,7 @@ void Model::Draw()
 		mesh->GetCommandList();
 
 		// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
+		//ModelCommon::GetInstance()->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(mesh->vertices.size()),1,0,0);
 		ModelCommon::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->indices.size()), 1, 0, 0, 0);
 	}
 }
@@ -123,16 +124,17 @@ void Model::DrawSkinning()
 
 #pragma region Load
 
-Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, const std::string& filename, const Vector2 texScale) {
-	//必要な変数の宣言とファイルを開く
-	ModelData modelData;//構築するModelData
+Model::ModelData Model::LoadMesh(const aiScene* _scene)
+{
+	return {};
+}
 
+Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, const std::string& filename, const Vector2 texScale) {
+	////必要な変数の宣言とファイルを開く
+	ModelData modelData;//構築するModelData
 
 	Assimp::Importer importer;
 	std::string filePach = directoryPath + "/" + filename;
-
-
-
 	const aiScene* scene = importer.ReadFile(filePach.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); //メッシュがないのは対応しない
 	if (!scene) {
@@ -140,8 +142,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 		return modelData;
 	}
 
-	modelData.rootNode = ReadNode(scene->mRootNode);
-
+	
 
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
@@ -196,6 +197,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 		modelData.mesh.push_back(std::move(pMesh));
 	}
 
+	modelData.rootNode = ReadNode(scene->mRootNode);
 
 	
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
@@ -239,7 +241,7 @@ Model::ModelData Model::LoadOdjFileAssimp(const std::string& directoryPath, cons
 
 	}
 
-	
+	//
 	return modelData;
 }
 
@@ -295,6 +297,8 @@ Model::ModelData Model::LoadOdjFileAssimpAmime(const std::string& directoryPath,
 				pMesh->indices.push_back(vertexIndex);
 			}
 		}
+
+
 		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
 			aiBone* bone = mesh->mBones[boneIndex];
 			std::string jointName = bone->mName.C_Str();

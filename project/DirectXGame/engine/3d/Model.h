@@ -67,15 +67,14 @@ public:
 
 	ModelData& GetModelData(){ return modelData; }
 
-	void SetModelData(const ModelData& model) {
-		//modelData = model;
-		//UpdateVertexBuffer();
-		//UpdateIndexBuffer();
-	}
-
 	void MoveVertices(const Vector3& offset);
 
 	static Node ReadNode(aiNode* node);
+private:
+
+	ModelData LoadMesh(const aiScene* _scene);
+
+
 public:
 
 
