@@ -44,7 +44,8 @@ private:
 	// グラフィックスパイプラインの作成
 	void CreateGraphicsPipeline();
 
-	void Blob(D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature);
+	void Blob(DirectXCommon* dxCommon  ,D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature);
+	Microsoft::WRL::ComPtr < ID3D12RootSignature> Blob2(DirectXCommon* dxCommon  ,D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature);
 
 	void GraphicsPipelineState(Microsoft::WRL::ComPtr < ID3D12RootSignature>& rootSignature, Microsoft::WRL::ComPtr < ID3D12PipelineState>& graphicsPipelineState
 		, D3D12_RASTERIZER_DESC rasterizerDesc, D3D12_BLEND_DESC blendDesc);
@@ -61,5 +62,8 @@ private:// メンバ変数
 	// グラフィックスパイプラインステート
 	Microsoft::WRL::ComPtr < ID3D12PipelineState> graphicsPipelineState[8];
 
+
+	
+	
 };
 

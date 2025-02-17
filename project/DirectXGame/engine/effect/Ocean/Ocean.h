@@ -47,6 +47,9 @@ public:
 public:
 	// マテリアル
 	std::unique_ptr<Material> material = nullptr;
+	// メッシュ
+	std::unique_ptr<Mesh> mesh_ = nullptr;
+
 	// マトリックス
 	Matrix4x4 mat_;
 	// 位置
@@ -81,7 +84,7 @@ private:
 		std::vector<VertexData> indicesPos;
 		MaterialData material;
 	};
-	ModelData modeldata; //LoadOdjFile("resources", "fence.obj");
+	//ModelData modeldata; //LoadOdjFile("resources", "fence.obj");
 
 	struct Renge {
 		Vector2 renge;

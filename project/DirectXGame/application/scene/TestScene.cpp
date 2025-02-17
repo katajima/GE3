@@ -28,7 +28,10 @@ void TestScene::Initialize()
 	}
 
 
-	
+	ocean_ = std::make_unique<Ocean>();
+	ocean_->Initialize({100,100});
+	ocean_->SetCamera(camera.get());
+	ocean_->
 
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
@@ -103,7 +106,7 @@ void TestScene::Update()
 	
 
 	
-
+	ocean_->Update();
 
 	
 
@@ -199,6 +202,8 @@ void TestScene::Draw3D()
 	mm2.Draw(Object3d::ObjectType::NoUvInterpolation_MODE_WIREFRAME_NONE);
 
 	multiy.Draw();
+
+	ocean_->Draw();
 }
 
 void TestScene::Draw2D()

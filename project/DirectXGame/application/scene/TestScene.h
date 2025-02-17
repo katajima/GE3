@@ -77,6 +77,7 @@ private:
 
 	std::vector<std::unique_ptr<Sprite>> sprite_;
 	
+	std::unique_ptr < Ocean> ocean_ = nullptr;
 	
 	//std::unique_ptr<Sprite> sprite2_ = nullptr;
 

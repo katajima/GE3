@@ -64,7 +64,7 @@ void Object3dCommon::DrawCommonSetting(PSOType type)
 	}
 
 
-	
+
 	//形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけば良い
 	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -72,12 +72,14 @@ void Object3dCommon::DrawCommonSetting(PSOType type)
 
 void Object3dCommon::CreateRootSignature()
 {
+	//HRESULT hr;
+
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0; // 0から始まる
 	descriptorRange[0].NumDescriptors = 1; // 数は1つ
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
-	
+
 	D3D12_DESCRIPTOR_RANGE descriptorRangeNormalmap[1] = {};
 	descriptorRangeNormalmap[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRangeNormalmap[0].NumDescriptors = 1;
@@ -91,7 +93,7 @@ void Object3dCommon::CreateRootSignature()
 	descriptorRangeSpecualrmap[0].BaseShaderRegister = 2; // t1 レジスタにバインド 
 	descriptorRangeSpecualrmap[0].RegisterSpace = 0; // レジスタスペース (通常は0) 
 	descriptorRangeSpecualrmap[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	
+
 	D3D12_DESCRIPTOR_RANGE descriptorRangeAoMap[1] = {}; // スペキュラマップ (t2) をピクセルシェーダで使用するための設定 
 	descriptorRangeAoMap[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRV (Shader Resource View) を使用する 
 	descriptorRangeAoMap[0].NumDescriptors = 1; // 使用するデスクリプタの数 
@@ -99,7 +101,7 @@ void Object3dCommon::CreateRootSignature()
 	descriptorRangeAoMap[0].RegisterSpace = 0; // レジスタスペース (通常は0) 
 	descriptorRangeAoMap[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	
+
 	// Roosignature(ルートシグネチャ)作成
 	//ShaderとResorceをどのように関連付けるかを示したオブジェクト
 
@@ -170,40 +172,37 @@ void Object3dCommon::CreateRootSignature()
 	descriptionSignature.pParameters = rootParameters;
 	descriptionSignature.NumParameters = _countof(rootParameters);
 
-	{
-		///Samplerの設定
-		D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
-		staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
-		staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0～1の範囲外をリピート
-		staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-		staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-		staticSamplers[0].ShaderRegister = 0; //レジスタ番号0を使う
-		staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-		descriptionSignature.pStaticSamplers = staticSamplers;
-		descriptionSignature.NumStaticSamplers = _countof(staticSamplers);
-	}
+	///Samplerの設定
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
+	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // バイリニアフィルタ
+	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0～1の範囲外をリピート
+	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
+	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
+	staticSamplers[0].ShaderRegister = 0; //レジスタ番号0を使う
+	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
 
-	Blob(descriptionSignature,rootSignature[0]);
-	
-	{
-		///Samplerの設定
-		D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
-		staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT; // バイリニアフィルタ
-		staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0～1の範囲外をリピート
-		staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
-		staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
-		staticSamplers[0].ShaderRegister = 0; //レジスタ番号0を使う
-		staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-		descriptionSignature.pStaticSamplers = staticSamplers;
-		descriptionSignature.NumStaticSamplers = _countof(staticSamplers);
-	}
 
-	Blob(descriptionSignature,rootSignature[1]);
+	descriptionSignature.pStaticSamplers = staticSamplers;
+	descriptionSignature.NumStaticSamplers = _countof(staticSamplers);
+
+	Blob(dxCommon_,descriptionSignature,rootSignature[0]);
+
 	
+	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT; // バイリニアフィルタ
+	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // 0～1の範囲外をリピート
+	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER; // 比較しない
+	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX; // ありったけのMipmapを使う
+	staticSamplers[0].ShaderRegister = 0; //レジスタ番号0を使う
+	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	descriptionSignature.pStaticSamplers = staticSamplers;
+	descriptionSignature.NumStaticSamplers = _countof(staticSamplers);
+
+
+	Blob(dxCommon_,descriptionSignature,rootSignature[1]);
 }
 
 void Object3dCommon::CreateGraphicsPipeline()
@@ -242,7 +241,7 @@ void Object3dCommon::CreateGraphicsPipeline()
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	GraphicsPipelineState(rootSignature[0], graphicsPipelineState[2], rasterizerDesc, blendDesc);
 	GraphicsPipelineState(rootSignature[1], graphicsPipelineState[3], rasterizerDesc, blendDesc);
-	
+
 
 	//三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
@@ -258,10 +257,16 @@ void Object3dCommon::CreateGraphicsPipeline()
 
 }
 
-void Object3dCommon::Blob(D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature)
+void Object3dCommon::Blob(DirectXCommon* dxCommon, D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature)
 {
 	HRESULT hr;
-
+	// descriptionSignature が正しく設定されているか確認
+	if (descriptionSignature.pParameters == nullptr || descriptionSignature.NumParameters == 0)
+	{
+		Logger::Log("descriptionSignature is not properly set.");
+		assert(false);
+		return;
+	}
 	//シリアライズにしてバイナリする
 	Microsoft::WRL::ComPtr < ID3DBlob> signatureBlob = nullptr;
 	Microsoft::WRL::ComPtr < ID3DBlob> errorBlob = nullptr;
@@ -273,15 +278,41 @@ void Object3dCommon::Blob(D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Micros
 		assert(false);
 	}
 	//バイナリを元に生成
-	hr = dxCommon_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(),
+	hr = dxCommon->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(),
 		signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
+}
+
+Microsoft::WRL::ComPtr<ID3D12RootSignature> Object3dCommon::Blob2(DirectXCommon* dxCommon, D3D12_ROOT_SIGNATURE_DESC descriptionSignature, Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature)
+{
+	//HRESULT hr;
+	//// descriptionSignature が正しく設定されているか確認
+	//if (descriptionSignature.pParameters == nullptr || descriptionSignature.NumParameters == 0)
+	//{
+	//	Logger::Log("descriptionSignature is not properly set.");
+	//	assert(false);
+	//	return {};
+	//}
+	////シリアライズにしてバイナリする
+	//hr = D3D12SerializeRootSignature(&descriptionSignature,
+	//	D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	//if (FAILED(hr)) {
+	//	Logger::Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+
+	//	assert(false);
+	//}
+	////バイナリを元に生成
+	//hr = dxCommon->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(),
+	//	signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	//assert(SUCCEEDED(hr));
+
+	return rootSignature;
 }
 
 void Object3dCommon::GraphicsPipelineState(Microsoft::WRL::ComPtr<ID3D12RootSignature>& _rootSignature, Microsoft::WRL::ComPtr<ID3D12PipelineState>& _graphicsPipelineState, D3D12_RASTERIZER_DESC rasterizerDesc, D3D12_BLEND_DESC blendDesc)
 {
 	HRESULT hr;
-	
+
 	// InputLayout(インプットレイアウト)
 	// VectorShaderへ渡す頂点データがどのようなものかを指定するオブジェクト
 
@@ -324,7 +355,7 @@ void Object3dCommon::GraphicsPipelineState(Microsoft::WRL::ComPtr<ID3D12RootSign
 
 
 
-	
+
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr < IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resources/shaders/Object3D/Object3d.VS.hlsl",
 		L"vs_6_0");

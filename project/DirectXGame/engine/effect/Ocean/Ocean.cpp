@@ -7,53 +7,56 @@ void Ocean::Initialize(Vector2 renge)
 {
 	renge_.renge = renge;
 
+	mesh_ = std::make_unique<Mesh>();
 	// 頂点データ
-	modeldata.vertices.push_back({ .position = {renge_.renge.x, 0.0f, renge_.renge.y, 1.0f} ,.texcoord = {0.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 左上
-	modeldata.vertices.push_back({ .position = {-renge_.renge.x, 0.0f, renge_.renge.y, 1.0f} ,.texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 右上
-	modeldata.vertices.push_back({ .position = {renge_.renge.x, 0.0f, -renge_.renge.y, 1.0f} ,.texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 左下
-	modeldata.vertices.push_back({ .position = {-renge_.renge.x, 0.0f, -renge_.renge.y, 1.0f} ,.texcoord = {1.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 右下
-
-	// インデックスデータ（2つの三角形で矩形を形成）
-	modeldata.indices = {
-		0, 1, 2, // 左上、右上、左下
-		1, 3, 2  // 右上、右下、左下
-	};
+	mesh_->vertices.push_back({ .position = {renge_.renge.x, 0.0f, renge_.renge.y, 1.0f} ,.texcoord = {0.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 左上
+	mesh_->vertices.push_back({ .position = {-renge_.renge.x, 0.0f, renge_.renge.y, 1.0f} ,.texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 右上
+	mesh_->vertices.push_back({ .position = {renge_.renge.x, 0.0f, -renge_.renge.y, 1.0f} ,.texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 左下
+	mesh_->vertices.push_back({ .position = {-renge_.renge.x, 0.0f, -renge_.renge.y, 1.0f} ,.texcoord = {1.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} }); // 右下
 	
-	
+	mesh_->indices.push_back(0);
+	mesh_->indices.push_back(1);
+	mesh_->indices.push_back(2);
 
-	modeldata.material.textuerFilePath = "resources/Texture/Image.png";
+	mesh_->indices.push_back(1);
+	mesh_->indices.push_back(3);
+	mesh_->indices.push_back(2);
 
-
-
-	vertexResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modeldata.vertices.size());
-
-	// リソースの先頭のアドレスを作成する
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modeldata.vertices.size());
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, modeldata.vertices.data(), sizeof(VertexData) * modeldata.vertices.size());
-
-	//index用のあれやこれを作る
-	indexResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 6);
-
-	
-	// リソースの先頭のアドレスから使う
-	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
-
-	// 使用するリソースのサイズはインデック6つ分のサイズ
-	indexBufferView.SizeInBytes = sizeof(uint32_t) * 6;
-
-	// インデックはuint32_tとする
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	mesh_->Initialize(OceanManager::GetInstance()->GetDxCommon());
 
 
-	// インデックリソースにデータを書き込む
-	indexData = nullptr;
-	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-	indexData[0] = 0;		indexData[1] = 1;		indexData[2] = 2;
-	indexData[3] = 1;		indexData[4] = 3;		indexData[5] = 2;
+
+
+
+	//vertexResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modeldata.vertices.size());
+
+	//// リソースの先頭のアドレスを作成する
+	//vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	//vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modeldata.vertices.size());
+	//vertexBufferView.StrideInBytes = sizeof(VertexData);
+
+	//vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	//std::memcpy(vertexData, modeldata.vertices.data(), sizeof(VertexData) * modeldata.vertices.size());
+
+	////index用のあれやこれを作る
+	//indexResource = OceanManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * 6);
+
+	//
+	//// リソースの先頭のアドレスから使う
+	//indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
+
+	//// 使用するリソースのサイズはインデック6つ分のサイズ
+	//indexBufferView.SizeInBytes = sizeof(uint32_t) * 6;
+
+	//// インデックはuint32_tとする
+	//indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+
+
+	//// インデックリソースにデータを書き込む
+	//indexData = nullptr;
+	//indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	//indexData[0] = 0;		indexData[1] = 1;		indexData[2] = 2;
+	//indexData[3] = 1;		indexData[4] = 3;		indexData[5] = 2;
 
 
 
@@ -120,16 +123,18 @@ void Ocean::Draw()
 
 	
 	// 頂点バッファの設定
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
+	//OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 
 	// インデックスバッファの設定
 	//OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
 
+	mesh_->GetCommandList();
+
 	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
-	//OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modeldata.indices.size()), 1, 0, 0, 0);
+	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh_->indices.size()), 1, 0, 0, 0);
 
 
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
+	//OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
 
 
 }

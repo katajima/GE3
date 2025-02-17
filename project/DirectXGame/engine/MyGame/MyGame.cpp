@@ -16,7 +16,7 @@ void MyGame::Initialize()
 	
 	SceneManager::GetInstance()->ChangeScene("TEST");
 	//SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
-	//
+	
 	//Camera::GetInstance();
 	// リソース初期化
 	InitializeResource();
