@@ -30,6 +30,8 @@ public:
 	// データ
 	void GetCommandList(int index);
 
+	static void SetRootParameter(D3D12_ROOT_PARAMETER& parameter, int ShaderRegister);
+
 	struct TransfomationMatrix
 	{
 		Matrix4x4 WVP;

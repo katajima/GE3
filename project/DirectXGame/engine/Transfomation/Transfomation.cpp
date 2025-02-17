@@ -120,3 +120,10 @@ void Transfomation::GetCommandList(int index)
 {
 	dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(index, resource_->GetGPUVirtualAddress());
 }
+
+void Transfomation::SetRootParameter(D3D12_ROOT_PARAMETER& parameter, int ShaderRegister)
+{
+	parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   // CBVを使う　// b0のbと一致する
+	parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //PixelShaderで使う
+	parameter.Descriptor.ShaderRegister = ShaderRegister;    // レジスタ番号0とバインド　　// b0の0と一致する。もしb11と紐づけたいなら11となる
+}

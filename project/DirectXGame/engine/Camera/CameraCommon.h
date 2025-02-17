@@ -14,6 +14,9 @@ public:
 	void Finalize();
 
 	DirectXCommon* GetDxCommon() const { return dxCommon_; }
+
+	static void SetRootParameter(D3D12_ROOT_PARAMETER& parameter, int ShaderRegister);
+
 private:
 	DirectXCommon* dxCommon_;
 

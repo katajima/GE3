@@ -35,6 +35,8 @@ public:
 	DirectionalLight GetDirectionalLight(int index) {return directionalLightData[index];}
 	PointLight GetPointLight(int index) {return pointLightData[index];}
 
+	static void SetRootParameter(D3D12_ROOT_PARAMETER& parameter, int registr);
+
 private:
 	void ApplyGlobalVariables();
 

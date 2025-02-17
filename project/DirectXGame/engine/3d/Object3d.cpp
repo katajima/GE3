@@ -29,9 +29,11 @@ void Object3d::Initialize()
 {
 	//Collider::Initialize();
 
+	object3dCommon_ = Object3dCommon::GetInstance();
+
 	transfomation = std::make_unique<Transfomation>();
 
-	transfomation->Initialize(Object3dCommon::GetInstance()->GetDxCommon());
+	transfomation->Initialize(object3dCommon_->GetDxCommon());
 
 	worldtransform_.Initialize();
 	worldtransform_.translate_.x = {0.00000001f};

@@ -22,6 +22,8 @@ public:
 
 	void GetCommandListTexture(int indexDiffuse, int normalIndex = 0,int speculerIndex = 0);
 
+	static void SetRootParameter(D3D12_ROOT_PARAMETER& parameter, int ShaderRegister);
+
 	void GPUData();
 	void LoadTex();
 public:

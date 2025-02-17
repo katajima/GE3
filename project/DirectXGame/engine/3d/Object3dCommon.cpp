@@ -1,5 +1,11 @@
 #include"Object3dCommon.h"
 
+#include "DirectXGame/engine/Transfomation/Transfomation.h"
+#include "DirectXGame/engine/Material/Material.h"
+#include "DirectXGame/engine/Light/LightCommon.h"
+#include "DirectXGame/engine/Camera/CameraCommon.h"
+#include "DirectXGame/engine/base/TextureManager.h"
+
 Object3dCommon* Object3dCommon::instance = nullptr;
 
 Object3dCommon* Object3dCommon::GetInstance()
@@ -115,58 +121,34 @@ void Object3dCommon::CreateRootSignature()
 	D3D12_ROOT_PARAMETER rootParameters[10] = {};
 
 	// マテリアルデータ (b0) をピクセルシェーダで使用する
-	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   // CBVを使う　// b0のbと一致する
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //PixelShaderで使う
-	rootParameters[0].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド　　// b0の0と一致する。もしb11と紐づけたいなら11となる
+	Material::SetRootParameter(rootParameters[0],0);
 
-	// マテリアルデータ (b0) を頂点シェーダで使用する
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;   // CBVを使う　// b0のbと一致する
-	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //VertexShaderで使う
-	rootParameters[1].Descriptor.ShaderRegister = 0;    // レジスタ番号0とバインド　　// b0の0と一致する。もしb11と紐づけたいなら11となる
+	// トランスフォームデータ (b0) を頂点シェーダで使用する
+	Transfomation::SetRootParameter(rootParameters[1], 0);
 
 	// テクスチャデータ (t0) をピクセルシェーダで使用する
-	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う           
-	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
-	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数 
-
+	TextureManager::SetRootParameter(rootParameters[2], descriptorRange[0]);
+	
 	// 方向性ライトデータ (b1) をピクセルシェーダで使用する
-	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[3].Descriptor.ShaderRegister = 1;
+	LightCommon::SetRootParameter(rootParameters[3], 1);
 
 	// カメラデータ (b2) をピクセルシェーダで使用する
-	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[4].Descriptor.ShaderRegister = 2;
-
+	CameraCommon::SetRootParameter(rootParameters[4],2);
+	
 	// ポイントライトデータ (b3) をピクセルシェーダで使用する
-	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[5].Descriptor.ShaderRegister = 3;
+	LightCommon::SetRootParameter(rootParameters[5], 3);
 
 	// スポットライトデータ (b4) をピクセルシェーダで使用する
-	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[6].Descriptor.ShaderRegister = 4;
+	LightCommon::SetRootParameter(rootParameters[6], 4);
 
 	// 法線マップデータ (t1) をピクセルシェーダで使用する 
-	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[7].DescriptorTable.pDescriptorRanges = descriptorRangeNormalmap;
-	rootParameters[7].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeNormalmap);
-
+	TextureManager::SetRootParameter(rootParameters[7], descriptorRangeNormalmap[0]);
+	
 	// 法線マップデータ (t2) をピクセルシェーダで使用する 
-	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[8].DescriptorTable.pDescriptorRanges = descriptorRangeSpecualrmap;
-	rootParameters[8].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeSpecualrmap);
-
+	TextureManager::SetRootParameter(rootParameters[8], descriptorRangeSpecualrmap[0]);
+	
 	// 法線マップデータ (t2) をピクセルシェーダで使用する 
-	rootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[9].DescriptorTable.pDescriptorRanges = descriptorRangeAoMap;
-	rootParameters[9].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeAoMap);
+	TextureManager::SetRootParameter(rootParameters[9], descriptorRangeAoMap[0]);
 
 
 	descriptionSignature.pParameters = rootParameters;

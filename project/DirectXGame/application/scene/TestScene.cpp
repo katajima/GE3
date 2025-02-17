@@ -31,7 +31,8 @@ void TestScene::Initialize()
 	ocean_ = std::make_unique<Ocean>();
 	ocean_->Initialize({100,100});
 	ocean_->SetCamera(camera.get());
-	ocean_->
+	ocean_->transform.rotate.x = DegreesToRadians(90);
+	ocean_->material->color.a = 0.99f;
 
 	// 列車オブジェクトを unique_ptr で作成
 	mm.Initialize();
@@ -137,8 +138,8 @@ void TestScene::Update()
 	camera->UpdateMatrix();
 	LightCommon::GetInstance()->SetLineCamera(camera.get());
 
+#ifdef _DEBUG
 	ImGui::Begin("sprite");
-	
 	ImGui::End();
 
 
@@ -187,7 +188,7 @@ void TestScene::Update()
 	}
 
 	ImGui::End();
-	
+#endif // _DEBUG
 	
 	mm.Update();
 	mm2.UpdateAnimation();

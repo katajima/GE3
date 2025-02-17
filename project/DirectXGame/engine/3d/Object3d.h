@@ -98,6 +98,8 @@ private:
 	// 
 	bool flag = true;
 	
+	Object3dCommon* object3dCommon_;
+
 public:
 	// モデル
 	Model* model = nullptr;

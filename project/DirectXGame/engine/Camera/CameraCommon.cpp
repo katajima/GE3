@@ -21,4 +21,11 @@ void CameraCommon::Finalize()
 	instance = nullptr;
 }
 
+void CameraCommon::SetRootParameter(D3D12_ROOT_PARAMETER& parameter, int ShaderRegister)
+{
+	parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	parameter.Descriptor.ShaderRegister = ShaderRegister;
+}
+
 

@@ -41,6 +41,7 @@ public:
 
 	SrvManager* GetSrvManager(){ return SrvManager::GetInstance(); }
 
+	static void SetRootParameter(D3D12_ROOT_PARAMETER& parameter,D3D12_DESCRIPTOR_RANGE& descriptorRange);
 
 
 private:

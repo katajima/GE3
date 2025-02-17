@@ -86,12 +86,14 @@ void Ocean::Initialize(Vector2 renge)
 
 void Ocean::Update()
 {
+#ifdef _DEBUG
 	ImGui::Begin("Ocean");
 	ImGui::DragFloat("amplitude", &waveData->amplitude, 0.1f);
 	ImGui::DragFloat("frequency", &waveData->frequency, 0.1f);
 	ImGui::DragFloat("speed", &waveData->speed, 0.1f);
-
 	ImGui::End();
+#endif // _DEBUG
+
 
 
 	waveData->time += 1.0f / 60.0f;
@@ -131,10 +133,10 @@ void Ocean::Draw()
 	mesh_->GetCommandList();
 
 	// 描画コマンドの修正：インスタンス数の代わりにインデックス数を使用
-	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh_->indices.size()), 1, 0, 0, 0);
+	//OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(mesh_->indices.size()), 1, 0, 0, 0);
 
 
-	//OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
+	OceanManager::GetInstance()->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(mesh_->vertices.size()), 1, 0, 0);
 
 
 }
